@@ -1,0 +1,19 @@
+function UTCases = set_up_UT_cases_knee;
+% run the gt recon
+
+% sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
+UTCases = {
+    % R=1
+    'knee', 'meas_MID00387_FID115763_t2_fs_tse_cor_512',                       'VD',   'GTPrep_2DT_Cartesian_GFactor_Offline.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
+    'knee', 'meas_MID00389_FID115765_t2_fs_tse_sag__512',                       'VD',   'GTPrep_2DT_Cartesian_GFactor_Offline.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
+    'knee', 'meas_MID00390_FID115766_t1_tse_sag_384',                       'VD',   'GTPrep_2DT_Cartesian_GFactor_Offline.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
+    'knee', 'meas_MID00391_FID115767_t1_tirm_sag_320',                       'VD',   'GTPrep_2DT_Cartesian_GFactor_Offline.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
+    'knee', 'meas_MID00393_FID115769_t1_tirm_cor_320',                       'VD',   'GTPrep_2DT_Cartesian_GFactor_Offline.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
+    'knee', 'meas_MID00396_FID115772_t1_tirm_tra_320',                       'VD',   'GTPrep_2DT_Cartesian_GFactor_Offline.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
+    };
+
+N = size(UTCases, 1);
+
+for i=1:N
+    disp([num2str(i) '  -  ' UTCases{i, 1} '         -          ' UTCases{i, 2} ' - ' UTCases{i, 3} ' - ' UTCases{i, 4}]);
+end

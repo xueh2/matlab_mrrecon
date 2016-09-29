@@ -1,0 +1,25 @@
+function UTCases = set_up_UT_cases_Test;
+% run the gt recon
+
+% sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
+UTCases = {  
+    'QA',                    'meas_MID00329_FID117686_Coil_QA',                      'VD',   'Generic_Cartesian_Grappa_SNR.xml',                                  'generic_res',              'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+    'QA',                    'meas_MID00237_FID119468_RealTimeCine',                 'VD',   'GTPrep_2DT_RealTimeCine_PF_Handling_PhysioInterp.xml',              'generic_res',              'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+    'QA',                    'meas_MID00240_FID119471_GT_tfl_R2_Res128',             'VD',   'Generic_Cartesian_Grappa.xml',              'generic_res',              'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+    
+    'SpiralRaj',             'meas_MID00098_FID15665_Raj_pSpiral_Flow_2shot_PA2',             'VD',   'spiral_flow_gpusense_cg.xml',              'res',              'ref',   'IsmrmrdParameterMap_Siemens_Spiral.xsl'   ; ...
+    
+    'CoilSen',                    'meas_MID00298_FID25725_AdjCoilSens',                      'VB',   'default_measurement_dependencies_Noise_CoilSen_SCC.xml',                                  'generic_res',              'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+    'CoilSen',                    'meas_MID00310_FID25737_NoiseQA_Lighthouse',               'VD',   'Generic_Cartesian_Grappa_SNR.xml',                                  'generic_res',              'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+    
+    };
+
+N = size(UTCases, 1);
+
+for i=1:N
+    disp([num2str(i) '  -  ' UTCases{i, 1} '         -          ' UTCases{i, 2} ' - ' UTCases{i, 3} ' - ' UTCases{i, 4}]);
+end
+
+if(nargout<=0)
+    UTCases = [];
+end

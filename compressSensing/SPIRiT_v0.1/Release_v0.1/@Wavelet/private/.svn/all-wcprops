@@ -1,0 +1,323 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private
+END
+FWT2_PO.mexa64
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/FWT2_PO.mexa64
+END
+FWT2_PO.mexglx
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/FWT2_PO.mexglx
+END
+downlo.c
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/downlo.c
+END
+DownDyadLo.mexmaci
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private/DownDyadLo.mexmaci
+END
+quadlength.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/quadlength.m
+END
+UpDyadHi.c
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/UpDyadHi.c
+END
+DownDyadHi.mexa64
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/DownDyadHi.mexa64
+END
+DownDyadHi.mexglx
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/DownDyadHi.mexglx
+END
+UpSampleN.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/UpSampleN.m
+END
+FWT2_PO.c
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/FWT2_PO.c
+END
+aconv.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/aconv.m
+END
+UpDyadLo.c
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/UpDyadLo.c
+END
+UpDyadHi.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/UpDyadHi.m
+END
+wavMask.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/wavMask.m
+END
+DownDyadLo.mexa64
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/DownDyadLo.mexa64
+END
+DownDyadLo.mexglx
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/DownDyadLo.mexglx
+END
+wavelab.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/wavelab.h
+END
+iconv.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/iconv.m
+END
+UpDyadHi.mexglx
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/UpDyadHi.mexglx
+END
+UpDyadHi.mexa64
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/UpDyadHi.mexa64
+END
+mirrorfilt.c
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/mirrorfilt.c
+END
+MakeONFilter.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/MakeONFilter.m
+END
+DownDyadHi.c
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/DownDyadHi.c
+END
+FWT2_PO.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/FWT2_PO.m
+END
+UpDyadLo.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/UpDyadLo.m
+END
+IWT2_PO.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/IWT2_PO.m
+END
+downhipbs.c
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/downhipbs.c
+END
+mirrorsymmfilt.c
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/mirrorsymmfilt.c
+END
+UpDyadLo.mexglx
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/UpDyadLo.mexglx
+END
+UpDyadLo.mexa64
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/UpDyadLo.mexa64
+END
+SoftThresh.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/SoftThresh.m
+END
+MirrorFilt.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/MirrorFilt.m
+END
+lshift.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/lshift.m
+END
+DownDyadHi.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/DownDyadHi.m
+END
+DownDyadLo.c
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/DownDyadLo.c
+END
+IWT2_PO.mexglx
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/IWT2_PO.mexglx
+END
+IWT2_PO.mexa64
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/IWT2_PO.mexa64
+END
+uphi.c
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private/uphi.c
+END
+downlopbs.c
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/downlopbs.c
+END
+UpDyadHi.mexmaci
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private/UpDyadHi.mexmaci
+END
+rshift.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/rshift.m
+END
+uphipbs.c
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private/uphipbs.c
+END
+DownDyadLo.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/DownDyadLo.m
+END
+mipt.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/mipt.h
+END
+wavDenoise.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/wavDenoise.m
+END
+uplo.c
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private/uplo.c
+END
+FWT2_PO.mexmaci
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private/FWT2_PO.mexmaci
+END
+UpDyadLo.mexmaci
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private/UpDyadLo.mexmaci
+END
+IWT2_PO.mexmaci
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/IWT2_PO.mexmaci
+END
+uplopbs.c
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private/uplopbs.c
+END
+reverse.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/private/reverse.m
+END
+downhi.c
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private/downhi.c
+END
+DownDyadHi.mexmaci
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/private/DownDyadHi.mexmaci
+END

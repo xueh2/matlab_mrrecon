@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet
+END
+Wavelet.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/SPIRiT/!svn/ver/11/trunk/@Wavelet/Wavelet.m
+END
+wavelet_qmf.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/wavelet_qmf.m
+END
+mtimes.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/mtimes.m
+END
+ctranspose.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/ctranspose.m
+END
+times.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/times.m
+END
+wavelet_wavescale.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/SPIRiT/!svn/ver/9/trunk/@Wavelet/wavelet_wavescale.m
+END

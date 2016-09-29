@@ -1,0 +1,26 @@
+
+function header = CreateFtkHeaderInfoFrom(data, header_in)
+
+% [ysize, xsize, zsize] = size(data);
+% 
+% if ( ~isempty(header_in) )
+%     header = struct('sizeX', xsize, 'sizeY', ysize, 'sizeZ', zsize, 'sizeT', 1, ... 
+%         'spacingX', header_in.xvoxelsize, 'spacingY', header_in.yvoxelsize, 'spacingZ', header_in.zvoxelsize, ... 
+%         'spacingT', 1.0, 'positionPatient', [0 0 0], 'orientationPatient', eye(3,3));
+% else
+%     header = struct('sizeX', xsize, 'sizeY', ysize, 'sizeZ', zsize, 'sizeT', 1, ... 
+%         'spacingX', 1.0, 'spacingY', 1.0, 'spacingZ', 1.0, ... 
+%         'spacingT', 1.0, 'positionPatient', [0 0 0], 'orientationPatient', eye(3,3));
+% end
+
+[ysize, xsize, zsize, tsize, nsize, msize] = size(data);
+
+if ( ~isempty(header_in) )
+    header = struct('sizeX', xsize, 'sizeY', ysize, 'sizeZ', zsize, 'sizeT', tsize, 'sizeN', nsize, 'sizeM', msize, ... 
+        'spacingX', header_in.spacingX, 'spacingY', header_in.spacingY, 'spacingZ', header_in.spacingZ, ... 
+        'spacingT', 1.0, 'spacingN', 1.0, 'spacingM', 1.0, 'positionPatient', [0 0 0], 'orientationPatient', eye(3,3));
+else
+    header = struct('sizeX', xsize, 'sizeY', ysize, 'sizeZ', zsize, 'sizeT', tsize, 'sizeN', nsize, 'sizeM', msize, ... 
+        'spacingX', 1.0, 'spacingY', 1.0, 'spacingZ', 1.0, ... 
+        'spacingT', 1.0, 'spacingN', 1.0, 'spacingM', 1.0, 'positionPatient', [0 0 0], 'orientationPatient', eye(3,3));
+end

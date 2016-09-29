@@ -1,0 +1,150 @@
+
+function [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, styleSheet)
+% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, styleSheet)
+% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\KAROLINSKA', {'LGE'}, '2016-01-01', '2017-01-01', 'localhost', 'I:\ReconResults\KAROLINSKA')
+% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\ROYALFREE',  {'LGE'}, '2016-01-01', '2017-01-01', 'samoa', 'I:\ReconResults\ROYALFREE')
+% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\BARTS', {'LGE'}, '2016-01-01', '2017-01-01', 'samoa', 'I:\ReconResults\BARTS')
+% setenv('OutputFormat', 'h5')
+
+if(strcmp(gt_host, 'palau'))
+    GT_PORT = '9008';
+end
+
+if(strcmp(gt_host, 'localhost'))
+    GT_PORT = '9002';
+end
+
+if(strcmp(gt_host, 'denmark'))
+    GT_PORT = '9008';
+end
+
+if(strcmp(gt_host, 'samoa'))
+    GT_PORT = '9016';
+end
+
+if(strcmp(gt_host, 'barbados'))
+    GT_PORT = '9008';
+end
+
+if(strcmp(gt_host, 'andorra'))
+    GT_PORT = '9008';
+end
+
+setenv('GT_HOST', gt_host); setenv('GT_PORT', GT_PORT);
+
+if(nargin<6)
+    resDir = dataDir;
+end
+
+if(nargin<7)
+    cleanRemote = 0;
+end
+
+if(nargin<8)
+    checkProcessed = 1;
+end
+
+if(nargin<9)
+    sendDicom = 0;
+end
+
+if(nargin<10)
+    startRemoteGT = 1;
+end
+
+if(nargin<11)
+    styleSheet = 'IsmrmrdParameterMap_Siemens.xsl';
+end
+
+getenv('GT_HOST')
+getenv('GT_PORT')
+
+GTHome = getenv('GADGETRON_HOME')
+GTConfigFolder = fullfile(GTHome, 'share/gadgetron/config');
+date_suffix = datestr(date, 'yyyymmdd');
+
+styleSheetDefault = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl';
+styleSheetPerfusionUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xsl';
+if ( nargin >= 4 )
+    styleSheetDefault = [ '%GADGETRON_DIR%\install\schema/' styleSheet];
+end
+
+xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xml';
+
+if(cleanRemote)
+    [key, user] = sshKeyLookup(gt_host);
+    gt_command = ['rm -rf /tmp/gadgetron_data/*'];
+    command = ['ssh -i ' key ' ' user '@' gt_host ' "' gt_command '"'];
+    command
+    dos(command, '-echo');    
+end
+
+% ------------------------------------------------------------
+
+% find data
+
+files = [];
+
+startN = datenum(start_date);
+endN = datenum(end_date);
+
+configNames = [];
+study_dates = [];
+study_times = [];
+
+[names, num] = findFILE(dataDir, '*.h5');          
+for n=1:num
+    
+    [pathstr, name, ext] = fileparts(names{n});
+    
+    processed = 0;
+    for kk=1:numel(scan_type)
+        if(strfind(name, scan_type{kk})==1)
+            processed = 1;
+            break;
+        end
+    end
+    
+    if(~processed)
+        continue;
+    end
+    
+    % find scanner ID, patient ID, study ID, measurement ID, study date and time
+    [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+    
+    if(strcmp(gt_host, 'localhost')==1)
+        [pathstr, configName, ext] = fileparts(configName);
+        configName = [configName '_localhost' ext];
+    end
+    
+    if( str2num(measurementID) > 10000 )
+        continue;
+    end
+    tt = datenum(str2num(study_year), str2num(study_month), str2num(study_day));
+    
+    if (tt<=endN && tt>=startN)
+        files = [files; {name}];
+        configNames = [configNames; {configName}];
+        study_dates = [study_dates; str2double(study_date)];
+        study_times = [study_times; str2double(study_time)];
+    end
+end 
+
+% sort the file by scan date
+[study_dates, ind] = sort(study_dates);
+files = files(ind);
+configNames = configNames(ind);
+study_times = study_times(ind);
+
+num = numel(files);
+tUsed = [];
+ignored = [];
+files_processed = [];
+for n=1:num
+    disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' files{n}]);
+    
+    [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files{n}, gt_host, resDir, sendDicom, startRemoteGT, styleSheet);
+    if(~isempty(tU))
+        tUsed = [tUsed; {n, files{n}, tU{2}, tU{3}}];
+    end
+end
