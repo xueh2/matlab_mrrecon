@@ -43,12 +43,12 @@ fw
 
 [pathstr, filename, ext] = fileparts(fw);
 gt_command = ['cd ' res_dir ' && ls -t | head -n1 '];
-command = ['scp -i /d/keys/xueh2_barbados_private ' user '@' host ':' res_dir '/' filename '.* ' target_dir];
+command = ['scp -i ' getenv('GADGETRON_KEY_FOLDER_CYGWIN') '/xueh2_barbados_private ' user '@' host ':' res_dir '/' filename '.* ' target_dir];
 command
 dos(command, '-echo');
 
 if(create_installers)
-    command = ['D:\gtuser\gt_windows_setup\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 3 14 1'];
+    command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 3 14 1'];
     command
     dos(command, '-echo');
     
