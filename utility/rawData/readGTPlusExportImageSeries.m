@@ -47,6 +47,11 @@ if(num==0)
     [names, num] = findFILE(folderName, ['grappa_device_cpu' '*.hdr']);
 end
 
+if(num==0)
+    [names, num] = findFILE(folderName, ['epi' '*.hdr']);
+end
+
+
 maxSLC = 0;
 maxE2 = 0;
 maxCON = 0;

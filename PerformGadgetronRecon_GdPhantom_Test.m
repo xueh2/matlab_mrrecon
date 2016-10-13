@@ -1,6 +1,6 @@
 
-function PerformGadgetronRecon_GdPhantom_Test(h5Name, res_dir, debug_dir, r1, r2, startTube, Gd_tubes, perf_roi_file, Gd_aif_tubes, aif_roi_file, contrast, sliceprofile, sliceprofile_aif, B1)
-% PerformGadgetronRecon_GdPhantom_Test(h5Name, res_dir, debug_dir, r1, r2, startTube, Gd_tubes, perf_roi_file, Gd_aif_tubes, aif_roi_file, contrast, sliceprofile, sliceprofile_aif, B1)
+function PerformGadgetronRecon_GdPhantom_Test(h5Name, res_dir, debug_dir, r1, r2, T1_0_blood, T2_0_blood, T1_0_myo, T2_0_myo, startTube, Gd_tubes, perf_roi_file, Gd_aif_tubes, aif_roi_file, contrast, sliceprofile, sliceprofile_aif, B1)
+% PerformGadgetronRecon_GdPhantom_Test(h5Name, res_dir, debug_dir, r1, r2, T1_0_blood, T2_0_blood, T1_0_myo, T2_0_myo, startTube, Gd_tubes, perf_roi_file, Gd_aif_tubes, aif_roi_file, contrast, sliceprofile, sliceprofile_aif, B1)
 
 closeall
 %% get perf parameters
@@ -30,10 +30,10 @@ N_runup = 3;
 seq_type = 'SSFP';
 seq_type_PD = 'Flash';
 Gd_method = 'LUT';
-T1_0_blood = 1650;
-T2_0_blood = 220;
-T1_0_myo = 1175;
-T2_0_myo = 45;
+% T1_0_blood = 1650;
+% T2_0_blood = 220;
+% T1_0_myo = 1175;
+% T2_0_myo = 45;
 post_T1_0_blood = 600;
 post_T1_0_myo = 700;
 check_contrast_status = 1;
@@ -235,7 +235,7 @@ if(isempty(B1))
     
     LUTslice = [];
     if(strcmp(header.sequenceParameters.sequence_type, 'SSFP'))
-        [LUT_TI_mm, Gd] = perfusion_lut_flash_pd_ssfp_sr(params, Gd_LUT);
+        [LUTslice, Gd] = perfusion_lut_flash_pd_ssfp_sr(params, Gd_LUT);
     else   
         % [LUT_TI_mm, Gd] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
 
@@ -286,13 +286,17 @@ else
         title_str = ['Perf - processing tube : ' num2str(tt) ' - B1 ' num2str(B1(tt))];
         disp(title_str);
 
+        [LUT_TI_mm, SR, PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, r1, r2, []);
+        
         LUTslice = [];
         if(strcmp(header.sequenceParameters.sequence_type, 'SSFP'))
-            [LUT_TI_mm, Gd] = perfusion_lut_flash_pd_ssfp_sr(params, Gd_LUT);
+            params.PD_flip_angle = FA_PD * B1(tt);
+            params.SR_flip_angle = FA_Perf * B1(tt);           
+            [LUTslice, Gd] = perfusion_lut_flash_pd_ssfp_sr(params, Gd_LUT);
         else   
             % [LUT_TI_mm, Gd] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
 
-            [LUT_TI_mm, SR, PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, r1, r2, []);
+            % [LUT_TI_mm, SR, PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, r1, r2, []);
 
             if(~isempty(sliceprofile))
                 clear LUT SRc PDc SR PD
