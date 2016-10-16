@@ -52,12 +52,12 @@ disp(['Total number of stress/rest cases: ' num2str(num)]);
 bar_x = [];
 for jj=1:size(scan_count, 1)
     sd = scan_count{jj,1};
-    bar_x = [bar_x; {sd(5:end)}]
+    bar_x = [bar_x; {sd(5:end)}];
 end
 
 bar_y = [];
 for jj=1:size(scan_count, 1)
-    bar_y = [bar_y; scan_count{jj,3} scan_count{jj,4}]
+    bar_y = [bar_y; scan_count{jj,3} scan_count{jj,4}];
 end
 
 figure; 

@@ -1,6 +1,6 @@
 
-function PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, dataDir, resDir, reComputed, with_hct, splenic_column, selected_column, stress_column, rest_column, hct_column, hct_preset)
-% PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, resDir, reComputed, splenic_column, selected_column, stress_column, rest_column, hct_column)
+function PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, dataDir, resDir, roiDir, reComputed, with_hct, splenic_column, selected_column, stress_column, rest_column, hct_column, hct_preset)
+% PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, dataDir, resDir, roiDir, reComputed, with_hct, splenic_column, selected_column, stress_column, rest_column, hct_column, hct_preset)
 % PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, resDir, reComputed, splenic_column, selected_column, stress_column, rest_column, hct_column)
 % PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, 'I:\KAROLINSKA', 'I:\ReconResults\KAROLINSKA')
 
@@ -41,11 +41,13 @@ for n=1:num
         end
     end
     
+    roiDir_case = fullfile(roiDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' patientID '_' studyID '_' study_dates '_ROI']);
+    
     % stress
-    PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, stressCase, resDir, HCT, reComputed);
+    PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, stressCase, resDir, roiDir_case, 'stress', HCT, reComputed);
     
     %rest
-    PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, restCase, resDir, HCT, reComputed);
+    PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, restCase, resDir, roiDir_case, 'rest', HCT, reComputed);
     
 %     pause;
     closeall;

@@ -45,7 +45,7 @@ for n=1:num
     
     disp(['Selected Type : ' selected]); 
     
-    PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, 1);        
+    [h_flow_stress, h_flow_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, 1);        
     
     [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(stressCase);
     
@@ -57,6 +57,20 @@ for n=1:num
         mkdir(roiDir)
     end
     cd(roiDir)
+    
+    for s=1:numel(h_flow_stress)
+        [I, xlim, ylim, clim, position]=getimagedata(h_flow_stress(s));        
+        BW = roipoly(I);        
+        mask_file = fullfile(roiDir, ['perf_mask_stress_' num2str(s-1) '.mat']);
+        save(mask_file, 'BW');
+    end
+    
+    for s=1:numel(h_flow_rest)
+        [I, xlim, ylim, clim, position]=getimagedata(h_flow_rest(s));        
+        BW = roipoly(I);        
+        mask_file = fullfile(roiDir, ['perf_mask_rest_' num2str(s-1) '.mat']);
+        save(mask_file, 'BW');
+    end
     
     pause;
     closeall;

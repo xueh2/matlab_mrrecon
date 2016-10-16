@@ -1,6 +1,6 @@
 
-function PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, h5Name, resDir, HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star)
-% PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, h5Name, resDir, HCT, reComputed)
+function PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, h5Name, resDir, roiDir, dataRole, HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star)
+% PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, h5Name, resDir, roiDir, dataRole, HCT, reComputed)
 % PerformGadgetronRecon_Matlab_FlowMapping_Linear('I:\BARTS', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_42110_204543119_204543128_323_20160614-120954', 'I:\ReconResults\BARTS')
 % PerformGadgetronRecon_Matlab_FlowMapping_Linear('I:\KAROLINSKA', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_41672_2309137_2309147_949_20160825-093814', 'I:\ReconResults\KAROLINSKA')
 
@@ -198,7 +198,6 @@ Perf_AcqTimes_2 = analyze75read('Perf_AcqTimes_2.hdr');
 gd2_resampled = analyze75read('Input_perf_computeFlowMap_2.hdr');
 
 % -------------------------------------
-
 RO = size(perf_mask_0, 1);
 E1 = size(perf_mask_0, 2);
 
@@ -206,22 +205,46 @@ ra = 0.15;
 sRO=round(ra*RO);
 eRO = RO - sRO;
 
-perf_mask_0(1:sRO, :) = 0;
-perf_mask_0(eRO:end, :) = 0;
-perf_mask_1(1:sRO, :) = 0;
-perf_mask_1(eRO:end, :) = 0;
-perf_mask_2(1:sRO, :) = 0;
-perf_mask_2(eRO:end, :) = 0;
-
 sE1=round(ra*E1);
 eE1 = E1 - sE1;
 
-perf_mask_0(:, 1:sE1) = 0;
-perf_mask_0(:, eE1:end) = 0;
-perf_mask_1(:, 1:sE1) = 0;
-perf_mask_1(:, eE1:end) = 0;
-perf_mask_2(:, 1:sE1) = 0;
-perf_mask_2(:, eE1:end) = 0;
+pref_prefix = ['perf_mask_' dataRole '_'];
+
+perf_mask_file0 = fullfile(roiDir, [pref_prefix '0.mat']);
+if(isFileExist(perf_mask_file0))
+    pm = load(perf_mask_file0);
+    perf_mask_0 = single(pm.BW);
+    perf_mask_0 = flipdim(perf_mask_0, 2);
+end
+
+perf_mask_file1 = fullfile(roiDir, [pref_prefix '1.mat']);
+if(isFileExist(perf_mask_file1))
+    pm = load(perf_mask_file1);
+    perf_mask_1 = single(pm.BW);
+    perf_mask_1 = flipdim(perf_mask_1, 2);
+end
+
+perf_mask_file2 = fullfile(roiDir, [pref_prefix '2.mat']);
+if(isFileExist(perf_mask_file2))
+    pm = load(perf_mask_file2);
+    perf_mask_2 = single(pm.BW);
+    perf_mask_2 = flipdim(perf_mask_2, 2);
+end
+
+
+% perf_mask_0(1:sRO, :) = 0;
+% perf_mask_0(eRO:end, :) = 0;
+% perf_mask_1(1:sRO, :) = 0;
+% perf_mask_1(eRO:end, :) = 0;
+% perf_mask_2(1:sRO, :) = 0;
+% perf_mask_2(eRO:end, :) = 0;
+% 
+% perf_mask_0(:, 1:sE1) = 0;
+% perf_mask_0(:, eE1:end) = 0;
+% perf_mask_1(:, 1:sE1) = 0;
+% perf_mask_1(:, eE1:end) = 0;
+% perf_mask_2(:, 1:sE1) = 0;
+% perf_mask_2(:, eE1:end) = 0;
 
 figure; imagescn(cat(3, perf_mask_0, perf_mask_1, perf_mask_2));
 
@@ -431,7 +454,7 @@ for slc=1:SLC
         else
             cd(res_dir)
             load(['flowmaps_Q_e_' res '_' suffix '_' num2str(slc-1)]);
-            load(['flowmaps_without_R2Star_Q_e_' res '_' suffix '_' num2str(slc-1)]);
+%             load(['flowmaps_without_R2Star_Q_e_' res '_' suffix '_' num2str(slc-1)]);
         end            
     end
 
@@ -462,7 +485,7 @@ for slc=1:SLC
 
         flowmaps_grappa_PSIR = flowmaps_grappa_PSIR*hct_r;
         Ki_whole_grappa_PSIR = Ki_whole_grappa_PSIR*hct_r;
-        blood_volume_maps_grappa_PSIR = blood_volume_maps_grappa_PSIR*hct_r;
+        % blood_volume_maps_grappa_PSIR = blood_volume_maps_grappa_PSIR*hct_r;
         SD_maps_grappa_PSIR = SD_maps_grappa_PSIR*hct_r;
         
         figure; imagescn(cat(3, Ki_whole_grappa_PSIR, flowmaps_grappa_PSIR(:,:,end)), [0 6]); PerfColorMap;
@@ -508,7 +531,7 @@ for slc=1:SLC
 
         flowmaps_grappa_PSIR_OnlyGlobalSearch = flowmaps_grappa_PSIR_OnlyGlobalSearch*hct_r;
         Ki_whole_grappa_PSIR_OnlyGlobalSearch = Ki_whole_grappa_PSIR_OnlyGlobalSearch*hct_r;
-        blood_volume_maps_grappa_PSIR_OnlyGlobalSearch = blood_volume_maps_grappa_PSIR_OnlyGlobalSearch*hct_r;
+        % blood_volume_maps_grappa_PSIR_OnlyGlobalSearch = blood_volume_maps_grappa_PSIR_OnlyGlobalSearch*hct_r;
         SD_maps_grappa_PSIR_OnlyGlobalSearch = SD_maps_grappa_PSIR_OnlyGlobalSearch*hct_r;
         
 %         figure; imagescn(grappa_interVolumeMap_grappa_PSIR_HCT_OnlyGlobalSearch(:,:,end), [0 80]); PerfColorMap;
@@ -548,7 +571,7 @@ for slc=1:SLC
 
         flowmaps_grappa_PSIR_without_R2Star = flowmaps_grappa_PSIR_without_R2Star*hct_r;
         Ki_whole_grappa_PSIR_without_R2Star = Ki_whole_grappa_PSIR_without_R2Star*hct_r;
-        blood_volume_maps_grappa_PSIR_without_R2Star = blood_volume_maps_grappa_PSIR_without_R2Star*hct_r;
+        % blood_volume_maps_grappa_PSIR_without_R2Star = blood_volume_maps_grappa_PSIR_without_R2Star*hct_r;
         SD_maps_grappa_PSIR_without_R2Star = SD_maps_grappa_PSIR_without_R2Star*hct_r;
         
         save(['flowmaps_Linear_without_R2Star_' res '_' suffix '_' num2str(slc-1)], ... 

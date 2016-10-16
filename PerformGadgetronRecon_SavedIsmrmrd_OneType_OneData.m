@@ -144,14 +144,14 @@ for n=1:num
         isPerf = 1;
         if(finfo.bytes<200*1024*1024)
             disp(['File size too small - ' num2str(n) ' - ' name]);
-            cd(dataDir)
+%             cd(dataDir)
             ignored = [ignored; {n, name, finfo.bytes/1024}];
             continue;
         end
     else
         if(finfo.bytes<20*1024*1024)
             disp(['File size too small - ' num2str(n) ' - ' name]);
-            cd(dataDir)
+%             cd(dataDir)
             ignored = [ignored; {n, name, finfo.bytes/1024}];
             continue;
         end
