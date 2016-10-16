@@ -3,7 +3,7 @@ function [key, user] = sshKeyLookup(host)
 %% find the ssh key for host
 % [key, user] = sshKeyLookup(host)
 
-key_dir = 'D:/keys';
+key_dir = getenv('GADGETRON_KEY_FOLDER');
 
 key = [];
 user = [];
