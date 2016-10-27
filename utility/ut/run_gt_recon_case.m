@@ -33,7 +33,7 @@ for ii=1:num
             delete(fullfile(resDir, '*.xml'));
             delete(fullfile(resDir, '*.h5'));
         end
-        
-        timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isAdjScan, configName, resDir, xslFile);
+                
+        timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isAdjScan, configName, resDir, xslFile, 1, 0, [], 0);
     end    
 end

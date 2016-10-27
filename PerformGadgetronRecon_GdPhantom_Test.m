@@ -1,5 +1,5 @@
 
-function PerformGadgetronRecon_GdPhantom_Test(h5Name, res_dir, debug_dir, r1, r2, T1_0_blood, T2_0_blood, T1_0_myo, T2_0_myo, startTube, Gd_tubes, perf_roi_file, Gd_aif_tubes, aif_roi_file, contrast, sliceprofile, sliceprofile_aif, B1)
+function [aif_TS, aif_TD, Gd_aif_slice, Gd_aif_slice_noR2Star, TS, TD, Gd_perf_slice] = PerformGadgetronRecon_GdPhantom_Test(h5Name, res_dir, debug_dir, r1, r2, T1_0_blood, T2_0_blood, T1_0_myo, T2_0_myo, startTube, Gd_tubes, perf_roi_file, Gd_aif_tubes, aif_roi_file, contrast, sliceprofile, sliceprofile_aif, B1)
 % PerformGadgetronRecon_GdPhantom_Test(h5Name, res_dir, debug_dir, r1, r2, T1_0_blood, T2_0_blood, T1_0_myo, T2_0_myo, startTube, Gd_tubes, perf_roi_file, Gd_aif_tubes, aif_roi_file, contrast, sliceprofile, sliceprofile_aif, B1)
 
 closeall
@@ -236,6 +236,7 @@ if(isempty(B1))
     LUTslice = [];
     if(strcmp(header.sequenceParameters.sequence_type, 'SSFP'))
         [LUTslice, Gd] = perfusion_lut_flash_pd_ssfp_sr(params, Gd_LUT);
+        LUT_TI_mm = LUTslice;
     else   
         % [LUT_TI_mm, Gd] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
 

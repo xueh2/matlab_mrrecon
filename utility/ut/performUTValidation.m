@@ -1,7 +1,7 @@
 
 function timeUsed = performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd)
 %% compare the unit test results with ground truth
-% performUTValidation(UTCases, UTCollectRef, GT_HOST, GT_PORT, caseNum)
+% timeUsed = performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd)
 % performUTValidation(set_up_UT_cases_ScannerUpdate, 0, 0, 'localhost', '9002')
 % performUTValidation(set_up_UT_cases_ScannerUpdate, 0, 0, 'barbados.nhlbi.nih.gov', '9006')
 % performUTValidation(set_up_UT_cases_Cloud, 0, 0, 'nauru.nhlbi.nih.gov', '9002')

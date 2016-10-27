@@ -33,7 +33,7 @@ for ii=1:num
     end
     
     if(exist_date)
-        if(strcmp(scan_count{jj, 2}, '66016')==1)
+        if(strcmp(scannerID_stress, '66016')==1)
            scan_count{jj, 3} = scan_count{jj, 3} + 1;
         else
             scan_count{jj, 4} = scan_count{jj, 4} + 1;
@@ -48,6 +48,29 @@ for ii=1:num
 end
  
 disp(['Total number of stress/rest cases: ' num2str(num)]);
+
+week_record = [];
+
+for jj=1:size(scan_count, 1)
+    sd = scan_count{jj,1};
+    t = datenum(num2str(sd), 'yyyymmdd')
+    weekn = weeknum(t);
+    
+    weekFound = 0;
+    for kk=1:size(week_record, 1)
+        if(week_record(kk,1)==weekn)
+            weekFound = 1;
+            break;
+        end
+    end
+    
+    if(weekFound)
+        week_record(kk, 2) = week_record(kk, 2) + scan_count{jj,3};
+        week_record(kk, 3) = week_record(kk, 3) + scan_count{jj,4};
+    else
+        week_record = [week_record; weekn scan_count{jj,3} scan_count{jj,4}];
+    end
+end
 
 bar_x = [];
 for jj=1:size(scan_count, 1)
@@ -72,3 +95,25 @@ xlabel('Scan date')
 ylabel('# of stress/rest studies')
 box on
 
+%% by week
+bar_x = [];
+for kk=1:size(week_record, 1)
+    bar_x = [bar_x; {num2str(week_record(kk,1))}];
+end
+
+bar_y = [];
+for kk=1:size(week_record, 1)
+    bar_y = [bar_y; week_record(kk,2) week_record(kk,3)];
+end
+
+figure; 
+hold on
+bar(1:size(bar_y, 1), bar_y,'stacked', 'FaceColor',[0 .1 .7],'EdgeColor',[0.1 .1 .1],'LineWidth',0.2);
+set(gca,'XTick',1:size(bar_y, 1));
+set(gca,'XTickLabel',bar_x)
+xlim([0 size(bar_y, 1)+1])
+hold off
+xlabel('Scan week num')
+ylabel('# of stress/rest studies')
+title('Year 2016')
+box on

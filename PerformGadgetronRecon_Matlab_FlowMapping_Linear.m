@@ -416,6 +416,7 @@ for slc=1:SLC
     %% build LUT
     if(slc==1)
         if (reComputed | ~isFileExist(fullfile(res_dir, ['flowmaps_Q_e_' res '_' suffix '_' num2str(slc-1) '.mat'])))
+        % if (~isFileExist(fullfile(res_dir, ['flowmaps_Q_e_' res '_' suffix '_' num2str(slc-1) '.mat'])))
 
             Fp = [0.1:0.1:6.0001];
             Vp = [0.01:0.01:0.1001];

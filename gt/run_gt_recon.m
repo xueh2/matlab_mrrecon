@@ -1,5 +1,5 @@
 function timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit)
-% run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only)
+% timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit)
 
 % siemens to hdf5
 

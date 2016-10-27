@@ -51,6 +51,9 @@ if(num==0)
     [names, num] = findFILE(folderName, ['epi' '*.hdr']);
 end
 
+if(num==0)
+    [names, num] = findFILE(folderName, ['GTPrep_2DT_Perfusion_AIF_TwoEchoe' '*.hdr']);
+end
 
 maxSLC = 0;
 maxE2 = 0;

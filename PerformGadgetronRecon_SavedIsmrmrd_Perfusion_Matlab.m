@@ -41,7 +41,7 @@ for n=1:num
         end
     end
     
-    roiDir_case = fullfile(roiDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' patientID '_' studyID '_' study_dates '_ROI']);
+    roiDir_case = fullfile(roiDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' patientID '_' studyID '_' study_dates '_ROI'])
     
     % stress
     PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, stressCase, resDir, roiDir_case, 'stress', HCT, reComputed);

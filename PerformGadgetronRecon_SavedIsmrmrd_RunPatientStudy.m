@@ -26,6 +26,10 @@ if(strcmp(gt_host, 'barbados'))
     GT_PORT = '9008';
 end
 
+if(strcmp(gt_host, 'andorra'))
+    GT_PORT = '9008';
+end
+
 setenv('GT_HOST', gt_host); setenv('GT_PORT', GT_PORT);
 
 if(nargin<4)
@@ -135,15 +139,18 @@ tUsed = [];
 ignored = [];
 files_processed = [];
 noise_dat_processed = [];
-for n=1:num
-    disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' files{n}]);   
-    
-%     if( isempty(strfind(files{n}, 'Perfusion'))==1 )
-%         continue;
+
+[tU, ig, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configName_preset, noise_dat_processed);
+
+% for n=1:num
+%     disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' files{n}]);   
+%     
+% %     if( isempty(strfind(files{n}, 'Perfusion'))==1 )
+% %         continue;
+% %     end
+%     
+%     [tU, ig, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files{n}, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configName_preset, noise_dat_processed, styleSheet);
+%     if(~isempty(tU))
+%         tUsed = [tUsed; {n, files{n}, tU{2}, tU{3}}];
 %     end
-    
-    [tU, ig, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files{n}, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configName_preset, noise_dat_processed, styleSheet);
-    if(~isempty(tU))
-        tUsed = [tUsed; {n, files{n}, tU{2}, tU{3}}];
-    end
-end
+% end

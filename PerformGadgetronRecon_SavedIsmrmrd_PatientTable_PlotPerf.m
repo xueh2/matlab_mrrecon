@@ -18,7 +18,7 @@ if(ind>0)
     closeall
     n = ind-1;
     disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, stress_col} ' - ' PerfTable{n+1, rest_col}]);       
-    PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  PerfTable{n+1, stress_col}, PerfTable{n+1, rest_col}, onlyReview);
+    PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  PerfTable{n+1, stress_col}, PerfTable{n+1, rest_col}, [0 6], onlyReview);
 else    
     tUsed = [];
     for n=1:num

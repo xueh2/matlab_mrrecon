@@ -1,6 +1,6 @@
 
-function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configName_preset, noise_dat_processed, styleSheet)
-% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, styleSheet)
+function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configName_preset, noise_dat_processed)
+% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configName_preset, noise_dat_processed)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData('I:\KAROLINSKA', 'xxxx', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % setenv('OutputFormat', 'h5')
 
@@ -54,27 +54,19 @@ if(nargin<9)
     noise_dat_processed = [];
 end
 
-if(nargin<10)
-    styleSheet = 'IsmrmrdParameterMap_Siemens.xsl';
-end
-
 GTHome = getenv('GADGETRON_HOME');
 GTConfigFolder = fullfile(GTHome, 'share/gadgetron/config');
 date_suffix = datestr(date, 'yyyymmdd');
 
-styleSheetDefault = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl';
-styleSheetPerfusionUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xsl';
-if ( nargin >= 4 )
-    styleSheetDefault = [ '%GADGETRON_DIR%\install\schema/' styleSheet];
-end
-
 xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xml';
 
-files = {filename};
+files = filename;
 num = numel(files);
 tUsed = [];
 ignored = [];
 files_processed = [];
+noise_id_processed = [];
+
 for n=1:num
 
     name = files{n};
@@ -97,12 +89,13 @@ for n=1:num
     end
     
     if(~isempty(configName_preset))
-        configName = configName_preset;
+        configName = configName_preset{n};
     end
     
     dstDir = fullfile(resDir, study_dates, name);
     
     if(checkProcessed)
+        tstart = tic;
         if(exist(dstDir)==7)
             goodStatus = 1;
 
@@ -135,6 +128,7 @@ for n=1:num
                 continue;
             end
         end
+        disp(['Check processed : ' num2str(toc(tstart))]);
     end
     
     finfo = dir(dataName);
@@ -159,6 +153,7 @@ for n=1:num
     
     % start gadgetron
     if(startRemoteGT)
+        tstart = tic;
         if((strcmp(gt_host, 'localhost')==1))
             cd('D:\gtuser\gt_windows_setup')
             command = ['gadgetron -p %GT_PORT% > D:\Temp\record_' GT_PORT '.txt']
@@ -169,49 +164,70 @@ for n=1:num
                 StartGadgetronOnRemote(gt_host, GT_PORT);
             end
         end
+        disp(['Start remote gadgetron : ' num2str(toc(tstart))]);
     end
     
+    ts = tic;
     noise_mear_id = findNoiseDependencyMeasurementID_SavedIsmrmrd(dataName);
+    disp(['find noise dependency id : ' num2str(toc(ts))]);
     
     if(~isempty(noise_mear_id))
+    
+        noise_processed = 0;
+        for kk=1:numel(noise_id_processed)
+            if(strcmp(noise_id_processed{kk}, noise_mear_id)==1)
+                noise_processed = 1;
+                break;
+            end
+        end
         
-        [names_noise, numNoise] = findFILE(dataDir, ['*' noise_mear_id '*.h5']);
-        
-        if(numNoise>0)
-            for kk=numNoise:numNoise
-                h5Name = names_noise{kk};  
+        if(~noise_processed)
+            ts = tic;
+            [names_noise, numNoise] = findFILE(dataDir, ['*' noise_mear_id '*.h5']);
+            disp(['find noise dependency data : ' num2str(toc(ts))]);
 
-                finfo = dir(h5Name);
+            if(numNoise>0)
+                ts = tic;
+                for kk=numNoise:numNoise
+                    h5Name = names_noise{kk};  
 
-                if(finfo.bytes<5*1024*1024)
-                    disp(['File size too small - ' num2str(n) ' - ' name]);
-                    continue;
-                end
+                    finfo = dir(h5Name);
 
-                noise_processed = 0;
-                for pp=1:numel(noise_dat_processed)
-                    if( isempty(strfind(noise_dat_processed{pp}, h5name)) ~= 1)
-                        disp(['Noise processed - ' h5Name]);
-                        noise_processed = 1;
+                    if(finfo.bytes<5*1024*1024)
+                        disp(['File size too small - ' num2str(n) ' - ' name]);
+                        continue;
+                    end
+
+                    noise_processed = 0;
+                    for pp=1:numel(noise_dat_processed)
+                        if( isempty(strfind(noise_dat_processed{pp}, h5name)) ~= 1)
+                            disp(['Noise processed - ' h5Name]);
+                            noise_processed = 1;
+                            break;
+                        end
+                    end
+
+                    if(noise_processed)
                         break;
                     end
+
+                    command = ['gadgetron_ismrmrd_client -f ' h5Name ' -c default_measurement_dependencies.xml -a %GT_HOST% -p %GT_PORT% ']
+                    dos(command, '-echo');
+
+                    noise_processed = [noise_processed; {h5Name}];
+                    noise_id_processed = [noise_id_processed; {noise_mear_id}];
                 end
-                
-                if(noise_processed)
-                    break;
-                end
-                
-                command = ['gadgetron_ismrmrd_client -f ' h5Name ' -c default_measurement_dependencies.xml -a %GT_HOST% -p %GT_PORT% ']
-                dos(command, '-echo');
-                
-                noise_processed = [noise_processed; {h5Name}];
+                disp(['run noise dependency data : ' num2str(toc(ts))]);
             end
+        else
+            disp(['Noise already processed - ' noise_mear_id]);
         end
     end
         
     mkdir(dstDir);
     cd(dstDir)
 
+    ts = tic;
     delete(fullfile(dstDir, 'res*.h5'));
     delete(fullfile(dstDir, 'out*.h5'));
     delete(fullfile(dstDir, '*.xml'));
@@ -228,6 +244,7 @@ for n=1:num
     delete(fullfile(dstDir, '*.attrib'));
 
     delete(fullfile(dstDir, '*.xml'));                 
+    disp(['delete dstDir : ' num2str(toc(ts))]);
     
     %% run the scan
     
@@ -277,12 +294,17 @@ for n=1:num
         else
             [key, user] = sshKeyLookup(getenv('GT_HOST'));
             debug_folder = ['/home/' user '/Debug/DebugOutput']
+            ts = tic;
             CopyGadgetronDebugOutputOnRemote(getenv('GT_HOST'), debug_folder, dstDir, 1)
+            disp(['copy debug output : ' num2str(toc(ts))]);
         end
     end
     
+    ts = tic;
     [tDicom, remoteFolder] = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom(resDir, name, gt_host);
+    disp(['copy dicom output : ' num2str(toc(ts))]);
     
+    ts = tic;
     dstDir = fullfile(resDir, study_dates, name);   
     if(strcmp(gt_host, 'localhost')==1)
         if(startRemoteGT)
@@ -298,6 +320,7 @@ for n=1:num
             CopyGadgetronRecordOnRemote(gt_host, GT_PORT, [dstDir '\record_' gt_host '_' GT_PORT '.txt']);
         end
     end
+    disp(['shutdown gadgetron : ' num2str(toc(ts))]);
 
     if(sendDicom)
         dicomServer = 'barbados';

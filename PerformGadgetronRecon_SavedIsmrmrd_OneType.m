@@ -65,7 +65,7 @@ date_suffix = datestr(date, 'yyyymmdd');
 
 styleSheetDefault = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl';
 styleSheetPerfusionUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xsl';
-if ( nargin >= 4 )
+if ( nargin >= 9 )
     styleSheetDefault = [ '%GADGETRON_DIR%\install\schema/' styleSheet];
 end
 
@@ -139,12 +139,16 @@ study_times = study_times(ind);
 num = numel(files);
 tUsed = [];
 ignored = [];
-files_processed = [];
-for n=1:num
-    disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' files{n}]);
-    
-    [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files{n}, gt_host, resDir, sendDicom, startRemoteGT, styleSheet);
-    if(~isempty(tU))
-        tUsed = [tUsed; {n, files{n}, tU{2}, tU{3}}];
-    end
-end
+% files_processed = [];
+% for n=1:num
+%     disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' files{n}]);
+%         
+%     [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files{n}, gt_host, resDir, sendDicom, startRemoteGT, styleSheet);
+%     if(~isempty(tU))
+%         tUsed = [tUsed; {n, files{n}, tU{2}, tU{3}}];
+%     end
+% end
+
+% [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, styleSheet);
+[tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, [], []);
+
