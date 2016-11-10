@@ -20,30 +20,67 @@ if(nargin<7)
     reComputed_withoutR2Star = 0;
 end
 
-UTDir = getenv('GTPLUS_UT_DIR')
+UTDir = getenv('GTPLUS_UT_DIR');
 
-aif_N_runup = 3
-aif_seq_type = 'Flash'
-aif_Gd_method = 'LUT'
+aif_N_runup = 3;
+aif_seq_type = 'Flash';
+aif_Gd_method = 'LUT';
 
-FA_PD = 5
-N_runup = 3
-seq_type = 'SSFP'
-seq_type_PD = 'Flash'
-Gd_method = 'LUT'
+FA_PD = 5;
+N_runup = 3;
+seq_type = 'SSFP';
+seq_type_PD = 'Flash';
+Gd_method = 'LUT';
 
-T1_0_blood_3T = 2000
-T2_0_blood_3T = 250
-T1_0_myo_3T = 1300
-T2_0_myo_3T = 45
+T1_0_blood_3T = 2000;
+T2_0_blood_3T = 250;
+T1_0_myo_3T = 1300;
+T2_0_myo_3T = 45;
 
-T1_0_blood_1p5T = 1700
-T2_0_blood_1p5T = 220
-T1_0_myo_1p5T = 1100
-T2_0_myo_1p5T = 45
+T1_0_blood_1p5T = 1700;
+T2_0_blood_1p5T = 220;
+T1_0_myo_1p5T = 1100;
+T2_0_myo_1p5T = 45;
 
 [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(h5Name);
 res_dir = fullfile(resDir, study_dates, h5Name);
+
+res = 'Linear';
+
+hct_str = num2str(HCT);
+ind = find(hct_str=='.');
+if(~isempty(ind))
+    hct_str(ind(:)) = 'p';
+end
+suffix = [study_dates '_hct' hct_str];
+
+Q_e_name = fullfile(res_dir, ['flowmaps_Q_e_' res '_' suffix '_0.mat']);
+
+slc1_name = fullfile(res_dir, ['flowmaps_Linear_' res '_' suffix '_0.mat']);
+slc2_name = fullfile(res_dir, ['flowmaps_Linear_' res '_' suffix '_1.mat']);
+slc3_name = fullfile(res_dir, ['flowmaps_Linear_' res '_' suffix '_2.mat']);
+
+processed_linear = 0;
+if(~reComputed & isFileExist(Q_e_name) & isFileExist(slc1_name) & isFileExist(slc2_name) & isFileExist(slc3_name))
+    disp(['Already processed - ' res_dir ' - ' dataRole ' - hct : ' num2str(HCT)]);
+    processed_linear = 1;
+end
+
+Q_e_name_without_R2Star = fullfile(res_dir, ['flowmaps_without_R2Star_Q_e_' res '_' suffix '_0.mat']);
+
+slc1_name = fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_' suffix '_0.mat']);
+slc2_name = fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_' suffix '_1.mat']);
+slc3_name = fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_' suffix '_2.mat']);
+
+processed_linear_withoutR2Star = 0;
+if(~reComputed_withoutR2Star & isFileExist(Q_e_name) & isFileExist(slc1_name) & isFileExist(slc2_name) & isFileExist(slc3_name))
+    disp(['Already processed without R2* correction - ' res_dir ' - ' dataRole ' - hct : ' num2str(HCT)]);
+    processed_linear_withoutR2Star = 1;
+end
+
+if(processed_linear & processed_linear_withoutR2Star)
+    return;
+end
 
 %% read in h5 file
 dset = ismrmrd.Dataset(fullfile(dataDir, [h5Name '.h5']));
@@ -263,10 +300,16 @@ figure; imagescn(cat(4, gd0_upsampled, gd0_half_upsampled), [0 2], [], [], 3);
 
 % -------------------------------------
 
+% sampleinterval = 0.5;
+% sigmas = [1.6 4.0 5.3];
+% sigmaMeasure = 0.1;
+% thresGradient = 0.5;
+
 sampleinterval = 0.5;
-sigmas = [1.6 4.0 5.3];
-sigmaMeasure = 0.1;
+sigmas = [0.8 2.0 3.2];
+sigmaMeasure = 0.2;
 thresGradient = 0.5;
+
 plotFlag = 1;
 
 [slope_rest, timeToPeak_rest, peakTime, areaUnderCurve_rest, goodFlag] = PerfusionParameterEstimation_GaussianSmoothing_RegionMerge(aif_cin_Gd_baseline_corrected(:), sampleinterval, sigmas, sigmaMeasure, 1, thresGradient, plotFlag, 'Feature detection of AIF LV signal');
@@ -350,15 +393,6 @@ figure; imagescn(mask);
 
 numPD = NumOfPD * NumOfConcatenations;
 
-res = 'Linear';
-
-hct_str = num2str(HCT);
-ind = find(hct_str=='.');
-if(~isempty(ind))
-    hct_str(ind(:)) = 'p';
-end
-suffix = [study_dates '_hct' hct_str];
-
 if(HCT>0 & HCT<1)
     hct_r = 1/(1-HCT);
     aif_cin_Gd_baseline_corrected = hct_r * aif_cin_Gd_baseline_corrected;
@@ -372,14 +406,13 @@ if(HCT>0 & HCT<1)
 else
     hct_r = 1;
 end
-    
+
 for slc=1:SLC
 
     disp(['========================================================']);
     disp(['Processing slice - ' num2str(slc)]);
-    cd(fullfile(res_dir, 'DebugOutput'))
 
-    Perf_AcqTimes = analyze75read(['Perf_AcqTimes_' num2str(slc-1) '.hdr']);
+    Perf_AcqTimes = analyze75read(fullfile(res_dir, 'DebugOutput', ['Perf_AcqTimes_' num2str(slc-1) '.hdr']));
 
     %% deconvolution
 
@@ -415,48 +448,50 @@ for slc=1:SLC
 
     %% build LUT
     if(slc==1)
-        if (reComputed | ~isFileExist(fullfile(res_dir, ['flowmaps_Q_e_' res '_' suffix '_' num2str(slc-1) '.mat'])))
-        % if (~isFileExist(fullfile(res_dir, ['flowmaps_Q_e_' res '_' suffix '_' num2str(slc-1) '.mat'])))
+        
+        Fp = [0.1:0.1:6.0001];
+        Vp = [0.01:0.01:0.1001];
+        PS = [0.35:0.05:3.001];
+        % Visf = [0.1:0.075:0.475001];
+        Visf = [0.1:0.075:0.75001];
+        disp(['number of Q_e entries - ' num2str(numel(Fp)*numel(Vp)*numel(PS)*numel(Visf))])
 
-            Fp = [0.1:0.1:6.0001];
-            Vp = [0.01:0.01:0.1001];
-            PS = [0.35:0.05:3.001];
-            % Visf = [0.1:0.075:0.475001];
-            Visf = [0.1:0.075:0.75001];
-            disp(['number of Q_e entries - ' num2str(numel(Fp)*numel(Vp)*numel(PS)*numel(Visf))])
+        L     = 0.1;    % cm
+        xdelt = L/20;   % cm
+        xspan = 0:xdelt:L;
 
-            L     = 0.1;    % cm
-            xdelt = L/20;   % cm
-            xspan = 0:xdelt:L;
+        Gp    = 0;      % ml/g/sec
+        Gisf  = 0;      % ml/g/sec
+        Dp    = 1e-5;   % cm^2/sec
+        Disf  = 1e-6;   % cm^2/sec
 
-            Gp    = 0;      % ml/g/sec
-            Gisf  = 0;      % ml/g/sec
-            Dp    = 1e-5;   % cm^2/sec
-            Disf  = 1e-6;   % cm^2/sec
+        N = numel(aif_cin_Gd_baseline_corrected);
 
-            N = numel(aif_cin_Gd_baseline_corrected);
-
-            disp(['--> compute Q_e_m <--']);
-            tic
-            [sol_m, C_e_m, C_p_m, Q_e_m] = Matlab_gt_BTEX20_model( double(aif_cin_Gd_baseline_corrected(:)), [0:1:N-1]*deltaT, xspan, Fp, Vp, PS, Visf, Gp, Gisf, Dp, Disf);
-            toc
-
-            cd(res_dir)
-            save(['flowmaps_Q_e_' res '_' suffix '_' num2str(slc-1)], 'Q_e_m', 'Fp', 'Vp', 'PS', 'Visf');
             
-            if(0)
-                disp(['--> compute Q_e_m_without_R2Star <--']);
+        if (reComputed | ~isFileExist(Q_e_name))
+
+            if(~isFileExist(Q_e_name))
+                disp(['--> compute Q_e_m <--']);
                 tic
-                [sol_m_without_R2Star, C_e_m_without_R2Star, C_p_m_without_R2Star, Q_e_m_without_R2Star] = Matlab_gt_BTEX20_model( double(aif_cin_Gd_without_R2Star_baseline_corrected(:)), [0:1:N-1]*deltaT, xspan, Fp, Vp, PS, Visf, Gp, Gisf, Dp, Disf);
+                [sol_m, C_e_m, C_p_m, Q_e_m] = Matlab_gt_BTEX20_model( double(aif_cin_Gd_baseline_corrected(:)), [0:1:N-1]*deltaT, xspan, Fp, Vp, PS, Visf, Gp, Gisf, Dp, Disf);
                 toc
 
-                save(['flowmaps_without_R2Star_Q_e_' res '_' suffix '_' num2str(slc-1)], 'Q_e_m_without_R2Star', 'Fp', 'Vp', 'PS', 'Visf');
+                save(Q_e_name, 'Q_e_m', 'Fp', 'Vp', 'PS', 'Visf');
             end
         else
-            cd(res_dir)
-            load(['flowmaps_Q_e_' res '_' suffix '_' num2str(slc-1)]);
-%             load(['flowmaps_without_R2Star_Q_e_' res '_' suffix '_' num2str(slc-1)]);
+            load(Q_e_name);
         end            
+        
+        if(reComputed_withoutR2Star | ~isFileExist(Q_e_name_without_R2Star))
+            disp(['--> compute Q_e_m_without_R2Star <--']);
+            tic
+            [sol_m_without_R2Star, C_e_m_without_R2Star, C_p_m_without_R2Star, Q_e_m_without_R2Star] = Matlab_gt_BTEX20_model( double(aif_cin_Gd_without_R2Star_baseline_corrected(:)), [0:1:N-1]*deltaT, xspan, Fp, Vp, PS, Visf, Gp, Gisf, Dp, Disf);
+            toc
+
+            save(Q_e_name_without_R2Star, 'Q_e_m_without_R2Star', 'Fp', 'Vp', 'PS', 'Visf');
+        else
+            load(Q_e_name_without_R2Star);
+        end
     end
 
     %% linear recon
@@ -562,7 +597,7 @@ for slc=1:SLC
 % 
 %     end
 
-    if(0) % if (reComputed_withoutR2Star | ~isFileExist(fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_'  suffix '_' num2str(slc-1) '.mat'])))
+    if (reComputed_withoutR2Star | ~isFileExist(fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_'  suffix '_' num2str(slc-1) '.mat'])))
         
         disp(['--> compute flow map without R2Star correction and with HCT = ' hct_str]);
         
@@ -576,7 +611,7 @@ for slc=1:SLC
         SD_maps_grappa_PSIR_without_R2Star = SD_maps_grappa_PSIR_without_R2Star*hct_r;
         
         save(['flowmaps_Linear_without_R2Star_' res '_' suffix '_' num2str(slc-1)], ... 
-            'flowmaps_grappa_PSIR_without_R2Star',  'grappa_interVolumeMap_grappa_PSIR_without_R2Star', 'grappa_MTT_grappa_PSIR_without_R2Star',    'grappa_ecv_grappa_PSIR_without_R2Star',    'Ki_whole_grappa_PSIR_without_R2Star',  'blood_volume_maps_grappa_PSIR_without_R2Star', 'PS_maps_grappa_PSIR_without_R2Star');
+            'flowmaps_grappa_PSIR_without_R2Star',  'grappa_interVolumeMap_grappa_PSIR_without_R2Star', 'grappa_MTT_grappa_PSIR_without_R2Star',    'grappa_ecv_grappa_PSIR_without_R2Star',    'Ki_whole_grappa_PSIR_without_R2Star',  'blood_volume_maps_grappa_PSIR_without_R2Star', 'PS_maps_grappa_PSIR_without_R2Star', 'SD_maps_grappa_PSIR_without_R2Star');
     end
 
     closeall

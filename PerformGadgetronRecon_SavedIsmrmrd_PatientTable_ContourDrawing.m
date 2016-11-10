@@ -14,9 +14,10 @@ end
 
 num = size(PerfTable, 1)-1;
 for n=1:num
-    disp([num2str(n) ' out of ' num2str(num) ' - ' PerfTable{n+1, report_column} ' - Processing : ' PerfTable{n+1, stress_column} ' - ' PerfTable{n+1, rest_column} ' - ' PerfTable{n+1, splenic_column} ' - ' PerfTable{n+1, selected_column}]); 
     % disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, report_column} ' - ' num2str(PerfTable{n+1, rest_column+1}) ' - ' num2str(PerfTable{n+1, 17}) ' - ' num2str(PerfTable{n+1, 20})]); 
-    disp(['==================================================================']);  
+    disp(['=============================================================================================================================================']);  
+    disp([num2str(n) ' out of ' num2str(num) ' - ' PerfTable{n+1, report_column} ' - Processing : ' PerfTable{n+1, stress_column} ' - ' PerfTable{n+1, rest_column} ' - ' PerfTable{n+1, splenic_column} ' - ' PerfTable{n+1, selected_column}]); 
+    % PerfTable{n+1, :}
     
     splenic_cut_off = PerfTable{n+1, splenic_column};
     selected = PerfTable{n+1, selected_column};
@@ -45,20 +46,21 @@ for n=1:num
     
     disp(['Selected Type : ' selected]); 
     
-    onlyReview = 0;
-    [h_flow_stress, h_flow_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, [0 6], onlyReview);        
-    
     [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(stressCase);
-    
     roiDir = fullfile(contourDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' patientID '_' studyID '_' study_dates '_ROI'])
     
-    if(isFileExist(roiDir))
-        dir(roiDir);        
+    if(isFileExist(roiDir) & isFileExist(fullfile(roiDir, 'r1.mat')) & isFileExist(fullfile(roiDir, 'perf_mask_stress_1.mat')) )
+        dir(roiDir);
+        continue; % temporary
     else    
         mkdir(roiDir)
     end
     cd(roiDir)
-    
+
+    onlyReview = 0;
+    [h_flow_stress, h_flow_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, [0 6], onlyReview);            
+        
+    figure;
     for s=1:numel(h_flow_stress)
         mask_file = fullfile(roiDir, ['perf_mask_stress_' num2str(s-1) '.mat']);
         if(~isFileExist(mask_file))

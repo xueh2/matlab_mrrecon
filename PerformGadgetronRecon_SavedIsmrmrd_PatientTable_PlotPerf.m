@@ -13,18 +13,21 @@ num = size(PerfTable, 1)-1;
 
 stress_col = 28;
 rest_col = 29;
+flow_windowing = [0 6];
 
 if(ind>0)
     closeall
     n = ind-1;
     disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, stress_col} ' - ' PerfTable{n+1, rest_col}]);       
-    PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  PerfTable{n+1, stress_col}, PerfTable{n+1, rest_col}, [0 6], onlyReview);
+    PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  PerfTable{n+1, stress_col}, PerfTable{n+1, rest_col}, flow_windowing, onlyReview);
 else    
     tUsed = [];
-    for n=1:num
+    % for n=1:num
+    for n=341:num
         disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, stress_col} ' - ' PerfTable{n+1, rest_col}]);       
-        PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  PerfTable{n+1, stress_col}, PerfTable{n+1, rest_col}, onlyReview);
-        if(onlyReview) pause; end
+        PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  PerfTable{n+1, stress_col}, PerfTable{n+1, rest_col}, flow_windowing, onlyReview);
+        % if(onlyReview) pause; end
+        pause
         closeall;
     end
 end
