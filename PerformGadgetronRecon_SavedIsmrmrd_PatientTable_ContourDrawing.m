@@ -17,7 +17,7 @@ for n=1:num
     % disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, report_column} ' - ' num2str(PerfTable{n+1, rest_column+1}) ' - ' num2str(PerfTable{n+1, 17}) ' - ' num2str(PerfTable{n+1, 20})]); 
     disp(['=============================================================================================================================================']);  
     disp([num2str(n) ' out of ' num2str(num) ' - ' PerfTable{n+1, report_column} ' - Processing : ' PerfTable{n+1, stress_column} ' - ' PerfTable{n+1, rest_column} ' - ' PerfTable{n+1, splenic_column} ' - ' PerfTable{n+1, selected_column}]); 
-    % PerfTable{n+1, :}
+    PerfTable{n+1, :}
     
     splenic_cut_off = PerfTable{n+1, splenic_column};
     selected = PerfTable{n+1, selected_column};
@@ -36,9 +36,9 @@ for n=1:num
         process = 1;
     end
     
-    if( (strcmp(splenic_cut_off, 'Yes') ~= 1) & (isempty( strfind(splenic_cut_off, 'yes') ) == 1) )
-        continue;
-    end
+%     if( (strcmp(splenic_cut_off, 'Yes') ~= 1) & (isempty( strfind(splenic_cut_off, 'yes') ) == 1) )
+%         continue;
+%     end
     
     if(~process)
         continue;
@@ -51,13 +51,14 @@ for n=1:num
     
     if(isFileExist(roiDir) & isFileExist(fullfile(roiDir, 'r1.mat')) & isFileExist(fullfile(roiDir, 'perf_mask_stress_1.mat')) )
         dir(roiDir);
-        continue; % temporary
+        onlyReview = 1;
+        % continue; % temporary
     else    
         mkdir(roiDir)
+        onlyReview = 0;
     end
     cd(roiDir)
-
-    onlyReview = 0;
+    
     [h_flow_stress, h_flow_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, [0 6], onlyReview);            
         
     figure;

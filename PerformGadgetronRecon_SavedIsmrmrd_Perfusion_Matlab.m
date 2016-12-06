@@ -1,5 +1,5 @@
 
-function PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, dataDir, resDir, roiDir, reComputed, with_hct, splenic_column, selected_column, stress_column, rest_column, hct_column, hct_preset, reComputed_OnlyGlobal, reComputed_withoutR2Star)
+function PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, dataDir, resDir, roiDir, reComputed, with_hct, splenic_column, selected_column, stress_column, rest_column, hct_column, hct_preset, reComputed_OnlyGlobal, reComputed_withoutR2Star, case_list)
 % PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, dataDir, resDir, roiDir, reComputed, with_hct, splenic_column, selected_column, stress_column, rest_column, hct_column, hct_preset, reComputed_OnlyGlobal, reComputed_withoutR2Star)
 % PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, resDir, reComputed, splenic_column, selected_column, stress_column, rest_column, hct_column)
 % PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, 'I:\KAROLINSKA', 'I:\ReconResults\KAROLINSKA')
@@ -17,7 +17,15 @@ if(nargin<13)
 end
 
 num = size(PerfTable, 1)-1;
-for n=1:num
+
+if(nargin<14 | isempty(case_list))
+    case_list = 1:num;
+end
+
+for tt=1:numel(case_list)
+    
+    n = case_list(tt);
+    
     disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, stress_column} ' - ' PerfTable{n+1, rest_column} ' - ' PerfTable{n+1, splenic_column} ' - ' PerfTable{n+1, selected_column}]); 
     disp(['==================================================================']);  
     

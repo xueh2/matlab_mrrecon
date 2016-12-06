@@ -88,6 +88,7 @@ hold on
 bar(1:size(bar_y, 1), bar_y,'stacked', 'FaceColor',[0 .1 .7],'EdgeColor',[0.1 .1 .1],'LineWidth',0.2);
 set(gca,'XTick',1:size(bar_y, 1));
 set(gca,'XTickLabel',bar_x)
+set(gca,'FontSize',6.0)
 ylim([0 15])
 xlim([1 size(bar_y, 1)])
 hold off
@@ -108,7 +109,7 @@ end
 
 figure; 
 hold on
-bar(1:size(bar_y, 1), bar_y,'stacked', 'FaceColor',[0 .1 .7],'EdgeColor',[0.1 .1 .1],'LineWidth',0.2);
+bar(1:size(bar_y, 1), bar_y,'stacked', 'FaceColor',[0 .1 .7],'EdgeColor',[0.1 .1 .1],'LineWidth',1.2);
 set(gca,'XTick',1:size(bar_y, 1));
 set(gca,'XTickLabel',bar_x)
 xlim([0 size(bar_y, 1)+1])

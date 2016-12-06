@@ -34,8 +34,8 @@ r1 = params.r1;
 r2 = params.r2;
 % T1_0 = 2.0; % s
 % T2_0 = 0.250; % s
-T1_0 = params.T1_0; % s
-T2_0 = params.T2_0; % s
+T1_0 = params.T1_0(1); % s
+T2_0 = params.T2_0(1); % s
 
 Npe_total = floor(params.Npe_full/params.PAT_accel_factor);
 % Npe_center = round(Npe_total/2); % # PE lines to center of k-space

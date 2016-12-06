@@ -23,7 +23,7 @@ if(ind>0)
 else    
     tUsed = [];
     % for n=1:num
-    for n=341:num
+    for n=1:num
         disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, stress_col} ' - ' PerfTable{n+1, rest_col}]);       
         PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  PerfTable{n+1, stress_col}, PerfTable{n+1, rest_col}, flow_windowing, onlyReview);
         % if(onlyReview) pause; end

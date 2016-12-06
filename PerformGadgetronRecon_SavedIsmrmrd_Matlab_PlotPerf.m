@@ -1,6 +1,10 @@
 
-function PerformGadgetronRecon_SavedIsmrmrd_Matlab_PlotPerf(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, prefix)
+function PerformGadgetronRecon_SavedIsmrmrd_Matlab_PlotPerf(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, prefix, which_case)
 % PerformGadgetronRecon_SavedIsmrmrd_Matlab_PlotPerf(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, prefix)
+
+if(nargin<10)
+    which_case = [];
+end
 
 flow_window = [0 6];
 scalingFactor = 10;
@@ -9,8 +13,15 @@ nV = numel(PerfTable(1, :));
 
 num_column = size(PerfTable, 2);
 num = size(PerfTable, 1)-1;
-for n=1:num
-       
+
+if(isempty(which_case))
+    which_case = 1:num;
+end
+
+for tt=1:numel(which_case)
+    
+    n = which_case(tt);
+    
     stressCase = PerfTable{n+1, stress_column};
     restCase = PerfTable{n+1, rest_column};
     if(ischemia_column<=num_column)
@@ -71,23 +82,53 @@ for n=1:num
     slc = size(res_rest.flow, 3);
     
     if(size(res_stress.flow, 2)==size(res_rest.flow,2))
-        h = figure('Name','Flow maps','NumberTitle','off'); imagescn(cat(3, res_stress.flow, res_rest.flow), flow_window, [2 slc], scalingFactor); PerfColorMap;
-        h = figure('Name','PDE Visf','NumberTitle','off'); imagescn(cat(3, res_stress.Visf, res_rest.Visf), [0 100], [2 slc], scalingFactor); PerfColorMap;
-        h = figure('Name','PDE PS','NumberTitle','off'); imagescn(cat(3, res_stress.PS, res_rest.PS), [0 10], [2 slc], scalingFactor); PerfColorMap;
-        h = figure('Name','PDE E','NumberTitle','off'); imagescn(cat(3, res_stress.E, res_rest.E), [0 2], [2 slc], scalingFactor); PerfColorMap;
-        h = figure('Name','PDE Vp','NumberTitle','off'); imagescn(cat(3, res_stress.Vp, res_rest.Vp), [0 20], [2 slc], scalingFactor); PerfColorMap;    
+        h = figure('Name','Flow maps','NumberTitle','off'); imagescn( flipdim(cat(3, res_stress.flow, res_rest.flow), 1), flow_window, [2 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Stress_Rest_Flow_Matlab'), 'fig');
+        
+        h = figure('Name','PDE Visf','NumberTitle','off'); imagescn(flipdim(cat(3, res_stress.Visf, res_rest.Visf), 1), [0 100], [2 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Stress_Rest_Visf_Matlab'), 'fig');
+        
+        h = figure('Name','PDE PS','NumberTitle','off'); imagescn(flipdim(cat(3, res_stress.PS, res_rest.PS), 1), [0 10], [2 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Stress_Rest_PS_Matlab'), 'fig');
+        
+        h = figure('Name','PDE E','NumberTitle','off'); imagescn(flipdim(cat(3, res_stress.E, res_rest.E), 1), [0 2], [2 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Stress_Rest_E_Matlab'), 'fig');
+        
+        h = figure('Name','PDE Vp','NumberTitle','off'); imagescn(flipdim(cat(3, res_stress.Vp, res_rest.Vp), 1), [0 20], [2 slc], scalingFactor); PerfColorMap;    
+        saveas(h, fullfile(figDir, 'Stress_Rest_Vp_Matlab'), 'fig');
+        
+        h = figure('Name','PDE Vb','NumberTitle','off'); imagescn(flipdim(cat(3, res_stress.Vp, res_rest.Vp)/(1-HCT), 1), [0 20], [2 slc], scalingFactor); PerfColorMap;    
+        saveas(h, fullfile(figDir, 'Stress_Rest_Vb_Matlab'), 'fig');
     else
         h = figure('Name','Flow maps, stress','NumberTitle','off'); imagescn(res_stress.flow, flow_window, [1 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Stress_Flow_Matlab'), 'fig');
+        
         h = figure('Name','PDE Visf, stress','NumberTitle','off'); imagescn(res_stress.Visf, [0 100], [1 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Stress_Visf_Matlab'), 'fig');
+        
         h = figure('Name','PDE PS, stress','NumberTitle','off'); imagescn(res_stress.PS, [0 10], [1 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Stress_PS_Matlab'), 'fig');
+        
         h = figure('Name','PDE E, stress','NumberTitle','off'); imagescn(res_stress.E, [0 2], [1 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Stress_E_Matlab'), 'fig');
+        
         h = figure('Name','PDE Vp, stress','NumberTitle','off'); imagescn(res_stress.Vp, [0 20], [1 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Stress_Vp_Matlab'), 'fig');
         
         h = figure('Name','Flow maps, rest','NumberTitle','off'); imagescn(res_rest.flow, flow_window, [1 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Rest_Flow_Matlab'), 'fig');
+        
         h = figure('Name','PDE Visf, rest','NumberTitle','off'); imagescn(res_rest.Visf, [0 100], [1 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Rest_Visf_Matlab'), 'fig');
+        
         h = figure('Name','PDE PS, rest','NumberTitle','off'); imagescn(res_rest.PS, [0 10], [1 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Rest_PS_Matlab'), 'fig');
+        
         h = figure('Name','PDE E, rest','NumberTitle','off'); imagescn(res_rest.E, [0 2], [1 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Rest_E_Matlab'), 'fig');
+        
         h = figure('Name','PDE Vp, rest','NumberTitle','off'); imagescn(res_rest.Vp, [0 20], [1 slc], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, 'Rest_Vp_Matlab'), 'fig');
     end
     pause;
     closeall

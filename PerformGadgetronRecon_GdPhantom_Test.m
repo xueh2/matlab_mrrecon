@@ -153,10 +153,10 @@ disp(['N_runup = ' num2str(N_runup)]);
 disp(['seq_type = ' num2str(seq_type)]);
 disp(['seq_type_PD = ' num2str(seq_type_PD)]);
 disp(['Gd_method = ' num2str(Gd_method)]);
-disp(['T1_0_blood = ' num2str(T1_0_blood)]);
-disp(['T2_0_blood = ' num2str(T2_0_blood)]);
-disp(['T1_0_myo = ' num2str(T1_0_myo)]);
-disp(['T2_0_myo = ' num2str(T2_0_myo)]);
+disp(['T1_0_blood = ' num2str(T1_0_blood(1))]);
+disp(['T2_0_blood = ' num2str(T2_0_blood(1))]);
+disp(['T1_0_myo = ' num2str(T1_0_myo(1))]);
+disp(['T2_0_myo = ' num2str(T2_0_myo(1))]);
 disp(['post_T1_0_blood = ' num2str(post_T1_0_blood)]);
 disp(['post_T1_0_myo = ' num2str(post_T1_0_myo)]);
 disp(['check_contrast_status = ' num2str(check_contrast_status)]);
@@ -183,34 +183,7 @@ aif_pd_1 = analyze75read('input_aif_PD_1.hdr');
 
 save AIF aif_0 aif_1 aif_pd_0 aif_pd_1 Im_TI
 
-%% convert to Gd
-
-figure; imagescn(Im_TI, [], [], [], 3);
-
-% m = zeros(18, 24);
-
-mask_file = perf_roi_file;
-% for ii=1:24  
-%     v = roi_timeseries(Im_TI, mask_file, ii, 1);
-%     p = v.m;
-%     m(:, ii) = p(:);      
-% end
-
-SR_PD = zeros(3, 24);
-Im = Im_TI(:,:,8:end);
-Im = mean(Im, 3);
-srpd = Im ./ Im_TI(:,:,1);
-for ii=1:24  
-    v = roi_timeseries(srpd, mask_file, ii, 1);
-    p = v.m;
-    SR_PD(1, ii) = p(:);      
-end
-
-% plot LUT
-
-Gd_LUT = [0:0.01:5];
-[LUT_TI_m, signal_SR, signal_PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, r1, r2, []);
-
+%% test the aif PD to perf PD
 params.r1 = r1;
 params.r2 = r2;
 params.T1_0 = T1_0_myo/1e3;
@@ -225,107 +198,233 @@ params.PAT_accel_factor =  accel_factor;
 params.steadystate_prep = 'linear';
 params.N_runup = 3;
 params.rf_phase_spoiler_increment = 112;
+params.Npulses = floor(floor(E1_full/accel_factor)/2);
 
-% compute Gd for every tube, taking into account of B1 map and slice profile
+params_aif.r1 = r1;
+params_aif.r2 = r2;
+params_aif.T1_0 = T1_0_blood/1e3;
+params_aif.T2_0 = T2_0_blood/1e3;
+params_aif.TR = aif_TR/1e3;
+params_aif.TD = aif_TD/1e3;
+params_aif.PD_flip_angle = aif_FA_PD;
+params_aif.SR_flip_angle = aif_FA_Perf;
+params_aif.offresonance = 0;
+params_aif.Npe_full = aif_E1_full;
+params_aif.PAT_accel_factor =  aif_accel_factor;
+params_aif.steadystate_prep = 'linear';
+params_aif.N_runup = 3;
+params_aif.rf_phase_spoiler_increment = 112;
+params_aif.Npulses = aif_E1_full/aif_accel_factor;
 
-perf_Gd = zeros(1, 24);
-perf_Gd_slice = zeros(1, 24);
+Gd_PD = [0:0.1:1];
+ 
+for kk=1:numel(Gd_PD)
+    PDcenter = zeros(length(sliceprofile_aif), 1);
+    for i = 1:length(sliceprofile_aif)            
 
-if(isempty(B1))
-    
-    LUTslice = [];
-    if(strcmp(header.sequenceParameters.sequence_type, 'SSFP'))
-        [LUTslice, Gd] = perfusion_lut_flash_pd_ssfp_sr(params, Gd_LUT);
-        LUT_TI_mm = LUTslice;
-    else   
-        % [LUT_TI_mm, Gd] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
+        disp(['AIF slice profile : ' num2str(i), ' - FA_PD ' num2str(params_aif.PD_flip_angle) ' - FA_SR ' num2str(params_aif.SR_flip_angle)])
 
-        [LUT_TI_mm, SR, PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, r1, r2, []);
-
-        if(~isempty(sliceprofile))
-            clear LUT SRc PDc SR PD
-            for i = 1:length(sliceprofile)
-                disp(['Slice profile : ' num2str(i)])
-                params.PD_flip_angle = FA_PD * sliceprofile(i);
-                params.SR_flip_angle = FA_Perf * sliceprofile(i);
-                [LUT(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', params.PD_flip_angle, params.SR_flip_angle, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, r1, r2, []);
-            end
-
-            LUTslice = sum(cat(1,SR,SR(2:end,:)),1)/sum(cat(1,PD,PD(2:end,:)),1);
-        end
-    end
-    
-    for tt=startTube:startTube+numel(Gd_tubes)-1
-        sr_over_pd = SR_PD(1, tt);
-        perf_Gd_slice(1, tt) = interp1(LUTslice, Gd_LUT, sr_over_pd);  
-        perf_Gd(1, tt) = interp1(LUT_TI_m, Gd_LUT, sr_over_pd);
-    end 
-    
-    figure;
-    hold on
-
-    plot(Gd_LUT, LUT_TI_m, 'b--');
-
-    if(~isempty(LUTslice))
-        plot(Gd_LUT, LUTslice, 'k');
+        params_aif.flip_angle = aif_FA_PD * sliceprofile_aif(i);
+        params_aif.T1 = Gd2T1(Gd_PD(kk), T1_0_myo/1e3, r1);
+        params_aif.T2 = Gd2T1(Gd_PD(kk), T1_0_myo/1e3, r2);
+        [PD] = flash_readout(params_aif);
+        PDmag = squeeze(rss(PD(3,:,:),1)); % PE, GD
+        PDcenter(i) = PDmag(end);
     end
 
-    plot(Gd_LUT, LUT_TI_mm, 'g-.');
+    Mz = sum(cat(1,PDcenter,PDcenter(2:end,:)),1) / (2*length(sliceprofile_aif)-1) % Mz after aif PD
 
-    hold off
-    if(~isempty(LUTslice))
-        legend(['TD=' num2str(TD)], ['with slice profile']);
-    else
-        legend(['TD=' num2str(TD)]);
+    PDcenter = zeros(length(sliceprofile), 1);
+    for i = 1:length(sliceprofile)            
+
+        disp(['Perf slice profile : ' num2str(i), ' - FA_PD ' num2str(FA_PD) ' - FA_SR ' num2str(params.SR_flip_angle)])
+
+        params.flip_angle = FA_PD * sliceprofile(i);
+        params.T1 = Gd2T1(Gd_PD(kk), T1_0_myo/1e3, r1);
+        params.T2 = Gd2T1(Gd_PD(kk), T2_0_myo/1e3, r2);
+
+        M0 = [0 0 Mz 1]';
+        R = ssfp_readout(params);
+        PD = R*M0;
+
+        PDmag = squeeze(rss(PD(1:2,:,:),1)); 
+        PDcenter(i) = PDmag(end);
     end
-    title('Perf')
-    xlabel('Gd')
-    ylabel('SR/PD')
-else
-    for tt=startTube:startTube+numel(Gd_tubes)-1
 
-        title_str = ['Perf - processing tube : ' num2str(tt) ' - B1 ' num2str(B1(tt))];
-        disp(title_str);
+    Mxy_perf_PD(kk) = sum(cat(1,PDcenter,PDcenter(2:end,:)),1) / (2*length(sliceprofile)-1)
+    
+    for i = 1:length(sliceprofile)            
 
-        [LUT_TI_mm, SR, PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, r1, r2, []);
-        
-        LUTslice = [];
-        if(strcmp(header.sequenceParameters.sequence_type, 'SSFP'))
-            params.PD_flip_angle = FA_PD * B1(tt);
-            params.SR_flip_angle = FA_Perf * B1(tt);           
-            [LUTslice, Gd] = perfusion_lut_flash_pd_ssfp_sr(params, Gd_LUT);
-        else   
-            % [LUT_TI_mm, Gd] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
+        disp(['Perf slice profile : ' num2str(i), ' - FA_PD ' num2str(FA_PD) ' - FA_SR ' num2str(params.SR_flip_angle)])
 
-            % [LUT_TI_mm, SR, PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, r1, r2, []);
+        params.flip_angle = FA_PD * sliceprofile(i);
+        params.T1 = Gd2T1(Gd_PD(kk), T1_0_myo/1e3, r1);
+        params.T2 = Gd2T1(Gd_PD(kk), T2_0_myo/1e3, r2);
 
-            if(~isempty(sliceprofile))
-                clear LUT SRc PDc SR PD
-                for i = 1:length(sliceprofile)
-                    disp(['Slice profile : ' num2str(i)])
-                    params.PD_flip_angle = FA_PD * sliceprofile(i) * B1(tt);
-                    params.SR_flip_angle = FA_Perf * sliceprofile(i) * B1(tt);
-                    % [LUT(i,:), Gd, SRc, PDc, SR(i,:), PD(i,:)] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
+        M0 = [0 0 1 1]';
+        R = ssfp_readout(params);
+        PD = R*M0;
 
-                    [LUT(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', params.PD_flip_angle, params.SR_flip_angle, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, r1, r2, []);
+        PDmag = squeeze(rss(PD(1:2,:,:),1)); 
+        PDcenter(i) = PDmag(end);
+    end
+
+    Mxy_perf_PD_without_aif_PD(kk) = sum(cat(1,PDcenter,PDcenter(2:end,:)),1) / (2*length(sliceprofile)-1)
+end
+
+figure;
+hold on
+plot(Gd_PD, Mxy_perf_PD ./ Mxy_perf_PD_without_aif_PD, '.');
+hold off
+xlabel('Gd, mmol/L')
+ylabel('perf PD Mxy with aif PD / Mxy without aif PD')
+title(['(Perf PD Mxy after aif PD) / (Mxy without aif PD), aif PD FA: ' num2str(aif_FA_PD) ' - perf PD FA: ' num2str(FA_PD)])
+box on
+grid on
+%% convert to Gd
+
+SLC = 1;
+REP = size(Im_TI,3);
+if(numel(size(Im_TI))==4)
+    SLC = size(Im_TI, 3);
+    REP = size(Im_TI, 4);
+end
+
+RO = size(Im_TI,1);
+E1 = size(Im_TI,2);
+
+Im_TI_all = reshape(Im_TI, [RO E1 SLC REP]);
+Gd_perf_slice_all = [];
+
+for slc=1:SLC
+
+    Im_TI = squeeze(Im_TI_all(:,:,slc,:));
+    
+    figure; imagescn(Im_TI, [], [], [], 3);
+
+    % m = zeros(18, 24);
+
+    mask_file = perf_roi_file;
+    % for ii=1:24  
+    %     v = roi_timeseries(Im_TI, mask_file, ii, 1);
+    %     p = v.m;
+    %     m(:, ii) = p(:);      
+    % end
+
+    SR_PD = zeros(3, 24);
+    Im = Im_TI(:,:,8:end);
+    Im = mean(Im, 3);
+    srpd = Im ./ Im_TI(:,:,1);
+    for ii=1:24  
+        v = roi_timeseries(srpd, mask_file, ii, 1);
+        p = v.m;
+        SR_PD(1, ii) = p(:);      
+    end
+
+    % plot LUT
+
+    Gd_LUT = [0:0.01:5];
+    [LUT_TI_m, signal_SR, signal_PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo(1), T2_0_myo(1), T1_0_myo(1), T2_0_myo(1), r1, r2, []);
+
+    params.r1 = r1;
+    params.r2 = r2;
+    params.T1_0 = T1_0_myo/1e3;
+    params.T2_0 = T2_0_myo/1e3;
+    params.TR = TR/1e3;
+    params.TD = TD/1e3;
+    params.PD_flip_angle = FA_PD;
+    params.SR_flip_angle = FA_Perf;
+    params.offresonance = 0;
+    params.Npe_full = E1_full;
+    params.PAT_accel_factor =  accel_factor;
+    params.steadystate_prep = 'linear';
+    params.N_runup = 3;
+    params.rf_phase_spoiler_increment = 112;
+
+    % compute Gd for every tube, taking into account of B1 map and slice profile
+
+    perf_Gd = zeros(1, 24);
+    perf_Gd_slice = zeros(1, 24);
+
+    if(isempty(B1))
+
+        if(numel(T1_0_myo)==1)
+            LUTslice = [];
+            
+            if(strcmp(header.sequenceParameters.sequence_type, 'SSFP'))
+                params.T1_0 = T1_0_myo(1);
+                params.T2_0 = T2_0_myo(1);
+                params.T1_0_PD = T1_0_myo(1);
+                params.T2_0_PD = T2_0_myo(1);
+                [LUTslice, Gd] = perfusion_lut_flash_pd_ssfp_sr(params, Gd_LUT);
+                LUT_TI_mm = LUTslice;
+            else   
+                % [LUT_TI_mm, Gd] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
+
+                [LUT_TI_mm, SR, PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo(1), T2_0_myo(1), T1_0_myo(1), T2_0_myo(1), r1, r2, []);
+
+                if(~isempty(sliceprofile))
+                    clear LUT SRc PDc SR PD
+                    for i = 1:length(sliceprofile)
+                        disp(['Slice profile : ' num2str(i)])
+                        params.PD_flip_angle = FA_PD * sliceprofile(i);
+                        params.SR_flip_angle = FA_Perf * sliceprofile(i);
+                        [LUT(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', params.PD_flip_angle, params.SR_flip_angle, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo(1), T2_0_myo(1), T1_0_myo(1), T2_0_myo(1), r1, r2, []);
+                    end
+
+                    LUTslice = sum(cat(1,SR,SR(2:end,:)),1)/sum(cat(1,PD,PD(2:end,:)),1);
                 end
-
-                LUTslice = sum(cat(1,SR,SR(2:end,:)),1)/sum(cat(1,PD,PD(2:end,:)),1);
             end
+
+            for tt=startTube:startTube+numel(Gd_tubes)-1
+                sr_over_pd = SR_PD(1, tt);
+                perf_Gd_slice(1, tt) = interp1(LUTslice, Gd_LUT, sr_over_pd);  
+                perf_Gd(1, tt) = interp1(LUT_TI_m, Gd_LUT, sr_over_pd);
+            end 
+        else
+            LUTslice = zeros(numel(Gd_LUT), numel(Gd_tubes));
+            [LUT_TI_mm, SR, PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo(1), T2_0_myo(1), T1_0_myo(1), T2_0_myo(1), r1, r2, []);
+            
+            for tt=startTube:startTube+numel(Gd_tubes)-1
+                
+                title_str = ['Perf - processing tube : ' num2str(tt) ' - Gd ' num2str(Gd_tubes(tt-startTube+1))];
+                disp(title_str);
+            
+                if(strcmp(header.sequenceParameters.sequence_type, 'SSFP'))
+                    params.T1_0 = T1_0_myo(1);
+                    params.T2_0 = T2_0_myo(1);
+                    params.T1_0_PD = T1_0_myo(tt);
+                    params.T2_0_PD = T2_0_myo(tt);
+                    [LUTslice_tube, Gd] = perfusion_lut_flash_pd_ssfp_sr(params, Gd_LUT);
+                else                    
+                    if(~isempty(sliceprofile))
+                        clear LUT SRc PDc SR PD
+                        for i = 1:length(sliceprofile)
+                            disp(['Slice profile : ' num2str(i)])
+                            params.PD_flip_angle = FA_PD * sliceprofile(i);
+                            params.SR_flip_angle = FA_Perf * sliceprofile(i);
+                            [LUT(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', params.PD_flip_angle, params.SR_flip_angle, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo(1), T2_0_myo(1), T1_0_myo(tt), T2_0_myo(tt), r1, r2, []);
+                        end
+
+                        LUTslice_tube = sum(cat(1,SR,SR(2:end,:)),1)/sum(cat(1,PD,PD(2:end,:)),1);
+                    end
+                end
+                
+                sr_over_pd = SR_PD(1, tt);
+                perf_Gd_slice(1, tt) = interp1(LUTslice_tube, Gd_LUT, sr_over_pd);  
+                perf_Gd(1, tt) = interp1(LUT_TI_m, Gd_LUT, sr_over_pd);
+                
+                LUTslice(:, tt-startTube+1) = LUTslice_tube(:);
+            end             
         end
-
-        sr_over_pd = SR_PD(1, tt);
-        perf_Gd_slice(1, tt) = interp1(LUTslice, Gd_LUT, sr_over_pd);  
-        perf_Gd(1, tt) = interp1(LUT_TI_m, Gd_LUT, sr_over_pd);   
-
-        % plot
+        
         figure;
         hold on
 
         plot(Gd_LUT, LUT_TI_m, 'b--');
 
         if(~isempty(LUTslice))
-            plot(Gd_LUT, LUTslice, 'k');
+            plot(Gd_LUT, LUTslice(:,1), 'k');
         end
 
         plot(Gd_LUT, LUT_TI_mm, 'g-.');
@@ -336,89 +435,153 @@ else
         else
             legend(['TD=' num2str(TD)]);
         end
-        title(title_str)
+        title('Perf')
         xlabel('Gd')
         ylabel('SR/PD')
+    else
+        for tt=startTube:startTube+numel(Gd_tubes)-1
+
+            title_str = ['Perf - processing tube : ' num2str(tt) ' - B1 ' num2str(B1(tt))];
+            disp(title_str);
+
+            [LUT_TI_mm, SR, PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, T1_0_myo, T2_0_myo, r1, r2, []);
+
+            LUTslice = [];
+            if(strcmp(header.sequenceParameters.sequence_type, 'SSFP'))
+                params.PD_flip_angle = FA_PD * B1(tt);
+                params.SR_flip_angle = FA_Perf * B1(tt);      
+                params.T1_0_PD = T1_0_myo(1);
+                params.T2_0_PD = T2_0_myo(1);
+                [LUTslice, Gd] = perfusion_lut_flash_pd_ssfp_sr(params, Gd_LUT);
+            else   
+                % [LUT_TI_mm, Gd] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
+
+                % [LUT_TI_mm, SR, PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', FA_PD, FA_Perf, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, r1, r2, []);
+
+                if(~isempty(sliceprofile))
+                    clear LUT SRc PDc SR PD
+                    for i = 1:length(sliceprofile)
+                        disp(['Slice profile : ' num2str(i)])
+                        params.PD_flip_angle = FA_PD * sliceprofile(i) * B1(tt);
+                        params.SR_flip_angle = FA_Perf * sliceprofile(i) * B1(tt);
+                        % [LUT(i,:), Gd, SRc, PDc, SR(i,:), PD(i,:)] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
+
+                        [LUT(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT', params.PD_flip_angle, params.SR_flip_angle, TD, TR, E1_full, accel_factor, seq_type, seq_type_PD, T1_0_myo, T2_0_myo, T1_0_myo, T2_0_myo, r1, r2, []);
+                    end
+
+                    LUTslice = sum(cat(1,SR,SR(2:end,:)),1)/sum(cat(1,PD,PD(2:end,:)),1);
+                end
+            end
+
+            sr_over_pd = SR_PD(1, tt);
+            perf_Gd_slice(1, tt) = interp1(LUTslice, Gd_LUT, sr_over_pd);  
+            perf_Gd(1, tt) = interp1(LUT_TI_m, Gd_LUT, sr_over_pd);   
+
+            % plot
+            figure;
+            hold on
+
+            plot(Gd_LUT, LUT_TI_m, 'b--');
+
+            if(~isempty(LUTslice))
+                plot(Gd_LUT, LUTslice, 'k');
+            end
+
+            plot(Gd_LUT, LUT_TI_mm, 'g-.');
+
+            hold off
+            if(~isempty(LUTslice))
+                legend(['TD=' num2str(TD)], ['with slice profile']);
+            else
+                legend(['TD=' num2str(TD)]);
+            end
+            title(title_str)
+            xlabel('Gd')
+            ylabel('SR/PD')
+        end
     end
-end
 
-% % compute Gd
-% perf_Gd = zeros(1, 24);
-% for ii=1:size(perf_Gd, 2)       
-%     sr_over_pd = SR_PD(1, ii);
-%     perf_Gd(1, ii) = interp1(LUT_TI_m, Gd_LUT, sr_over_pd);   
-% end
-% 
-% if(~isempty(LUTslice))
-%     perf_Gd_slice = zeros(1, 24);
-%     for ii=1:size(perf_Gd_slice, 2)       
-%         sr_over_pd = SR_PD(1, ii);
-%         perf_Gd_slice(1, ii) = interp1(LUTslice, Gd_LUT, sr_over_pd);   
-%     end
-% end
+    % % compute Gd
+    % perf_Gd = zeros(1, 24);
+    % for ii=1:size(perf_Gd, 2)       
+    %     sr_over_pd = SR_PD(1, ii);
+    %     perf_Gd(1, ii) = interp1(LUT_TI_m, Gd_LUT, sr_over_pd);   
+    % end
+    % 
+    % if(~isempty(LUTslice))
+    %     perf_Gd_slice = zeros(1, 24);
+    %     for ii=1:size(perf_Gd_slice, 2)       
+    %         sr_over_pd = SR_PD(1, ii);
+    %         perf_Gd_slice(1, ii) = interp1(LUTslice, Gd_LUT, sr_over_pd);   
+    %     end
+    % end
 
-Gd = Gd_tubes;
+    Gd = Gd_tubes;
 
-Gd_perf = perf_Gd(:, startTube:startTube+numel(Gd)-1);
-P = polyfit(Gd(:), Gd_perf(:),1);
-Gd_fit = P(1)*Gd+P(2);
+    Gd_perf = perf_Gd(:, startTube:startTube+numel(Gd)-1);
+    P = polyfit(Gd(:), Gd_perf(:),1);
+    Gd_fit = P(1)*Gd+P(2);
 
-xpos = Gd(2)
-ypos = 0.85 * max(Gd_fit)
-theString = sprintf('y = %.5f x + %.5f', P(1), P(2));
+    xpos = Gd(2)
+    ypos = 0.85 * max(Gd_fit)
+    theString = sprintf('y = %.5f x + %.5f', P(1), P(2));
 
-if(~isempty(LUTslice))
-    Gd_perf_slice = perf_Gd_slice(:, startTube:startTube+numel(Gd)-1);
-    P = polyfit(Gd(:), Gd_perf_slice(:),1);
-    Gd_fit_slice = P(1)*Gd+P(2);
+    if(~isempty(LUTslice))
+        Gd_perf_slice = perf_Gd_slice(:, startTube:startTube+numel(Gd)-1);
+        P = polyfit(Gd(:), Gd_perf_slice(:),1);
+        Gd_fit_slice = P(1)*Gd+P(2);
 
-    xpos_slice = Gd(2)
-    ypos_slice = 0.65 * max(Gd_fit_slice)
-    theString_slice = sprintf('y = %.5f x + %.5f', P(1), P(2));
-end
+        xpos_slice = Gd(2)
+        ypos_slice = 0.65 * max(Gd_fit_slice)
+        theString_slice = sprintf('y = %.5f x + %.5f', P(1), P(2));
+    end
 
-figure; 
-hold on
-plot(Gd, Gd_perf(1,:), 'bx'); 
+    figure; 
+    hold on
+    plot(Gd, Gd_perf(1,:), 'bx'); 
 
-if(~isempty(LUTslice))
+    if(~isempty(LUTslice))
+        plot(Gd, Gd_perf_slice(1,:), 'k+');
+        plot(Gd, Gd_fit_slice(:), 'k--'); 
+        text(xpos_slice, ypos_slice, theString_slice, 'FontSize', 12);
+    end
+
+    plot(Gd, Gd_fit(:), 'r-');
+    text(xpos, ypos, theString, 'FontSize', 12);
+
+    hold off
+    if(~isempty(LUTslice))
+        legend(['TD=' num2str(TD)], 'with slice profile');
+    else
+        legend(['TD=' num2str(TD)]);
+    end
+
+    title([ contrast ', perfusion, Gd conversion, r1=' num2str(r1) ' - r2=' num2str(r2)])
+    xlabel('Gd, truth'); 
+    ylabel('Gd, perf');
+    box on
+    grid on
+
+    % plot 2
+    figure; 
+    hold on
     plot(Gd, Gd_perf_slice(1,:), 'k+');
     plot(Gd, Gd_fit_slice(:), 'k--'); 
     text(xpos_slice, ypos_slice, theString_slice, 'FontSize', 12);
-end
 
-plot(Gd, Gd_fit(:), 'r-');
-text(xpos, ypos, theString, 'FontSize', 12);
-
-hold off
-if(~isempty(LUTslice))
-    legend(['TD=' num2str(TD)], 'with slice profile');
-else
+    hold off
     legend(['TD=' num2str(TD)]);
+
+    title([ contrast ', perfusion, Gd conversion, r1=' num2str(r1) ' - r2=' num2str(r2)])
+    xlabel('Gd, truth'); 
+    ylabel('Gd, perf');
+    box on
+    grid on
+    
+    Gd_perf_slice_all = [Gd_perf_slice_all; Gd_perf_slice(1,:)];
 end
 
-title([ contrast ', perfusion, Gd conversion, r1=' num2str(r1) ' - r2=' num2str(r2)])
-xlabel('Gd, truth'); 
-ylabel('Gd, perf');
-box on
-grid on
-
-% plot 2
-figure; 
-hold on
-plot(Gd, Gd_perf_slice(1,:), 'k+');
-plot(Gd, Gd_fit_slice(:), 'k--'); 
-text(xpos_slice, ypos_slice, theString_slice, 'FontSize', 12);
-
-hold off
-legend(['TD=' num2str(TD)]);
-
-title([ contrast ', perfusion, Gd conversion, r1=' num2str(r1) ' - r2=' num2str(r2)])
-xlabel('Gd, truth'); 
-ylabel('Gd, perf');
-box on
-grid on
-
+Gd_perf_slice = Gd_perf_slice_all;
 %% aif
 
 figure; imagescn(aif_pd_0(:,:,1));
@@ -464,7 +627,7 @@ params.N_runup = 3;
 params.rf_phase_spoiler_increment = 112;
     
 Gd_LUT = [0:0.01:14]';
-[LUT, signal_SR, signal_PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, aif_FA_PD, aif_FA_Perf, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
+[LUT, signal_SR, signal_PD] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, aif_FA_PD, aif_FA_Perf, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(1), T2_0_blood(1), r1, r2, []);
 % [LUT, Gd, SRcenter, PDcenter, SR, PD] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
 
 aif_Gd = zeros(7, 24);
@@ -510,85 +673,172 @@ if(isempty(B1))
     PD_noB1 = zeros(length(sliceprofile_aif), numel(Gd_LUT));
     PD1_noB1 = zeros(length(sliceprofile_aif), numel(Gd_LUT));
     PD2_noB1 = zeros(length(sliceprofile_aif), numel(Gd_LUT));
-
-    for i = 1:length(sliceprofile_aif)            
-        params.PD_flip_angle = aif_FA_PD * sliceprofile_aif(i);
-        params.SR_flip_angle = aif_FA_Perf * sliceprofile_aif(i);
-
-        disp(['AIF slice profile : ' num2str(i), ' - FA_PD ' num2str(params.PD_flip_angle) ' - FA_SR ' num2str(params.SR_flip_angle)])
-
-        % [LUTOne(i,:), Gd, SRc, PDc, SR(i,:), PD(i,:)] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
-        % [LUTOne(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
-
-        [LUTOne(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
-        [LUTOne(i,:), SR1(i,:), PD1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
-        [LUTOne(i,:), SR2(i,:), PD2(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full-2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
-        [LUTOne(i,:), SR3(i,:), PD3(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+4*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
-    end
-
-    % with B1, slice profile, averaging
-%         SR_all = SR + SR1 + SR2;
-%         PD_all = PD + PD1 + PD2;       
-
-    SR_all = SR + SR1;
-    PD_all = PD + PD1;
-    LUT_slice_averaging = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
-
-    % with slice profile only
-    SR_all = SR;
-    PD_all = PD;
-    LUT_slice = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
-
-    % with averaging only
-    SR_all = SR(1,:) + SR1(1,:);
-    PD_all = PD(1,:) + PD1(1,:);
-    LUT_averaging = SR_all./PD_all;
-    
-    % plot
-    figure;
-    hold on
-    plot(Gd_LUT, LUT, 'b--');
-
-    plot(Gd_LUT, LUT_slice, 'k--');
-    plot(Gd_LUT, LUT_averaging, 'm-.');
-    plot(Gd_LUT, LUT_slice_averaging, 'Color', [0.5 0.5 0.5]);
-
-    hold off
-    legend('no slice, no B1, no averaging', 'only slice profile', 'only averaging', 'Slice and averaging');
-    title('AIF')
-    xlabel('Gd')
-    ylabel('SR/PD')
-    box on
-    grid on
         
-    for tt=startTube:startTube+numel(Gd_aif_tubes)-1 
-        aif_Gd(1, tt) = tt;
-        p1 = roi_timeseries(I, mask_file, tt, 1);
-        
-        pd1 = roi_timeseries(aif_echo0_PD(:,:,1), mask_file, tt, 1);
-        pd2 = roi_timeseries(aif_echo1_PD(:,:,1), mask_file, tt, 1);
+    if(numel(T1_0_blood)==1)
 
-        cin_e0(tt) = p1.m(1);
-        cin_e1(tt) = p1.m(2);        
+        for i = 1:length(sliceprofile_aif)            
+            params.PD_flip_angle = aif_FA_PD * sliceprofile_aif(i);
+            params.SR_flip_angle = aif_FA_Perf * sliceprofile_aif(i);
 
-        R2Star(tt) = log(pd1.m(1)/pd2.m(1)) / (aif_echo_time_1-aif_echo_time_0);
-        if(R2Star(tt)<=0)
-            R2Star(tt)=0;
+            disp(['AIF slice profile : ' num2str(i), ' - FA_PD ' num2str(params.PD_flip_angle) ' - FA_SR ' num2str(params.SR_flip_angle)])
+
+            % [LUTOne(i,:), Gd, SRc, PDc, SR(i,:), PD(i,:)] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
+            % [LUTOne(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
+
+            [LUTOne(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, T1_0_blood, T2_0_blood, r1, r2, []);
+            [LUTOne(i,:), SR1(i,:), PD1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, T1_0_blood, T2_0_blood, r1, r2, []);
+            [LUTOne(i,:), SR2(i,:), PD2(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full-2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, T1_0_blood, T2_0_blood, r1, r2, []);
+            [LUTOne(i,:), SR3(i,:), PD3(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+4*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, T1_0_blood, T2_0_blood, r1, r2, []);
         end
-        R = exp(aif_echo_time_0*R2Star(tt));
-        cin_e0_R2Star(tt) = R .* cin_e0(tt);
 
-        PDv(tt) = R * pd1.m(1);
+        % with B1, slice profile, averaging
+    %         SR_all = SR + SR1 + SR2;
+    %         PD_all = PD + PD1 + PD2;       
+
+        SR_all = SR + SR1;
+        PD_all = PD + PD1;
+        LUT_slice_averaging = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
+
+        % with slice profile only
+        SR_all = SR;
+        PD_all = PD;
+        LUT_slice = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
+
+        % with averaging only
+        SR_all = SR(1,:) + SR1(1,:);
+        PD_all = PD(1,:) + PD1(1,:);
+        LUT_averaging = SR_all./PD_all;
+
+        % plot
+        figure;
+        hold on
+        plot(Gd_LUT, LUT, 'b--');
+
+        plot(Gd_LUT, LUT_slice, 'k--');
+        plot(Gd_LUT, LUT_averaging, 'm-.');
+        plot(Gd_LUT, LUT_slice_averaging, 'Color', [0.5 0.5 0.5]);
+
+        hold off
+        legend('no slice, no B1, no averaging', 'only slice profile', 'only averaging', 'Slice and averaging');
+        title('AIF')
+        xlabel('Gd')
+        ylabel('SR/PD')
+        box on
+        grid on
+
+        for tt=startTube:startTube+numel(Gd_aif_tubes)-1 
+            aif_Gd(1, tt) = tt;
+            p1 = roi_timeseries(I, mask_file, tt, 1);
+
+            pd1 = roi_timeseries(aif_echo0_PD(:,:,1), mask_file, tt, 1);
+            pd2 = roi_timeseries(aif_echo1_PD(:,:,1), mask_file, tt, 1);
+
+            cin_e0(tt) = p1.m(1);
+            cin_e1(tt) = p1.m(2);        
+
+            R2Star(tt) = log(pd1.m(1)/pd2.m(1)) / (aif_echo_time_1-aif_echo_time_0);
+            if(R2Star(tt)<=0)
+                R2Star(tt)=0;
+            end
+            R = exp(aif_echo_time_0*R2Star(tt));
+            cin_e0_R2Star(tt) = R .* cin_e0(tt);
+
+            PDv(tt) = R * pd1.m(1);
+
+            sr_over_pd = cin_e0_R2Star(tt)/PDv(tt);
+            aif_Gd(2, tt) = interp1(LUT, Gd_LUT, sr_over_pd); % no B1, no slice, no averaging, with T2*
+
+            aif_Gd(4, tt) = interp1(LUT_averaging, Gd_LUT, sr_over_pd); % with B1 and slice and averaging, with T2*
+            aif_Gd(6, tt) = interp1(LUT_slice, Gd_LUT, sr_over_pd); % with slice profile only
+
+            sr_over_pd = cin_e0(tt)/PDv(tt);
+            aif_Gd(3, tt) = interp1(LUT, Gd_LUT, sr_over_pd); % no B1, no slice, no averaging, no T2*
+            aif_Gd(5, tt) = interp1(LUT_averaging, Gd_LUT, sr_over_pd); % with B1 and slice and averaging, no T2*
+        end
+    else
+        for tt=startTube:startTube+numel(Gd_aif_tubes)-1 
+            
+            disp(['AIF tube : ' num2str(tt), ' - ' num2str(Gd_aif_tubes(tt-startTube+1))])
+            
+            for i = 1:length(sliceprofile_aif)            
+                params.PD_flip_angle = aif_FA_PD * sliceprofile_aif(i);
+                params.SR_flip_angle = aif_FA_Perf * sliceprofile_aif(i);
+
+                disp(['AIF slice profile : ' num2str(i), ' - FA_PD ' num2str(params.PD_flip_angle) ' - FA_SR ' num2str(params.SR_flip_angle) ' - T1_0 and T2_0 ' num2str([T1_0_blood(1), T2_0_blood(1), T1_0_blood(tt), T2_0_blood(tt)])])
+
+                % [LUTOne(i,:), Gd, SRc, PDc, SR(i,:), PD(i,:)] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
+                % [LUTOne(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
+
+                [LUTOne(i,:), SR(i,:), PD(i,:)]   = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full,                    aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(tt), T2_0_blood(tt), r1, r2, []);
+                [LUTOne(i,:), SR1(i,:), PD1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(tt), T2_0_blood(tt), r1, r2, []);
+                [LUTOne(i,:), SR2(i,:), PD2(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full-2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(tt), T2_0_blood(tt), r1, r2, []);
+                [LUTOne(i,:), SR3(i,:), PD3(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+4*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(tt), T2_0_blood(tt), r1, r2, []);
+            end
+
+            % with B1, slice profile, averaging
+        %         SR_all = SR + SR1 + SR2;
+        %         PD_all = PD + PD1 + PD2;       
+
+            SR_all = SR + SR1;
+            PD_all = PD + PD1;
+            LUT_slice_averaging = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
+
+            % with slice profile only
+            SR_all = SR;
+            PD_all = PD;
+            LUT_slice = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
+
+            % with averaging only
+            SR_all = SR(1,:) + SR1(1,:);
+            PD_all = PD(1,:) + PD1(1,:);
+            LUT_averaging = SR_all./PD_all;
+
+            % plot
+            figure;
+            hold on
+            plot(Gd_LUT, LUT, 'b--');
+
+            plot(Gd_LUT, LUT_slice, 'k--');
+            plot(Gd_LUT, LUT_averaging, 'm-.');
+            plot(Gd_LUT, LUT_slice_averaging, 'Color', [0.5 0.5 0.5]);
+
+            hold off
+            legend('no slice, no B1, no averaging', 'only slice profile', 'only averaging', 'Slice and averaging');
+            title('AIF')
+            xlabel('Gd')
+            ylabel('SR/PD')
+            box on
+            grid on
         
-        sr_over_pd = cin_e0_R2Star(tt)/PDv(tt);
-        aif_Gd(2, tt) = interp1(LUT, Gd_LUT, sr_over_pd); % no B1, no slice, no averaging, with T2*
+            aif_Gd(1, tt) = tt;
+            p1 = roi_timeseries(I, mask_file, tt, 1);
 
-        aif_Gd(4, tt) = interp1(LUT_averaging, Gd_LUT, sr_over_pd); % with B1 and slice and averaging, with T2*
-        aif_Gd(6, tt) = interp1(LUT_slice, Gd_LUT, sr_over_pd); % with slice profile only
+            pd1 = roi_timeseries(aif_echo0_PD(:,:,1), mask_file, tt, 1);
+            pd2 = roi_timeseries(aif_echo1_PD(:,:,1), mask_file, tt, 1);
 
-        sr_over_pd = cin_e0(tt)/PDv(tt);
-        aif_Gd(3, tt) = interp1(LUT, Gd_LUT, sr_over_pd); % no B1, no slice, no averaging, no T2*
-        aif_Gd(5, tt) = interp1(LUT_averaging, Gd_LUT, sr_over_pd); % with B1 and slice and averaging, no T2*
+            cin_e0(tt) = p1.m(1);
+            cin_e1(tt) = p1.m(2);        
+
+            R2Star(tt) = log(pd1.m(1)/pd2.m(1)) / (aif_echo_time_1-aif_echo_time_0);
+            if(R2Star(tt)<=0)
+                R2Star(tt)=0;
+            end
+            R = exp(aif_echo_time_0*R2Star(tt));
+            cin_e0_R2Star(tt) = R .* cin_e0(tt);
+
+            PDv(tt) = R * pd1.m(1);
+
+            sr_over_pd = cin_e0_R2Star(tt)/PDv(tt);
+            aif_Gd(2, tt) = interp1(LUT, Gd_LUT, sr_over_pd); % no B1, no slice, no averaging, with T2*
+
+            aif_Gd(4, tt) = interp1(LUT_averaging, Gd_LUT, sr_over_pd); % with B1 and slice and averaging, with T2*
+            aif_Gd(6, tt) = interp1(LUT_slice, Gd_LUT, sr_over_pd); % with slice profile only
+            aif_Gd(7, tt) = interp1(LUT_slice_averaging, Gd_LUT, sr_over_pd); % with slice profile only
+
+            sr_over_pd = cin_e0(tt)/PDv(tt);
+            aif_Gd(3, tt) = interp1(LUT, Gd_LUT, sr_over_pd); % no B1, no slice, no averaging, no T2*
+            aif_Gd(5, tt) = interp1(LUT_averaging, Gd_LUT, sr_over_pd); % with B1 and slice and averaging, no T2*
+        end
     end
 else
     for tt=startTube:startTube+numel(Gd_aif_tubes)-1 
@@ -641,9 +891,9 @@ else
                 % [LUTOne(i,:), Gd, SRc, PDc, SR(i,:), PD(i,:)] = perfusion_lut_flash_pd_flash_sr(params, Gd_LUT);
                 % [LUTOne(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
 
-                [LUTOne(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
-                [LUTOne(i,:), SR1(i,:), PD1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
-                [LUTOne(i,:), SR2(i,:), PD2(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full-2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
+                [LUTOne(i,:), SR(i,:), PD(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(1), T2_0_blood(1), r1, r2, []);
+                [LUTOne(i,:), SR1(i,:), PD1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(1), T2_0_blood(1), r1, r2, []);
+                [LUTOne(i,:), SR2(i,:), PD2(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full-2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(1), T2_0_blood(1), r1, r2, []);
 
             end
 
@@ -653,9 +903,9 @@ else
 
                 disp(['AIF slice profile : ' num2str(i), ' - FA_PD ' num2str(params.PD_flip_angle) ' - FA_SR ' num2str(params.SR_flip_angle)])
 
-                [LUTOne(i,:), SR_noB1(i,:), PD_noB1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
-                [LUTOne(i,:), SR1_noB1(i,:), PD1_noB1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
-                [LUTOne(i,:), SR2_noB1(i,:), PD2_noB1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full-2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, r1, r2, []);
+                [LUTOne(i,:), SR_noB1(i,:), PD_noB1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(1), T2_0_blood(1), r1, r2, []);
+                [LUTOne(i,:), SR1_noB1(i,:), PD1_noB1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(1), T2_0_blood(1), r1, r2, []);
+                [LUTOne(i,:), SR2_noB1(i,:), PD2_noB1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full-2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood(1), T2_0_blood(1), T1_0_blood(1), T2_0_blood(1), r1, r2, []);
 
             end
 
@@ -743,6 +993,8 @@ else
         aif_Gd(5, tt) = interp1(LUT_slice_B1_averaging, Gd_LUT, sr_over_pd); % with B1 and slice and averaging, no T2*
     end
 end
+
+disp(['T2 star : ' num2str(1./(R2Star(startTube:startTube+numel(Gd_aif_tubes)-1 )))]);
 
 Gd = Gd_aif_tubes;
 Gd_aif = aif_Gd(2, startTube:startTube+numel(Gd)-1);

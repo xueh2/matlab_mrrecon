@@ -13,6 +13,8 @@ CopyGadgetronInstallers('D:\gtuser\mrprogs\compiling\gadgetron_scanner_setup_VE1
 
 CopyGadgetronInstallers('D:\gtuser\mrprogs\compiling\gadgetron_scanner_setup_VE11C', fullfile(dstDir, 'VE11C'), chroot_string);
 
+CopyGadgetronInstallers('D:\gtuser\mrprogs\compiling\gadgetron_scanner_setup_VE11B', fullfile(dstDir, 'VE11B'), chroot_string);
+
 installFile = 'D:\Temp\install_chroot_image.sh';
 if(isFileExist(installFile))
     copyfile('D:\Temp\install_chroot_image.sh', dstDir);

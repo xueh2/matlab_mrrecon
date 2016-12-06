@@ -78,9 +78,9 @@ if(~reComputed_withoutR2Star & isFileExist(Q_e_name) & isFileExist(slc1_name) & 
     processed_linear_withoutR2Star = 1;
 end
 
-if(processed_linear & processed_linear_withoutR2Star)
-    return;
-end
+% if(processed_linear & processed_linear_withoutR2Star)
+%     return;
+% end
 
 %% read in h5 file
 dset = ismrmrd.Dataset(fullfile(dataDir, [h5Name '.h5']));
@@ -245,43 +245,43 @@ eRO = RO - sRO;
 sE1=round(ra*E1);
 eE1 = E1 - sE1;
 
-pref_prefix = ['perf_mask_' dataRole '_'];
-
-perf_mask_file0 = fullfile(roiDir, [pref_prefix '0.mat']);
-if(isFileExist(perf_mask_file0))
-    pm = load(perf_mask_file0);
-    perf_mask_0 = single(pm.BW);
-    perf_mask_0 = flipdim(perf_mask_0, 2);
-end
-
-perf_mask_file1 = fullfile(roiDir, [pref_prefix '1.mat']);
-if(isFileExist(perf_mask_file1))
-    pm = load(perf_mask_file1);
-    perf_mask_1 = single(pm.BW);
-    perf_mask_1 = flipdim(perf_mask_1, 2);
-end
-
-perf_mask_file2 = fullfile(roiDir, [pref_prefix '2.mat']);
-if(isFileExist(perf_mask_file2))
-    pm = load(perf_mask_file2);
-    perf_mask_2 = single(pm.BW);
-    perf_mask_2 = flipdim(perf_mask_2, 2);
-end
-
-
-% perf_mask_0(1:sRO, :) = 0;
-% perf_mask_0(eRO:end, :) = 0;
-% perf_mask_1(1:sRO, :) = 0;
-% perf_mask_1(eRO:end, :) = 0;
-% perf_mask_2(1:sRO, :) = 0;
-% perf_mask_2(eRO:end, :) = 0;
+% pref_prefix = ['perf_mask_' dataRole '_'];
 % 
-% perf_mask_0(:, 1:sE1) = 0;
-% perf_mask_0(:, eE1:end) = 0;
-% perf_mask_1(:, 1:sE1) = 0;
-% perf_mask_1(:, eE1:end) = 0;
-% perf_mask_2(:, 1:sE1) = 0;
-% perf_mask_2(:, eE1:end) = 0;
+% perf_mask_file0 = fullfile(roiDir, [pref_prefix '0.mat']);
+% if(isFileExist(perf_mask_file0))
+%     pm = load(perf_mask_file0);
+%     perf_mask_0 = single(pm.BW);
+%     perf_mask_0 = flipdim(perf_mask_0, 2);
+% end
+% 
+% perf_mask_file1 = fullfile(roiDir, [pref_prefix '1.mat']);
+% if(isFileExist(perf_mask_file1))
+%     pm = load(perf_mask_file1);
+%     perf_mask_1 = single(pm.BW);
+%     perf_mask_1 = flipdim(perf_mask_1, 2);
+% end
+% 
+% perf_mask_file2 = fullfile(roiDir, [pref_prefix '2.mat']);
+% if(isFileExist(perf_mask_file2))
+%     pm = load(perf_mask_file2);
+%     perf_mask_2 = single(pm.BW);
+%     perf_mask_2 = flipdim(perf_mask_2, 2);
+% end
+
+
+perf_mask_0(1:sRO, :) = 0;
+perf_mask_0(eRO:end, :) = 0;
+perf_mask_1(1:sRO, :) = 0;
+perf_mask_1(eRO:end, :) = 0;
+perf_mask_2(1:sRO, :) = 0;
+perf_mask_2(eRO:end, :) = 0;
+
+perf_mask_0(:, 1:sE1) = 0;
+perf_mask_0(:, eE1:end) = 0;
+perf_mask_1(:, 1:sE1) = 0;
+perf_mask_1(:, eE1:end) = 0;
+perf_mask_2(:, 1:sE1) = 0;
+perf_mask_2(:, eE1:end) = 0;
 
 figure; imagescn(cat(3, perf_mask_0, perf_mask_1, perf_mask_2));
 
@@ -477,6 +477,8 @@ for slc=1:SLC
                 toc
 
                 save(Q_e_name, 'Q_e_m', 'Fp', 'Vp', 'PS', 'Visf');
+            else
+                load(Q_e_name);
             end
         else
             load(Q_e_name);

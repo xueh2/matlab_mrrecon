@@ -32,6 +32,8 @@ r2 = params.r2;
 % T2_0 = 0.250; % s
 T1_0 = params.T1_0; % s
 T2_0 = params.T2_0; % s
+T1_0_PD = params.T1_0_PD; % s
+T2_0_PD = params.T2_0_PD; % s
 
 Npe_total = params.Npe_full/params.PAT_accel_factor;
 % Npe_center = round(Npe_total/2); % # PE lines to center of k-space
@@ -39,8 +41,8 @@ Npe_center = floor(Npe_total/2)+1;
 params.Npulses = Npe_center;
 
 % PD signal (at [Gd]=0 without SR)
-params.T1 = Gd2T1(0, T1_0, r1);
-params.T2 = Gd2T1(0, T2_0, r2);
+params.T1 = Gd2T1(0, T1_0_PD, r1);
+params.T2 = Gd2T1(0, T2_0_PD, r2);
 params.flip_angle = params.PD_flip_angle;
 [PD] = flash_readout(params);
 PDmag = squeeze(rss(PD(1:2,:,:),1)); % PE, GD

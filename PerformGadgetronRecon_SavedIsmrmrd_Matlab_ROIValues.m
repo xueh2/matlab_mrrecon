@@ -1,5 +1,5 @@
 
-function [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_SNR_Gd_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, report_column, prefix, processing_always, processing_snr_always, processing_Gd_always)
+function [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_SNR_Gd_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, report_column, prefix, processing_always, processing_snr_always, processing_Gd_always, pause_cases)
 % [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_Matlab_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, report_column, prefix, processing_always)
 % if isempty(fixed_HCT)==1, measured HCT is used; if(fixed_HCT>=0 & fixed_HCT<=1), this value is used
 
@@ -13,6 +13,10 @@ end
 
 if(nargin<13)
     processing_Gd_always = 1;
+end
+
+if(nargin<14)
+    pause_cases = 0;
 end
 
 ROITable = PerfTable(1, :);
@@ -34,6 +38,14 @@ scanDate = [];
 scanTime = [];
 age = [];
 gender = [];
+height = [];
+weight = [];
+bsa = [];
+diabetes = [];
+HTN = [];
+Chol = [];
+smoker = [];
+EF = [];
 stressHB = [];
 restHB = [];
 hematocrit = [];
@@ -94,8 +106,11 @@ rSNR = [];
 sGd = [];
 rGd = [];
 
-sR2S = [];
-rR2S = [];
+sT2S = [];
+rT2S = [];
+
+sAifPeakGd = [];
+rAifPeakGd = [];
 
 sSplenic = [];
 rSplenic = [];
@@ -171,18 +186,32 @@ for n=1:num
         r2_roi = 'r2.mat';
         r3_roi = 'r3.mat';
     end
-        
-    if(isFileExist(fullfile(roiDir, s1_roi)) & isFileExist(fullfile(roiDir, r1_roi)))
+    
+    stress_has_roi = (isFileExist(fullfile(roiDir, s1_roi))) | (isFileExist(fullfile(roiDir, s2_roi))) | (isFileExist(fullfile(roiDir, s3_roi)));
+    rest_has_roi = (isFileExist(fullfile(roiDir, r1_roi))) | (isFileExist(fullfile(roiDir, r2_roi))) | (isFileExist(fullfile(roiDir, r3_roi)));
+    
+    if(stress_has_roi & rest_has_roi)
         
         scanInd = [scanInd; n];
         patientID = [patientID; {pID}];
         scanDate = [scanDate; study_dates];
         scanTime = [scanTime; study_time];
-        age = [age; PerfTable{n+1, 14}];
-        gender = [gender; PerfTable{n+1, 15}];
-        stressHB = [stressHB; PerfTable{n+1, 9}];
-        restHB = [restHB; PerfTable{n+1, 13}];
         hematocrit = [hematocrit; HCT];
+
+        age = [age; PerfTable{n+1, 12}];
+        gender = [gender; PerfTable{n+1, 13}];
+
+        stressHB = [stressHB; PerfTable{n+1, 8}];
+        restHB = [restHB; PerfTable{n+1, 11}];
+
+        height = [height; get_valid_value(PerfTable{n+1, 14})];
+        weight = [weight; get_valid_value(PerfTable{n+1, 15})];
+
+        diabetes = [diabetes; get_valid_value(PerfTable{n+1, 17})];
+        HTN = [HTN; get_valid_value(PerfTable{n+1, 18})];
+        Chol = [Chol; get_valid_value(PerfTable{n+1, 19})];
+        smoker = [smoker; get_valid_value(PerfTable{n+1, 20})];
+        EF = [EF; get_valid_value(PerfTable{n+1, 27})];
         
         disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, stress_column} ' - ' PerfTable{n+1, rest_column}]);       
         
@@ -190,8 +219,8 @@ for n=1:num
 
         PerfResult_file = fullfile(roiDir, [prefix '_PerfResult_' suffix '.mat']);
         
-        SNRResult_file = fullfile(figDir, ['SNR_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
-        Gd_Result_file = fullfile(figDir, ['Gd_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
+        SNRResult_file = fullfile(roiDir, ['SNR_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
+        Gd_Result_file = fullfile(roiDir, ['Gd_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
         
         has_result_file = 0;
         if(~processing_always & isFileExist(PerfResult_file) & isFileExist(SNRResult_file) & isFileExist(Gd_Result_file))
@@ -314,8 +343,8 @@ for n=1:num
             sGd = [sGd; max(s_Gd(1:end, :))];
             rGd = [rGd; max(r_Gd(1:end, :))];
             
-            sR2S = [sR2S; max(gd_v.sR2Star(1:end, :))];
-            rR2S = [rR2S; max(gd_v.rR2Star(1:end, :))];
+            sT2S = [sT2S; max(gd_v.sR2Star(1:end, :))];
+            rT2S = [rT2S; max(gd_v.rR2Star(1:end, :))];
         else        
             cd(roiDir)
             v = PerfTable(n+1, :);
@@ -388,22 +417,45 @@ for n=1:num
             
             v{nV+1} = res_stress.flow;
             disp(['stress flow : ' num2str(v{nV+1})]);
-
+            
             v{nV+2} = res_rest.flow;
             disp(['rest flow : ' num2str(v{nV+2})]);
 
+            has_rest_second_roi = 0;
+            if( (~isempty(s1) & numel(s1.ROI_info_table)==2) | (~isempty(s2) & numel(s2.ROI_info_table)==2) | (~isempty(s3) & numel(s3.ROI_info_table)==2))
+                
+                two_ROI = 1;
+
+                v{nV+3} = res_stress.flow_i;
+                disp(['stress flow, ischemia : ' num2str(v{nV+3})]);
+                
+                if(isfield(res_rest, 'flow_i'))
+                    v{nV+4} = res_rest.flow_i;
+                    has_rest_second_roi = 1;
+                else
+                    v{nV+4} = [-1 -1 -1];
+                end
+            else
+                v{nV+3} = [-1 -1 -1];
+                v{nV+4} = [-1 -1 -1];
+            end
+
+            v{nV+5} = max(stress.aif_stress_baseline_corrected);
+            v{nV+6} = max(rest.aif_rest_baseline_corrected);
+            v{nV+7} = HCT;
+            
             ind_s = find(res_stress.flow>0);
             % if(~isempty(find(res_stress.flow(ind_s)>6)) | ~isempty(find(res_stress.flow(ind_s)<3)))
             % if(~isempty(find(res_stress.flow(ind_s)>6)) | ~isempty(find(res_stress.flow(ind_s)<1.5)))
-%             if(~isempty(find(res_rest.flow(ind_s)>1.5)))
+%             if( ~isempty(find(res_rest.flow(ind_s)>1.5)) | ~isempty(find(res_stress.flow(ind_s)>6)) )
 %                 if(isfield(stressMat1, 'flowmaps_grappa_PSIR'))
-%                     figure; imagescn(flipdim(stressMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8]); PerfColorMap;
-%                     figure; imagescn(flipdim(stressMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8]); PerfColorMap;
-%                     figure; imagescn(flipdim(stressMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8]); PerfColorMap;
+%                     figure; imagescn(flipdim(stressMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap;
+%                     figure; imagescn(flipdim(stressMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s2_roi)); PerfColorMap;
+%                     figure; imagescn(flipdim(stressMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s3_roi)); PerfColorMap;
 % 
-%                     figure; imagescn(flipdim(restMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8]); PerfColorMap;
-%                     figure; imagescn(flipdim(restMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8]); PerfColorMap;
-%                     figure; imagescn(flipdim(restMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8]); PerfColorMap;
+%                     figure; imagescn(flipdim(restMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap;
+%                     figure; imagescn(flipdim(restMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r2_roi)); PerfColorMap;
+%                     figure; imagescn(flipdim(restMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r3_roi)); PerfColorMap;
 % 
 %                     onlyReview = 1;
 %                     [h_flow_stress, h_flow_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, [0 6], onlyReview, resDir);        
@@ -413,6 +465,26 @@ for n=1:num
 %                 end
 %             end
             
+            if(isfield(stressMat1, 'flowmaps_grappa_PSIR'))
+                    if(~isempty(s1)) figure; imagescn(flipdim(stressMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap; end
+                    if(~isempty(s2)) figure; imagescn(flipdim(stressMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s2_roi)); PerfColorMap; end
+                    if(~isempty(s3)) figure; imagescn(flipdim(stressMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s3_roi)); PerfColorMap; end
+
+                    if(~isempty(r1)) figure; imagescn(flipdim(restMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap; end
+                    if(~isempty(r2)) figure; imagescn(flipdim(restMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r2_roi)); PerfColorMap; end
+                    if(~isempty(r3)) figure; imagescn(flipdim(restMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r3_roi)); PerfColorMap; end
+
+                    if(pause_cases) 
+                        user_in = input('accept cases y or n :');
+                        if(user_in=='n')
+                            onlyReview = 1;
+                            [h_flow_stress, h_flow_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, [0 6], onlyReview, resDir);      
+                            pause;
+                        end
+                    end
+                    closeall
+            end
+                
             % ---------------------------------------------
             % load splenic
             sp1 = fullfile(roiDir, 's1_splenic.mat');
@@ -483,132 +555,135 @@ for n=1:num
             % SNR
             
             if(processing_snr_always | ~isFileExist(SNRResult_file))
-                sdata1 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_0_MAG.hdr'));
-                sdata2 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_1_MAG.hdr'));
-                sdata3 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_2_MAG.hdr'));
+                try
+                    sdata1 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_0_MAG.hdr'));
+                    sdata2 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_1_MAG.hdr'));
+                    sdata3 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_2_MAG.hdr'));
 
-                cd(stressDir)
-                s_gfactor = readGTPlusExportImageSeries_Squeeze(300);
-                s_gfactor = flipdim(s_gfactor, 2);
+                    cd(stressDir)
+                    s_gfactor = readGTPlusExportImageSeries_Squeeze(300);
+                    s_gfactor = flipdim(s_gfactor, 2);
 
-                rdata1 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_0_MAG.hdr'));
-                rdata2 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_1_MAG.hdr'));
-                rdata3 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_2_MAG.hdr'));
+                    rdata1 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_0_MAG.hdr'));
+                    rdata2 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_1_MAG.hdr'));
+                    rdata3 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_2_MAG.hdr'));
 
-                cd(restDir)
-                r_gfactor = readGTPlusExportImageSeries_Squeeze(300);
-                r_gfactor = flipdim(r_gfactor, 2);
+                    cd(restDir)
+                    r_gfactor = readGTPlusExportImageSeries_Squeeze(300);
+                    r_gfactor = flipdim(r_gfactor, 2);
 
-                sdata1 = flipdim(sdata1, 2);
-                sdata2 = flipdim(sdata2, 2);
-                sdata3 = flipdim(sdata3, 2);
-                rdata1 = flipdim(rdata1, 2);
-                rdata2 = flipdim(rdata2, 2);
-                rdata3 = flipdim(rdata3, 2);
+                    sdata1 = flipdim(sdata1, 2);
+                    sdata2 = flipdim(sdata2, 2);
+                    sdata3 = flipdim(sdata3, 2);
+                    rdata1 = flipdim(rdata1, 2);
+                    rdata2 = flipdim(rdata2, 2);
+                    rdata3 = flipdim(rdata3, 2);
 
-                snr_s1 = 25 * sdata1 ./ squeeze(s_gfactor(:,:,1,:));
-                snr_s2 = 25 * sdata2 ./ squeeze(s_gfactor(:,:,2,:));
-                snr_s3 = 25 * sdata3 ./ squeeze(s_gfactor(:,:,3,:));
+                    snr_s1 = 25 * sdata1 ./ squeeze(s_gfactor(:,:,1,:));
+                    snr_s2 = 25 * sdata2 ./ squeeze(s_gfactor(:,:,2,:));
+                    snr_s3 = 25 * sdata3 ./ squeeze(s_gfactor(:,:,3,:));
 
-                snr_r1 = 25 * rdata1 ./ squeeze(r_gfactor(:,:,1,:));
-                snr_r2 = 25 * rdata2 ./ squeeze(r_gfactor(:,:,2,:));
-                snr_r3 = 25 * rdata3 ./ squeeze(r_gfactor(:,:,3,:));
+                    snr_r1 = 25 * rdata1 ./ squeeze(r_gfactor(:,:,1,:));
+                    snr_r2 = 25 * rdata2 ./ squeeze(r_gfactor(:,:,2,:));
+                    snr_r3 = 25 * rdata3 ./ squeeze(r_gfactor(:,:,3,:));
 
-                cd(roiDir)
-                if(~isempty(s1))
-                    BW1=zeros(size(sdata1(:,:,1)));
-                    BW1=roipoly(sdata1(:,:,1), s1(1).ROI_info_table(1).ROI_x_coordinates, s1(1).ROI_info_table(1).ROI_y_coordinates);
-                    index1=find(BW1 >0);
-                end
-
-                if(~isempty(s2))
-                    BW2=zeros(size(sdata2(:,:,1)));
-                    BW2=roipoly(sdata2(:,:,1), s2(1).ROI_info_table(1).ROI_x_coordinates, s2(1).ROI_info_table(1).ROI_y_coordinates);
-                    index2=find(BW2 >0);
-                end
-
-                if(~isempty(s3))
-                    BW3=zeros(size(sdata3(:,:,1)));
-                    BW3=roipoly(sdata3(:,:,1), s3(1).ROI_info_table(1).ROI_x_coordinates, s3(1).ROI_info_table(1).ROI_y_coordinates);
-                    index3=find(BW3 >0);
-                end
-
-                if(~isempty(r1))
-                    rBW1=zeros(size(rdata1(:,:,1)));
-                    rBW1=roipoly(rdata1(:,:,1), r1(1).ROI_info_table(1).ROI_x_coordinates, r1(1).ROI_info_table(1).ROI_y_coordinates);
-                    rindex1=find(rBW1 >0);
-                end
-
-                if(~isempty(r2))
-                    rBW2=zeros(size(rdata2(:,:,1)));
-                    rBW2=roipoly(rdata2(:,:,1), r2(1).ROI_info_table(1).ROI_x_coordinates, r2(1).ROI_info_table(1).ROI_y_coordinates);
-                    rindex2=find(rBW2 >0);
-                end
-
-                if(~isempty(r3))
-                    rBW3=zeros(size(rdata3(:,:,1)));
-                    rBW3=roipoly(rdata3(:,:,1), r3(1).ROI_info_table(1).ROI_x_coordinates, r3(1).ROI_info_table(1).ROI_y_coordinates);
-                    rindex3=find(rBW3 >0);
-                end
-            
-                % gfactor scaled by 100
-                % data is scaled by 4
-                nRep = size(sdata1, 3);
-
-                s_SNR = zeros(nRep, 3);
-                r_SNR = zeros(nRep, 3);
-
-                for rr=1:nRep
-                    sd1 = snr_s1(:,:,rr);
-                    sd2 = snr_s2(:,:,rr);
-                    sd3 = snr_s3(:,:,rr);
-
-                    rd1 = snr_r1(:,:,rr);
-                    rd2 = snr_r2(:,:,rr);
-                    rd3 = snr_r3(:,:,rr);
-
-                    v1 = 0;
+                    cd(roiDir)
                     if(~isempty(s1))
-                        v1 = mean(sd1(index1));
+                        BW1=zeros(size(sdata1(:,:,1)));
+                        BW1=roipoly(sdata1(:,:,1), s1(1).ROI_info_table(1).ROI_x_coordinates, s1(1).ROI_info_table(1).ROI_y_coordinates);
+                        index1=find(BW1 >0);
                     end
 
-                    v2 = 0;
                     if(~isempty(s2))
-                        v2 = mean(sd2(index2));
+                        BW2=zeros(size(sdata2(:,:,1)));
+                        BW2=roipoly(sdata2(:,:,1), s2(1).ROI_info_table(1).ROI_x_coordinates, s2(1).ROI_info_table(1).ROI_y_coordinates);
+                        index2=find(BW2 >0);
                     end
 
-                    v3 = 0;
                     if(~isempty(s3))
-                        v3 = mean(sd3(index3));
+                        BW3=zeros(size(sdata3(:,:,1)));
+                        BW3=roipoly(sdata3(:,:,1), s3(1).ROI_info_table(1).ROI_x_coordinates, s3(1).ROI_info_table(1).ROI_y_coordinates);
+                        index3=find(BW3 >0);
                     end
 
-                    s_SNR(rr, :) = [v1 v2 v3];
-
-                    v1 = 0;
                     if(~isempty(r1))
-                        v1 = mean(rd1(rindex1));
+                        rBW1=zeros(size(rdata1(:,:,1)));
+                        rBW1=roipoly(rdata1(:,:,1), r1(1).ROI_info_table(1).ROI_x_coordinates, r1(1).ROI_info_table(1).ROI_y_coordinates);
+                        rindex1=find(rBW1 >0);
                     end
 
-                    v2 = 0;
                     if(~isempty(r2))
-                        v2 = mean(rd2(rindex2));
+                        rBW2=zeros(size(rdata2(:,:,1)));
+                        rBW2=roipoly(rdata2(:,:,1), r2(1).ROI_info_table(1).ROI_x_coordinates, r2(1).ROI_info_table(1).ROI_y_coordinates);
+                        rindex2=find(rBW2 >0);
                     end
 
-                    v3 = 0;
                     if(~isempty(r3))
-                        v3 = mean(rd3(rindex3));
+                        rBW3=zeros(size(rdata3(:,:,1)));
+                        rBW3=roipoly(rdata3(:,:,1), r3(1).ROI_info_table(1).ROI_x_coordinates, r3(1).ROI_info_table(1).ROI_y_coordinates);
+                        rindex3=find(rBW3 >0);
                     end
-                    r_SNR(rr, :) = [v1 v2 v3];                
+
+                    % gfactor scaled by 100
+                    % data is scaled by 4
+                    nRep = size(sdata1, 3);
+
+                    s_SNR = zeros(nRep, 3);
+                    r_SNR = zeros(nRep, 3);
+
+                    for rr=1:nRep
+                        sd1 = snr_s1(:,:,rr);
+                        sd2 = snr_s2(:,:,rr);
+                        sd3 = snr_s3(:,:,rr);
+
+                        rd1 = snr_r1(:,:,rr);
+                        rd2 = snr_r2(:,:,rr);
+                        rd3 = snr_r3(:,:,rr);
+
+                        v1 = 0;
+                        if(~isempty(s1))
+                            v1 = mean(sd1(index1));
+                        end
+
+                        v2 = 0;
+                        if(~isempty(s2))
+                            v2 = mean(sd2(index2));
+                        end
+
+                        v3 = 0;
+                        if(~isempty(s3))
+                            v3 = mean(sd3(index3));
+                        end
+
+                        s_SNR(rr, :) = [v1 v2 v3];
+
+                        v1 = 0;
+                        if(~isempty(r1))
+                            v1 = mean(rd1(rindex1));
+                        end
+
+                        v2 = 0;
+                        if(~isempty(r2))
+                            v2 = mean(rd2(rindex2));
+                        end
+
+                        v3 = 0;
+                        if(~isempty(r3))
+                            v3 = mean(rd3(rindex3));
+                        end
+                        r_SNR(rr, :) = [v1 v2 v3];                
+                    end
+
+                    sSNR = [sSNR; max(s_SNR(4:end, :))];
+                    rSNR = [rSNR; max(r_SNR(4:end, :))];
+
+                    s_gfactor_map = s_gfactor(:,:,:,1) /100;
+                    r_gfactor_map = r_gfactor(:,:,:,1) /100;
+                    save(SNRResult_file, 's_SNR', 'r_SNR', 'snr_s1', 'snr_s2', 'snr_s3', 'snr_r1', 'snr_r2', 'snr_r3', 's_gfactor_map', 'r_gfactor_map');               
+                catch
+                    sSNR = [sSNR; -1 -1 -1];
+                    rSNR = [rSNR; -1 -1 -1];
                 end
-
-                sSNR = [sSNR; max(s_SNR(4:end, :))];
-                rSNR = [rSNR; max(r_SNR(4:end, :))];
-
-                s_gfactor_map = s_gfactor(:,:,:,1) /100;
-                r_gfactor_map = r_gfactor(:,:,:,1) /100;
-                save(SNRResult_file, 's_SNR', 'r_SNR', 'snr_s1', 'snr_s2', 'snr_s3', 'snr_r1', 'snr_r2', 'snr_r3', 's_gfactor_map', 'r_gfactor_map');
-                
-                copyfile(SNRResult_file, roiDir);
             else
                 snr_v = load(SNRResult_file);
                 
@@ -622,118 +697,148 @@ for n=1:num
             % ---------------------------------------------
             % Gd concentration
             if(processing_Gd_always | ~isFileExist(Gd_Result_file))
-                sdata1 = analyze75read(fullfile(stressDir, 'DebugOutput', 'CASignal_Perf_PSIR_0.hdr'));
-                sdata2 = analyze75read(fullfile(stressDir, 'DebugOutput', 'CASignal_Perf_PSIR_1.hdr'));
-                sdata3 = analyze75read(fullfile(stressDir, 'DebugOutput', 'CASignal_Perf_PSIR_2.hdr'));
+                try
+                    sdata1 = analyze75read(fullfile(stressDir, 'DebugOutput', 'CASignal_Perf_PSIR_0.hdr'));
+                    sdata2 = analyze75read(fullfile(stressDir, 'DebugOutput', 'CASignal_Perf_PSIR_1.hdr'));
+                    sdata3 = analyze75read(fullfile(stressDir, 'DebugOutput', 'CASignal_Perf_PSIR_2.hdr'));
 
-                rdata1 = analyze75read(fullfile(restDir, 'DebugOutput', 'CASignal_Perf_PSIR_0.hdr'));
-                rdata2 = analyze75read(fullfile(restDir, 'DebugOutput', 'CASignal_Perf_PSIR_1.hdr'));
-                rdata3 = analyze75read(fullfile(restDir, 'DebugOutput', 'CASignal_Perf_PSIR_2.hdr'));
+                    rdata1 = analyze75read(fullfile(restDir, 'DebugOutput', 'CASignal_Perf_PSIR_0.hdr'));
+                    rdata2 = analyze75read(fullfile(restDir, 'DebugOutput', 'CASignal_Perf_PSIR_1.hdr'));
+                    rdata3 = analyze75read(fullfile(restDir, 'DebugOutput', 'CASignal_Perf_PSIR_2.hdr'));
 
-                sdata1 = flipdim(sdata1, 2);
-                sdata2 = flipdim(sdata2, 2);
-                sdata3 = flipdim(sdata3, 2);
-                rdata1 = flipdim(rdata1, 2);
-                rdata2 = flipdim(rdata2, 2);
-                rdata3 = flipdim(rdata3, 2);
+                    sdata1 = flipdim(sdata1, 2);
+                    sdata2 = flipdim(sdata2, 2);
+                    sdata3 = flipdim(sdata3, 2);
+                    rdata1 = flipdim(rdata1, 2);
+                    rdata2 = flipdim(rdata2, 2);
+                    rdata3 = flipdim(rdata3, 2);
 
-                sR2Star = analyze75read(fullfile(stressDir, 'DebugOutput', 'aif_cin_all_R2Star_SLEP.hdr'));
-                rR2Star = analyze75read(fullfile(restDir, 'DebugOutput', 'aif_cin_all_R2Star_SLEP.hdr'));
-                
-                cd(roiDir)
-                if(~isempty(s1))
-                    BW1=zeros(size(sdata1(:,:,1)));
-                    BW1=roipoly(sdata1(:,:,1), s1(1).ROI_info_table(1).ROI_x_coordinates, s1(1).ROI_info_table(1).ROI_y_coordinates);
-                    index1=find(BW1 >0);
-                end
+                    [HeartRate_rest, aif_cin_Gd_rest, aif_cin_Gd_rest_without_R2Star, aif_cin_all_echo0_signal_rest, aif_cin_all_echo0_signal_after_R2StarCorrection_rest, footTime_rest, peakTime_rest, valleyTime_rest, R2Star_rest, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, restCase);
+                    [HeartRate_stress, aif_cin_Gd_stress, aif_cin_Gd_stress_without_R2Star, aif_cin_all_echo0_signal_stress, aif_cin_all_echo0_signal_after_R2StarCorrection_stress, footTime_stress, peakTime_stress, valleyTime_stress, R2Star_stress,KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, stressCase);
 
-                if(~isempty(s2))
-                    BW2=zeros(size(sdata2(:,:,1)));
-                    BW2=roipoly(sdata2(:,:,1), s2(1).ROI_info_table(1).ROI_x_coordinates, s2(1).ROI_info_table(1).ROI_y_coordinates);
-                    index2=find(BW2 >0);
-                end
+                    sR2Star = analyze75read(fullfile(stressDir, 'DebugOutput', 'aif_cin_all_R2Star_SLEP.hdr'));
+                    rR2Star = analyze75read(fullfile(restDir, 'DebugOutput', 'aif_cin_all_R2Star_SLEP.hdr'));
 
-                if(~isempty(s3))
-                    BW3=zeros(size(sdata3(:,:,1)));
-                    BW3=roipoly(sdata3(:,:,1), s3(1).ROI_info_table(1).ROI_x_coordinates, s3(1).ROI_info_table(1).ROI_y_coordinates);
-                    index3=find(BW3 >0);
-                end
+                    rest_T2S = 1.0 ./ (rR2Star+eps);
+                    stress_T2S = 1.0 ./ (sR2Star+eps);
 
-                if(~isempty(r1))
-                    rBW1=zeros(size(rdata1(:,:,1)));
-                    rBW1=roipoly(rdata1(:,:,1), r1(1).ROI_info_table(1).ROI_x_coordinates, r1(1).ROI_info_table(1).ROI_y_coordinates);
-                    rindex1=find(rBW1 >0);
-                end
+                    rest_aif_T2S_peak = min( [rest_T2S(ceil(peakTime_rest)) rest_T2S(ceil(peakTime_rest+0.5)) rest_T2S(ceil(peakTime_rest-0.5))] );
+                    stress_aif_T2S_peak = min( [stress_T2S(ceil(peakTime_stress)) stress_T2S(ceil(peakTime_stress+0.5)) stress_T2S(ceil(peakTime_stress-0.5))] );
 
-                if(~isempty(r2))
-                    rBW2=zeros(size(rdata2(:,:,1)));
-                    rBW2=roipoly(rdata2(:,:,1), r2(1).ROI_info_table(1).ROI_x_coordinates, r2(1).ROI_info_table(1).ROI_y_coordinates);
-                    rindex2=find(rBW2 >0);
-                end
+                    rest_aif_Gd_peak = max( aif_cin_Gd_rest );
+                    stress_aif_Gd_peak = max( aif_cin_Gd_stress );
 
-                if(~isempty(r3))
-                    rBW3=zeros(size(rdata3(:,:,1)));
-                    rBW3=roipoly(rdata3(:,:,1), r3(1).ROI_info_table(1).ROI_x_coordinates, r3(1).ROI_info_table(1).ROI_y_coordinates);
-                    rindex3=find(rBW3 >0);
-                end
-                
-                nRep = size(sdata1, 3);
+                    sAifPeakGd = [sAifPeakGd; stress_aif_Gd_peak];
+                    rAifPeakGd = [rAifPeakGd; rest_aif_Gd_peak];
 
-                s_Gd = zeros(nRep, 3);
-                r_Gd = zeros(nRep, 3);
-
-                for rr=1:nRep
-                    sd1 = sdata1(:,:,rr);
-                    sd2 = sdata2(:,:,rr);
-                    sd3 = sdata3(:,:,rr);
-
-                    rd1 = rdata1(:,:,rr);
-                    rd2 = rdata2(:,:,rr);
-                    rd3 = rdata3(:,:,rr);
-
-                    v1 = 0;
+                    cd(roiDir)
                     if(~isempty(s1))
-                        v1 = mean(sd1(index1));
+                        BW1=zeros(size(sdata1(:,:,1)));
+                        BW1=roipoly(sdata1(:,:,1), s1(1).ROI_info_table(1).ROI_x_coordinates, s1(1).ROI_info_table(1).ROI_y_coordinates);
+                        index1=find(BW1 >0);
                     end
 
-                    v2 = 0;
                     if(~isempty(s2))
-                        v2 = mean(sd2(index2));
+                        BW2=zeros(size(sdata2(:,:,1)));
+                        BW2=roipoly(sdata2(:,:,1), s2(1).ROI_info_table(1).ROI_x_coordinates, s2(1).ROI_info_table(1).ROI_y_coordinates);
+                        index2=find(BW2 >0);
                     end
 
-                    v3 = 0;
                     if(~isempty(s3))
-                        v3 = mean(sd3(index3));
+                        BW3=zeros(size(sdata3(:,:,1)));
+                        BW3=roipoly(sdata3(:,:,1), s3(1).ROI_info_table(1).ROI_x_coordinates, s3(1).ROI_info_table(1).ROI_y_coordinates);
+                        index3=find(BW3 >0);
                     end
 
-                    s_Gd(rr, :) = [v1 v2 v3];
-
-                    v1 = 0;
                     if(~isempty(r1))
-                        v1 = mean(rd1(rindex1));
+                        rBW1=zeros(size(rdata1(:,:,1)));
+                        rBW1=roipoly(rdata1(:,:,1), r1(1).ROI_info_table(1).ROI_x_coordinates, r1(1).ROI_info_table(1).ROI_y_coordinates);
+                        rindex1=find(rBW1 >0);
                     end
 
-                    v2 = 0;
                     if(~isempty(r2))
-                        v2 = mean(rd2(rindex2));
+                        rBW2=zeros(size(rdata2(:,:,1)));
+                        rBW2=roipoly(rdata2(:,:,1), r2(1).ROI_info_table(1).ROI_x_coordinates, r2(1).ROI_info_table(1).ROI_y_coordinates);
+                        rindex2=find(rBW2 >0);
                     end
 
-                    v3 = 0;
                     if(~isempty(r3))
-                        v3 = mean(rd3(rindex3));
+                        rBW3=zeros(size(rdata3(:,:,1)));
+                        rBW3=roipoly(rdata3(:,:,1), r3(1).ROI_info_table(1).ROI_x_coordinates, r3(1).ROI_info_table(1).ROI_y_coordinates);
+                        rindex3=find(rBW3 >0);
                     end
-                    r_Gd(rr, :) = [v1 v2 v3];                
+
+                    nRep = size(sdata1, 3);
+
+                    s_Gd = zeros(nRep, 3);
+                    r_Gd = zeros(nRep, 3);
+
+                    for rr=1:nRep
+                        sd1 = sdata1(:,:,rr);
+                        sd2 = sdata2(:,:,rr);
+                        sd3 = sdata3(:,:,rr);
+
+                        rd1 = rdata1(:,:,rr);
+                        rd2 = rdata2(:,:,rr);
+                        rd3 = rdata3(:,:,rr);
+
+                        v1 = 0;
+                        if(~isempty(s1))
+                            v1 = mean(sd1(index1));
+                        end
+
+                        v2 = 0;
+                        if(~isempty(s2))
+                            v2 = mean(sd2(index2));
+                        end
+
+                        v3 = 0;
+                        if(~isempty(s3))
+                            v3 = mean(sd3(index3));
+                        end
+
+                        s_Gd(rr, :) = [v1 v2 v3];
+
+                        v1 = 0;
+                        if(~isempty(r1))
+                            v1 = mean(rd1(rindex1));
+                        end
+
+                        v2 = 0;
+                        if(~isempty(r2))
+                            v2 = mean(rd2(rindex2));
+                        end
+
+                        v3 = 0;
+                        if(~isempty(r3))
+                            v3 = mean(rd3(rindex3));
+                        end
+                        r_Gd(rr, :) = [v1 v2 v3];                
+                    end
+                   
+                    sGd = [sGd; max(s_Gd(1:end, :))];
+                    rGd = [rGd; max(r_Gd(1:end, :))];
+
+%                     vs = mean( [s_Gd(ceil(peakTime_rest)) s_Gd(ceil(peakTime_rest+0.5)) s_Gd(ceil(peakTime_rest-0.5))] );
+%                     sGd = [sGd; vs];
+%                     
+%                     vr = mean( [r_Gd(ceil(peakTime_rest)) r_Gd(ceil(peakTime_rest+0.5)) r_Gd(ceil(peakTime_rest-0.5))] );
+%                     rGd = [rGd; vr];
+
+%                     sR2S = [sR2S; max(sR2Star(1:end, :))];
+%                     rR2S = [rR2S; max(rR2Star(1:end, :))];
+
+                    sT2S = [sT2S; stress_aif_T2S_peak];
+                    rT2S = [rT2S; rest_aif_T2S_peak];
+
+                    save(Gd_Result_file, 's_Gd', 'r_Gd', 'sR2Star', 'rR2Star', 'peakTime_rest', 'peakTime_stress', 'aif_cin_Gd_rest', 'aif_cin_Gd_stress');  
+                catch
+                    sGd = [sGd; -1 -1 -1];
+                    rGd = [rGd; -1 -1 -1];
+
+                    sT2S = [sT2S; -1 -1 -1];
+                    rT2S = [rT2S; -1 -1 -1];
                 end
-
-                sGd = [sGd; max(s_Gd(1:end, :))];
-                rGd = [rGd; max(r_Gd(1:end, :))];
-
-                sR2S = [sR2S; max(sR2Star(1:end, :))];
-                rR2S = [rR2S; max(rR2Star(1:end, :))];
-
-                save(Gd_Result_file, 's_Gd', 'r_Gd', 'sR2Star', 'rR2Star');
-                
-                copyfile(Gd_Result_file, roiDir);
             else
                 gd_v = load(Gd_Result_file);
                 
@@ -743,34 +848,11 @@ for n=1:num
                 sGd = [sGd; max(s_Gd(1:end, :))];
                 rGd = [rGd; max(r_Gd(1:end, :))];
                 
-                sR2S = [sR2S; max(gd_v.sR2Star(1:end, :))];
-                rR2S = [rR2S; max(gd_v.rR2Star(1:end, :))];
+                sT2S = [sT2S; max(gd_v.sR2Star(1:end, :))];
+                rT2S = [rT2S; max(gd_v.rR2Star(1:end, :))];
             end
                 
-            % ---------------------------------------------
-            has_rest_second_roi = 0;
-            if(numel(s1.ROI_info_table)==2)
-                
-                two_ROI = 1;
-
-                v{nV+3} = res_stress.flow_i;
-                disp(['stress flow, ischemia : ' num2str(v{nV+3})]);
-                
-                if(isfield(res_rest, 'flow_i'))
-                    v{nV+4} = res_rest.flow_i;
-                    has_rest_second_roi = 1;
-                else
-                    v{nV+4} = [-1 -1 -1];
-                end
-            else
-                v{nV+3} = [-1 -1 -1];
-                v{nV+4} = [-1 -1 -1];
-            end
-
-            v{nV+5} = max(stress.aif_stress_baseline_corrected);
-            v{nV+6} = max(rest.aif_rest_baseline_corrected);
-            v{nV+7} = HCT;
-            
+            % ---------------------------------------------            
             ind = 8;
             
             % E
@@ -1001,7 +1083,8 @@ res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB,
                 sKi_Fermi, rKi_Fermi, sKi_Fermi_i, rKi_Fermi_i, ... 
                 sKi_TwoCompExp, rKi_TwoCompExp, sKi_TwoCompExp_i, rKi_TwoCompExp_i, ...
                 sKi_BTEX, rKi_BTEX, sKi_BTEX_i, rKi_BTEX_i, ... 
-                sSD, rSD, sSD_i, rSD_i, sSplenic, rSplenic, pre_T1_blood, post_T1_blood, pre_T1_myo, post_T1_myo, sSNR, rSNR, sGd, rGd, sR2S, rR2S);
+                sSD, rSD, sSD_i, rSD_i, sSplenic, rSplenic, pre_T1_blood, post_T1_blood, pre_T1_myo, post_T1_myo, sSNR, rSNR, sGd, rGd, sT2S, rT2S, sAifPeakGd, rAifPeakGd, ...
+                age, gender, stressHB, restHB, height, weight, diabetes, HTN, Chol, smoker, EF);
 
 disp('=======================================================================');
 disp(['Stress flow - ' num2str(mean(sf(:))) '+/-' num2str(std(sf(:)))]);
@@ -1054,7 +1137,7 @@ if(isfield(a1, 'flowmaps_grappa_PSIR'))
     res.Ki_BTEX = [f1.m f2.m f3.m];
 
     %% if having second roi
-    if(numel(s1.ROI_info_table)==2)
+    if( (~isempty(s1) & numel(s1.ROI_info_table)==2) | (~isempty(s2) & numel(s2.ROI_info_table)==2) | (~isempty(s3) & numel(s3.ROI_info_table)==2))
 
         [f1, f2, f3] = get_2nd_roi_values(a1.flowmaps_grappa_PSIR, a2.flowmaps_grappa_PSIR, a3.flowmaps_grappa_PSIR, s1, s2, s3);
         res.flow_i = [f1.m f2.m f3.m];
@@ -1123,7 +1206,7 @@ elseif(isfield(a1, 'flowmaps_grappa_PSIR_OnlyGlobalSearch'))
     res.Ki_BTEX = [f1.m f2.m f3.m];
 
     %% if having second roi
-    if(numel(s1.ROI_info_table)==2)
+    if( (~isempty(s1) & numel(s1.ROI_info_table)==2) | (~isempty(s2) & numel(s2.ROI_info_table)==2) | (~isempty(s3) & numel(s3.ROI_info_table)==2))
 
         [f1, f2, f3] = get_2nd_roi_values(a1.flowmaps_grappa_PSIR_OnlyGlobalSearch, a2.flowmaps_grappa_PSIR_OnlyGlobalSearch, a3.flowmaps_grappa_PSIR_OnlyGlobalSearch, s1, s2, s3);
         res.flow_i = [f1.m f2.m f3.m];
@@ -1196,7 +1279,7 @@ elseif(isfield(a1, 'flowmaps_grappa_PSIR_without_R2Star'))
     res.Ki_BTEX = [f1.m f2.m f3.m];
 
     %% if having second roi
-    if(numel(s1.ROI_info_table)==2)
+    if( (~isempty(s1) & numel(s1.ROI_info_table)==2) | (~isempty(s2) & numel(s2.ROI_info_table)==2) | (~isempty(s3) & numel(s3.ROI_info_table)==2))
 
         [f1, f2, f3] = get_2nd_roi_values(a1.flowmaps_grappa_PSIR_without_R2Star, a2.flowmaps_grappa_PSIR_without_R2Star, a3.flowmaps_grappa_PSIR_without_R2Star, s1, s2, s3);
         res.flow_i = [f1.m f2.m f3.m];
@@ -1273,3 +1356,15 @@ function [f1, f2, f3] = get_2nd_roi_values(a1, a2, a3, s1, s2, s3)
     end
 end
 
+function v = get_valid_value(v_in)
+
+    if(isnan(v_in))
+        v = 0;
+    else
+        if(isstr(v_in))
+            v = 1;
+        else
+            v = v_in;
+        end
+    end
+end
