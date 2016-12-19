@@ -290,7 +290,11 @@ for n=1:num
            
     if(isPerf)
         if(strcmp(getenv('GT_HOST'), 'localhost')==1)
+            ts = tic;
             movefile(debugFolder, dstDir, 'f');
+%             command = ['move /Y ' debugFolder ' ' dstDir];
+%             dos(command, '-echo');
+            disp(['copy debug output : ' num2str(toc(ts))]);
         else
             [key, user] = sshKeyLookup(getenv('GT_HOST'));
             debug_folder = ['/home/' user '/Debug/DebugOutput']

@@ -49,6 +49,8 @@ EF = [];
 stressHB = [];
 restHB = [];
 hematocrit = [];
+LVMass = [];
+LVEDV = [];
 
 sf = [];
 rf = [];
@@ -198,11 +200,11 @@ for n=1:num
         scanTime = [scanTime; study_time];
         hematocrit = [hematocrit; HCT];
 
-        age = [age; PerfTable{n+1, 12}];
-        gender = [gender; PerfTable{n+1, 13}];
+        age = [age; PerfTable{n+1, 14}];
+        gender = [gender; PerfTable{n+1, 15}];
 
-        stressHB = [stressHB; PerfTable{n+1, 8}];
-        restHB = [restHB; PerfTable{n+1, 11}];
+        stressHB = [stressHB; PerfTable{n+1, 9}];
+        restHB = [restHB; PerfTable{n+1, 13}];
 
         height = [height; get_valid_value(PerfTable{n+1, 14})];
         weight = [weight; get_valid_value(PerfTable{n+1, 15})];
@@ -212,6 +214,8 @@ for n=1:num
         Chol = [Chol; get_valid_value(PerfTable{n+1, 19})];
         smoker = [smoker; get_valid_value(PerfTable{n+1, 20})];
         EF = [EF; get_valid_value(PerfTable{n+1, 27})];
+        LVMass = [LVMass; get_valid_value(PerfTable{n+1, 35})];
+        LVEDV = [LVEDV; get_valid_value(PerfTable{n+1, 36})];
         
         disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, stress_column} ' - ' PerfTable{n+1, rest_column}]);       
         
@@ -270,7 +274,7 @@ for n=1:num
             
             sSNR = [sSNR; mean(tt.s_SNR(4:end, :), 1)];
             rSNR = [rSNR; mean(tt.r_SNR(4:end, :), 1)];
-            
+                                
             if(two_ROI)
                 sE_i = [sE_i; res_stress.E_i];
                 rE_i = [rE_i; res_rest.E_i];
@@ -345,6 +349,14 @@ for n=1:num
             
             sT2S = [sT2S; max(gd_v.sR2Star(1:end, :))];
             rT2S = [rT2S; max(gd_v.rR2Star(1:end, :))];
+            
+            if(isfield(gd_v, 'stress_aif_Gd_peak'))
+                sAifPeakGd = [sAifPeakGd; gd_v.stress_aif_Gd_peak];
+                rAifPeakGd = [rAifPeakGd; gd_v.rest_aif_Gd_peak];
+            else
+                sAifPeakGd = [sAifPeakGd; -1];
+                rAifPeakGd = [rAifPeakGd; -1];
+            end
         else        
             cd(roiDir)
             v = PerfTable(n+1, :);
@@ -409,14 +421,19 @@ for n=1:num
             restMat2 = load(fullfile(resDir, study_dates, restCase, [prefix '_' suffix '_1.mat']));
             restMat3 = load(fullfile(resDir, study_dates, restCase, [prefix '_' suffix '_2.mat']));
                   
-            % figure; imagescn(stress.flow_stress, [0 6]); PerfColorMap; figure; imagescn(stressMat1.flowmaps_grappa_PSIR(:,:,end), [0 6]); PerfColorMap; figure; imagescn(stressMat1.Ki_whole_grappa_PSIR, [0 6]); PerfColorMap;
-            % figure; imagescn(stress.flow_stress, [0 6]); PerfColorMap; figure; imagescn(stressMat3.flowmaps_grappa_PSIR(:,:,end), [0 6]); PerfColorMap; figure; imagescn(stressMat3.Ki_whole_grappa_PSIR, [0 6]); PerfColorMap;
-
+%             figure; imagescn(cat(3, stressMat1.flowmaps_grappa_PSIR(:,:,end), stressMat1.Ki_whole_grappa_PSIR), [0 8]); PerfColorMap;
+%             figure; imagescn(cat(3, stressMat2.flowmaps_grappa_PSIR(:,:,end), stressMat2.Ki_whole_grappa_PSIR), [0 8]); PerfColorMap;
+%             figure; imagescn(cat(3, stressMat3.flowmaps_grappa_PSIR(:,:,end), stressMat3.Ki_whole_grappa_PSIR), [0 8]); PerfColorMap;
+% 
+% %             pause;
+%             closeall
+            
             res_stress = PerformGadgetronRecon_Matlab_ROIValues_OneCase(s1, s2, s3, stressMat1, stressMat2, stressMat3, HCT);
             res_rest = PerformGadgetronRecon_Matlab_ROIValues_OneCase(r1, r2, r3, restMat1, restMat2, restMat3, HCT);                       
             
             v{nV+1} = res_stress.flow;
             disp(['stress flow : ' num2str(v{nV+1})]);
+            disp(['stress Ki_Fermi : ' num2str(res_stress.Ki_Fermi)]);
             
             v{nV+2} = res_rest.flow;
             disp(['rest flow : ' num2str(v{nV+2})]);
@@ -465,25 +482,25 @@ for n=1:num
 %                 end
 %             end
             
-            if(isfield(stressMat1, 'flowmaps_grappa_PSIR'))
-                    if(~isempty(s1)) figure; imagescn(flipdim(stressMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap; end
-                    if(~isempty(s2)) figure; imagescn(flipdim(stressMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s2_roi)); PerfColorMap; end
-                    if(~isempty(s3)) figure; imagescn(flipdim(stressMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s3_roi)); PerfColorMap; end
-
-                    if(~isempty(r1)) figure; imagescn(flipdim(restMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap; end
-                    if(~isempty(r2)) figure; imagescn(flipdim(restMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r2_roi)); PerfColorMap; end
-                    if(~isempty(r3)) figure; imagescn(flipdim(restMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r3_roi)); PerfColorMap; end
-
-                    if(pause_cases) 
-                        user_in = input('accept cases y or n :');
-                        if(user_in=='n')
-                            onlyReview = 1;
-                            [h_flow_stress, h_flow_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, [0 6], onlyReview, resDir);      
-                            pause;
-                        end
-                    end
-                    closeall
-            end
+%             if(isfield(stressMat1, 'flowmaps_grappa_PSIR'))
+%                     if(~isempty(s1)) figure; imagescn(flipdim(stressMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap; end
+%                     if(~isempty(s2)) figure; imagescn(flipdim(stressMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s2_roi)); PerfColorMap; end
+%                     if(~isempty(s3)) figure; imagescn(flipdim(stressMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s3_roi)); PerfColorMap; end
+% 
+%                     if(~isempty(r1)) figure; imagescn(flipdim(restMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap; end
+%                     if(~isempty(r2)) figure; imagescn(flipdim(restMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r2_roi)); PerfColorMap; end
+%                     if(~isempty(r3)) figure; imagescn(flipdim(restMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r3_roi)); PerfColorMap; end
+% 
+%                     if(pause_cases) 
+%                         user_in = input('accept cases y or n :');
+%                         if(user_in=='n')
+%                             onlyReview = 1;
+%                             [h_flow_stress, h_flow_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, [0 6], onlyReview, resDir);      
+%                             pause;
+%                         end
+%                     end
+%                     closeall
+%             end
                 
             % ---------------------------------------------
             % load splenic
@@ -831,7 +848,7 @@ for n=1:num
                     sT2S = [sT2S; stress_aif_T2S_peak];
                     rT2S = [rT2S; rest_aif_T2S_peak];
 
-                    save(Gd_Result_file, 's_Gd', 'r_Gd', 'sR2Star', 'rR2Star', 'peakTime_rest', 'peakTime_stress', 'aif_cin_Gd_rest', 'aif_cin_Gd_stress');  
+                    save(Gd_Result_file, 's_Gd', 'r_Gd', 'sR2Star', 'rR2Star', 'peakTime_rest', 'peakTime_stress', 'aif_cin_Gd_rest', 'aif_cin_Gd_stress', 'stress_aif_Gd_peak', 'rest_aif_Gd_peak');  
                 catch
                     sGd = [sGd; -1 -1 -1];
                     rGd = [rGd; -1 -1 -1];
@@ -850,6 +867,14 @@ for n=1:num
                 
                 sT2S = [sT2S; max(gd_v.sR2Star(1:end, :))];
                 rT2S = [rT2S; max(gd_v.rR2Star(1:end, :))];
+                
+                if(isfield(gd_v, 'stress_aif_Gd_peak'))
+                    sAifPeakGd = [sAifPeakGd; gd_v.stress_aif_Gd_peak];
+                    rAifPeakGd = [rAifPeakGd; gd_v.rest_aif_Gd_peak];
+                else
+                    sAifPeakGd = [sAifPeakGd; 0];
+                    rAifPeakGd = [rAifPeakGd; 0];
+                end
             end
                 
             % ---------------------------------------------            
@@ -1073,7 +1098,7 @@ for n=1:num
     end
 end
 
-res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB, restHB, hematocrit, ... 
+res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB, restHB, hematocrit, LVMass, LVEDV, ... 
                 sf, rf, sf_i, rf_i, ... 
                 sE, rE, sE_i, rE_i, ... 
                 sPS, rPS, sPS_i, rPS_i, ...
@@ -1083,7 +1108,8 @@ res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB,
                 sKi_Fermi, rKi_Fermi, sKi_Fermi_i, rKi_Fermi_i, ... 
                 sKi_TwoCompExp, rKi_TwoCompExp, sKi_TwoCompExp_i, rKi_TwoCompExp_i, ...
                 sKi_BTEX, rKi_BTEX, sKi_BTEX_i, rKi_BTEX_i, ... 
-                sSD, rSD, sSD_i, rSD_i, sSplenic, rSplenic, pre_T1_blood, post_T1_blood, pre_T1_myo, post_T1_myo, sSNR, rSNR, sGd, rGd, sT2S, rT2S, sAifPeakGd, rAifPeakGd, ...
+                sSD, rSD, sSD_i, rSD_i, sSplenic, rSplenic, pre_T1_blood, post_T1_blood, pre_T1_myo, post_T1_myo, ... 
+                sSNR, rSNR, sGd, rGd, sT2S, rT2S, sAifPeakGd, rAifPeakGd, ...
                 age, gender, stressHB, restHB, height, weight, diabetes, HTN, Chol, smoker, EF);
 
 disp('=======================================================================');

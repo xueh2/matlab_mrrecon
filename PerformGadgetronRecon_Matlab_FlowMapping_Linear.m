@@ -79,8 +79,9 @@ if(~reComputed_withoutR2Star & isFileExist(Q_e_name) & isFileExist(slc1_name) & 
 end
 
 % if(processed_linear & processed_linear_withoutR2Star)
-%     return;
-% end
+if(processed_linear)
+    return;
+end
 
 %% read in h5 file
 dset = ismrmrd.Dataset(fullfile(dataDir, [h5Name '.h5']));
@@ -199,35 +200,35 @@ PDMaskIntensity = analyze75read('PDMaskIntensity.hdr');
 pdPicked = analyze75read('pdPicked.hdr');
 aifPicked = analyze75read('aifPicked.hdr');
 aifMaskIntensity = analyze75read('aifMaskIntensity.hdr');
-aif0 = analyze75read('AIF_input_for_moco_0_MAG.hdr');
+% aif0 = analyze75read('AIF_input_for_moco_0_MAG.hdr');
 aif_LUT = analyze75read('aif_cin_LUT_flash_pd_flash_sr.hdr');
-aif_PD_echo0 = analyze75read('input_aif_PD_0.hdr');
-aif_PD_echo1 = analyze75read('input_aif_PD_1.hdr');
+% aif_PD_echo0 = analyze75read('input_aif_PD_0.hdr');
+% aif_PD_echo1 = analyze75read('input_aif_PD_1.hdr');
 dstAcqTimes = analyze75read('dstAcqTimes_0.hdr');
 AIF_AcqTimes = analyze75read('AIF_AcqTimes_0.hdr');
 perf_LUT = analyze75read('Perf_T1_Correction_LUT.hdr');
 
-sr = analyze75read('input_for_SRNorm_0.hdr');
-pd = analyze75read('inputPD_for_SRNorm_0.hdr');
-sr_norm = analyze75read('SRNorm_0.hdr');
+sr_0 = analyze75read('input_for_SRNorm_0.hdr');
+pd_0 = analyze75read('inputPD_for_SRNorm_0.hdr');
+sr_norm_0 = analyze75read('SRNorm_0.hdr');
 pd0 = analyze75read('PD_0.hdr');
 perf_mask_0 = analyze75read('perf_mask_0.hdr');
 gd0 = analyze75read('CASignal_Perf_0.hdr');
 Perf_AcqTimes_0 = analyze75read('Perf_AcqTimes_0.hdr');
 gd0_resampled = analyze75read('Input_perf_computeFlowMap_0.hdr');
 
-sr = analyze75read('input_for_SRNorm_1.hdr');
-pd = analyze75read('inputPD_for_SRNorm_1.hdr');
-sr_norm = analyze75read('SRNorm_1.hdr');
+sr_1 = analyze75read('input_for_SRNorm_1.hdr');
+pd_1 = analyze75read('inputPD_for_SRNorm_1.hdr');
+sr_norm_1 = analyze75read('SRNorm_1.hdr');
 pd1 = analyze75read('PD_1.hdr');
 perf_mask_1 = analyze75read('perf_mask_1.hdr');
 gd1 = analyze75read('CASignal_Perf_1.hdr');
 Perf_AcqTimes_1 = analyze75read('Perf_AcqTimes_1.hdr');
 gd1_resampled = analyze75read('Input_perf_computeFlowMap_1.hdr');
 
-sr = analyze75read('input_for_SRNorm_2.hdr');
-pd = analyze75read('inputPD_for_SRNorm_2.hdr');
-sr_norm = analyze75read('SRNorm_2.hdr');
+sr_2 = analyze75read('input_for_SRNorm_2.hdr');
+pd_2 = analyze75read('inputPD_for_SRNorm_2.hdr');
+sr_norm_2 = analyze75read('SRNorm_2.hdr');
 pd2 = analyze75read('PD_2.hdr');
 perf_mask_2 = analyze75read('perf_mask_2.hdr');
 gd2 = analyze75read('CASignal_Perf_2.hdr');
@@ -245,43 +246,43 @@ eRO = RO - sRO;
 sE1=round(ra*E1);
 eE1 = E1 - sE1;
 
-% pref_prefix = ['perf_mask_' dataRole '_'];
-% 
-% perf_mask_file0 = fullfile(roiDir, [pref_prefix '0.mat']);
-% if(isFileExist(perf_mask_file0))
-%     pm = load(perf_mask_file0);
-%     perf_mask_0 = single(pm.BW);
-%     perf_mask_0 = flipdim(perf_mask_0, 2);
-% end
-% 
-% perf_mask_file1 = fullfile(roiDir, [pref_prefix '1.mat']);
-% if(isFileExist(perf_mask_file1))
-%     pm = load(perf_mask_file1);
-%     perf_mask_1 = single(pm.BW);
-%     perf_mask_1 = flipdim(perf_mask_1, 2);
-% end
-% 
-% perf_mask_file2 = fullfile(roiDir, [pref_prefix '2.mat']);
-% if(isFileExist(perf_mask_file2))
-%     pm = load(perf_mask_file2);
-%     perf_mask_2 = single(pm.BW);
-%     perf_mask_2 = flipdim(perf_mask_2, 2);
-% end
+pref_prefix = ['perf_mask_' dataRole '_'];
+
+perf_mask_file0 = fullfile(roiDir, [pref_prefix '0.mat']);
+if(isFileExist(perf_mask_file0))
+    pm = load(perf_mask_file0);
+    perf_mask_0 = single(pm.BW);
+    perf_mask_0 = flipdim(perf_mask_0, 2);
+end
+
+perf_mask_file1 = fullfile(roiDir, [pref_prefix '1.mat']);
+if(isFileExist(perf_mask_file1))
+    pm = load(perf_mask_file1);
+    perf_mask_1 = single(pm.BW);
+    perf_mask_1 = flipdim(perf_mask_1, 2);
+end
+
+perf_mask_file2 = fullfile(roiDir, [pref_prefix '2.mat']);
+if(isFileExist(perf_mask_file2))
+    pm = load(perf_mask_file2);
+    perf_mask_2 = single(pm.BW);
+    perf_mask_2 = flipdim(perf_mask_2, 2);
+end
 
 
-perf_mask_0(1:sRO, :) = 0;
-perf_mask_0(eRO:end, :) = 0;
-perf_mask_1(1:sRO, :) = 0;
-perf_mask_1(eRO:end, :) = 0;
-perf_mask_2(1:sRO, :) = 0;
-perf_mask_2(eRO:end, :) = 0;
-
-perf_mask_0(:, 1:sE1) = 0;
-perf_mask_0(:, eE1:end) = 0;
-perf_mask_1(:, 1:sE1) = 0;
-perf_mask_1(:, eE1:end) = 0;
-perf_mask_2(:, 1:sE1) = 0;
-perf_mask_2(:, eE1:end) = 0;
+% perf_mask_0(1:sRO, :) = 0;
+% perf_mask_0(eRO:end, :) = 0;
+% perf_mask_1(1:sRO, :) = 0;
+% perf_mask_1(eRO:end, :) = 0;
+% perf_mask_2(1:sRO, :) = 0;
+% perf_mask_2(eRO:end, :) = 0;
+% 
+% perf_mask_0(:, 1:sE1) = 0;
+% perf_mask_0(:, eE1:end) = 0;
+% perf_mask_1(:, 1:sE1) = 0;
+% perf_mask_1(:, eE1:end) = 0;
+% perf_mask_2(:, 1:sE1) = 0;
+% perf_mask_2(:, eE1:end) = 0;
 
 figure; imagescn(cat(3, perf_mask_0, perf_mask_1, perf_mask_2));
 
@@ -484,7 +485,7 @@ for slc=1:SLC
             load(Q_e_name);
         end            
         
-        if(reComputed_withoutR2Star | ~isFileExist(Q_e_name_without_R2Star))
+        if(0) % if(reComputed_withoutR2Star | ~isFileExist(Q_e_name_without_R2Star))
             disp(['--> compute Q_e_m_without_R2Star <--']);
             tic
             [sol_m_without_R2Star, C_e_m_without_R2Star, C_p_m_without_R2Star, Q_e_m_without_R2Star] = Matlab_gt_BTEX20_model( double(aif_cin_Gd_without_R2Star_baseline_corrected(:)), [0:1:N-1]*deltaT, xspan, Fp, Vp, PS, Visf, Gp, Gisf, Dp, Disf);
@@ -492,7 +493,7 @@ for slc=1:SLC
 
             save(Q_e_name_without_R2Star, 'Q_e_m_without_R2Star', 'Fp', 'Vp', 'PS', 'Visf');
         else
-            load(Q_e_name_without_R2Star);
+            %load(Q_e_name_without_R2Star);
         end
     end
 
@@ -526,7 +527,7 @@ for slc=1:SLC
         % blood_volume_maps_grappa_PSIR = blood_volume_maps_grappa_PSIR*hct_r;
         SD_maps_grappa_PSIR = SD_maps_grappa_PSIR*hct_r;
         
-        figure; imagescn(cat(3, Ki_whole_grappa_PSIR, flowmaps_grappa_PSIR(:,:,end)), [0 6]); PerfColorMap;
+        figure; imagescn(cat(3, Ki_whole_grappa_PSIR, flowmaps_grappa_PSIR(:,:,end)), [0 8]); PerfColorMap;
         figure; imagescn(SD_maps_grappa_PSIR(:,:,1), [0 1]); PerfColorMap;
         figure; imagescn(blood_volume_maps_grappa_PSIR(:,:,end), [0 40]); PerfColorMap;
         figure; imagescn(grappa_interVolumeMap_grappa_PSIR(:,:,end), [0 80]); PerfColorMap;
@@ -599,7 +600,7 @@ for slc=1:SLC
 % 
 %     end
 
-    if (reComputed_withoutR2Star | ~isFileExist(fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_'  suffix '_' num2str(slc-1) '.mat'])))
+    if(0) % if (reComputed_withoutR2Star | ~isFileExist(fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_'  suffix '_' num2str(slc-1) '.mat'])))
         
         disp(['--> compute flow map without R2Star correction and with HCT = ' hct_str]);
         

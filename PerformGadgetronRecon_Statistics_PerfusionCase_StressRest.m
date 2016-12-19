@@ -181,7 +181,7 @@ for ii=1:num
             else
                 disp(['AIF is too low - ' stressCase , ' - ' restCase]);
                 
-                pause;
+                % pause;
                 PerfTable_Wrong = [PerfTable_Wrong; {ii, patientID, study_dates, study_time_stress, study_time_rest, stress_aif_peak(ii), stress_aif_duration(ii), rest_aif_peak(ii), rest_aif_duration(ii), stressCase, restCase}];
             end
 

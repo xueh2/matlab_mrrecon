@@ -705,8 +705,8 @@ if(isempty(B1))
         LUT_slice = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
 
         % with averaging only
-        SR_all = SR(1,:) + SR1(1,:);
-        PD_all = PD(1,:) + PD1(1,:);
+        SR_all = SR(1,:) + SR1(1,:) + SR3(1,:);
+        PD_all = PD(1,:) + PD1(1,:) + PD3(1,:);
         LUT_averaging = SR_all./PD_all;
 
         % plot

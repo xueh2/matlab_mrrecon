@@ -1,7 +1,7 @@
 
 function [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, footTime, peakTime, valleyTime, R2Star, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, caseName)
-% [aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, foot, peak, valley, KiMap, flowMap, EMap, PSMap, VisfMap, BloodVolumeMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, caseName)
-% [aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, foot, peak, valley, KiMap, flowMap, EMap, PSMap, VisfMap, BloodVolumeMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan('I:\ReconResults\BARTS', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_42110_196106578_196106587_845_20160613-114338')
+% [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, foot, peak, valley, KiMap, flowMap, EMap, PSMap, VisfMap, BloodVolumeMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, caseName)
+% [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, foot, peak, valley, KiMap, flowMap, EMap, PSMap, VisfMap, BloodVolumeMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan('I:\ReconResults\BARTS', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_42110_196106578_196106587_845_20160613-114338')
 
 
 [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(caseName);

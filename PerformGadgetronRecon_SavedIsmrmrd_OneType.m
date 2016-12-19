@@ -150,5 +150,5 @@ ignored = [];
 % end
 
 % [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, styleSheet);
-[tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, [], []);
+[tU, ig, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, []);
 

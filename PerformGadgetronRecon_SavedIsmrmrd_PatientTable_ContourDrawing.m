@@ -49,18 +49,30 @@ for n=1:num
     [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(stressCase);
     roiDir = fullfile(contourDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' patientID '_' studyID '_' study_dates '_ROI'])
     
-    if(isFileExist(roiDir) & isFileExist(fullfile(roiDir, 'r1.mat')) & isFileExist(fullfile(roiDir, 'perf_mask_stress_1.mat')) )
+    if(isFileExist(roiDir) & isFileExist(fullfile(roiDir, 'r1.mat')) ... 
+            & isFileExist(fullfile(roiDir, 'perf_mask_stress_0.mat')) ... 
+            & isFileExist(fullfile(roiDir, 'perf_mask_stress_1.mat')) ... 
+            & isFileExist(fullfile(roiDir, 'perf_mask_stress_2.mat')) ... 
+            & isFileExist(fullfile(roiDir, 'r2.mat')) ...
+            & isFileExist(fullfile(roiDir, 'r3.mat')) ...
+            & isFileExist(fullfile(roiDir, 's1.mat')) ...
+            & isFileExist(fullfile(roiDir, 's2.mat')) ... 
+            & isFileExist(fullfile(roiDir, 's3.mat')))
         dir(roiDir);
         onlyReview = 1;
-        % continue; % temporary
+        continue; % temporary
     else    
         mkdir(roiDir)
         onlyReview = 0;
     end
     cd(roiDir)
     
+    try
     [h_flow_stress, h_flow_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, [0 6], onlyReview);            
-        
+    catch
+        continue;
+    end
+    
     figure;
     for s=1:numel(h_flow_stress)
         mask_file = fullfile(roiDir, ['perf_mask_stress_' num2str(s-1) '.mat']);
@@ -96,6 +108,52 @@ for n=1:num
         figure; imagescn(BW_rest);
     end
     clear BW_stress BW_rest
+    
+    % AIF mask
+
+%     restDir = fullfile(resDir, study_dates, restCase)
+%     stressDir = fullfile(resDir, study_dates, stressCase)
+% 
+%     r1 = analyze75read(fullfile(restDir, 'DebugOutput', 'input_aif_moco_0.hdr'));
+%     r2 = analyze75read(fullfile(restDir, 'DebugOutput', 'input_aif_moco_1.hdr'));
+%     aif_moco_rest = cat(4, r1, r2);    
+%     
+%     r1 = analyze75read(fullfile(stressDir, 'DebugOutput', 'input_aif_moco_0.hdr'));
+%     r2 = analyze75read(fullfile(stressDir, 'DebugOutput', 'input_aif_moco_1.hdr'));
+%     aif_moco_stress = cat(4, r1, r2);    
+%    
+%     aif_rest_mask = analyze75read(fullfile(restDir, 'DebugOutput', 'aif_LV_mask_for_TwoEcho_T2StartCorrection_0.hdr'));
+%     aif_rest_mask_final = analyze75read(fullfile(restDir, 'DebugOutput', 'AifLVMask_after_Picking.hdr'));
+% 
+%     figure; imagescn(aif_moco_rest, [], [], [], 3);
+%     figure; imagescn(aif_moco_stress, [], [], [], 3);
+%         
+%     AIF_stress_mask = load(fullfile(roiDir, 'AIF_stress_mask.mat'));
+%     AIF_rest_mask = load(fullfile(roiDir, 'AIF_rest_mask.mat'));
+%     
+%     rep = size(r1, 3);
+%     
+%     BW=zeros(size(r1(:,:,1)));
+%     BW=roipoly(r1(:,:,1),AIF_stress_mask.ROI_info_table(1).ROI_x_coordinates, AIF_stress_mask.ROI_info_table(1).ROI_y_coordinates);
+%     BW_stress_AIF = flipdim(BW,2);
+%     
+%     BW=roipoly(r1(:,:,1),AIF_rest_mask.ROI_info_table(1).ROI_x_coordinates, AIF_rest_mask(1).ROI_info_table(1).ROI_y_coordinates);
+%     BW_rest_AIF = flipdim(BW,2);
+%     
+%     BWs = repmat(BW_stress_AIF, [1 1 rep]);
+%     BWr = repmat(BW_rest_AIF, [1 1 rep]);
+%     
+%     ind = find(BWs>0);
+%     ind2 = find(BWr>0);
+%     
+%     r1(ind) = 1024;
+%     r2(ind2) = 1024;
+%     aif_moco_stress = cat(4, r1, r2); 
+%     figure; imagescn(aif_moco_stress, [], [], 10, 3);
+    
+%     header = CreateGtImageHeader(BW_stress_AIF);
+%     Matlab_gt_write_analyze(single(BW_stress_AIF), header, fullfile(roiDir, 'AIF_stress_mask'));
+%     Matlab_gt_write_analyze(single(BW_rest_AIF), header, fullfile(roiDir, 'AIF_rest_mask'));
     
     pause;
     closeall;

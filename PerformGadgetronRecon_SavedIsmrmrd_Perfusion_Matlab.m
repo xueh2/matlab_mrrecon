@@ -60,11 +60,16 @@ for tt=1:numel(case_list)
     roiDir_case = fullfile(roiDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' patientID '_' studyID '_' study_dates '_ROI'])
     
     % stress
+    try
     PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, stressCase, resDir, roiDir_case, 'stress', HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star);
+    catch
+    end
     
     %rest
+    try
     PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, restCase, resDir, roiDir_case, 'rest', HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star);
-    
+    catch
+    end
 %     pause;
     closeall;
 end
