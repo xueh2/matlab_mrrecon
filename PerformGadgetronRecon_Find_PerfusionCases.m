@@ -9,7 +9,7 @@ if(nargin<3)
 end
 
 if(nargin<4)
-    date_end = '2017-01-01';
+    date_end = '2018-01-01';
 end
 
 % ------------------------------------------------------------
@@ -62,6 +62,7 @@ tUsed = [];
 ignored = [];
 files_processed = [];
 study_dates = [];
+num_small_file = 1;
 
 for n=1:num
 
@@ -84,6 +85,24 @@ for n=1:num
     if(exist(dstDir)==7)
         files_processed = [files_processed; {name}];
         study_dates = [study_dates; str2double(study_date)];
+    else
+        
+        finfo = dir(dataName);
+       
+        isPerf = 0;
+        if(isempty(strfind(name, 'Perfusion'))~=1)
+            isPerf = 1;
+            if(finfo.bytes<200*1024*1024)
+                disp([num2str(num_small_file) ' - file size too small - ' num2str(n) ' - ' name ' - ' num2str(finfo.bytes/1024/1024) 'Mb']);
+                num_small_file = num_small_file + 1;
+                continue;
+            end
+        end
+    
+        if(isPerf)
+            files_processed = [files_processed; {name}];
+            study_dates = [study_dates; str2double(study_date)];
+        end
     end
 end
 
@@ -110,12 +129,12 @@ while (~isempty(files_processed))
     elem_id = [1];
     other_fs = [];
 
-    has_aif = 0;
+    has_aif = 1;
     try
         aif = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin.hdr'));
         has_aif = 1;
     catch
-        files_un_processed = [files_un_processed; {f1}];  
+        aif = 2.0;
     end
     
     if(has_aif)
@@ -136,18 +155,20 @@ while (~isempty(files_processed))
                 rest_cases = [rest_cases; {f1}];
                 patientID_processed = [patientID_processed; {[patientID '_' studyID]}];
             else
-                if(numel(other_fs) == 1 )
-                    [configName_2, scannerID_2, patientID_2, studyID_2, measurementID_2, study_dates_2, study_year_2, study_month_2, study_day_2, study_time_2] = parseSavedISMRMRD(other_fs{1});
+                if(numel(other_fs) >= 1 )
+                    for pfs=1:numel(other_fs)
+                        [configName_2, scannerID_2, patientID_2, studyID_2, measurementID_2, study_dates_2, study_year_2, study_month_2, study_day_2, study_time_2] = parseSavedISMRMRD(other_fs{pfs});
 
-                    if(str2num(study_time)>str2num(study_time_2))
-                        perf_cases = [perf_cases; {numP, other_fs{1}, f1}];
-                    else
-                        perf_cases = [perf_cases; {numP, f1, other_fs{1}}];
+                        if(str2num(study_time)>str2num(study_time_2))
+                            perf_cases = [perf_cases; {numP, other_fs{pfs}, f1}];
+                        else
+                            perf_cases = [perf_cases; {numP, f1, other_fs{pfs}}];
+                        end
+
+                        numP = numP + 1;
+
+                        patientID_processed = [patientID_processed; {[patientID '_' studyID]}];
                     end
-
-                    numP = numP + 1;
-
-                     patientID_processed = [patientID_processed; {[patientID '_' studyID]}];
                 else
                     files_un_processed = [files_un_processed; {f1}];  
                     for ii=1:numel(other_fs)

@@ -1,5 +1,5 @@
 
-function [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_SNR_Gd_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, report_column, prefix, processing_always, processing_snr_always, processing_Gd_always, pause_cases)
+function [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_SNR_Gd_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, report_column, prefix, processing_always, processing_snr_always, processing_Gd_always, prefix_SNR)
 % [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_Matlab_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, report_column, prefix, processing_always)
 % if isempty(fixed_HCT)==1, measured HCT is used; if(fixed_HCT>=0 & fixed_HCT<=1), this value is used
 
@@ -16,7 +16,7 @@ if(nargin<13)
 end
 
 if(nargin<14)
-    pause_cases = 0;
+    prefix_SNR = prefix;
 end
 
 ROITable = PerfTable(1, :);
@@ -72,6 +72,11 @@ rVisf = [];
 sVisf_i = [];
 rVisf_i = [];
 
+sVb = [];
+rVb = [];
+sVb_i = [];
+rVb_i = [];
+
 sVp = [];
 rVp = [];
 sVp_i = [];
@@ -116,6 +121,12 @@ rAifPeakGd = [];
 
 sSplenic = [];
 rSplenic = [];
+
+sDelay = [];
+rDelay = [];
+
+sFermiDelay = [];
+rFermiDelay = [];
 
 pre_T1_blood = [];
 pre_T1_myo = [];
@@ -171,7 +182,7 @@ for n=1:num
     end
     suffix = [study_dates '_hct' hct_str];
     
-    if(isFileExist(fullfile(roiDir, 'myo_stress1.mat')))
+    if(isFileExist(fullfile(roiDir, 'myo_stress1.mat')) | isFileExist(fullfile(roiDir, 'myo_stress2.mat')) | isFileExist(fullfile(roiDir, 'myo_stress3.mat')))
         s1_roi = 'myo_stress1.mat';
         s2_roi = 'myo_stress2.mat';
         s3_roi = 'myo_stress3.mat';
@@ -200,11 +211,11 @@ for n=1:num
         scanTime = [scanTime; study_time];
         hematocrit = [hematocrit; HCT];
 
-        age = [age; PerfTable{n+1, 14}];
-        gender = [gender; PerfTable{n+1, 15}];
+        age = [age; PerfTable{n+1, 12}];
+        gender = [gender; PerfTable{n+1, 13}];
 
-        stressHB = [stressHB; PerfTable{n+1, 9}];
-        restHB = [restHB; PerfTable{n+1, 13}];
+        stressHB = [stressHB; PerfTable{n+1, 8}];
+        restHB = [restHB; PerfTable{n+1, 11}];
 
         height = [height; get_valid_value(PerfTable{n+1, 14})];
         weight = [weight; get_valid_value(PerfTable{n+1, 15})];
@@ -214,8 +225,15 @@ for n=1:num
         Chol = [Chol; get_valid_value(PerfTable{n+1, 19})];
         smoker = [smoker; get_valid_value(PerfTable{n+1, 20})];
         EF = [EF; get_valid_value(PerfTable{n+1, 27})];
-        LVMass = [LVMass; get_valid_value(PerfTable{n+1, 35})];
-        LVEDV = [LVEDV; get_valid_value(PerfTable{n+1, 36})];
+        
+        vv = get_valid_value(PerfTable{n+1, 35});
+        if(isempty(get_valid_value(PerfTable{n+1, 35})))
+            LVMass = [LVMass; -1];
+            LVEDV = [LVEDV; -1];
+        else            
+            LVMass = [LVMass; get_valid_value(PerfTable{n+1, 35})];
+            LVEDV = [LVEDV; get_valid_value(PerfTable{n+1, 36})];
+        end
         
         disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, stress_column} ' - ' PerfTable{n+1, rest_column}]);       
         
@@ -223,8 +241,8 @@ for n=1:num
 
         PerfResult_file = fullfile(roiDir, [prefix '_PerfResult_' suffix '.mat']);
         
-        SNRResult_file = fullfile(roiDir, ['SNR_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
-        Gd_Result_file = fullfile(roiDir, ['Gd_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
+        SNRResult_file = fullfile(roiDir, [prefix_SNR '_SNR_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
+        Gd_Result_file = fullfile(roiDir, [prefix_SNR '_Gd_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
         
         has_result_file = 0;
         if(~processing_always & isFileExist(PerfResult_file) & isFileExist(SNRResult_file) & isFileExist(Gd_Result_file))
@@ -248,6 +266,9 @@ for n=1:num
             sVp = [sVp; res_stress.Vp];
             rVp = [rVp; res_rest.Vp];
 
+            sVb = [sVb; res_stress.Vb];
+            rVb = [rVb; res_rest.Vb];
+            
             sKi_MF = [sKi_MF; res_stress.Ki_MF];
             rKi_MF = [rKi_MF; res_rest.Ki_MF];
 
@@ -263,18 +284,24 @@ for n=1:num
             sSD = [sSD; res_stress.SD];
             rSD = [rSD; res_rest.SD];
             
-            sSplenic = [sSplenic; tt.sSplenic];
-            rSplenic = [rSplenic; tt.rSplenic];
+            sSplenic = [sSplenic; mean(tt.sSplenic)];
+            rSplenic = [rSplenic; mean(tt.rSplenic)];
             
-            pre_T1_blood = [pre_T1_blood; tt.pre_T1_blood];
-            pre_T1_myo = [pre_T1_myo; tt.pre_T1_myo];
+            pre_T1_blood = [pre_T1_blood; tt.pre_T1_blood(end)];
+            pre_T1_myo = [pre_T1_myo; tt.pre_T1_myo(end)];
             
-            post_T1_blood = [post_T1_blood; tt.post_T1_blood];
-            post_T1_myo = [post_T1_myo; tt.post_T1_myo];
+            post_T1_blood = [post_T1_blood; tt.post_T1_blood(end)];
+            post_T1_myo = [post_T1_myo; tt.post_T1_myo(end)];
             
             sSNR = [sSNR; mean(tt.s_SNR(4:end, :), 1)];
             rSNR = [rSNR; mean(tt.r_SNR(4:end, :), 1)];
-                                
+            
+            sDelay = [sDelay; res_stress.delay];
+            rDelay = [rDelay; res_rest.delay];
+            
+            sFermiDelay = [sFermiDelay; res_stress.fermi_delay];
+            rFermiDelay = [rFermiDelay; res_rest.fermi_delay];
+            
             if(two_ROI)
                 sE_i = [sE_i; res_stress.E_i];
                 rE_i = [rE_i; res_rest.E_i];
@@ -287,6 +314,9 @@ for n=1:num
 
                 sVp_i = [sVp_i; res_stress.Vp_i];
                 rVp_i = [rVp_i; res_rest.Vp_i];
+                
+                sVb_i = [sVb_i; res_stress.Vb_i];
+                rVb_i = [rVb_i; res_rest.Vb_i];
 
                 sKi_MF_i = [sKi_MF_i; res_stress.Ki_MF_i];
                 rKi_MF_i = [rKi_MF_i; res_rest.Ki_MF_i];
@@ -314,6 +344,9 @@ for n=1:num
 
                 sVp_i = [sVp_i; -1 -1 -1];
                 rVp_i = [rVp_i; -1 -1 -1];
+                
+                sVb_i = [sVb_i; -1 -1 -1];
+                rVb_i = [rVb_i; -1 -1 -1];
 
                 sKi_MF_i = [sKi_MF_i; -1 -1 -1];
                 rKi_MF_i = [rKi_MF_i; -1 -1 -1];
@@ -336,8 +369,8 @@ for n=1:num
             s_SNR = snr_v.s_SNR;
             r_SNR = snr_v.r_SNR;
 
-            sSNR = [sSNR; max(s_SNR(4:end, :))];
-            rSNR = [rSNR; max(r_SNR(4:end, :))];
+%             sSNR = [sSNR; max(s_SNR(4:end, :))];
+%             rSNR = [rSNR; max(r_SNR(4:end, :))];
             
             gd_v = load(Gd_Result_file);
                 
@@ -400,33 +433,102 @@ for n=1:num
                 r3 = [];
             end
 
-            if(~isFileExist(fullfile(roiDir, 'rest.mat')))
-                copyfile(fullfile(figDir, 'rest.mat'), roiDir);
-            end
+%             if(~isFileExist(fullfile(roiDir, 'rest.mat')))
+%                 copyfile(fullfile(figDir, 'rest.mat'), roiDir);
+%             end
+%             
+%             if(~isFileExist(fullfile(roiDir, 'stress.mat')))
+%                 copyfile(fullfile(figDir, 'stress.mat'), roiDir);
+%             end
             
-            if(~isFileExist(fullfile(roiDir, 'stress.mat')))
-                copyfile(fullfile(figDir, 'stress.mat'), roiDir);
-            end
+            rest = load(fullfile(figDir, 'rest.mat'));
+            stress = load(fullfile(figDir, 'stress.mat'));
             
-            rest = load(fullfile(roiDir, 'rest.mat'));
-            stress = load(fullfile(roiDir, 'stress.mat'));
-            
+            disp(['--> loading mat results : <--']);
             sMat1 = fullfile(resDir, study_dates, stressCase, [prefix '_' suffix '_0.mat'])
-            stressMat1 = load(sMat1);
-            stressMat2 = load(fullfile(resDir, study_dates, stressCase, [prefix '_' suffix '_1.mat']));
-            stressMat3 = load(fullfile(resDir, study_dates, stressCase, [prefix '_' suffix '_2.mat']));
+            sMat2 = fullfile(resDir, study_dates, stressCase, [prefix '_' suffix '_1.mat'])
+            sMat3 = fullfile(resDir, study_dates, stressCase, [prefix '_' suffix '_2.mat'])
+            disp(['--> ============================================ <--']);
             
-            rMat1 = fullfile(resDir, study_dates, restCase, [prefix '_' suffix '_0.mat'])
-            restMat1 = load(rMat1);
-            restMat2 = load(fullfile(resDir, study_dates, restCase, [prefix '_' suffix '_1.mat']));
-            restMat3 = load(fullfile(resDir, study_dates, restCase, [prefix '_' suffix '_2.mat']));
-                  
+            stressMat1 = load(sMat1);
+            stressMat2 = load(sMat2);
+            stressMat3 = load(sMat3);
+            
+            try
+                rMat1 = fullfile(resDir, study_dates, restCase, [prefix '_' suffix '_0.mat'])
+                restMat1 = load(rMat1);
+                restMat2 = load(fullfile(resDir, study_dates, restCase, [prefix '_' suffix '_1.mat']));
+                restMat3 = load(fullfile(resDir, study_dates, restCase, [prefix '_' suffix '_2.mat']));
+            catch
+                restMat1 = stressMat1;
+                restMat2 = stressMat2;
+                restMat3 = stressMat3;
+            end
+            
 %             figure; imagescn(cat(3, stressMat1.flowmaps_grappa_PSIR(:,:,end), stressMat1.Ki_whole_grappa_PSIR), [0 8]); PerfColorMap;
 %             figure; imagescn(cat(3, stressMat2.flowmaps_grappa_PSIR(:,:,end), stressMat2.Ki_whole_grappa_PSIR), [0 8]); PerfColorMap;
 %             figure; imagescn(cat(3, stressMat3.flowmaps_grappa_PSIR(:,:,end), stressMat3.Ki_whole_grappa_PSIR), [0 8]); PerfColorMap;
 % 
 % %             pause;
 %             closeall
+
+            try
+                btex_res_0 = analyze75read(fullfile(stressDir, 'slc0', 'DebugFolder', 'BTEX_res_0'));
+                btex_res_1 = analyze75read(fullfile(stressDir, 'slc1', 'DebugFolder', 'BTEX_res_0'));
+                btex_res_2 = analyze75read(fullfile(stressDir, 'slc2', 'DebugFolder', 'BTEX_res_0'));
+
+                fermi_res_0 = analyze75read(fullfile(stressDir, 'slc0', 'DebugFolder', 'Fermi_res_0'));
+                fermi_res_1 = analyze75read(fullfile(stressDir, 'slc1', 'DebugFolder', 'Fermi_res_0'));
+                fermi_res_2 = analyze75read(fullfile(stressDir, 'slc2', 'DebugFolder', 'Fermi_res_0'));
+
+    %             btex_res_0 = flipdim(btex_res_0, 2);
+    %             btex_res_1 = flipdim(btex_res_1, 2);
+    %             btex_res_2 = flipdim(btex_res_2, 2);
+    %             
+    %             fermi_res_0 = flipdim(fermi_res_0, 2);
+    %             fermi_res_1 = flipdim(fermi_res_1, 2);
+    %             fermi_res_2 = flipdim(fermi_res_2, 2);
+
+                stressMat1.btex_delay = btex_res_0(:,:,end); 
+                stressMat2.btex_delay = btex_res_1(:,:,end); 
+                stressMat3.btex_delay = btex_res_2(:,:,end); 
+
+                stressMat1.fermi_delay = fermi_res_0(:,:,end); 
+                stressMat2.fermi_delay = fermi_res_1(:,:,end); 
+                stressMat3.fermi_delay = fermi_res_2(:,:,end); 
+
+                btex_res_0 = analyze75read(fullfile(restDir, 'slc0', 'DebugFolder', 'BTEX_res_0'));
+                btex_res_1 = analyze75read(fullfile(restDir, 'slc1', 'DebugFolder', 'BTEX_res_0'));
+                btex_res_2 = analyze75read(fullfile(restDir, 'slc2', 'DebugFolder', 'BTEX_res_0'));
+
+                fermi_res_0 = analyze75read(fullfile(restDir, 'slc0', 'DebugFolder', 'Fermi_res_0'));
+                fermi_res_1 = analyze75read(fullfile(restDir, 'slc1', 'DebugFolder', 'Fermi_res_0'));
+                fermi_res_2 = analyze75read(fullfile(restDir, 'slc2', 'DebugFolder', 'Fermi_res_0'));
+
+                restMat1.btex_delay = btex_res_0(:,:,end); 
+                restMat2.btex_delay = btex_res_1(:,:,end); 
+                restMat3.btex_delay = btex_res_2(:,:,end); 
+
+                restMat1.fermi_delay = fermi_res_0(:,:,end); 
+                restMat2.fermi_delay = fermi_res_1(:,:,end); 
+                restMat3.fermi_delay = fermi_res_2(:,:,end); 
+            catch
+                stressMat1.btex_delay = [];
+                stressMat2.btex_delay = [];
+                stressMat3.btex_delay = [];
+                
+                stressMat1.fermi_delay = [];
+                stressMat2.fermi_delay = [];
+                stressMat3.fermi_delay = [];
+                
+                restMat1.btex_delay = [];
+                restMat2.btex_delay = [];
+                restMat3.btex_delay = [];
+                
+                restMat1.fermi_delay = [];
+                restMat2.fermi_delay = [];
+                restMat3.fermi_delay = [];
+            end
             
             res_stress = PerformGadgetronRecon_Matlab_ROIValues_OneCase(s1, s2, s3, stressMat1, stressMat2, stressMat3, HCT);
             res_rest = PerformGadgetronRecon_Matlab_ROIValues_OneCase(r1, r2, r3, restMat1, restMat2, restMat3, HCT);                       
@@ -482,15 +584,15 @@ for n=1:num
 %                 end
 %             end
             
-%             if(isfield(stressMat1, 'flowmaps_grappa_PSIR'))
-%                     if(~isempty(s1)) figure; imagescn(flipdim(stressMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap; end
-%                     if(~isempty(s2)) figure; imagescn(flipdim(stressMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s2_roi)); PerfColorMap; end
-%                     if(~isempty(s3)) figure; imagescn(flipdim(stressMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s3_roi)); PerfColorMap; end
-% 
-%                     if(~isempty(r1)) figure; imagescn(flipdim(restMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap; end
-%                     if(~isempty(r2)) figure; imagescn(flipdim(restMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r2_roi)); PerfColorMap; end
-%                     if(~isempty(r3)) figure; imagescn(flipdim(restMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r3_roi)); PerfColorMap; end
-% 
+            if(isfield(stressMat1, 'flowmaps_grappa_PSIR'))
+                    if(~isempty(s1)) figure; imagescn(flipdim(stressMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap; end
+                    if(~isempty(s2)) figure; imagescn(flipdim(stressMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s2_roi)); PerfColorMap; end
+                    if(~isempty(s3)) figure; imagescn(flipdim(stressMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, s3_roi)); PerfColorMap; end
+
+                    if(~isempty(r1)) figure; imagescn(flipdim(restMat1.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap; end
+                    if(~isempty(r2)) figure; imagescn(flipdim(restMat2.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r2_roi)); PerfColorMap; end
+                    if(~isempty(r3)) figure; imagescn(flipdim(restMat3.flowmaps_grappa_PSIR(:,:,end), 2), [0 8], [], [], [], fullfile(roiDir, r3_roi)); PerfColorMap; end
+
 %                     if(pause_cases) 
 %                         user_in = input('accept cases y or n :');
 %                         if(user_in=='n')
@@ -499,8 +601,8 @@ for n=1:num
 %                             pause;
 %                         end
 %                     end
-%                     closeall
-%             end
+                    closeall
+            end
                 
             % ---------------------------------------------
             % load splenic
@@ -573,28 +675,42 @@ for n=1:num
             
             if(processing_snr_always | ~isFileExist(SNRResult_file))
                 try
-                    sdata1 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_0_MAG.hdr'));
-                    sdata2 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_1_MAG.hdr'));
-                    sdata3 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_2_MAG.hdr'));
+%                     sdata1 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_0_MAG.hdr'));
+%                     sdata2 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_1_MAG.hdr'));
+%                     sdata3 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_2_MAG.hdr'));
 
                     cd(stressDir)
                     s_gfactor = readGTPlusExportImageSeries_Squeeze(300);
                     s_gfactor = flipdim(s_gfactor, 2);
 
-                    rdata1 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_0_MAG.hdr'));
-                    rdata2 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_1_MAG.hdr'));
-                    rdata3 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_2_MAG.hdr'));
+                    moco_perf = readGTPlusExportImageSeries_Squeeze(104);
+                    moco_perf = flipdim(moco_perf, 2);
+                    
+                    sdata1 = squeeze(moco_perf(:,:,1,:));
+                    sdata2 = squeeze(moco_perf(:,:,2,:));
+                    sdata3 = squeeze(moco_perf(:,:,3,:));
+
+%                     rdata1 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_0_MAG.hdr'));
+%                     rdata2 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_1_MAG.hdr'));
+%                     rdata3 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_2_MAG.hdr'));
 
                     cd(restDir)
                     r_gfactor = readGTPlusExportImageSeries_Squeeze(300);
                     r_gfactor = flipdim(r_gfactor, 2);
 
-                    sdata1 = flipdim(sdata1, 2);
-                    sdata2 = flipdim(sdata2, 2);
-                    sdata3 = flipdim(sdata3, 2);
-                    rdata1 = flipdim(rdata1, 2);
-                    rdata2 = flipdim(rdata2, 2);
-                    rdata3 = flipdim(rdata3, 2);
+                    moco_perf = readGTPlusExportImageSeries_Squeeze(104);
+                    moco_perf = flipdim(moco_perf, 2);
+                    
+                    rdata1 = squeeze(moco_perf(:,:,1,:));
+                    rdata2 = squeeze(moco_perf(:,:,2,:));
+                    rdata3 = squeeze(moco_perf(:,:,3,:));
+                    
+%                     sdata1 = flipdim(sdata1, 2);
+%                     sdata2 = flipdim(sdata2, 2);
+%                     sdata3 = flipdim(sdata3, 2);
+%                     rdata1 = flipdim(rdata1, 2);
+%                     rdata2 = flipdim(rdata2, 2);
+%                     rdata3 = flipdim(rdata3, 2);
 
                     snr_s1 = 25 * sdata1 ./ squeeze(s_gfactor(:,:,1,:));
                     snr_s2 = 25 * sdata2 ./ squeeze(s_gfactor(:,:,2,:));
@@ -698,10 +814,13 @@ for n=1:num
                     r_gfactor_map = r_gfactor(:,:,:,1) /100;
                     save(SNRResult_file, 's_SNR', 'r_SNR', 'snr_s1', 'snr_s2', 'snr_s3', 'snr_r1', 'snr_r2', 'snr_r3', 's_gfactor_map', 'r_gfactor_map');               
                 catch
+                    s_SNR = 0;
+                    r_SNR = 0;
                     sSNR = [sSNR; -1 -1 -1];
                     rSNR = [rSNR; -1 -1 -1];
                 end
             else
+                try
                 snr_v = load(SNRResult_file);
                 
                 s_SNR = snr_v.s_SNR;
@@ -709,6 +828,10 @@ for n=1:num
                 
                 sSNR = [sSNR; max(s_SNR(4:end, :))];
                 rSNR = [rSNR; max(r_SNR(4:end, :))];
+                catch
+                    sSNR = [sSNR; -1 -1 -1];
+                    rSNR = [rSNR; -1 -1 -1];
+                end
             end
 
             % ---------------------------------------------
@@ -857,23 +980,31 @@ for n=1:num
                     rT2S = [rT2S; -1 -1 -1];
                 end
             else
-                gd_v = load(Gd_Result_file);
-                
-                s_Gd = gd_v.s_Gd;
-                r_Gd = gd_v.r_Gd;
-                
-                sGd = [sGd; max(s_Gd(1:end, :))];
-                rGd = [rGd; max(r_Gd(1:end, :))];
-                
-                sT2S = [sT2S; max(gd_v.sR2Star(1:end, :))];
-                rT2S = [rT2S; max(gd_v.rR2Star(1:end, :))];
-                
-                if(isfield(gd_v, 'stress_aif_Gd_peak'))
-                    sAifPeakGd = [sAifPeakGd; gd_v.stress_aif_Gd_peak];
-                    rAifPeakGd = [rAifPeakGd; gd_v.rest_aif_Gd_peak];
-                else
-                    sAifPeakGd = [sAifPeakGd; 0];
-                    rAifPeakGd = [rAifPeakGd; 0];
+                try
+                    gd_v = load(Gd_Result_file);
+
+                    s_Gd = gd_v.s_Gd;
+                    r_Gd = gd_v.r_Gd;
+
+                    sGd = [sGd; max(s_Gd(1:end, :))];
+                    rGd = [rGd; max(r_Gd(1:end, :))];
+
+                    sT2S = [sT2S; max(gd_v.sR2Star(1:end, :))];
+                    rT2S = [rT2S; max(gd_v.rR2Star(1:end, :))];
+
+                    if(isfield(gd_v, 'stress_aif_Gd_peak'))
+                        sAifPeakGd = [sAifPeakGd; gd_v.stress_aif_Gd_peak];
+                        rAifPeakGd = [rAifPeakGd; gd_v.rest_aif_Gd_peak];
+                    else
+                        sAifPeakGd = [sAifPeakGd; 0];
+                        rAifPeakGd = [rAifPeakGd; 0];
+                    end
+                catch
+                    sGd = [sGd; -1 -1 -1];
+                    rGd = [rGd; -1 -1 -1];
+
+                    sT2S = [sT2S; -1 -1 -1];
+                    rT2S = [rT2S; -1 -1 -1];
                 end
             end
                 
@@ -923,6 +1054,9 @@ for n=1:num
 
             sVp = [sVp; res_stress.Vp];
             rVp = [rVp; res_rest.Vp];
+            
+            sVb = [sVb; res_stress.Vb];
+            rVb = [rVb; res_rest.Vb];
 
             sKi_MF = [sKi_MF; res_stress.Ki_MF];
             rKi_MF = [rKi_MF; res_rest.Ki_MF];
@@ -939,6 +1073,12 @@ for n=1:num
             sSD = [sSD; res_stress.SD];
             rSD = [rSD; res_rest.SD];
             
+            sDelay = [sDelay; res_stress.delay];
+            rDelay = [rDelay; res_rest.delay];
+            
+            sFermiDelay = [sFermiDelay; res_stress.fermi_delay];
+            rFermiDelay = [rFermiDelay; res_rest.fermi_delay];
+            
             if(two_ROI)
                 
                 if(~has_rest_second_roi)
@@ -947,6 +1087,7 @@ for n=1:num
                     res_rest.PS_i = [-1 -1 -1];
                     res_rest.Visf_i = [-1 -1 -1];
                     res_rest.Vp_i = [-1 -1 -1];
+                    res_rest.Vb_i = [-1 -1 -1];
                     res_rest.Ki_MF_i = [-1 -1 -1];
                     res_rest.Ki_Fermi_i = [-1 -1 -1];
                     res_rest.Ki_TwoCompExp_i = [-1 -1 -1];
@@ -997,6 +1138,9 @@ for n=1:num
 
                 sVp_i = [sVp_i; res_stress.Vp_i];
                 rVp_i = [rVp_i; res_rest.Vp_i];
+                
+                sVb_i = [sVb_i; res_stress.Vb_i];
+                rVb_i = [rVb_i; res_rest.Vb_i];
 
                 sKi_MF_i = [sKi_MF_i; res_stress.Ki_MF_i];
                 rKi_MF_i = [rKi_MF_i; res_rest.Ki_MF_i];
@@ -1056,6 +1200,9 @@ for n=1:num
 
                 sVp_i = [sVp_i; -1 -1 -1];
                 rVp_i = [rVp_i; -1 -1 -1];
+                
+                sVb_i = [sVb_i; -1 -1 -1];
+                rVb_i = [rVb_i; -1 -1 -1];
 
                 sKi_MF_i = [sKi_MF_i; -1 -1 -1];
                 rKi_MF_i = [rKi_MF_i; -1 -1 -1];
@@ -1098,17 +1245,95 @@ for n=1:num
     end
 end
 
+sf_mean = [];
+rf_mean = [];
+
+sE_mean = [];
+rE_mean = [];
+
+sVp_mean = [];
+rVp_mean = [];
+
+sVb_mean = [];
+rVb_mean = [];
+
+sVisf_mean = [];
+rVisf_mean = [];
+
+sPS_mean = [];
+rPS_mean = [];
+
+sKi_MF_mean = [];
+rKi_MF_mean = [];
+sKi_Fermi_mean = [];
+rKi_Fermi_mean = [];
+sKi_TwoCompExp_mean = [];
+rKi_TwoCompExp_mean = [];
+sKi_BTEX_mean = [];
+rKi_BTEX_mean = [];
+
+sDelay_mean = [];
+rDelay_mean = [];
+
+sFermiDelay_mean = [];
+rFermiDelay_mean = [];
+
+for n=1:size(sf,1)
+    sf_mean = [sf_mean; get_entry_mean(sf(n,:))];
+    rf_mean = [rf_mean; get_entry_mean(rf(n,:))];
+
+    sE_mean = [sE_mean; get_entry_mean(sE(n,:))];
+    rE_mean = [rE_mean; get_entry_mean(rE(n,:))];
+    
+    sPS_mean = [sPS_mean; get_entry_mean(sPS(n,:))];
+    rPS_mean = [rPS_mean; get_entry_mean(rPS(n,:))];
+    
+    sVp_mean = [sVp_mean; get_entry_mean(sVp(n,:))];
+    rVp_mean = [rVp_mean; get_entry_mean(rVp(n,:))];
+    
+    sVb_mean = [sVb_mean; get_entry_mean(sVb(n,:))];
+    rVb_mean = [rVb_mean; get_entry_mean(rVb(n,:))];
+    
+    sVisf_mean = [sVisf_mean; get_entry_mean(sVisf(n,:))];
+    rVisf_mean = [rVisf_mean; get_entry_mean(rVisf(n,:))];
+
+    sKi_MF_mean = [sKi_MF_mean; get_entry_mean(sKi_MF(n,:))];
+    rKi_MF_mean = [rKi_MF_mean; get_entry_mean(rKi_MF(n,:))];
+    
+    sKi_Fermi_mean = [sKi_Fermi_mean; get_entry_mean(sKi_Fermi(n,:))];
+    rKi_Fermi_mean = [rKi_Fermi_mean; get_entry_mean(rKi_Fermi(n,:))];
+    
+    sKi_TwoCompExp_mean = [sKi_TwoCompExp_mean; get_entry_mean(sKi_TwoCompExp(n,:))];
+    rKi_TwoCompExp_mean = [rKi_TwoCompExp_mean; get_entry_mean(rKi_TwoCompExp(n,:))];
+    
+    sKi_BTEX_mean = [sKi_BTEX_mean; get_entry_mean(sKi_BTEX(n,:))];
+    rKi_BTEX_mean = [rKi_BTEX_mean; get_entry_mean(rKi_BTEX(n,:))]; 
+    
+    sDelay_mean = [sDelay_mean; get_entry_mean(sDelay(n,:))];
+    rDelay_mean = [rDelay_mean; get_entry_mean(rDelay(n,:))];
+    
+    sFermiDelay_mean = [sFermiDelay_mean; get_entry_mean(sFermiDelay(n,:))];
+    rFermiDelay_mean = [rFermiDelay_mean; get_entry_mean(rFermiDelay(n,:))];
+end
+
 res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB, restHB, hematocrit, LVMass, LVEDV, ... 
                 sf, rf, sf_i, rf_i, ... 
                 sE, rE, sE_i, rE_i, ... 
                 sPS, rPS, sPS_i, rPS_i, ...
                 sVisf, rVisf, sVisf_i, rVisf_i, ... 
                 sVp, rVp, sVp_i, rVp_i, ... 
+                sVb, rVb, sVb_i, rVb_i, ... 
                 sKi_MF, rKi_MF, sKi_MF_i, rKi_MF_i, ... 
                 sKi_Fermi, rKi_Fermi, sKi_Fermi_i, rKi_Fermi_i, ... 
                 sKi_TwoCompExp, rKi_TwoCompExp, sKi_TwoCompExp_i, rKi_TwoCompExp_i, ...
                 sKi_BTEX, rKi_BTEX, sKi_BTEX_i, rKi_BTEX_i, ... 
                 sSD, rSD, sSD_i, rSD_i, sSplenic, rSplenic, pre_T1_blood, post_T1_blood, pre_T1_myo, post_T1_myo, ... 
+                sDelay, rDelay, sFermiDelay, rFermiDelay, ... 
+                ...
+                sf_mean, rf_mean, sE_mean, rE_mean, sPS_mean, rPS_mean, sVp_mean, rVp_mean, sVb_mean, rVb_mean, sVisf_mean, rVisf_mean, ...
+                sKi_MF_mean, rKi_MF_mean, sKi_Fermi_mean, rKi_Fermi_mean, sKi_TwoCompExp_mean, rKi_TwoCompExp_mean, sKi_BTEX_mean, rKi_BTEX_mean, ... 
+                sDelay_mean, rDelay_mean, sFermiDelay_mean, rFermiDelay_mean, ...
+                ...
                 sSNR, rSNR, sGd, rGd, sT2S, rT2S, sAifPeakGd, rAifPeakGd, ...
                 age, gender, stressHB, restHB, height, weight, diabetes, HTN, Chol, smoker, EF);
 
@@ -1143,6 +1368,7 @@ if(isfield(a1, 'flowmaps_grappa_PSIR'))
 
     [f1, f2, f3] = get_roi_values(a1.blood_volume_maps_grappa_PSIR, a2.blood_volume_maps_grappa_PSIR, a3.blood_volume_maps_grappa_PSIR, s1, s2, s3);
     res.Vp = [f1.m f2.m f3.m] * (1-HCT);
+    res.Vb = [f1.m f2.m f3.m];
 
     [f1, f2, f3] = get_roi_values(a1.PS_maps_grappa_PSIR, a2.PS_maps_grappa_PSIR, a3.PS_maps_grappa_PSIR, s1, s2, s3);
     res.PS = [f1.m f2.m f3.m];
@@ -1162,6 +1388,12 @@ if(isfield(a1, 'flowmaps_grappa_PSIR'))
     [f1, f2, f3] = get_roi_values( squeeze(a1.Ki_whole_grappa_PSIR(:,:,4)), squeeze(a2.Ki_whole_grappa_PSIR(:,:,4)), squeeze(a3.Ki_whole_grappa_PSIR(:,:,4)), s1, s2, s3);
     res.Ki_BTEX = [f1.m f2.m f3.m];
 
+    [f1, f2, f3] = get_roi_values( a1.btex_delay, a2.btex_delay, a3.btex_delay, s1, s2, s3);
+    res.delay = [f1.m f2.m f3.m];
+    
+    [f1, f2, f3] = get_roi_values( a1.fermi_delay, a2.fermi_delay, a3.fermi_delay, s1, s2, s3);
+    res.fermi_delay = [f1.m f2.m f3.m];
+    
     %% if having second roi
     if( (~isempty(s1) & numel(s1.ROI_info_table)==2) | (~isempty(s2) & numel(s2.ROI_info_table)==2) | (~isempty(s3) & numel(s3.ROI_info_table)==2))
 
@@ -1176,6 +1408,7 @@ if(isfield(a1, 'flowmaps_grappa_PSIR'))
 
         [f1, f2, f3] = get_2nd_roi_values(a1.blood_volume_maps_grappa_PSIR, a2.blood_volume_maps_grappa_PSIR, a3.blood_volume_maps_grappa_PSIR, s1, s2, s3);
         res.Vp_i = [f1.m f2.m f3.m] * (1-HCT);
+        res.Vb_i = [f1.m f2.m f3.m];
 
         [f1, f2, f3] = get_2nd_roi_values(a1.PS_maps_grappa_PSIR, a2.PS_maps_grappa_PSIR, a3.PS_maps_grappa_PSIR, s1, s2, s3);
         res.PS_i = [f1.m f2.m f3.m];
@@ -1231,6 +1464,12 @@ elseif(isfield(a1, 'flowmaps_grappa_PSIR_OnlyGlobalSearch'))
     [f1, f2, f3] = get_roi_values( squeeze(a1.Ki_whole_grappa_PSIR_OnlyGlobalSearch(:,:,4)), squeeze(a2.Ki_whole_grappa_PSIR_OnlyGlobalSearch(:,:,4)), squeeze(a3.Ki_whole_grappa_PSIR_OnlyGlobalSearch(:,:,4)), s1, s2, s3);
     res.Ki_BTEX = [f1.m f2.m f3.m];
 
+    [f1, f2, f3] = get_roi_values( a1.btex_delay, a2.btex_delay, a3.btex_delay, s1, s2, s3);
+    res.delay = [f1.m f2.m f3.m];
+    
+    [f1, f2, f3] = get_roi_values( a1.fermi_delay, a2.fermi_delay, a3.fermi_delay, s1, s2, s3);
+    res.fermi_delay = [f1.m f2.m f3.m];
+
     %% if having second roi
     if( (~isempty(s1) & numel(s1.ROI_info_table)==2) | (~isempty(s2) & numel(s2.ROI_info_table)==2) | (~isempty(s3) & numel(s3.ROI_info_table)==2))
 
@@ -1281,7 +1520,8 @@ elseif(isfield(a1, 'flowmaps_grappa_PSIR_without_R2Star'))
 
     [f1, f2, f3] = get_roi_values(a1.blood_volume_maps_grappa_PSIR_without_R2Star, a2.blood_volume_maps_grappa_PSIR_without_R2Star, a3.blood_volume_maps_grappa_PSIR_without_R2Star, s1, s2, s3);
     res.Vp = [f1.m f2.m f3.m] * (1-HCT);
-
+    res.Vb = [f1.m f2.m f3.m];
+    
     [f1, f2, f3] = get_roi_values(a1.PS_maps_grappa_PSIR_without_R2Star, a2.PS_maps_grappa_PSIR_without_R2Star, a3.PS_maps_grappa_PSIR_without_R2Star, s1, s2, s3);
     res.PS = [f1.m f2.m f3.m];
 
@@ -1304,6 +1544,12 @@ elseif(isfield(a1, 'flowmaps_grappa_PSIR_without_R2Star'))
     [f1, f2, f3] = get_roi_values( squeeze(a1.Ki_whole_grappa_PSIR_without_R2Star(:,:,4)), squeeze(a2.Ki_whole_grappa_PSIR_without_R2Star(:,:,4)), squeeze(a3.Ki_whole_grappa_PSIR_without_R2Star(:,:,4)), s1, s2, s3);
     res.Ki_BTEX = [f1.m f2.m f3.m];
 
+    [f1, f2, f3] = get_roi_values( a1.btex_delay, a2.btex_delay, a3.btex_delay, s1, s2, s3);
+    res.delay = [f1.m f2.m f3.m];
+    
+    [f1, f2, f3] = get_roi_values( a1.fermi_delay, a2.fermi_delay, a3.fermi_delay, s1, s2, s3);
+    res.fermi_delay = [f1.m f2.m f3.m];
+
     %% if having second roi
     if( (~isempty(s1) & numel(s1.ROI_info_table)==2) | (~isempty(s2) & numel(s2.ROI_info_table)==2) | (~isempty(s3) & numel(s3.ROI_info_table)==2))
 
@@ -1318,6 +1564,7 @@ elseif(isfield(a1, 'flowmaps_grappa_PSIR_without_R2Star'))
 
         [f1, f2, f3] = get_2nd_roi_values(a1.blood_volume_maps_grappa_PSIR_without_R2Star, a2.blood_volume_maps_grappa_PSIR_without_R2Star, a3.blood_volume_maps_grappa_PSIR_without_R2Star, s1, s2, s3);
         res.Vp_i = [f1.m f2.m f3.m] * (1-HCT);
+        res.Vb_i = [f1.m f2.m f3.m];
 
         [f1, f2, f3] = get_2nd_roi_values(a1.PS_maps_grappa_PSIR_without_R2Star, a2.PS_maps_grappa_PSIR_without_R2Star, a3.PS_maps_grappa_PSIR_without_R2Star, s1, s2, s3);
         res.PS_i = [f1.m f2.m f3.m];
@@ -1342,19 +1589,19 @@ end
 end
 
 function [f1, f2, f3] = get_roi_values(a1, a2, a3, s1, s2, s3)
-    if(isempty(s1))
+    if(isempty(s1) | isempty(a1))
         f1.m = -1;
     else
         f1 = roi_statistics(flipdim(a1(:,:,end), 2), s1.ROI_info_table(1,1));
     end
     
-    if(isempty(s2))
+    if(isempty(s2) | isempty(a2))
         f2.m = -1;
     else
         f2 = roi_statistics(flipdim(a2(:,:,end), 2), s2.ROI_info_table(1,1));
     end
     
-    if(isempty(s3))
+    if(isempty(s3) | isempty(a3))
         f3.m = -1;
     else
         f3 = roi_statistics(flipdim(a3(:,:,end), 2), s3.ROI_info_table(1,1));
@@ -1392,5 +1639,14 @@ function v = get_valid_value(v_in)
         else
             v = v_in;
         end
+    end
+end
+
+function v = get_entry_mean(f)
+    ind = find(f>0);
+    if(isempty(ind))
+        v=-1;
+    else
+        v = mean(f(ind));
     end
 end

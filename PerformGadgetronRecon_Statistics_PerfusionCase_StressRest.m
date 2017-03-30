@@ -1,5 +1,5 @@
 
-function PerfTable = PerformGadgetronRecon_Statistics_PerfusionCase_StressRest(dataDir, resDir, perf_cases, recomputed)
+function [PerfTable, res_table]  = PerformGadgetronRecon_Statistics_PerfusionCase_StressRest(dataDir, resDir, perf_cases, recomputed)
 % PerfTable = PerformGadgetronRecon_Statistics_PerfusionCase_StressRest(dataDir, resDir, perf_cases)
 % PerfTable = PerformGadgetronRecon_Statistics_PerfusionCase_StressRest('I:\BARTS', 'I:\ReconResults\BARTS', perf_cases)
 
@@ -12,6 +12,7 @@ num = size(perf_cases, 1);
 patientID = [];
 rest_time = [];
 stress_time = [];
+study_date = [];
 
 rest_aif_peak = zeros(num,1);
 rest_aif_peak_no_T2Star = zeros(num,1);
@@ -45,7 +46,15 @@ stress_aif_T2S_baseline = zeros(num, 1);
 stress_aif_duration = zeros(num,1);
 HeartRate_stress = zeros(num, 1);
 
-PerfTable = {'num', 'PatientID', 'study date', 'stress scan time', 'rest scan time', ... 
+ind_case_all = zeros(num,1);
+field_strength_all = zeros(num,1);
+stressCase_all = cell(num,1);
+restCase_all = cell(num,1);
+stress_sha1_all = cell(num,1);
+rest_sha1_all = cell(num,1);
+scannerID_all = cell(num,1);
+
+PerfTable = {'num', 'PatientID', 'study date', 'stress scan time', 'rest scan time', 'field strength', 'scanner id', ... 
     'stress aif peak Gd', 'stress aif peak Gd without T2* correction', 'stress aif duration (seconds)', 'stress heart rate', ... 
     'rest aif peak Gd', 'rest aif peak Gd without T2* correction', 'rest aif duration (seconds)', 'rest heart rate', ... 
     'patient height', 'patient weight', 'BSA ratio','patient age', 'patient gender', 'patient history/risk factors', 'hematocrit', 'CMR report/findings', 'EF', ...
@@ -55,7 +64,7 @@ PerfTable = {'num', 'PatientID', 'study date', 'stress scan time', 'rest scan ti
 
 PerfTable_Wrong = {'num', 'PatientID', 'study date', 'stress scan time', 'rest scan time', 'stress aif peak Gd', 'stress aif duration (seconds)', 'rest aif peak Gd', 'rest aif duration (seconds)', 'stress data', 'rest data'};
 
-ind = 1;
+ind_case = 1;
 for ii=1:num
     
     restCase = perf_cases{ii, 3}
@@ -71,18 +80,62 @@ for ii=1:num
     
     record_dat_file = fullfile(stressDir, 'Rest_Stress_Record.mat');
     
+    patientID = [patientID; {patientID_stress}];
+    rest_time = [rest_time; {study_time_rest}];
+    stress_time = [stress_time; {study_time_stress}];
+    study_date = [study_date; {study_dates}];
+
+    scannerID_all{ii} = scannerID;
+    
     if(~recomputed & isFileExist(record_dat_file))
         ls = load(record_dat_file);
         Rest_Stress_Record = ls.Rest_Stress_Record;
+
+        ind_case_all(ii) = Rest_Stress_Record{1};
+        field_strength_all(ii) = Rest_Stress_Record{6};
+        scannerID_all{ii} = Rest_Stress_Record{7};
+        
+        ind_item = 8;
+        stress_aif_valley(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        stress_aif_valley_no_T2Star = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        stress_aif_duration = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        HeartRate_stress = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+
+        rest_aif_peak(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        rest_aif_peak_no_T2Star = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        rest_aif_duration = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        HeartRate_rest = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        
+        ind_item = 25;
+        stressCase_all(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;;
+        restCase_all(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;;
+        stress_sha1_all(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;;
+        rest_sha1_all(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;;
+        
+        stress_aif_peak_intensity(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        stress_aif_peak_intensity_no_T2Star(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        stress_aif_valley(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        stress_aif_valley_no_T2Star(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        stress_aif_valley_intensity(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        stress_aif_valley_intensity_no_T2Star(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        rest_aif_peak_intensity(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        rest_aif_peak_intensity_no_T2Star(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        rest_aif_valley(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        rest_aif_valley_no_T2Star(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        rest_aif_valley_intensity(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        rest_aif_valley_intensity_no_T2Star(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        rest_aif_T2S_peak(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        rest_aif_T2S_baseline(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        stress_aif_T2S_peak(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
+        stress_aif_T2S_baseline(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
     else
         try
             [HeartRate_rest(ii), aif_cin_Gd_rest, aif_cin_Gd_rest_without_R2Star, aif_cin_all_echo0_signal_rest, aif_cin_all_echo0_signal_after_R2StarCorrection_rest, footTime_rest, peakTime_rest, valleyTime_rest, R2Star_rest, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, restCase);
 
             [HeartRate_stress(ii), aif_cin_Gd_stress, aif_cin_Gd_stress_without_R2Star, aif_cin_all_echo0_signal_stress, aif_cin_all_echo0_signal_after_R2StarCorrection_stress, footTime_stress, peakTime_stress, valleyTime_stress, R2Star_stress,KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, stressCase);
 
-            patientID = [patientID; {patientID_stress}];
-            rest_time = [rest_time; {study_time_rest}];
-            stress_time = [stress_time; {study_time_stress}];
+            stressCase_all{ii} = stressCase;
+            restCase_all{ii} = stressCase;
 
             rest_aif_peak(ii) = max(aif_cin_Gd_rest);
             rest_aif_peak_no_T2Star(ii) = max(aif_cin_Gd_rest_without_R2Star);
@@ -141,7 +194,7 @@ for ii=1:num
         %     'patient age', 'patient gender', 'CMR report/findings', 'EF', ...
         %     'stress data', 'rest data'};
 
-            if(rest_aif_peak(ii)>1.5 && stress_aif_peak(ii)>1.5)
+            if(rest_aif_peak(ii)>1.2 && stress_aif_peak(ii)>1.2)
 
                 stress_h5 = fullfile(dataDir, [stressCase '.h5']);
                 rest_h5 = fullfile(dataDir, [restCase '.h5']);
@@ -161,11 +214,19 @@ for ii=1:num
                     if(isfield(header, 'subjectInformation'))
                         rest_sha1 = header.subjectInformation.patientID;
                     end
+                    
+                    field_strength = header.acquisitionSystemInformation.systemFieldStrength_T;
+                    
                     dset.close();
                 catch
                 end
 
-                Rest_Stress_Record = {ind, patientID_stress, study_dates, study_time_stress, study_time_rest, ... 
+                ind_case_all(ii) = ind_case;
+                stress_sha1_all{ii} = stress_sha1;
+                rest_sha1_all{ii} = rest_sha1;
+                field_strength_all(ii) = field_strength;
+
+                Rest_Stress_Record = {ind_case, patientID_stress, study_dates, study_time_stress, study_time_rest, field_strength, scannerID, ... 
                     stress_aif_peak(ii), stress_aif_peak_no_T2Star(ii), stress_aif_duration(ii), HeartRate_stress(ii), ... 
                     rest_aif_peak(ii), rest_aif_peak_no_T2Star(ii), rest_aif_duration(ii), HeartRate_rest(ii), ...
                     [], [], [], [], [], [], [], [], [], ... 
@@ -175,7 +236,6 @@ for ii=1:num
                     rest_aif_peak_intensity(ii), rest_aif_peak_intensity_no_T2Star(ii), ...
                     rest_aif_valley(ii), rest_aif_valley_no_T2Star(ii), rest_aif_valley_intensity(ii), rest_aif_valley_intensity_no_T2Star(ii), ... 
                     rest_aif_T2S_peak(ii), rest_aif_T2S_baseline(ii), stress_aif_T2S_peak(ii), stress_aif_T2S_baseline(ii)};
-
 
                 save(fullfile(stressDir, 'Rest_Stress_Record.mat'), 'Rest_Stress_Record');
             else
@@ -187,7 +247,7 @@ for ii=1:num
 
             PerfTable = [PerfTable; Rest_Stress_Record];
 
-            ind = ind + 1;
+            ind_case = ind_case + 1;
         catch
             disp('!!! Error happend ... !!!');
         end
@@ -197,7 +257,17 @@ for ii=1:num
 end
 
 PerfTable_Wrong
-    
+
+res_table = table(ind_case_all, patientID, study_date, stress_time, rest_time, field_strength_all, scannerID_all, ... 
+    stress_aif_peak, stress_aif_duration, stress_aif_peak_no_T2Star, HeartRate_stress, ...
+    rest_aif_peak, rest_aif_duration, rest_aif_peak_no_T2Star, HeartRate_rest, ...
+    stressCase_all, restCase_all, stress_sha1_all, rest_sha1_all, ... 
+    stress_aif_peak_intensity, stress_aif_peak_intensity_no_T2Star, ...
+    stress_aif_valley, stress_aif_valley_no_T2Star, stress_aif_valley_intensity, stress_aif_valley_intensity_no_T2Star, ... 
+    rest_aif_peak_intensity, rest_aif_peak_intensity_no_T2Star, ...
+    rest_aif_valley, rest_aif_valley_no_T2Star, rest_aif_valley_intensity, rest_aif_valley_intensity_no_T2Star, ... 
+    rest_aif_T2S_peak, rest_aif_T2S_baseline, stress_aif_T2S_peak, stress_aif_T2S_baseline);
+
 valid_ind = find(rest_aif_peak(:)>1.5 & stress_aif_peak(:)>1.5);
 
 disp(['Aif peak Gd (mmol/L),              rest   - ' num2str(mean(rest_aif_peak(valid_ind))) ' +/- ' num2str(std(rest_aif_peak(valid_ind)))]);

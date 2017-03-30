@@ -1,6 +1,14 @@
 
-function PerformGadgetronRecon_AcqStatistics_PerfusionCase_StressRest(perf_cases)
-% PerformGadgetronRecon_Statistics_PerfusionCase_StressRest(perf_cases)
+function week_record = PerformGadgetronRecon_AcqStatistics_PerfusionCase_StressRest(perf_cases, site, stress_column)
+% PerformGadgetronRecon_Statistics_PerfusionCase_StressRest(perf_cases, site)
+
+if(nargin<2)
+    site = [];
+end
+
+if(nargin<3)
+    stress_column = 2;
+end
 
 num = size(perf_cases, 1);
 
@@ -15,10 +23,10 @@ scan_count = [];
 ind = 1;
 for ii=1:num
     
-    restCase = perf_cases{ii, 3}
-    stressCase = perf_cases{ii, 2}
+%     restCase = perf_cases{ii, 3}
+    stressCase = perf_cases{ii, stress_column}
     
-    [configName, scannerID_rest, patientID_rest, studyID_rest, measurementID_rest, study_dates, study_year, study_month, study_day, study_time_rest] = parseSavedISMRMRD(restCase);
+%     [configName, scannerID_rest, patientID_rest, studyID_rest, measurementID_rest, study_dates, study_year, study_month, study_day, study_time_rest] = parseSavedISMRMRD(restCase);
     [configName, scannerID_stress, patientID_stress, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time_stress] = parseSavedISMRMRD(stressCase);
     
     patientID = [patientID; {patientID_stress}];
@@ -33,13 +41,13 @@ for ii=1:num
     end
     
     if(exist_date)
-        if(strcmp(scannerID_stress, '66016')==1)
+        if(strcmp(scannerID_stress, '66016')==1 | strcmp(scannerID_stress, '66097')==1 | strcmp(scannerID_stress, '46184')==1)
            scan_count{jj, 3} = scan_count{jj, 3} + 1;
         else
             scan_count{jj, 4} = scan_count{jj, 4} + 1;
         end
     else
-        if(strcmp(scannerID_stress, '66016')==1)
+        if(strcmp(scannerID_stress, '66016')==1 | strcmp(scannerID_stress, '66097')==1 | strcmp(scannerID_stress, '46184')==1)
             scan_count = [scan_count; {study_dates scannerID_stress 1 0}];
         else
             scan_count = [scan_count; {study_dates scannerID_stress 0 1}];
@@ -53,7 +61,7 @@ week_record = [];
 
 for jj=1:size(scan_count, 1)
     sd = scan_count{jj,1};
-    t = datenum(num2str(sd), 'yyyymmdd')
+    t = datenum(num2str(sd), 'yyyymmdd');
     weekn = weeknum(t);
     
     weekFound = 0;
@@ -109,12 +117,13 @@ end
 
 figure; 
 hold on
-bar(1:size(bar_y, 1), bar_y,'stacked', 'FaceColor',[0 .1 .7],'EdgeColor',[0.1 .1 .1],'LineWidth',1.2);
+bar(1:size(bar_y, 1), bar_y,'stacked','LineWidth',1.2);
 set(gca,'XTick',1:size(bar_y, 1));
 set(gca,'XTickLabel',bar_x)
 xlim([0 size(bar_y, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of stress/rest studies')
-title('Year 2016')
+title(['Year 2016 - 2017, N=' num2str(num) '   ' site])
 box on
+legend('3T', '1.5T');

@@ -38,8 +38,6 @@ NumFrames = obj.NumberOfFrames;
 Width = obj.Width;
 Height = obj.Height;
 
-gifdata = zeros([Height Width 1 NumFrames], 'uint8');
-
 if ( strcmp(ImageType, 'RGB24') )
     
     disp('transform the rgb color to ind color')
@@ -75,6 +73,8 @@ if ( strcmp(ImageType, 'RGB24') )
     end
 end
 
+gifdata = zeros([Height Width size(M(1).cdata, 3) NumFrames], 'uint8');
+
 colormap = M(1).colormap;
 for kk = 1:NumFrames
     gifdata(:, :, :, kk) = M(kk).cdata;
@@ -83,5 +83,8 @@ end
 global frameRate
 if ( frameRate ~= -1 )
     FramesPerSecond = 1/frameRate;
+end
+if(isempty(colormap))
+    colormap = gray(256);
 end
 imwrite(gifdata, colormap, giffile, 'gif', 'DelayTime', 1/FramesPerSecond, 'LoopCount', Inf);

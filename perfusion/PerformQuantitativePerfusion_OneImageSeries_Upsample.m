@@ -18,9 +18,14 @@ E1 = size(perf, 2);
 
 perf_upsampled = zeros(RO, E1, N, SLC);
 
+v = perf_acqTime;
+if(size(perf_acqTime,1)==1)
+    v = permute(v, [2 1]);
+end
+
 for s=1:SLC
        
-    perfAcq = perf_acqTime(:,s);
+    perfAcq = v(:,s);
     perfAcq = [AIF_time_stamp(1)-0.01; perfAcq; AIF_time_stamp(end)+0.01;];
     
     perf_slc = zeros(RO, E1, REP_perf+2);

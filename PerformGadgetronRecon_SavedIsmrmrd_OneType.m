@@ -1,6 +1,6 @@
 
-function [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, styleSheet)
-% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, styleSheet)
+function [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, configNamePreset)
+% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, configNamePreset)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\KAROLINSKA', {'LGE'}, '2016-01-01', '2017-01-01', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\ROYALFREE',  {'LGE'}, '2016-01-01', '2017-01-01', 'samoa', 'I:\ReconResults\ROYALFREE')
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\BARTS', {'LGE'}, '2016-01-01', '2017-01-01', 'samoa', 'I:\ReconResults\BARTS')
@@ -30,6 +30,18 @@ if(strcmp(gt_host, 'andorra'))
     GT_PORT = '9008';
 end
 
+if(strcmp(gt_host, 'hongkong'))
+    GT_PORT = '9008';
+end
+
+if(strcmp(gt_host, 'bermuda'))
+    GT_PORT = '9008';
+end
+
+if(strcmp(gt_host, 'gibraltar'))
+    GT_PORT = '9008';
+end
+
 setenv('GT_HOST', gt_host); setenv('GT_PORT', GT_PORT);
 
 if(nargin<6)
@@ -53,7 +65,7 @@ if(nargin<10)
 end
 
 if(nargin<11)
-    styleSheet = 'IsmrmrdParameterMap_Siemens.xsl';
+    configNamePreset = [];
 end
 
 getenv('GT_HOST')
@@ -63,11 +75,11 @@ GTHome = getenv('GADGETRON_HOME')
 GTConfigFolder = fullfile(GTHome, 'share/gadgetron/config');
 date_suffix = datestr(date, 'yyyymmdd');
 
-styleSheetDefault = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl';
-styleSheetPerfusionUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xsl';
-if ( nargin >= 9 )
-    styleSheetDefault = [ '%GADGETRON_DIR%\install\schema/' styleSheet];
-end
+% styleSheetDefault = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl';
+% styleSheetPerfusionUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xsl';
+% if ( nargin >= 9 )
+%     styleSheetDefault = [ '%GADGETRON_DIR%\install\schema/' styleSheet];
+% end
 
 xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xml';
 
@@ -117,6 +129,10 @@ for n=1:num
         configName = [configName '_localhost' ext];
     end
     
+    if(~isempty(configNamePreset))
+        configName = configNamePreset;
+    end
+    
     if( str2num(measurementID) > 10000 )
         continue;
     end
@@ -150,5 +166,5 @@ ignored = [];
 % end
 
 % [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, styleSheet);
-[tU, ig, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, []);
+[tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, []);
 

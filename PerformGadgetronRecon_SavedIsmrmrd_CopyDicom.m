@@ -48,9 +48,34 @@ else
     command = ['pscp -i ' key '.ppk ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
     command
     tic; dos(command, '-echo'); timeUsed = toc;
+    
+    gt_command = ['rm -rf ' remote_dicom_dir '/' remoteFolder];
+    command = ['ssh -i ' key ' ' user '@' gt_host ' "' gt_command '"']
+    dos(command, '-echo');
 end
 
 dstDir
 
+% try to attach colormap
+
+% str_to_find = {'_Vascular_Volume_Map', 'PS_Map', 'Perf_Map', 'Flow_Map_SLC', 'Gd_Extraction_Map', 'Interstitial_Volume_Map'};
+% map = PerfColorMap;
+% 
+% for kk=1:numel(str_to_find)
+% %     [Vb, numVb] = findFILE(dstDir, '*_Vascular_Volume_Map*');
+% %     [PS, numPS] = findFILE(dstDir, '*PS_Map*');
+% %     [Ki, numKi] = findFILE(dstDir, '*Perf_Map*');
+% %     [F, numF] = findFILE(dstDir, '*Flow_Map*');
+% %     [E, numE] = findFILE(dstDir, '*Gd_Extraction_Map*');
+% %     [Visf, numVisf] = findFILE(dstDir, '*Interstitial_Volume_Map*');
+% 
+%     [Vb, numVb] = findFILE(dstDir, ['*' str_to_find{kk} '*']);
+% 
+%     for n=1:numVb    
+%         info = dicominfo(Vb{n});
+%         x = dicomread(Vb{n});    
+%         dicomwrite(x, map, Vb{n}, info);    
+%     end
+% end
 %% 
 % winopen(dstDir)

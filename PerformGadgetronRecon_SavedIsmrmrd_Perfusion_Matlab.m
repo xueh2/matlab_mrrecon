@@ -1,5 +1,5 @@
 
-function PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, dataDir, resDir, roiDir, reComputed, with_hct, splenic_column, selected_column, stress_column, rest_column, hct_column, hct_preset, reComputed_OnlyGlobal, reComputed_withoutR2Star, case_list)
+function PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, dataDir, resDir, roiDir, reComputed, with_hct, splenic_column, selected_column, stress_column, rest_column, hct_column, hct_preset, reComputed_OnlyGlobal, reComputed_withoutR2Star, case_list, res_string, res_string_Q_e)
 % PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, dataDir, resDir, roiDir, reComputed, with_hct, splenic_column, selected_column, stress_column, rest_column, hct_column, hct_preset, reComputed_OnlyGlobal, reComputed_withoutR2Star)
 % PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, resDir, reComputed, splenic_column, selected_column, stress_column, rest_column, hct_column)
 % PerformGadgetronRecon_SavedIsmrmrd_Perfusion_Matlab(PerfTable, 'I:\KAROLINSKA', 'I:\ReconResults\KAROLINSKA')
@@ -18,8 +18,16 @@ end
 
 num = size(PerfTable, 1)-1;
 
-if(nargin<14 | isempty(case_list))
+if(nargin<15 | isempty(case_list))
     case_list = 1:num;
+end
+
+if(nargin<16)
+    res_string = 'Linear';
+end
+
+if(nargin<17)
+    res_string_Q_e = res_string;
 end
 
 for tt=1:numel(case_list)
@@ -61,13 +69,13 @@ for tt=1:numel(case_list)
     
     % stress
     try
-    PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, stressCase, resDir, roiDir_case, 'stress', HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star);
+    PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, stressCase, resDir, roiDir_case, 'stress', HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star, res_string, res_string_Q_e);
     catch
     end
     
     %rest
     try
-    PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, restCase, resDir, roiDir_case, 'rest', HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star);
+    PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, restCase, resDir, roiDir_case, 'rest', HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star, res_string, res_string_Q_e);
     catch
     end
 %     pause;

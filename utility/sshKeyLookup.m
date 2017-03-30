@@ -25,7 +25,16 @@ elseif ( strcmp(host, 'samoa') == 1 )
     user = 'xueh2';
 elseif ( strcmp(host, 'andorra') == 1 )
     key = fullfile(key_dir, 'xueh2_andorra_private');
-    user = 'xueh2';    
+    user = 'xueh2';  
+elseif ( strcmp(host, 'hongkong') == 1 )
+    key = fullfile(key_dir, 'xueh2_hongkong_private');
+    user = 'xueh2';   
+elseif ( strcmp(host, 'bermuda') == 1 )
+    key = fullfile(key_dir, 'xueh2_bermuda_private');
+    user = 'xueh2';       
+elseif ( strcmp(host, 'gibraltar') == 1 )
+    key = fullfile(key_dir, 'xueh2_gibraltar_private');
+    user = 'xueh2';       
 elseif ( strcmp(host, 'localhost') == 1 )
     key = 'none';
     user = 'xueh2';

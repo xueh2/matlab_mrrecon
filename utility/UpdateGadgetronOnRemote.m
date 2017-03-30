@@ -1,12 +1,13 @@
 
 function timeUsed = UpdateGadgetronOnRemote(host, clean, branch, gt_branch, gtprep_branch)
 %% update gadgetron on remote server
-% timeUsed = UpdateGadgetronOnRemote(host)
+% timeUsed = UpdateGadgetronOnRemote(host, clean, branch, gt_branch, gtprep_branch)
 % UpdateGadgetronOnRemote('barbados')
 % UpdateGadgetronOnRemote('denmark')
 % UpdateGadgetronOnRemote('palau')
 % UpdateGadgetronOnRemote('samoa')
 % UpdateGadgetronOnRemote('andorra')
+% UpdateGadgetronOnRemote('bermuda')
 
 if(nargin<2)
     clean = 0;

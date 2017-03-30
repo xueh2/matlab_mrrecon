@@ -4,29 +4,7 @@ function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmr
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData('I:\KAROLINSKA', 'xxxx', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % setenv('OutputFormat', 'h5')
 
-if(strcmp(gt_host, 'palau'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'localhost'))
-    GT_PORT = '9002';
-end
-
-if(strcmp(gt_host, 'denmark'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'samoa'))
-    GT_PORT = '9016';
-end
-
-if(strcmp(gt_host, 'barbados'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'andorra'))
-    GT_PORT = '9008';
-end
+GT_PORT = gtPortLookup(gt_host);
 
 setenv('GT_HOST', gt_host); setenv('GT_PORT', GT_PORT);
 
@@ -70,6 +48,9 @@ noise_id_processed = [];
 for n=1:num
 
     name = files{n};
+    if(isnan(name))
+        continue;
+    end
     if(~isempty(strfind(files{n}, 'ISMRMRD_Noise_dependency_')))
         continue;
     end
@@ -89,8 +70,15 @@ for n=1:num
     end
     
     if(~isempty(configName_preset))
-        configName = configName_preset{n};
+        if(n>numel(configName_preset))
+            configName = configName_preset{end};
+        else
+            configName = configName_preset{n};
+        end
     end
+
+    disp(['Processing ' num2str(n) ' out of ' num2str(num) ' cases : ' name ' - ' configName]);
+    disp(['========================================================================================']);
     
     dstDir = fullfile(resDir, study_dates, name);
     
@@ -101,7 +89,58 @@ for n=1:num
 
             if(isPerf)
                 try
-                    a = readGTPlusExportImageSeries_Squeeze(dstDir, 120);
+                    % a = readGTPlusExportImageSeries_Squeeze(dstDir, 120);
+                    aif_cin = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin.hdr'));
+                    aif_cin_Gd = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_LUTCorrection.hdr'));
+                    aif_cin_Gd_without_R2Star = analyze75read(fullfile(dstDir, 'DebugOutput', 'cin_all_echo0_without_R2Star_LUTCorrection.hdr'));
+                    aif_cin_Gd_baseline_corrected = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_echo0_all_signal_baseline_corrected.hdr'));
+                    aif_cin_all_echo0_signal = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_signal.hdr'));
+                    aif_cin_all_echo1_signal = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo1_signal.hdr'));
+                    aif_cin_all_echo0_signal_after_R2StarCorrection = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_signal_after_R2StarCorrection.hdr'));
+                    aif_cin_all_echo0_OverPD_after_R2StarCorrection = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_OverPD_after_R2StarCorrection.hdr'));
+                    aif_cin_all_R2Star = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_R2Star.hdr'));
+                    aif_cin_all_R2Star_SLEP = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_R2Star_SLEP.hdr'));
+%                     cin_used_all_for_computeFlowMap = analyze75read(fullfile(dstDir, 'DebugOutput', 'cin_used_all_for_computeFlowMap.hdr'));
+                    aif_PD = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifPD_for_TwoEcho_T2StartCorrection_0.hdr'));
+                    aif_mask = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_LV_mask_for_TwoEcho_T2StartCorrection_0.hdr'));
+                    aif_mask_final = analyze75read(fullfile(dstDir, 'DebugOutput', 'AifLVMask_after_Picking.hdr'));
+                    PDMaskIntensity = analyze75read(fullfile(dstDir, 'DebugOutput', 'PDMaskIntensity.hdr'));
+                    pdPicked = analyze75read(fullfile(dstDir, 'DebugOutput', 'pdPicked.hdr'));
+                    aifPicked = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifPicked.hdr'));
+                    aifMaskIntensity = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifMaskIntensity.hdr'));
+                    aif_LUT = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_LUT_Valid.hdr'));
+                    
+                    if(max(aif_cin_Gd_baseline_corrected)>1.5)
+                        dstAcqTimes = analyze75read(fullfile(dstDir, 'DebugOutput', 'dstAcqTimes_0.hdr'));
+                        AIF_AcqTimes = analyze75read(fullfile(dstDir, 'DebugOutput', 'AIF_AcqTimes_0.hdr'));
+                        perf_LUT = analyze75read(fullfile(dstDir, 'DebugOutput', 'Perf_T1_Correction_LUT.hdr'));
+
+                        sr_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'input_for_SRNorm_0.hdr'));
+                        pd_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'inputPD_for_SRNorm_0.hdr'));
+                        sr_norm_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'SRNorm_0.hdr'));
+                        pd0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'PD_0.hdr'));
+                        perf_mask_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'perf_mask_0.hdr'));
+                        gd0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'CASignal_Perf_0.hdr'));
+                        Perf_AcqTimes_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'Perf_AcqTimes_0.hdr'));
+                        gd0_resampled = analyze75read(fullfile(dstDir, 'DebugOutput', 'Input_perf_computeFlowMap_0.hdr'));
+                    end
+%                     sr_1 = analyze75read(fullfile(dstDir, 'DebugOutput', 'input_for_SRNorm_1.hdr'));
+%                     pd_1 = analyze75read(fullfile(dstDir, 'DebugOutput', 'inputPD_for_SRNorm_1.hdr'));
+%                     sr_norm_1 = analyze75read(fullfile(dstDir, 'DebugOutput', 'SRNorm_1.hdr'));
+%                     pd1 = analyze75read(fullfile(dstDir, 'DebugOutput', 'PD_1.hdr'));
+%                     perf_mask_1 = analyze75read(fullfile(dstDir, 'DebugOutput', 'perf_mask_1.hdr'));
+%                     gd1 = analyze75read(fullfile(dstDir, 'DebugOutput', 'CASignal_Perf_1.hdr'));
+%                     Perf_AcqTimes_1 = analyze75read(fullfile(dstDir, 'DebugOutput', 'Perf_AcqTimes_1.hdr'));
+%                     gd1_resampled = analyze75read(fullfile(dstDir, 'DebugOutput', 'Input_perf_computeFlowMap_1.hdr'));
+% 
+%                     sr_2 = analyze75read(fullfile(dstDir, 'DebugOutput', 'input_for_SRNorm_2.hdr'));
+%                     pd_2 = analyze75read(fullfile(dstDir, 'DebugOutput', 'inputPD_for_SRNorm_2.hdr'));
+%                     sr_norm_2 = analyze75read(fullfile(dstDir, 'DebugOutput', 'SRNorm_2.hdr'));
+%                     pd2 = analyze75read(fullfile(dstDir, 'DebugOutput', 'PD_2.hdr'));
+%                     perf_mask_2 = analyze75read(fullfile(dstDir, 'DebugOutput', 'perf_mask_2.hdr'));
+%                     gd2 = analyze75read(fullfile(dstDir, 'DebugOutput', 'CASignal_Perf_2.hdr'));
+%                     Perf_AcqTimes_2 = analyze75read(fullfile(dstDir, 'DebugOutput', 'Perf_AcqTimes_2.hdr'));
+%                     gd2_resampled = analyze75read(fullfile(dstDir, 'DebugOutput', 'Input_perf_computeFlowMap_2.hdr'));
                 catch
                     goodStatus = 0;
                 end
@@ -184,7 +223,7 @@ for n=1:num
         if(~noise_processed)
             ts = tic;
             [names_noise, numNoise] = findFILE(dataDir, ['*' noise_mear_id '*.h5']);
-            disp(['find noise dependency data : ' num2str(toc(ts))]);
+            disp(['find noisgit ste dependency data : ' num2str(toc(ts))]);
 
             if(numNoise>0)
                 ts = tic;
@@ -305,7 +344,10 @@ for n=1:num
     end
     
     ts = tic;
+    try
     [tDicom, remoteFolder] = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom(resDir, name, gt_host);
+    catch
+    end
     disp(['copy dicom output : ' num2str(toc(ts))]);
     
     ts = tic;

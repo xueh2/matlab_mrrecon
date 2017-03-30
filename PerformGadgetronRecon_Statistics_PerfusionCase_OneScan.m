@@ -1,5 +1,5 @@
 
-function [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, footTime, peakTime, valleyTime, R2Star, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, caseName)
+function [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, footTime, peakTime, valleyTime, R2Star, SampledInternval, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, caseName)
 % [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, foot, peak, valley, KiMap, flowMap, EMap, PSMap, VisfMap, BloodVolumeMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, caseName)
 % [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, foot, peak, valley, KiMap, flowMap, EMap, PSMap, VisfMap, BloodVolumeMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan('I:\ReconResults\BARTS', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_42110_196106578_196106587_845_20160613-114338')
 
@@ -23,11 +23,20 @@ aif_PD = analyze75read(fullfile(debugDir, 'aifPD_for_TwoEcho_T2StartCorrection_0
 aif_mask = analyze75read(fullfile(debugDir, 'aif_LV_mask_for_TwoEcho_T2StartCorrection_0.hdr'));
 aif_mask_final = analyze75read(fullfile(debugDir, 'AifLVMask_after_Picking.hdr'));
 AIF_AcqTimes = analyze75read(fullfile(debugDir, 'AIF_AcqTimes_0.hdr'));
+dst_AcqTimes = analyze75read(fullfile(debugDir, 'dstAcqTimes_0.hdr'));
+% ft = analyze75read('aif_cin_foot_peak_valley');
+% 
+% foot = ft(1);
+% peak = ft(2);
+% valley = ft(3);
 
 R2Star = aif_cin_all_R2Star_SLEP;
 RRInterval = AIF_AcqTimes(2:end) - AIF_AcqTimes(1:end-1);
 HeartRate = 60*1e3/median(RRInterval);
-        
+
+SampledInternval = dst_AcqTimes(2:end) - dst_AcqTimes(1:end-1);
+SampledInternval = mean(SampledInternval);
+
 sampleinterval = 0.5;
 sigmas = [0.8 2.0 3.2];
 sigmaMeasure = 0.2;

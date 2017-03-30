@@ -6,29 +6,7 @@ function [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_RunPatientStudy(d
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_RunPatientStudy('I:\BARTS', patient_studies, 'samoa', 'I:\ReconResults\BARTS')
 % setenv('OutputFormat', 'h5')
 
-if(strcmp(gt_host, 'palau'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'localhost'))
-    GT_PORT = '9002';
-end
-
-if(strcmp(gt_host, 'denmark'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'samoa'))
-    GT_PORT = '9016';
-end
-
-if(strcmp(gt_host, 'barbados'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'andorra'))
-    GT_PORT = '9008';
-end
+GT_PORT = gtPortLookup(gt_host);
 
 setenv('GT_HOST', gt_host); setenv('GT_PORT', GT_PORT);
 

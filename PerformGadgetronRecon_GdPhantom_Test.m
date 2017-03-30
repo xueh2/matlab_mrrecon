@@ -676,6 +676,7 @@ if(isempty(B1))
         
     if(numel(T1_0_blood)==1)
 
+        clear PD PD1 PD2 PD3 PD4
         for i = 1:length(sliceprofile_aif)            
             params.PD_flip_angle = aif_FA_PD * sliceprofile_aif(i);
             params.SR_flip_angle = aif_FA_Perf * sliceprofile_aif(i);
@@ -689,7 +690,8 @@ if(isempty(B1))
             [LUTOne(i,:), SR1(i,:), PD1(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, T1_0_blood, T2_0_blood, r1, r2, []);
             [LUTOne(i,:), SR2(i,:), PD2(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full-2*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, T1_0_blood, T2_0_blood, r1, r2, []);
             [LUTOne(i,:), SR3(i,:), PD3(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full+4*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, T1_0_blood, T2_0_blood, r1, r2, []);
-        end
+            [LUTOne(i,:), SR4(i,:), PD4(i,:)] = Matlab_gt_perfusion_bloch_simulation(Gd_LUT, params.PD_flip_angle, params.SR_flip_angle, aif_TD, aif_TR, aif_E1_full-4*aif_accel_factor, aif_accel_factor, aif_seq_type, aif_seq_type, T1_0_blood, T2_0_blood, T1_0_blood, T2_0_blood, r1, r2, []);
+       end
 
         % with B1, slice profile, averaging
     %         SR_all = SR + SR1 + SR2;
@@ -698,6 +700,18 @@ if(isempty(B1))
         SR_all = SR + SR1;
         PD_all = PD + PD1;
         LUT_slice_averaging = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
+
+        SR_all = SR + SR1 + SR3;
+        PD_all = PD + PD1 + PD3;
+        LUT_slice_averaging2 = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
+
+        SR_all = SR + SR1 + SR2 + SR3;
+        PD_all = PD + PD1 + PD2 + PD3;
+        LUT_slice_averaging3 = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
+
+        SR_all = SR + SR1 + SR2 + SR3 + SR4;
+        PD_all = PD + PD1 + PD2 + PD3 + PD4;
+        LUT_slice_averaging4 = sum(cat(1,SR_all,SR_all(2:end,:)),1)./sum(cat(1,PD_all,PD_all(2:end,:)),1);
 
         % with slice profile only
         SR_all = SR;
@@ -717,9 +731,12 @@ if(isempty(B1))
         plot(Gd_LUT, LUT_slice, 'k--');
         plot(Gd_LUT, LUT_averaging, 'm-.');
         plot(Gd_LUT, LUT_slice_averaging, 'Color', [0.5 0.5 0.5]);
+        plot(Gd_LUT, LUT_slice_averaging2, 'Color', [0.75 0.5 0.5]);
+        plot(Gd_LUT, LUT_slice_averaging3, 'Color', [0.5 0.75 0.5]);
+        plot(Gd_LUT, LUT_slice_averaging4, 'Color', [0.5 0.5 0.75]);
 
         hold off
-        legend('no slice, no B1, no averaging', 'only slice profile', 'only averaging', 'Slice and averaging');
+        legend('no slice, no B1, no averaging', 'only slice profile', 'only averaging', 'Slice and averaging', 'Slice and averaging 2', 'Slice and averaging 3', 'Slice and averaging 4');
         title('AIF')
         xlabel('Gd')
         ylabel('SR/PD')
@@ -750,6 +767,10 @@ if(isempty(B1))
 
             aif_Gd(4, tt) = interp1(LUT_averaging, Gd_LUT, sr_over_pd); % with B1 and slice and averaging, with T2*
             aif_Gd(6, tt) = interp1(LUT_slice, Gd_LUT, sr_over_pd); % with slice profile only
+            aif_Gd(7, tt) = interp1(LUT_slice_averaging, Gd_LUT, sr_over_pd);
+            aif_Gd(8, tt) = interp1(LUT_slice_averaging2, Gd_LUT, sr_over_pd);
+            aif_Gd(9, tt) = interp1(LUT_slice_averaging3, Gd_LUT, sr_over_pd);
+            aif_Gd(10, tt) = interp1(LUT_slice_averaging4, Gd_LUT, sr_over_pd);
 
             sr_over_pd = cin_e0(tt)/PDv(tt);
             aif_Gd(3, tt) = interp1(LUT, Gd_LUT, sr_over_pd); % no B1, no slice, no averaging, no T2*
@@ -1007,14 +1028,50 @@ if(~isempty(sliceprofile_aif))
     Gd_aif_slice_fit = P(1)*Gd+P(2);
     xpos_slice = Gd(2);
     ypos_slice = 0.45 * max(Gd_aif_slice_fit);
-    theString_slice = sprintf('with T2* correction/B1Map/slice profile/averaging,\n y = %.5f x + %.5f', P(1), P(2));
+    theString_slice = sprintf('with T2* correction/B1Map/slice profile/averaging,\n y = %.5f x + %.5f', P(1), P(2))
     
     Gd_aif_slice_noR2Star = aif_Gd(5, startTube:startTube+numel(Gd)-1);
     P = polyfit(Gd(:), Gd_aif_slice_noR2Star(:),1);
     Gd_aif_slice_noR2Star_fit = P(1)*Gd+P(2);
     xpos_slice_noR2Star = Gd(2);
     ypos_slice_noR2Star = 0.45 * max(Gd_aif_slice_noR2Star_fit);
-    theString_slice_noR2Star = sprintf('with B1Map/slice profile/averaging, no T2* correction,\n y = %.5f x + %.5f', P(1), P(2));
+    theString_slice_noR2Star = sprintf('with B1Map/slice profile/averaging, no T2* correction,\n y = %.5f x + %.5f', P(1), P(2))
+    
+    Gd_aif_slice_averaging = aif_Gd(6, startTube:startTube+numel(Gd)-1);
+    P = polyfit(Gd(:), Gd_aif_slice_averaging(:),1);
+    Gd_aif_slice_averaging_fit = P(1)*Gd+P(2);
+    xpos_slice_averaging = Gd(2);
+    ypos_slice_averaging = 0.45 * max(Gd_aif_slice_averaging_fit);
+    theString_slice_averaging = sprintf('with slice profile, no averaging and T2* correction,\n y = %.5f x + %.5f', P(1), P(2))
+    
+    Gd_aif_slice_averaging1 = aif_Gd(7, startTube:startTube+numel(Gd)-1);
+    P = polyfit(Gd(:), Gd_aif_slice_averaging1(:),1);
+    Gd_aif_slice_averaging1_fit = P(1)*Gd+P(2);
+    xpos_slice_averaging1 = Gd(2);
+    ypos_slice_averaging1 = 0.45 * max(Gd_aif_slice_averaging1_fit);
+    theString_slice_averaging1 = sprintf('with slice profile/averaging1 and T2* correction,\n y = %.5f x + %.5f', P(1), P(2))
+
+    Gd_aif_slice_averaging2 = aif_Gd(8, startTube:startTube+numel(Gd)-1);
+    P = polyfit(Gd(:), Gd_aif_slice_averaging2(:),1);
+    Gd_aif_slice_averaging2_fit = P(1)*Gd+P(2);
+    xpos_slice_averaging2 = Gd(2);
+    ypos_slice_averaging2 = 0.45 * max(Gd_aif_slice_averaging2_fit);
+    theString_slice_averaging2 = sprintf('with slice profile/averaging2 and T2* correction,\n y = %.5f x + %.5f', P(1), P(2))
+    
+    Gd_aif_slice_averaging3 = aif_Gd(9, startTube:startTube+numel(Gd)-1);
+    P = polyfit(Gd(:), Gd_aif_slice_averaging3(:),1);
+    Gd_aif_slice_averaging3_fit = P(1)*Gd+P(2);
+    xpos_slice_averaging3 = Gd(2);
+    ypos_slice_averaging3 = 0.45 * max(Gd_aif_slice_averaging3_fit);
+    theString_slice_averaging3 = sprintf('with slice profile/averaging3 and T2* correction,\n y = %.5f x + %.5f', P(1), P(2))
+
+    Gd_aif_slice_averaging4 = aif_Gd(10, startTube:startTube+numel(Gd)-1);
+    P = polyfit(Gd(:), Gd_aif_slice_averaging4(:),1);
+    Gd_aif_slice_averaging4_fit = P(1)*Gd+P(2);
+    xpos_slice_averaging4 = Gd(2);
+    ypos_slice_averaging4 = 0.45 * max(Gd_aif_slice_averaging4_fit);
+    theString_slice_averaging4 = sprintf('with slice profile/averaging4 and T2* correction,\n y = %.5f x + %.5f', P(1), P(2))
+
 end
 
 P = polyfit(Gd(:), Gd_aif(:),1);

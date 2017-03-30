@@ -31,6 +31,9 @@ UTCases = {
     % phase oversampling
     'SNR_Unit_Recon\20160310', 'meas_MID00473_FID114202_R1_PEFOV100_PERes120',                              'VD',   'Generic_Cartesian_Grappa_SNR.xml',  'generic_res',  'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
     'SNR_Unit_Recon\20160310', 'meas_MID00496_FID113731_snr_spat_r2_pefov75_pf0_peres75_peoversampling21',  'VD',   'Generic_Cartesian_Grappa_SNR.xml',  'generic_res',  'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
+    
+    % VB17
+    'SNR_Unit_Recon\VB17', 'meas_MID170_CV_me_Gadgetron_spat4_FID48923',  'VB',   'Generic_Cartesian_Grappa_SNR.xml',  'generic_res',  'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
    };
 
 N = size(UTCases, 1);

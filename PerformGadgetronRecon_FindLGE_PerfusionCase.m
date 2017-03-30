@@ -1,6 +1,6 @@
 
 function LGE = PerformGadgetronRecon_FindLGE_PerfusionCase(dataDir, resDir, perf_case, showLGE)
-% LGE = PerformGadgetronRecon_FindLGE_PerfusionCase(dataDir, resDir, perf_case)
+% LGE = PerformGadgetronRecon_FindLGE_PerfusionCase(dataDir, resDir, perf_case, showLGE)
 % LGE = PerformGadgetronRecon_FindLGE_PerfusionCase('I:\BARTS', 'I:\ReconResults\BARTS', perf_cases)
 % given a perfusion case, find corresponding LGE cases
 
