@@ -102,9 +102,9 @@ end
 
 t = 0;
 
-if(num_dat==0)
-    return;
-end
+% if(num_dat==0)
+%     return;
+% end
 
 fullPath = fullfile(home, subdir, UTCase_Flow{1, 5})
 command = ['rmdir /S /Q ' fullfile(fullPath, 'DebugOutput')];

@@ -72,7 +72,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_Ki_TwoComp']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         if(m==4)
             h = figure('Name','Ki Maps - TwoCompExp','NumberTitle','off'); imagescn(Ki_rest(:,:,3,:), [0 6], [1 slc], scalingFactor); PerfColorMap;
@@ -82,7 +84,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_Gd']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','Rest Gd','NumberTitle','off'); imagescn(rest_perf, [0 1.5], [1 slc], 10, 4);
         saveas(h, figName, 'fig')
@@ -90,7 +94,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_AIF_ORI' '.fig']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else        
         h = figure('Name','AIF Original','NumberTitle','off'); imagescn(aif_im_rest, [], [], 10, 4);
         saveas(h, figName, 'fig');
@@ -98,7 +104,9 @@ if(has_rest)
             
     figName = fullfile(figDir, [resDir '_Rest_PDE_FlowMap']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','Flow maps','NumberTitle','off'); imagescn(flow_rest(:,:,:,end), [0 6], [1 slc], scalingFactor); PerfColorMap;
         saveas(h, figName, 'fig')
@@ -106,7 +114,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_PDE_Visf']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','PDE Visf','NumberTitle','off'); imagescn(Visf_rest(:,:,:,end), [0 80], [1 slc], scalingFactor); PerfColorMap;
         saveas(h, figName, 'fig')
@@ -114,7 +124,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_PDE_PS']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','PDE PS','NumberTitle','off'); imagescn(PS_rest(:,:,:,end), [0 6], [1 slc], scalingFactor); PerfColorMap;
         saveas(h, figName, 'fig')
@@ -122,7 +134,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_PDE_E']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','PDE E','NumberTitle','off');; imagescn(E_rest(:,:,:,end), [0 2], [1 slc], scalingFactor); PerfColorMap;
         saveas(h, figName, 'fig')
@@ -130,7 +144,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_PDE_Vp']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','PDE Vp','NumberTitle','off');; imagescn(Vp_rest(:,:,:,end), [0 50], [1 slc], scalingFactor); PerfColorMap;
         saveas(h, figName, 'fig')
@@ -138,7 +154,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_Ori']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','Rest Original','NumberTitle','off'); imagescn(ori_rest, [], [1 slc], scalingFactor, 3);
         saveas(h, figName, 'fig')
@@ -146,7 +164,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_MOCO']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','Rest MOCO','NumberTitle','off'); imagescn(moco_rest, [], [1 slc], scalingFactor, 3);
         saveas(h, figName, 'fig')
@@ -154,7 +174,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_MOCO_NORM']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','Rest MOCO NORM','NumberTitle','off'); imagescn(moco_norm_rest, [], [1 slc], scalingFactor, 3);
         saveas(h, figName, 'fig')
@@ -162,7 +184,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_AIF_MOCO']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','AIF MOCO','NumberTitle','off'); imagescn(aif_moco_rest, [], [], 10, 3);
         saveas(h, figName, 'fig')
@@ -170,7 +194,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_PDE_Delay' '.fig']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else
         h = figure('Name','PDE Delay','NumberTitle','off');; imagescn(Delay_rest(:,:,:,end), [0 8], [1 slc], scalingFactor);
         saveas(h, figName, 'fig');
@@ -181,7 +207,9 @@ if(has_rest)
     figName = fullfile(figDir, [resDir '_AIF_Rest_Curves']);
 
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else        
         h = figure
         hold on
@@ -201,7 +229,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_AIF_Rest_Curves' '.fig']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else        
         h = figure
         hold on
@@ -223,7 +253,9 @@ if(has_rest)
     
     figName = fullfile(figDir, [resDir '_Rest_AIF_Mask' '.fig']);
     if(onlyReview)
-        openfig(figName);
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
     else        
         
         NN = size(rest_perf, 4);

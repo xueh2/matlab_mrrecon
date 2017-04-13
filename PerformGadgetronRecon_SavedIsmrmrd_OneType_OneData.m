@@ -146,21 +146,21 @@ for n=1:num
                 end
             end
 
-            [hdrfiles, numhdr] = findFILE(dstDir, '*.img');
-                            
-            if(~isPerf)
-                dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
-                [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
-                if(numdcm==0 || numdcm~=numhdr)
-                    goodStatus = 0;
-                end
-            else
-                dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
-                [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
-                if(numdcm==0 || numdcm>numhdr)
-                    goodStatus = 0;
-                end
-            end
+%             [hdrfiles, numhdr] = findFILE(dstDir, '*.img');
+%                             
+%             if(~isPerf)
+%                 dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
+%                 [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
+%                 if(numdcm==0 || numdcm~=numhdr)
+%                     goodStatus = 0;
+%                 end
+%             else
+%                 dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
+%                 [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
+%                 if(numdcm==0 || numdcm>numhdr)
+%                     goodStatus = 0;
+%                 end
+%             end
             
             if(goodStatus)
                 disp([num2str(n) ' out of ' num2str(num) ' - Already Processed : ' name]);
