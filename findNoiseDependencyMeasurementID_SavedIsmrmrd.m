@@ -21,7 +21,11 @@ try
         ind = strfind(header.measurementInformation.measurementID, '_');
 
         meas_id = header.measurementInformation.measurementID(1:ind(end)-1);
-        noise_mear_id = [meas_id '_' noiseID];
+        if(numel(noiseID)<numel(meas_id))
+            noise_mear_id = [meas_id '_' noiseID];
+        else
+            noise_mear_id = noiseID;
+        end
     end
     
     dset.close();

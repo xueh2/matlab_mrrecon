@@ -1,6 +1,6 @@
 
-function [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, stressCase, restCase, flow_windowing, onlyReview, baseDir)
-% PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, stressCase, flow_windowing, onlyReview, restCase)
+function [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, stressCase, restCase, flow_windowing, onlyReview, checkprocessed, baseDir)
+% [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, stressCase, restCase, flow_windowing, onlyReview, checkprocessed, baseDir)
 % PerformGadgetronRecon_Plot_PerfusionCase_StressRest('I:\ReconResults\BARTS', stressCase, restCase, onlyReview)
 
     if(nargin < 4)
@@ -12,15 +12,20 @@ function [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRe
     end
 
     if(nargin < 6)
+        checkprocessed = 1;
+    end
+    
+    if(nargin < 7)
         baseDir = resDir;
     end
-
-    [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(stressCase);
+    
+    [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time_stress] = parseSavedISMRMRD(stressCase);
+    [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time_rest] = parseSavedISMRMRD(restCase);
 
     restDir = fullfile(resDir, study_dates, restCase)
     stressDir = fullfile(resDir, study_dates, stressCase)
     
-    [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest_WithInfo(resDir, restDir, stressDir, scannerID, patientID, studyID, study_dates, flow_windowing, onlyReview, baseDir);
+    [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest_WithInfo(resDir, restDir, stressDir, scannerID, patientID, studyID, study_dates, study_time_stress, study_time_rest, flow_windowing, onlyReview, checkprocessed, baseDir);
     
 %     scalingFactor = 10;
 % 

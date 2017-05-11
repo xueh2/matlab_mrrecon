@@ -59,11 +59,11 @@ for n=1:num
     if(isempty(strfind(name, 'Perfusion'))~=1)
         isPerf = 1;
     end
-    
-    dataName = fullfile(dataDir, [name '.h5']);
-    
+       
     [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
     
+    dataName = fullfile(dataDir, study_dates, [name '.h5']);
+
     if(strcmp(gt_host, 'localhost')==1)
         [pathstr, configName, ext] = fileparts(configName);
         configName = [configName '_localhost' ext];
@@ -146,21 +146,21 @@ for n=1:num
                 end
             end
 
-%             [hdrfiles, numhdr] = findFILE(dstDir, '*.img');
-%                             
-%             if(~isPerf)
-%                 dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
-%                 [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
-%                 if(numdcm==0 || numdcm~=numhdr)
-%                     goodStatus = 0;
-%                 end
-%             else
-%                 dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
-%                 [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
-%                 if(numdcm==0 || numdcm>numhdr)
-%                     goodStatus = 0;
-%                 end
-%             end
+            [hdrfiles, numhdr] = findFILE(dstDir, '*.img');
+                            
+            if(~isPerf)
+                dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
+                [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
+                if(numdcm==0)
+                    goodStatus = 0;
+                end
+            else
+                dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
+                [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
+                if(numdcm==0)
+                    goodStatus = 0;
+                end
+            end
             
             if(goodStatus)
                 disp([num2str(n) ' out of ' num2str(num) ' - Already Processed : ' name]);
@@ -222,7 +222,7 @@ for n=1:num
         
         if(~noise_processed)
             ts = tic;
-            [names_noise, numNoise] = findFILE(dataDir, ['*' noise_mear_id '*.h5']);
+            [names_noise, numNoise] = findFILE(fullfile(dataDir, study_dates), ['*' noise_mear_id '*.h5']);
             disp(['find noisgit ste dependency data : ' num2str(toc(ts))]);
 
             if(numNoise>0)
@@ -323,7 +323,7 @@ for n=1:num
     if(isPerf)
         command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a %GT_HOST% -p %GT_PORT% -F %OutputFormat% -G ' configNameShortened ' -o ref_' date_suffix '.h5']
     else
-        command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a %GT_HOST% -p %GT_PORT% -F hdr -G ' configNameShortened ' -o ref_' date_suffix '.h5']
+        command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a %GT_HOST% -p %GT_PORT% -F %OutputFormat% -G ' configNameShortened ' -o ref_' date_suffix '.h5']
     end
     tic; dos(command); timeUsed = toc;
            
@@ -355,6 +355,9 @@ for n=1:num
     if(strcmp(gt_host, 'localhost')==1)
         if(startRemoteGT)
             command = ['taskkill /F /FI "IMAGENAME eq gadgetron.*"'];
+            dos(command)
+
+            command = ['taskkill /F /IM cmd.exe'];
             dos(command)
         end
 

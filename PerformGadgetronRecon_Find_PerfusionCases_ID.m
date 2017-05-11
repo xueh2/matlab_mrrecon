@@ -1,15 +1,60 @@
 
-function [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Find_PerfusionCases(dataDir, resDir, date_start, date_end)
-% [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Find_PerfusionCases(dataDir, resDir, date_start, date_end)
-% [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Find_PerfusionCases('I:\BARTS', 'I:\ReconResults\BARTS')
+function [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Find_PerfusionCases_ID(dataDir, IDs, dates, date_start, date_end)
+% [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Find_PerfusionCases_ID(dataDir, IDs)
+% [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Find_PerfusionCases_ID('T:\RawData\BARTS', IDs)
 % perf_cases in {stress, rest} order
 
+
+if(nargin<2)
+    IDs = [];
+end
+
 if(nargin<3)
-    date_start = '2016-01-01';
+    dates = [];
 end
 
 if(nargin<4)
+    date_start = '2016-01-01';
+end
+
+if(nargin<5)
     date_end = '2018-01-01';
+end
+
+if(~isempty(dates))
+    dates_num = [];
+    
+    for tt=1:numel(dates)                
+        currDate = dates{tt};
+        if(isnumeric(currDate))
+            currDate = num2str(currDate);
+        end
+
+        ind = find(currDate=='-');
+        ind2 = find(currDate=='/');
+
+        if(numel(ind2)>0)
+            ed = datenum(currDate, 'mm/dd/yyyy');
+        else
+            if(numel(ind)==0)
+                ed = datenum(currDate, 'yyyymmdd');
+            else
+                ed = datenum(currDate, 'yyyy-mm-dd');
+            end
+        end
+
+        has_dates = 0;
+        for ee=1:numel(dates_num)
+            if(ed==dates_num(ee))
+                has_dates = 1;
+                break;
+            end
+        end
+        
+        if(~has_dates)
+            dates_num = [dates_num; ed];
+        end
+    end
 end
 
 % ------------------------------------------------------------
@@ -65,8 +110,9 @@ tUsed = [];
 ignored = [];
 files_processed = [];
 study_dates = [];
-sha1_processed = [];
-patientID_all = [];
+IDs_picked = [];
+sha1_picked = [];
+patientID_picked = [];
 
 num_small_file = 1;
 
@@ -85,30 +131,24 @@ for n=1:num
     [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
 
     dataName = fullfile(dataDir, study_date, [name '.h5']);
-        
-    dstDir = fullfile(resDir, study_date, name);
-    
-%     if(exist(dstDir)==7)
-%         files_processed = [files_processed; {name}];
-%         study_dates = [study_dates; str2double(study_date)];
-%         sha1_processed = [sha1_processed; {sha1}];
-%         patientID_processed = [patientID_processed; {patientID}];
-%     else
-        
-        finfo = dir(dataName);
-       
-        isPerf = 0;
-        if(isempty(strfind(name, 'Perfusion'))~=1)
-            isPerf = 1;
-            if(finfo.bytes<200*1024*1024)
-                disp([num2str(num_small_file) ' - file size too small - ' num2str(n) ' - ' name ' - ' num2str(finfo.bytes/1024/1024) 'Mb']);
-                num_small_file = num_small_file + 1;
-                continue;
-            end
+               
+    finfo = dir(dataName);
+
+    isPerf = 0;
+    if(isempty(strfind(name, 'Perfusion'))~=1)
+        isPerf = 1;
+        if(finfo.bytes<200*1024*1024)
+            disp([num2str(num_small_file) ' - file size too small - ' num2str(n) ' - ' name ' - ' num2str(finfo.bytes/1024/1024) 'Mb']);
+            num_small_file = num_small_file + 1;
+            continue;
         end
-    
-        if(isPerf)
-            sha1 = 0;
+    end
+
+    if(isPerf)
+
+        sha1 = 0;
+        
+        if(~isempty(IDs))
             try
                 % find ID
                 dset = ismrmrd.Dataset(dataName);
@@ -126,20 +166,96 @@ for n=1:num
             catch
                 continue;
             end
+
+            hasData = 0;
+            for ii=1:numel(IDs)     
+
+                currID = IDs{ii};
+                if(isnumeric(currID))
+                    currID = num2str(currID);
+                end
+
+                if(~isnumeric(sha1))
+                    if(strcmp(patientID, currID)==1 | strcmp(sha1(1:8), currID(1:8)))
+                        hasData = 1;
+                        break;
+                    end 
+                else
+                    if(strcmp(patientID, currID)==1)
+                        hasData = 1;
+                        break;
+                    end
+                end
+            end
+
+            if(hasData)
+                disp(['data ' name ' is in IDs ... ']);
+                files_processed = [files_processed; {name}];
+                study_dates = [study_dates; str2double(study_date)];
+                sha1_picked = [sha1_picked; {sha1}];
+                patientID_picked = [patientID_picked; {patientID}];
+
+                has_id = 0;
+                for tt=1:numel(IDs_picked)
+                    if(strcmp(currID, IDs_picked{tt})==1)
+                        has_id = 1;
+                        break;
+                    end
+                end
+
+                if(~has_id)
+                    IDs_picked = [IDs_picked; {currID}];
+                end
+            else
+                % disp(['data ' name ' is not in IDs ... ']);
+            end
+        elseif (~isempty(dates))
             
+            td = datenum(str2num(study_year), str2num(study_month), str2num(study_day));
+            
+            has_dates = 0;
+            for tt=1:numel(dates_num)               
+                if (dates_num(tt)==td)
+                    has_dates = 1;
+                    break;
+                end
+            end
+            
+            if(has_dates)
+                files_processed = [files_processed; {name}];
+                study_dates = [study_dates; str2double(study_date)];
+                sha1_picked = [sha1_picked; {sha1}];
+                patientID_picked = [patientID_picked; {patientID}];
+            end
+        else
             files_processed = [files_processed; {name}];
             study_dates = [study_dates; str2double(study_date)];
-            sha1_processed = [sha1_processed; {sha1}];
-            patientID_all = [patientID_all; {patientID}];
         end
-%     end
+    end
+end
+
+for tt=1:numel(IDs)
+    
+    currID = IDs{tt};
+    if(isnumeric(currID))
+        currID = num2str(currID);
+    end
+            
+    has_id = 0;
+    for jj=1:numel(IDs_picked)
+        if(strcmp(currID, IDs_picked{jj})==1)
+            has_id = 1;
+            break;
+        end
+    end
+    if(~has_id)
+        disp(['ID not picked - ' currID]);
+    end
 end
 
 % sort the file by scan date
 [study_dates, ind] = sort(study_dates);
 files_processed = files_processed(ind);
-sha1_processed = sha1_processed(ind);
-patientID_all = patientID_all(ind);
 
 perf_cases = [];
 rest_cases = [];
@@ -154,21 +270,13 @@ while (~isempty(files_processed))
     f1 = files_processed{1};
        
     [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(f1);
-    
-    sha1 = find_sha1(patientID_all, sha1_processed, patientID);
-    
-    dstDir = fullfile(resDir, study_dates, f1);
-    
+    sha1 = find_sha1(patientID_picked, sha1_picked, patientID);
+     
     elem_id = [1];
     other_fs = [];
 
     has_aif = 1;
-    try
-        aif = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin.hdr'));
-        has_aif = 1;
-    catch
-        aif = 2.0;
-    end
+    aif = 2.0;
     
     if(has_aif)
         if(max(aif)<1.5)

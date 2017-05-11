@@ -71,39 +71,47 @@ configNames = [];
 study_dates = [];
 study_times = [];
 
-[names, num] = findFILE(dataDir, '*.h5');          
-for n=1:num
+[subdirs, numDirs] = FindSubDirs(dataDir);
+for p=1:numel(subdirs)
     
-    [pathstr, name, ext] = fileparts(names{n});
-    
-    % find scanner ID, patient ID, study ID, measurement ID, study date and time
-    [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
-    
-    if(strcmp(gt_host, 'localhost')==1)
-        [pathstr, configName, ext] = fileparts(configName);
-        configName = [configName '_localhost' ext];
-    end
-    
-    if( str2num(measurementID) > 10000 )
-        continue;
-    end
-    
-    patient_study_str = [scannerID '_' patientID '_' studyID];
-    studyFound = 0;
-    for kk=1:size(patient_studies, 1)
-        if(strfind(patient_studies{kk, 1}, patient_study_str)==1)
-            studyFound = 1;
-            break;
-        end
-    end
+    [names, num] = findFILE(fullfile(dataDir, subdirs{p}), '*.h5');          
+    for n=1:num
 
-    if(studyFound)
-        files = [files; {name}];
-        configNames = [configNames; {configName}];
-        study_dates = [study_dates; str2double(study_date)];
-        study_times = [study_times; str2double(study_time)];
-    end
-end 
+        [pathstr, name, ext] = fileparts(names{n});
+
+        if(~isempty(strfind(name, 'Noise')))
+            continue;
+        end
+        
+        % find scanner ID, patient ID, study ID, measurement ID, study date and time
+        [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+
+        if(strcmp(gt_host, 'localhost')==1)
+            [pathstr, configName, ext] = fileparts(configName);
+            configName = [configName '_localhost' ext];
+        end
+
+        if( str2num(measurementID) > 10000 )
+            continue;
+        end
+
+        patient_study_str = [scannerID '_' patientID '_' studyID];
+        studyFound = 0;
+        for kk=1:size(patient_studies, 1)
+            if(strfind(patient_studies{kk, 1}, patient_study_str)==1)
+                studyFound = 1;
+                break;
+            end
+        end
+
+        if(studyFound)
+            files = [files; {name}];
+            configNames = [configNames; {configName}];
+            study_dates = [study_dates; str2double(study_date)];
+            study_times = [study_times; str2double(study_time)];
+        end
+    end 
+end
 
 % sort the file by scan date
 [study_dates, ind] = sort(study_dates);

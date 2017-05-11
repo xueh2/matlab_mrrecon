@@ -204,6 +204,13 @@ end
 end
 
 function [f1, f2, f3] = get_roi_values(a, s1, s2, s3)
+    if(isempty(a))
+        f1.m = -1;
+        f2.m = -1;
+        f3.m = -1;
+        return;
+    end
+    
     if(~isempty(s1))
         f1 = roi_statistics(a(:,:,1), s1.ROI_info_table(1,1));
     else
@@ -225,6 +232,13 @@ end
 
 function [f1, f2, f3] = get_2nd_roi_values(a, s1, s2, s3)
 
+    if(isempty(a))
+        f1.m = -1;
+        f2.m = -1;
+        f3.m = -1;
+        return;
+    end
+    
     if(~isempty(s1) & numel(s1.ROI_info_table)==2)
         f1 = roi_statistics(a(:,:,1), s1.ROI_info_table(1,1));
     else

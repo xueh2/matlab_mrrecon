@@ -1,6 +1,6 @@
 
-function [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_PatientTable_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, excluded, processing_always, reviewFlag, pause_cases)
-% [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_PatientTable_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, excluded, processing_always, reviewFlag, pause_cases)
+function [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_PatientTable_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, excluded, processing_always, reviewFlag, prefix_SNR, pause_cases)
+% [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_PatientTable_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, excluded, processing_always, reviewFlag, prefix_SNR, pause_cases)
 % [ROITable, sf, rf, sf_i, rf_i] = PerformGadgetronRecon_SavedIsmrmrd_PatientTable_ROIValues(PerfTable, 'D:\data\ut\NewData\PaperResults\KAROLINSKA_Area', 'D:\data\ut\NewData\PaperResults\KAROLINSKA_Area_ROI')
 % [ROITable, sf, rf, sf_i, rf_i] = PerformGadgetronRecon_SavedIsmrmrd_PatientTable_ROIValues(PerfTable, 'D:\data\ut\NewData\PaperResults\KAROLINSKA_Area_Native_T1_0', 'D:\data\ut\NewData\PaperResults\KAROLINSKA_Area_ROI')
 % [ROITable, sf, rf, sf_i, rf_i] = PerformGadgetronRecon_SavedIsmrmrd_PatientTable_ROIValues(PerfTable, 'I:\ReconResults\BARTS', 'D:\data\ut\NewData\PaperResults\Barts_ROI')
@@ -18,6 +18,10 @@ if(nargin<10)
 end
 
 if(nargin<11)
+    prefix_SNR = 'Perf_Image';
+end
+
+if(nargin<12)
     pause_cases = 0;
 end
 
@@ -124,6 +128,12 @@ rSD = [];
 sSD_i = [];
 rSD_i = [];
 
+sSNR = [];
+rSNR = [];
+
+sGd = [];
+rGd = [];
+
 num_column = size(PerfTable, 2);
 num = size(PerfTable, 1)-1;
 
@@ -184,6 +194,12 @@ for n=1:num
     else
         roiDir = fullfile(contourDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' pID '_' studyID '_' study_dates '_ROI'])
     end
+    
+    SNRResult_file = fullfile(roiDir, [prefix_SNR '_SNR_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
+    Gd_Result_file = fullfile(roiDir, [prefix_SNR '_Gd_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
+
+    stressDir = fullfile(resDir, study_dates, stressCase)
+    restDir = fullfile(resDir, study_dates, restCase)
     
     scanInd = [scanInd; n];
     patientID = [patientID; {pID}];
@@ -318,14 +334,6 @@ for n=1:num
 
             nV = numel(v);
 
-%             s1 = load(fullfile(roiDir, s1_roi));
-%             s2 = load(fullfile(roiDir, s2_roi));
-%             s3 = load(fullfile(roiDir, s3_roi));
-% 
-%             r1 = load(fullfile(roiDir, r1_roi));
-%             r2 = load(fullfile(roiDir, r2_roi));
-%             r3 = load(fullfile(roiDir, r3_roi));
-
             if(isFileExist(fullfile(roiDir, s1_roi)))
                 s1 = load(fullfile(roiDir, s1_roi));
             else
@@ -362,15 +370,7 @@ for n=1:num
             else
                 r3 = [];
             end
-            
-%             if(~isFileExist(fullfile(roiDir, 'rest.mat')))
-%                 copyfile(fullfile(figDir, 'rest.mat'), roiDir);
-%             end
-%             
-%             if(~isFileExist(fullfile(roiDir, 'stress.mat')))
-%                 copyfile(fullfile(figDir, 'stress.mat'), roiDir);
-%             end
-            
+                       
             if(has_rest)
                 rest = load(fullfile(figDir, 'rest.mat'));
                 res_rest = PerformGadgetronRecon_SavedIsmrmrd_ROIValues_OneCase(r1, r2, r3, rest);
@@ -419,25 +419,6 @@ for n=1:num
                 v{nV+4} = [-1 -1 -1];
             end
             
-%             v{nV+1} = res_stress.flow;
-%             disp(['stress flow : ' num2str(v{nV+1})]);
-% 
-%             v{nV+2} = res_rest.flow;
-%             disp(['rest flow : ' num2str(v{nV+2})]);
-% 
-%             if(numel(s1.ROI_info_table)==2)
-%                 
-%                 two_ROI = 1;
-% 
-%                 v{nV+3} = res_stress.flow_i;
-%                 disp(['stress flow, ischemia : ' num2str(v{nV+3})]);
-%                 
-%                 v{nV+4} = res_rest.flow_i;
-%             else
-%                 v{nV+3} = [-1 -1 -1];
-%                 v{nV+4} = [-1 -1 -1];
-%             end
-
             v{nV+5} = max(stress.aif_stress_baseline_corrected);
             v{nV+6} = max(rest.aif_rest_baseline_corrected);
             v{nV+7} = HCT;
@@ -648,54 +629,156 @@ for n=1:num
                 sSD_i = [sSD_i; -1 -1 -1];
                 rSD_i = [rSD_i; -1 -1 -1];
             end
+            
+            % ---------------------------------------------
+            % SNR
+            
+            if(processing_snr_always | ~isFileExist(SNRResult_file))
+                try
+                    cd(stressDir)
+                    s_gfactor = readGTPlusExportImageSeries_Squeeze(300);
+                    s_gfactor = flipdim(s_gfactor, 2);
+
+                    moco_perf = readGTPlusExportImageSeries_Squeeze(104);
+                    moco_perf = flipdim(moco_perf, 2);
+                    
+                    sdata1 = squeeze(moco_perf(:,:,1,:));
+                    sdata2 = squeeze(moco_perf(:,:,2,:));
+                    sdata3 = squeeze(moco_perf(:,:,3,:));
+
+                    cd(restDir)
+                    r_gfactor = readGTPlusExportImageSeries_Squeeze(300);
+                    r_gfactor = flipdim(r_gfactor, 2);
+
+                    moco_perf = readGTPlusExportImageSeries_Squeeze(104);
+                    moco_perf = flipdim(moco_perf, 2);
+                    
+                    rdata1 = squeeze(moco_perf(:,:,1,:));
+                    rdata2 = squeeze(moco_perf(:,:,2,:));
+                    rdata3 = squeeze(moco_perf(:,:,3,:));
+                    
+                    snr_s1 = 25 * sdata1 ./ squeeze(s_gfactor(:,:,1,:));
+                    snr_s2 = 25 * sdata2 ./ squeeze(s_gfactor(:,:,2,:));
+                    snr_s3 = 25 * sdata3 ./ squeeze(s_gfactor(:,:,3,:));
+
+                    snr_r1 = 25 * rdata1 ./ squeeze(r_gfactor(:,:,1,:));
+                    snr_r2 = 25 * rdata2 ./ squeeze(r_gfactor(:,:,2,:));
+                    snr_r3 = 25 * rdata3 ./ squeeze(r_gfactor(:,:,3,:));
+
+                    cd(roiDir)
+                    if(~isempty(s1))
+                        BW1=zeros(size(sdata1(:,:,1)));
+                        BW1=roipoly(sdata1(:,:,1), s1(1).ROI_info_table(1).ROI_x_coordinates, s1(1).ROI_info_table(1).ROI_y_coordinates);
+                        index1=find(BW1 >0);
+                    end
+
+                    if(~isempty(s2))
+                        BW2=zeros(size(sdata2(:,:,1)));
+                        BW2=roipoly(sdata2(:,:,1), s2(1).ROI_info_table(1).ROI_x_coordinates, s2(1).ROI_info_table(1).ROI_y_coordinates);
+                        index2=find(BW2 >0);
+                    end
+
+                    if(~isempty(s3))
+                        BW3=zeros(size(sdata3(:,:,1)));
+                        BW3=roipoly(sdata3(:,:,1), s3(1).ROI_info_table(1).ROI_x_coordinates, s3(1).ROI_info_table(1).ROI_y_coordinates);
+                        index3=find(BW3 >0);
+                    end
+
+                    if(~isempty(r1))
+                        rBW1=zeros(size(rdata1(:,:,1)));
+                        rBW1=roipoly(rdata1(:,:,1), r1(1).ROI_info_table(1).ROI_x_coordinates, r1(1).ROI_info_table(1).ROI_y_coordinates);
+                        rindex1=find(rBW1 >0);
+                    end
+
+                    if(~isempty(r2))
+                        rBW2=zeros(size(rdata2(:,:,1)));
+                        rBW2=roipoly(rdata2(:,:,1), r2(1).ROI_info_table(1).ROI_x_coordinates, r2(1).ROI_info_table(1).ROI_y_coordinates);
+                        rindex2=find(rBW2 >0);
+                    end
+
+                    if(~isempty(r3))
+                        rBW3=zeros(size(rdata3(:,:,1)));
+                        rBW3=roipoly(rdata3(:,:,1), r3(1).ROI_info_table(1).ROI_x_coordinates, r3(1).ROI_info_table(1).ROI_y_coordinates);
+                        rindex3=find(rBW3 >0);
+                    end
+
+                    % gfactor scaled by 100
+                    % data is scaled by 4
+                    nRep = size(sdata1, 3);
+
+                    s_SNR = zeros(nRep, 3);
+                    r_SNR = zeros(nRep, 3);
+
+                    for rr=1:nRep
+                        sd1 = snr_s1(:,:,rr);
+                        sd2 = snr_s2(:,:,rr);
+                        sd3 = snr_s3(:,:,rr);
+
+                        rd1 = snr_r1(:,:,rr);
+                        rd2 = snr_r2(:,:,rr);
+                        rd3 = snr_r3(:,:,rr);
+
+                        v1 = 0;
+                        if(~isempty(s1))
+                            v1 = mean(sd1(index1));
+                        end
+
+                        v2 = 0;
+                        if(~isempty(s2))
+                            v2 = mean(sd2(index2));
+                        end
+
+                        v3 = 0;
+                        if(~isempty(s3))
+                            v3 = mean(sd3(index3));
+                        end
+
+                        s_SNR(rr, :) = [v1 v2 v3];
+
+                        v1 = 0;
+                        if(~isempty(r1))
+                            v1 = mean(rd1(rindex1));
+                        end
+
+                        v2 = 0;
+                        if(~isempty(r2))
+                            v2 = mean(rd2(rindex2));
+                        end
+
+                        v3 = 0;
+                        if(~isempty(r3))
+                            v3 = mean(rd3(rindex3));
+                        end
+                        r_SNR(rr, :) = [v1 v2 v3];                
+                    end
+
+                    sSNR = [sSNR; max(s_SNR(4:end, :))];
+                    rSNR = [rSNR; max(r_SNR(4:end, :))];
+
+                    s_gfactor_map = s_gfactor(:,:,:,1) /100;
+                    r_gfactor_map = r_gfactor(:,:,:,1) /100;
+                    save(SNRResult_file, 's_SNR', 'r_SNR', 'snr_s1', 'snr_s2', 'snr_s3', 'snr_r1', 'snr_r2', 'snr_r3', 's_gfactor_map', 'r_gfactor_map');               
+                catch
+                    s_SNR = 0;
+                    r_SNR = 0;
+                    sSNR = [sSNR; -1 -1 -1];
+                    rSNR = [rSNR; -1 -1 -1];
+                end
+            else
+                try
+                snr_v = load(SNRResult_file);
+                
+                s_SNR = snr_v.s_SNR;
+                r_SNR = snr_v.r_SNR;
+                
+                sSNR = [sSNR; max(s_SNR(4:end, :))];
+                rSNR = [rSNR; max(r_SNR(4:end, :))];
+                catch
+                    sSNR = [sSNR; -1 -1 -1];
+                    rSNR = [rSNR; -1 -1 -1];
+                end
+            end
         end
-        
-%             f1 = roi_statistics(stress.flow_stress(:,:,1), s1.ROI_info_table(1,1));
-%             f2 = roi_statistics(stress.flow_stress(:,:,2), s2.ROI_info_table(1,1));
-%             f3 = roi_statistics(stress.flow_stress(:,:,3), s3.ROI_info_table(1,1));
-% 
-%             v{nV+1} = [f1.m f2.m f3.m];
-%             disp(['stress flow : ' num2str(v{nV+1})]);
-% 
-%             f1 = roi_statistics(rest.flow_rest(:,:,1), r1.ROI_info_table(1,1));
-%             f2 = roi_statistics(rest.flow_rest(:,:,2), r2.ROI_info_table(1,1));
-%             f3 = roi_statistics(rest.flow_rest(:,:,3), r3.ROI_info_table(1,1));
-% 
-%             v{nV+2} = [f1.m f2.m f3.m];
-%             disp(['rest flow : ' num2str(v{nV+2})]);
-% 
-%             if(numel(s1.ROI_info_table)==2)
-%                 
-%                 two_ROI = 1;
-%                 
-%                 if(numel(s1.ROI_info_table)==2)
-%                     f1 = roi_statistics(stress.flow_stress(:,:,1), s1.ROI_info_table(2));
-%                 else
-%                     f1.m = -1;
-%                 end
-% 
-%                 if(numel(s2.ROI_info_table)==2)
-%                     f2 = roi_statistics(stress.flow_stress(:,:,2), s2.ROI_info_table(2));
-%                 else
-%                     f2.m = -1;
-%                 end
-% 
-%                 if(numel(s3.ROI_info_table)==2)
-%                     f3 = roi_statistics(stress.flow_stress(:,:,3), s3.ROI_info_table(2));
-%                 else
-%                     f3.m = -1;
-%                 end
-% 
-%                 v{nV+3} = [f1.m f2.m f3.m];
-%                 disp(['stress flow, ischemia : ' num2str(v{nV+3})]);
-%             else
-%                 v{nV+3} = [];
-%                 v{nV+4} = [];
-%             end
-% 
-%             v{nV+5} = max(stress.aif_stress_baseline_corrected);
-%             v{nV+6} = max(rest.aif_rest_baseline_corrected);
-%         end
     
         ROITable = [ROITable; v];
                 
@@ -798,7 +881,7 @@ res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB,
                 sKi_Fermi_mean, rKi_Fermi_mean, ... 
                 sKi_TwoCompExp_mean, rKi_TwoCompExp_mean, ...
                 sKi_BTEX_mean, rKi_BTEX_mean, ...
-                sDelay, rDelay);
+                sDelay, rDelay, sSNR, rSNR);
 
 disp('=======================================================================');
 disp(['Stress flow - ' num2str(mean(sf_mean(:))) '+/-' num2str(std(sf_mean(:)))]);

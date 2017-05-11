@@ -26,9 +26,24 @@ D = diag(D);
 
 for ii=1:N-1
     e = sum(D(1:ii));
-    if(e/D(end)>=thres_temporal)
+    % if(e/D(end)>=thres_temporal)
+    if(sqrt(e/sum(D))>=thres_temporal)
         break;
     end
+end
+
+for ii2=N-1:-1:1
+    if(sqrt(D(ii2)/sum(D))<=thres_temporal)
+        break;
+    end
+end
+
+ii2 = N-1 - ii2;
+
+ii = floor((ii+ii2)/2);
+
+if(ii>3*N/4)
+    ii = floor(N/2);
 end
 
 disp(['discard ' num2str(ii) ' modes along the temporal dimension ... ']);
@@ -43,7 +58,7 @@ wW = size(wav, 3);
 sigma2_signal = zeros(wW, wN);
 thres_signal = zeros(wW, wN);
 for n=1:wN
-    for p=2:wW % for eveyr high freq wavelet coefficient
+    for p=1:wW % for eveyr high freq wavelet coefficient
         
         pp = wav(:,:,p,n);
         sigma2_signal(p, n) = var(pp(:),1);
@@ -59,8 +74,8 @@ end
 wav_f = wav;
 
 % perform the soft thresholding
-for n=1:wN
-    for p=2:wW % for eveyr high freq wavelet coefficient
+for n=1:wN-1
+    for p=1:wW % for eveyr high freq wavelet coefficient
         t = thres_signal(p, n);
         w = wav(:,:,p,n);
         wav_f(:,:,p,n) = softThresholding(w, t);

@@ -104,47 +104,51 @@ configNames = [];
 study_dates = [];
 study_times = [];
 
-[names, num] = findFILE(dataDir, '*.h5');          
-for n=1:num
+[subdirs, numdirs] = FindSubDirs(dataDir);
+for d=1:numdirs
     
-    [pathstr, name, ext] = fileparts(names{n});
-    
-    processed = 0;
-    for kk=1:numel(scan_type)
-        if(strfind(name, scan_type{kk})==1)
-            processed = 1;
-            break;
+    [names, num] = findFILE(fullfile(dataDir, subdirs{d}), '*.h5');
+    for n=1:num
+
+        [pathstr, name, ext] = fileparts(names{n});
+
+        processed = 0;
+        for kk=1:numel(scan_type)
+            if(strfind(name, scan_type{kk})==1)
+                processed = 1;
+                break;
+            end
         end
-    end
-    
-    if(~processed)
-        continue;
-    end
-    
-    % find scanner ID, patient ID, study ID, measurement ID, study date and time
-    [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
-    
-    if(strcmp(gt_host, 'localhost')==1)
-        [pathstr, configName, ext] = fileparts(configName);
-        configName = [configName '_localhost' ext];
-    end
-    
-    if(~isempty(configNamePreset))
-        configName = configNamePreset;
-    end
-    
-    if( str2num(measurementID) > 10000 )
-        continue;
-    end
-    tt = datenum(str2num(study_year), str2num(study_month), str2num(study_day));
-    
-    if (tt<=endN && tt>=startN)
-        files = [files; {name}];
-        configNames = [configNames; {configName}];
-        study_dates = [study_dates; str2double(study_date)];
-        study_times = [study_times; str2double(study_time)];
-    end
-end 
+
+        if(~processed)
+            continue;
+        end
+
+        % find scanner ID, patient ID, study ID, measurement ID, study date and time
+        [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+
+        if(strcmp(gt_host, 'localhost')==1)
+            [pathstr, configName, ext] = fileparts(configName);
+            configName = [configName '_localhost' ext];
+        end
+
+        if(~isempty(configNamePreset))
+            configName = configNamePreset;
+        end
+
+        if( str2num(measurementID) > 10000 )
+            continue;
+        end
+        tt = datenum(str2num(study_year), str2num(study_month), str2num(study_day));
+
+        if (tt<=endN && tt>=startN)
+            files = [files; {name}];
+            configNames = [configNames; {configName}];
+            study_dates = [study_dates; str2double(study_date)];
+            study_times = [study_times; str2double(study_time)];
+        end
+    end 
+end
 
 % sort the file by scan date
 [study_dates, ind] = sort(study_dates);

@@ -196,8 +196,8 @@ for ii=1:num
 
             if(rest_aif_peak(ii)>1.2 && stress_aif_peak(ii)>1.2)
 
-                stress_h5 = fullfile(dataDir, [stressCase '.h5']);
-                rest_h5 = fullfile(dataDir, [restCase '.h5']);
+                stress_h5 = fullfile(dataDir, study_dates, [stressCase '.h5']);
+                rest_h5 = fullfile(dataDir, study_dates, [restCase '.h5']);
                 stress_sha1 = [];
                 rest_sha1 = [];
 

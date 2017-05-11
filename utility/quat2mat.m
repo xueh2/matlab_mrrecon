@@ -29,9 +29,11 @@ dyy = MDH_QY * dys; dyz = MDH_QY * dzs; dzz = MDH_QZ * dzs;
 R(1,1) = 1.0 - (dyy + dzz);
 R(1,2) =        dxy + dwz ;
 R(1,3) =        dxz - dwy ;
+
 R(2,1) =        dxy - dwz ;
 R(2,2) = 1.0 - (dxx + dzz);
 R(2,3) =        dyz + dwx ;
+
 R(3,1) =        dxz + dwy ;
 R(3,2) =        dyz - dwx ;
 R(3,3) = 1.0 - (dxx + dyy);        

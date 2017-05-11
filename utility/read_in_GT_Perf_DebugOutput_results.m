@@ -1,10 +1,10 @@
-function [perf, ori, moco, moco_norm, PD, ... 
+function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, ... 
     aif_im, aif_moco, aif_cin, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_Gd_baseline_corrected, ... 
     aif_cin_all_echo0_signal, aif_cin_all_echo1_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, ...
     aif_cin_all_echo0_OverPD_after_R2StarCorrection, aif_cin_all_R2Star,  aif_cin_all_R2Star_SLEP, ... 
     aif_PD, aif_mask, aif_mask_final, aif, aif_baseline_corrected, ... 
     flow, Ki, PS, Vp, Visf, E, SDMap, Delay, ...
-    BTEX_Flow_all, BTEX_PS_all, BTEX_Vp_all, BTEX_Visf_all, BTEX_cost_all, BTEX_flow_SD_all] = read_in_GT_Perf_DebugOutput_results(resDir)
+    BTEX_Flow_all, BTEX_PS_all, BTEX_Vp_all, BTEX_Visf_all, BTEX_cost_all, BTEX_flow_SD_all, Fermi_Delay] = read_in_GT_Perf_DebugOutput_results(resDir)
 % read in Gadgetron perfusion debug output results
 
     slc = 0;   
@@ -30,7 +30,7 @@ function [perf, ori, moco, moco_norm, PD, ...
     ori = load_array(resDir, 'perf_', slc);   
     ori = flipdim(ori, 2);
 
-    moco = load_array(resDir, 'perf_moco_', slc);   
+    moco = load_array(resDir, 'input_for_SRNorm_', slc);   
     moco = flipdim(moco, 2);
     
     moco_norm = load_array(resDir, 'SRNorm_', slc);   
@@ -39,6 +39,20 @@ function [perf, ori, moco, moco_norm, PD, ...
     PD = load_array(resDir, 'PD_', slc);   
     PD = flipdim(PD, 2);
 
+    try
+        input_for_filter = load_array(resDir, 'input_spatiotemporal_filter__row', slc);   
+        input_for_filter = flipdim(input_for_filter, 2);
+    catch
+        input_for_filter = [];
+    end
+    
+    try
+        filtered = load_array(resDir, 'output_spatiotemporal_filter__row', slc);   
+        filtered = flipdim(filtered, 2);
+    catch
+        filtered = [];
+    end
+    
     try
         r1 = analyze75read(fullfile(resDir, 'DebugOutput', 'aif_moco.hdr'));
         r2 = analyze75read(fullfile(resDir, 'DebugOutput', 'aif_moco_second_echo.hdr'));
@@ -150,6 +164,14 @@ function [perf, ori, moco, moco_norm, PD, ...
     end
 
     try
+        Fermi_Delay = load_array(resDir, 'Fermi_res_', slc);
+        Fermi_Delay = squeeze(Fermi_Delay(:,:,end,:));
+        Fermi_Delay = flipdim(Fermi_Delay, 2);
+    catch
+        Fermi_Delay = [];
+    end
+    
+    try
         BTEX_Flow_all = load_array(resDir, 'BTEX_Flow_all_', slc);
         BTEX_Flow_all = flipdim(BTEX_Flow_all, 2);
     catch
@@ -193,8 +215,15 @@ function [perf, ori, moco, moco_norm, PD, ...
 end
 
 function v = load_array(resDir, name, slc)
-    for n=1:slc
-        filename = [name num2str(n-1) '.hdr'];
-        v(:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
+    try
+        for n=1:slc
+            filename = [name num2str(n-1) '.hdr'];
+            v(:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
+        end
+    catch
+        for n=1:slc
+            filename = [name num2str(n-1) '_MAG.hdr'];
+            v(:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
+        end
     end
 end

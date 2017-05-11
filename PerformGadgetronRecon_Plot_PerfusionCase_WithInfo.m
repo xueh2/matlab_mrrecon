@@ -10,15 +10,24 @@ if(nargin < 8)
     baseDir = resDir;
 end
 
+resDir = [scannerID '_' patientID '_' studyID '_' study_dates];
+
+figDir = fullfile(baseDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' resDir '_Figure']);
+
+if(isFileExist(fullfile(figDir, 'rest.mat')))
+    disp(['Already processed - ' restDir]);
+    return;
+end
+
 if(~onlyReview)   
     try
-        [rest_perf, ori_rest, moco_rest, moco_norm_rest, PD_rest, ... 
+        [rest_perf, ori_rest, moco_rest, moco_norm_rest, PD_rest, input_for_filter_rest, filtered_rest, ... 
             aif_im_rest, aif_moco_rest, aif_rest_cin, aif_rest_cin_Gd, aif_rest_cin_Gd_without_R2Star, aif_rest_cin_Gd_baseline_corrected, ... 
             aif_rest_cin_all_echo0_signal, aif_rest_cin_all_echo1_signal, aif_rest_cin_all_echo0_signal_after_R2StarCorrection, ...
             aif_rest_cin_all_echo0_OverPD_after_R2StarCorrection, aif_rest_cin_all_R2Star,  aif_rest_cin_all_R2Star_SLEP, ... 
             aif_rest_PD, aif_rest_mask, aif_rest_mask_final, aif_rest, aif_rest_baseline_corrected, ... 
             flow_rest, Ki_rest, PS_rest, Vp_rest, Visf_rest, E_rest, SDMap_rest, Delay_rest, ...
-            BTEX_Flow_all_rest, BTEX_PS_all_rest, BTEX_Vp_all_rest, BTEX_Visf_all_rest, BTEX_cost_all_rest, BTEX_flow_SD_all_rest] = read_in_GT_Perf_DebugOutput_results(restDir);
+            BTEX_Flow_all_rest, BTEX_PS_all_rest, BTEX_Vp_all_rest, BTEX_Visf_all_rest, BTEX_cost_all_rest, BTEX_flow_SD_all_rest, Fermi_Delay_rest] = read_in_GT_Perf_DebugOutput_results(restDir);
                  
         has_rest = 1;
        
@@ -32,9 +41,6 @@ if(~onlyReview)
 end
 
 % scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time
-resDir = [scannerID '_' patientID '_' studyID '_' study_dates];
-
-figDir = fullfile(baseDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' resDir '_Figure']);
 
 if(~onlyReview)
     if(has_rest)        
@@ -45,7 +51,7 @@ if(~onlyReview)
         
         if(has_rest)
             % save(fullfile(figDir, 'rest.mat'), 'rest_perf', 'ori_rest', 'moco_rest', 'moco_norm_rest', 'aif_im_rest', 'aif_moco_rest', 'aif_rest', 'aif_rest_baseline_corrected', 'aif_rest_cin', 'aif_rest_cin_Gd', 'aif_rest_cin_Gd_without_R2Star', 'aif_rest_cin_Gd_baseline_corrected', 'aif_rest_cin_all_echo0_signal', 'aif_rest_cin_all_echo1_signal', 'aif_rest_cin_all_echo0_signal_after_R2StarCorrection', 'aif_rest_cin_all_echo0_OverPD_after_R2StarCorrection', 'aif_rest_cin_all_R2Star', 'aif_rest_cin_all_R2Star_SLEP', 'aif_rest_PD', 'aif_rest_mask', 'aif_rest_mask_final', 'flow_rest', 'Ki_rest', 'PS_rest', 'Vp_rest', 'Visf_rest', 'E_rest', 'SDMap_rest', 'Delay_rest');
-            save(fullfile(figDir, 'rest.mat'), 'rest_perf', 'ori_rest', 'moco_rest', 'moco_norm_rest', ... 
+            save(fullfile(figDir, 'rest.mat'), 'rest_perf', 'ori_rest', 'moco_rest', 'moco_norm_rest', 'input_for_filter_rest', 'filtered_rest', ... 
                 'aif_im_rest', 'aif_moco_rest', 'aif_rest', 'aif_rest_baseline_corrected', 'aif_rest_cin', ... 
                 'aif_rest_cin_Gd', 'aif_rest_cin_Gd_without_R2Star', 'aif_rest_cin_Gd_baseline_corrected', ... 
                 'aif_rest_cin_all_echo0_signal', 'aif_rest_cin_all_echo1_signal', 'aif_rest_cin_all_echo0_signal_after_R2StarCorrection', ...
@@ -118,8 +124,10 @@ if(has_rest)
             openfig(figName);
         end
     else
-        h = figure('Name','PDE Visf','NumberTitle','off'); imagescn(Visf_rest(:,:,:,end), [0 80], [1 slc], scalingFactor); PerfColorMap;
-        saveas(h, figName, 'fig')
+        if(~isempty(Visf_rest))
+            h = figure('Name','PDE Visf','NumberTitle','off'); imagescn(Visf_rest(:,:,:,end), [0 80], [1 slc], scalingFactor); PerfColorMap;
+            saveas(h, figName, 'fig')
+        end
     end
     
     figName = fullfile(figDir, [resDir '_Rest_PDE_PS']);
@@ -128,8 +136,10 @@ if(has_rest)
             openfig(figName);
         end
     else
-        h = figure('Name','PDE PS','NumberTitle','off'); imagescn(PS_rest(:,:,:,end), [0 6], [1 slc], scalingFactor); PerfColorMap;
-        saveas(h, figName, 'fig')
+        if(~isempty(PS_rest))
+            h = figure('Name','PDE PS','NumberTitle','off'); imagescn(PS_rest(:,:,:,end), [0 6], [1 slc], scalingFactor); PerfColorMap;
+            saveas(h, figName, 'fig')
+        end
     end
     
     figName = fullfile(figDir, [resDir '_Rest_PDE_E']);
@@ -138,8 +148,10 @@ if(has_rest)
             openfig(figName);
         end
     else
-        h = figure('Name','PDE E','NumberTitle','off');; imagescn(E_rest(:,:,:,end), [0 2], [1 slc], scalingFactor); PerfColorMap;
-        saveas(h, figName, 'fig')
+        if(~isempty(E_rest))
+            h = figure('Name','PDE E','NumberTitle','off');; imagescn(E_rest(:,:,:,end), [0 2], [1 slc], scalingFactor); PerfColorMap;
+            saveas(h, figName, 'fig')
+        end
     end
     
     figName = fullfile(figDir, [resDir '_Rest_PDE_Vp']);
@@ -148,8 +160,10 @@ if(has_rest)
             openfig(figName);
         end
     else
-        h = figure('Name','PDE Vp','NumberTitle','off');; imagescn(Vp_rest(:,:,:,end), [0 50], [1 slc], scalingFactor); PerfColorMap;
-        saveas(h, figName, 'fig')
+        if(~isempty(Vp_rest))
+            h = figure('Name','PDE Vp','NumberTitle','off');; imagescn(Vp_rest(:,:,:,end), [0 50], [1 slc], scalingFactor); PerfColorMap;
+            saveas(h, figName, 'fig')
+        end
     end
     
     figName = fullfile(figDir, [resDir '_Rest_Ori']);
@@ -182,6 +196,18 @@ if(has_rest)
         saveas(h, figName, 'fig')
     end
     
+    if(~isempty(input_for_filter_rest))
+        figName = fullfile(figDir, [resDir '_Rest_MOCO_FIL']);
+        if(onlyReview)
+            if(isFileExist([figName '.fig']))
+                openfig(figName);
+            end
+        else
+            h = figure('Name','Rest MOCO Filtered','NumberTitle','off'); imagescn(cat(4, input_for_filter_rest, filtered_rest), [], [2 slc], scalingFactor, 3);
+            saveas(h, figName, 'fig')
+        end
+    end
+    
     figName = fullfile(figDir, [resDir '_Rest_AIF_MOCO']);
     if(onlyReview)
         if(isFileExist([figName '.fig']))
@@ -198,8 +224,10 @@ if(has_rest)
             openfig(figName);
         end
     else
-        h = figure('Name','PDE Delay','NumberTitle','off');; imagescn(Delay_rest(:,:,:,end), [0 8], [1 slc], scalingFactor);
-        saveas(h, figName, 'fig');
+        if(~isempty(Delay_rest))
+            h = figure('Name','PDE Delay','NumberTitle','off');; imagescn(Delay_rest(:,:,:,end), [0 8], [1 slc], scalingFactor);
+            saveas(h, figName, 'fig');
+        end
     end
         
     delta = 0.5;
