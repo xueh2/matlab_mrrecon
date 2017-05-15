@@ -25,6 +25,7 @@ end
 % dos(command, '-echo');
 
 command = ['pscp -r -i ' key '.ppk ' user '@' host ':' debug_folder ' ' dst_folder];
+% command = ['scp -o StrictHostKeyChecking=no  -i ' key ' ' user '@' host ':' debug_folder ' ' dst_folder];
 command
 dos(command, '-echo');
 

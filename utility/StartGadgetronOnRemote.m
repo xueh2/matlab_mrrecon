@@ -12,7 +12,7 @@ tic;
 [key, user] = sshKeyLookup(host);
 
 gt_command = ['rm -rf /home/' user '/Debug/record_' num2str(port) '.txt'];
-command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
+command = ['ssh -o StrictHostKeyChecking=no -i ' key ' ' user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
     

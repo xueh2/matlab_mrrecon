@@ -88,7 +88,9 @@ for n=1:num
             goodStatus = 1;
 
             if(isPerf)
+                aif_cin_Gd_baseline_corrected = 2;
                 try
+                    tic
                     % a = readGTPlusExportImageSeries_Squeeze(dstDir, 120);
                     aif_cin = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin.hdr'));
                     aif_cin_Gd = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_LUTCorrection.hdr'));
@@ -100,7 +102,7 @@ for n=1:num
                     aif_cin_all_echo0_OverPD_after_R2StarCorrection = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_OverPD_after_R2StarCorrection.hdr'));
                     aif_cin_all_R2Star = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_R2Star.hdr'));
                     aif_cin_all_R2Star_SLEP = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_R2Star_SLEP.hdr'));
-%                     cin_used_all_for_computeFlowMap = analyze75read(fullfile(dstDir, 'DebugOutput', 'cin_used_all_for_computeFlowMap.hdr'));
+                    cin_used_all_for_computeFlowMap = analyze75read(fullfile(dstDir, 'DebugOutput', 'cin_used_all_for_computeFlowMap.hdr'));
                     aif_PD = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifPD_for_TwoEcho_T2StartCorrection_0.hdr'));
                     aif_mask = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_LV_mask_for_TwoEcho_T2StartCorrection_0.hdr'));
                     aif_mask_final = analyze75read(fullfile(dstDir, 'DebugOutput', 'AifLVMask_after_Picking.hdr'));
@@ -109,21 +111,22 @@ for n=1:num
                     aifPicked = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifPicked.hdr'));
                     aifMaskIntensity = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifMaskIntensity.hdr'));
                     aif_LUT = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_LUT_Valid.hdr'));
-                    
-                    if(max(aif_cin_Gd_baseline_corrected)>1.5)
-                        dstAcqTimes = analyze75read(fullfile(dstDir, 'DebugOutput', 'dstAcqTimes_0.hdr'));
-                        AIF_AcqTimes = analyze75read(fullfile(dstDir, 'DebugOutput', 'AIF_AcqTimes_0.hdr'));
-                        perf_LUT = analyze75read(fullfile(dstDir, 'DebugOutput', 'Perf_T1_Correction_LUT.hdr'));
+%                     
+%                     if(max(aif_cin_Gd_baseline_corrected)>1.5)
+%                         dstAcqTimes = analyze75read(fullfile(dstDir, 'DebugOutput', 'dstAcqTimes_0.hdr'));
+%                         AIF_AcqTimes = analyze75read(fullfile(dstDir, 'DebugOutput', 'AIF_AcqTimes_0.hdr'));
+%                         perf_LUT = analyze75read(fullfile(dstDir, 'DebugOutput', 'Perf_T1_Correction_LUT.hdr'));
+% 
+%                         sr_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'input_for_SRNorm_0.hdr'));
+%                         pd_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'inputPD_for_SRNorm_0.hdr'));
+%                         sr_norm_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'SRNorm_0.hdr'));
+%                         pd0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'PD_0.hdr'));
+%                         perf_mask_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'perf_mask_0.hdr'));
+%                         gd0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'CASignal_Perf_0.hdr'));
+%                         Perf_AcqTimes_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'Perf_AcqTimes_0.hdr'));
+%                         gd0_resampled = analyze75read(fullfile(dstDir, 'DebugOutput', 'Input_perf_computeFlowMap_0.hdr'));
+%                     end
 
-                        sr_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'input_for_SRNorm_0.hdr'));
-                        pd_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'inputPD_for_SRNorm_0.hdr'));
-                        sr_norm_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'SRNorm_0.hdr'));
-                        pd0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'PD_0.hdr'));
-                        perf_mask_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'perf_mask_0.hdr'));
-                        gd0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'CASignal_Perf_0.hdr'));
-                        Perf_AcqTimes_0 = analyze75read(fullfile(dstDir, 'DebugOutput', 'Perf_AcqTimes_0.hdr'));
-                        gd0_resampled = analyze75read(fullfile(dstDir, 'DebugOutput', 'Input_perf_computeFlowMap_0.hdr'));
-                    end
 %                     sr_1 = analyze75read(fullfile(dstDir, 'DebugOutput', 'input_for_SRNorm_1.hdr'));
 %                     pd_1 = analyze75read(fullfile(dstDir, 'DebugOutput', 'inputPD_for_SRNorm_1.hdr'));
 %                     sr_norm_1 = analyze75read(fullfile(dstDir, 'DebugOutput', 'SRNorm_1.hdr'));
@@ -141,26 +144,42 @@ for n=1:num
 %                     gd2 = analyze75read(fullfile(dstDir, 'DebugOutput', 'CASignal_Perf_2.hdr'));
 %                     Perf_AcqTimes_2 = analyze75read(fullfile(dstDir, 'DebugOutput', 'Perf_AcqTimes_2.hdr'));
 %                     gd2_resampled = analyze75read(fullfile(dstDir, 'DebugOutput', 'Input_perf_computeFlowMap_2.hdr'));
+                    disp(['Load hdr to check : ' num2str(toc)]);
                 catch
                     goodStatus = 0;
                 end
             end
 
-            [hdrfiles, numhdr] = findFILE(dstDir, '*.img');
-                            
+%             [hdrfiles, numhdr] = findFILE(dstDir, '*.img');
+                          
+            tic
             if(~isPerf)
                 dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
-                [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
-                if(numdcm==0)
+                if(~isFileExist(dicomFolder))
                     goodStatus = 0;
+                else
+                    [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image*.dcm');
+                    if(numdcm==0)
+                        goodStatus = 0;
+                    end
                 end
             else
                 dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
-                [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
-                if(numdcm==0)
+                if(~isFileExist(dicomFolder))
                     goodStatus = 0;
+                else
+                    if(max(aif_cin_Gd_baseline_corrected(:))<1.2)
+                        [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image*.dcm');
+                    else
+                        [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image_MOCO_Flow_Map_SLC0*.dcm');
+                    end
+                    
+                    if(numdcm==0)
+                        goodStatus = 0;
+                    end
                 end
             end
+            disp(['Load dcm to check : ' num2str(toc)]);
             
             if(goodStatus)
                 disp([num2str(n) ' out of ' num2str(num) ' - Already Processed : ' name]);
