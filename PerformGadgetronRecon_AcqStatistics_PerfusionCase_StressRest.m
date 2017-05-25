@@ -59,10 +59,17 @@ disp(['Total number of stress/rest cases: ' num2str(num)]);
 
 week_record = [];
 
+maxW = weeknum(datenum('20161231', 'yyyymmdd'));
+
 for jj=1:size(scan_count, 1)
     sd = scan_count{jj,1};
     t = datenum(num2str(sd), 'yyyymmdd');
     weekn = weeknum(t);
+
+    if(strcmp(sd(1:4), '2017')==1)
+        weekn = weekn + maxW;
+    end
+    
     
     weekFound = 0;
     for kk=1:size(week_record, 1)
@@ -107,7 +114,9 @@ box on
 %% by week
 bar_x = [];
 for kk=1:size(week_record, 1)
-    bar_x = [bar_x; {num2str(week_record(kk,1))}];
+    w = week_record(kk,1);
+    if(w>maxW) w = w - maxW; end
+    bar_x = [bar_x; {num2str(w)}];
 end
 
 bar_y = [];

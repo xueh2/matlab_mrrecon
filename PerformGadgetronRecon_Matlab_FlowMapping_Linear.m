@@ -90,7 +90,7 @@ if(processed_linear & processed_linear_withoutR2Star)
 end
 
 %% read in h5 file
-dset = ismrmrd.Dataset(fullfile(dataDir, [h5Name '.h5']));
+dset = ismrmrd.Dataset(fullfile(dataDir, study_dates, [h5Name '.h5']));
 header = ismrmrd.xml.deserialize(dset.readxml());
 
 FA_Perf = header.sequenceParameters.flipAngle_deg(1)
@@ -801,8 +801,8 @@ for slc=1:SLC
 % 
 %     end
 
-    % if (reComputed_withoutR2Star | ~isFileExist(fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_'  suffix '_' num2str(slc-1) '.mat'])))
-    if(0)
+    if (reComputed_withoutR2Star | ~isFileExist(fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_'  suffix '_' num2str(slc-1) '.mat'])))
+%     if(0)
         
         estimate_shift_Fermi_first_pass = 0;
         

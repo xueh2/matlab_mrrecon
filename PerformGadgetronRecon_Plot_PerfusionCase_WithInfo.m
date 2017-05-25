@@ -1,6 +1,6 @@
 
-function PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(resDir, restDir, scannerID, patientID, studyID, study_dates, onlyReview, baseDir)
-% PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(restDir, scannerID, patientID, studyID, study_dates, onlyReview, baseDir)
+function h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(resDir, restDir, scannerID, patientID, studyID, study_dates, onlyReview, baseDir)
+% h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(restDir, scannerID, patientID, studyID, study_dates, onlyReview, baseDir)
 
 if(nargin < 7)
     onlyReview = 0;
@@ -10,12 +10,15 @@ if(nargin < 8)
     baseDir = resDir;
 end
 
+h_flow_rest = 0;
+
 resDir = [scannerID '_' patientID '_' studyID '_' study_dates];
 
 figDir = fullfile(baseDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' resDir '_Figure']);
 
 if(isFileExist(fullfile(figDir, 'rest.mat')))
     disp(['Already processed - ' restDir]);
+    h_flow_rest = -1;
     return;
 end
 
@@ -111,7 +114,7 @@ if(has_rest)
     figName = fullfile(figDir, [resDir '_Rest_PDE_FlowMap']);
     if(onlyReview)
         if(isFileExist([figName '.fig']))
-            openfig(figName);
+            h_flow_rest = openfig(figName);
         end
     else
         h = figure('Name','Flow maps','NumberTitle','off'); imagescn(flow_rest(:,:,:,end), [0 6], [1 slc], scalingFactor); PerfColorMap;

@@ -64,7 +64,12 @@ for ii=startN:endN
     
     if(~only_processing)
         try
-            PerformGadgetronRecon_Plot_PerfusionCase(resDir, rest_cases{ii, 1}, only_reviewing);
+            h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase(resDir, rest_cases{ii, 1}, only_reviewing);
+            if(h_flow_rest==0)
+                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, rest_cases(ii, 1), host, resDir, checkProcessed, sendDicom, startRemoteGT, {configNamePreset});
+
+                PerformGadgetronRecon_Plot_PerfusionCase(resDir, rest_cases{ii, 1}, only_reviewing);
+            end
         catch
             disp(['--> Processing ... ']);
             PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, rest_cases(ii, 1), host, resDir, checkProcessed, sendDicom, startRemoteGT, {configNamePreset});

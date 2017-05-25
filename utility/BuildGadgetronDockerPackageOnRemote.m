@@ -2,9 +2,9 @@
 function timeUsed = BuildGadgetronDockerPackageOnRemote(host, res_dir, docker_image, target_dir, create_installers)
 %% build docker image on remote compute and copy them
 % timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1404_cuda_gtprep', '\\macau.nhlbi.nih.gov\data1\gadgetron_installation\20160405', 1)
-% timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA55', 'hansenms/gadgetron_ubuntu1404_cuda_gtprep55 ', '\\137.187.134.135\share\Installer\20160512', 1)
-% timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1404_cuda_gtprep ', '\\137.187.134.135\share\Installer\20160720', 1)
-% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep ', '\\137.187.134.135\share\Installer\20161113', 1)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA55', 'hansenms/gadgetron_ubuntu1404_cuda_gtprep55', '\\137.187.134.135\share\Installer\20160512', 1)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1404_cuda_gtprep , '\\137.187.134.135\share\Installer\20160720', 1)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep', '\\137.187.134.135\share\Installer\20161113', 1)
 
 if nargin < 1
     host = 'barbados'
@@ -28,8 +28,22 @@ command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
 
+curr_t = datenum(clock);
+new_docker_image = [docker_image '_' num2str(curr_t)]
+disp('strip image')
+gt_command = ['cd ' res_dir ' && ./strip_docker_image ' docker_image ' ' new_docker_image];
+command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
+command
+dos(command, '-echo');
+
 disp('build package')
-gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image.sh ' docker_image ' 6144'];
+gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 2048'];
+command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
+command
+dos(command, '-echo');
+
+disp('remove image')
+gt_command = ['cd ' res_dir ' && docker rmi ' new_docker_image];
 command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
@@ -43,7 +57,7 @@ fw
 
 [pathstr, filename, ext] = fileparts(fw);
 gt_command = ['cd ' res_dir ' && ls -t | head -n1 '];
-command = ['scp -i ' getenv('GADGETRON_KEY_FOLDER') '/gtuser_denmark_private ' user '@' host ':' res_dir '/' filename '.* ' target_dir];
+command = ['scp -i ' getenv('GADGETRON_KEY_FOLDER') '/gtuser_denmark_private ' user '@' host ':' res_dir '/' filename '.img ' target_dir];
 command
 dos(command, '-echo');
 

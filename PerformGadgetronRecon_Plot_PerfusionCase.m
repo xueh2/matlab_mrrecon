@@ -1,5 +1,5 @@
 
-function PerformGadgetronRecon_Plot_PerfusionCase(resDir, restCase, onlyReview, baseDir)
+function h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase(resDir, restCase, onlyReview, baseDir)
 % PerformGadgetronRecon_Plot_PerfusionCase(resDir, restCase, onlyReview, baseDir)
 % PerformGadgetronRecon_Plot_PerfusionCase('I:\ReconResults\ROYALFREE', restCase, onlyReview)
 
@@ -14,7 +14,7 @@ end
 [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(restCase);
 restDir = fullfile(resDir, study_dates, restCase)
 
-PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(resDir, restDir, scannerID, patientID, studyID, study_dates, onlyReview, baseDir);
+h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(resDir, restDir, scannerID, patientID, studyID, study_dates, onlyReview, baseDir);
 
 % if(~onlyReview)   
 %     try
