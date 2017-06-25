@@ -1,6 +1,6 @@
 
 function PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, h5Name, resDir, roiDir, dataRole, HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star, res, res_Q_e)
-% PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, h5Name, resDir, roiDir, dataRole, HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star, res, res_Q_e)
+% PerformGadgetronRecon_Matllab_FlowMapping_Linear(dataDir, h5Name, resDir, roiDir, dataRole, HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star, res, res_Q_e)
 % PerformGadgetronRecon_Matlab_FlowMapping_Linear('I:\BARTS', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_42110_204543119_204543128_323_20160614-120954', 'I:\ReconResults\BARTS')
 % PerformGadgetronRecon_Matlab_FlowMapping_Linear('I:\KAROLINSKA', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_41672_2309137_2309147_949_20160825-093814', 'I:\ReconResults\KAROLINSKA')
 
@@ -662,37 +662,37 @@ for slc=1:SLC
         
         % --------------------------------------
         
-        estimate_shift_Fermi = 1;
-        use_first_pass_deconvolution = 1;
-
-        DebugFolder = 'D:/gtuser/mrprogs/install/DebugFolder/';
-        
-        try
-            rmdir(DebugFolder, 's');
-        catch
-        end
-
-        try
-            mkdir(DebugFolder);
-        catch
-        end
-        
-        disp(['--> compute flow map with HCT = ' hct_str ' - estimate_shift_Fermi = ' num2str(estimate_shift_Fermi) ' - use_first_pass_deconvolution = ' num2str(use_first_pass_deconvolution)]);
-        tic
-        [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
-        toc
-        
-        try
-            mkdir(['slc' num2str(slc-1)]);
-        catch
-        end
-        movefile(DebugFolder, ['slc' num2str(slc-1)], 'f');
-        
-        DebugFolder = [];
-        
-        save(['flowmaps_Linear_WithFermiShift_FirstPass4_' res '_' suffix '_' num2str(slc-1)], ... 
-            'estimate_shift_Fermi', 'use_first_pass_deconvolution', 'flowmaps_grappa_PSIR', 'grappa_interVolumeMap_grappa_PSIR', 'grappa_MTT_grappa_PSIR', 'grappa_ecv_grappa_PSIR', 'Ki_whole_grappa_PSIR', 'blood_volume_maps_grappa_PSIR', 'PS_maps_grappa_PSIR', 'SD_maps_grappa_PSIR');
-                       
+%         estimate_shift_Fermi = 1;
+%         use_first_pass_deconvolution = 1;
+% 
+%         DebugFolder = 'D:/gtuser/mrprogs/install/DebugFolder/';
+%         
+%         try
+%             rmdir(DebugFolder, 's');
+%         catch
+%         end
+% 
+%         try
+%             mkdir(DebugFolder);
+%         catch
+%         end
+%         
+%         disp(['--> compute flow map with HCT = ' hct_str ' - estimate_shift_Fermi = ' num2str(estimate_shift_Fermi) ' - use_first_pass_deconvolution = ' num2str(use_first_pass_deconvolution)]);
+%         tic
+%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
+%         toc
+%         
+%         try
+%             mkdir(['slc' num2str(slc-1)]);
+%         catch
+%         end
+%         movefile(DebugFolder, ['slc' num2str(slc-1)], 'f');
+%         
+%         DebugFolder = [];
+%         
+%         save(['flowmaps_Linear_WithFermiShift_FirstPass4_' res '_' suffix '_' num2str(slc-1)], ... 
+%             'estimate_shift_Fermi', 'use_first_pass_deconvolution', 'flowmaps_grappa_PSIR', 'grappa_interVolumeMap_grappa_PSIR', 'grappa_MTT_grappa_PSIR', 'grappa_ecv_grappa_PSIR', 'Ki_whole_grappa_PSIR', 'blood_volume_maps_grappa_PSIR', 'PS_maps_grappa_PSIR', 'SD_maps_grappa_PSIR');
+%                        
         
         % --------------------------------------
         
@@ -801,8 +801,8 @@ for slc=1:SLC
 % 
 %     end
 
-    if (reComputed_withoutR2Star | ~isFileExist(fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_'  suffix '_' num2str(slc-1) '.mat'])))
-%     if(0)
+    %if (reComputed_withoutR2Star | ~isFileExist(fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_'  suffix '_' num2str(slc-1) '.mat'])))
+    if(0)
         
         estimate_shift_Fermi_first_pass = 0;
         

@@ -179,7 +179,7 @@ for n=1:num
     
     stressCase = PerfTable{n+1, stress_column};
     restCase = PerfTable{n+1, rest_column};
-    if(ischemia_column<=num_column)
+    if(ischemia_column>0 & ischemia_column<=num_column)
         Category = PerfTable{n+1, ischemia_column};
     else
         Category = 1;
@@ -213,15 +213,21 @@ for n=1:num
     restHB = [restHB; PerfTable{n+1, 13}];
     age = [age; PerfTable{n+1, 14}];
     gender = [gender; PerfTable{n+1, 15}];
-    hematocrit = [hematocrit; PerfTable{n+1, hct_column}];
+    
+    if(hct_column>0)
+        hematocrit = [hematocrit; PerfTable{n+1, hct_column}];
 
-    HCT = PerfTable{n+1, hct_column};
-    if(isnan(HCT))
-        HCT = 0;
-    else
-        if(HCT>1)
-            HCT = HCT/100;
+        HCT = PerfTable{n+1, hct_column};
+        if(isnan(HCT))
+            HCT = 0;
+        else
+            if(HCT>1)
+                HCT = HCT/100;
+            end
         end
+    else
+        hematocrit = [hematocrit; 0.42];
+        HCT = 0.42;
     end
     
     %% aif related

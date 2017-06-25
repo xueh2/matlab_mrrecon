@@ -73,7 +73,7 @@ for n=1:N
 
             info.ColorType = 'grayscale';
             info.PhotometricInterpretation = 'MONOCHROME2';
-            dicomwrite(uint16(s), dst_fname, info);
+            % dicomwrite(uint16(s), dst_fname, info);
 
             info.SeriesInstanceUID = uid;
             info.SeriesNumber = info.SeriesNumber*10;

@@ -13,7 +13,7 @@ if(exist(contourDir)~=7)
 end
 
 num = size(PerfTable, 1)-1;
-for n=17:num
+for n=22:num
     % disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' PerfTable{n+1, report_column} ' - ' num2str(PerfTable{n+1, rest_column+1}) ' - ' num2str(PerfTable{n+1, 17}) ' - ' num2str(PerfTable{n+1, 20})]); 
     disp(['=============================================================================================================================================']);  
     if(~isempty(report_column) & report_column>0)

@@ -28,7 +28,7 @@ resDir = [scannerID '_' patientID '_' studyID '_' study_dates];
 figDir = fullfile(baseDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' resDir '_' study_time_stress '_' study_time_rest '_Figure']);
 disp(figDir)
     
-if(checkprocessed & ~onlyReview & isFileExist(fullfile(figDir, 'rest.mat')) & isFileExist(fullfile(figDir, 'stress.mat')) )
+if(checkprocessed & ~onlyReview & isFileExist(fullfile(figDir, 'rest.mat')) & isFileExist(fullfile(figDir, 'stress.mat')) & isFileExist(fullfile(figDir, '*Flow*.fig')) )
     disp(['--> Already being processed :' stressDir ' - ' restDir]);
     h_flow_stress = -1;
     h_flow_rest = -1;
@@ -306,7 +306,7 @@ scalingFactor = 10;
             if(onlyReview & isFileExist(figName))
                 openfig(figName);
             else        
-                h = figure('Name','PDE Visf','NumberTitle','off'); imagescn(cat(3, Visf_stress(:,:,:,end), Visf_rest(:,:,:,end)), [0 80], [2 slc], scalingFactor); PerfColorMap;
+                h = figure('Name','PDE Visf','NumberTitle','off'); imagescn(cat(3, Visf_stress(:,:,:,end), Visf_rest(:,:,:,end)), [0 80], [2 slc], scalingFactor); ECVColorMap;
                 saveas(h, figName, 'fig');
             end
 
@@ -314,7 +314,7 @@ scalingFactor = 10;
             if(onlyReview & isFileExist(figName))
                 openfig(figName);
             else
-                h = figure('Name','PDE PS','NumberTitle','off'); imagescn(cat(3, PS_stress(:,:,:,end), PS_rest(:,:,:,end)), [0 8], [2 slc], scalingFactor); PerfColorMap;
+                h = figure('Name','PDE PS','NumberTitle','off'); imagescn(cat(3, PS_stress(:,:,:,end), PS_rest(:,:,:,end)), [0 2], [2 slc], scalingFactor); PSColorMap;
                 saveas(h, figName, 'fig');
             end
 

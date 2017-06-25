@@ -4,7 +4,7 @@ function timeUsed = BuildGadgetronDockerPackageOnRemote(host, res_dir, docker_im
 % timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1404_cuda_gtprep', '\\macau.nhlbi.nih.gov\data1\gadgetron_installation\20160405', 1)
 % timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA55', 'hansenms/gadgetron_ubuntu1404_cuda_gtprep55', '\\137.187.134.135\share\Installer\20160512', 1)
 % timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1404_cuda_gtprep , '\\137.187.134.135\share\Installer\20160720', 1)
-% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep', '\\137.187.134.135\share\Installer\20170525', 1)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep', '\\137.187.134.135\share\Installer\20170615', 1)
 
 if nargin < 1
     host = 'barbados'
@@ -55,8 +55,8 @@ command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
 command
 [s, fw] = dos(command, '-echo');
 fw
-
 [pathstr, filename, ext] = fileparts(fw);
+
 gt_command = ['cd ' res_dir ' && ls -t | head -n1 '];
 command = ['scp -i ' getenv('GADGETRON_KEY_FOLDER') '/gtuser_denmark_private ' user '@' host ':' res_dir '/' filename '.img ' target_dir];
 command
