@@ -19,7 +19,7 @@ else
         b = (reshape(a, [s(1)*s(2),s(3)] )); clear a
         t_mean = mean(b,1); size(t_mean);
         b_mean = ones(s(1)*s(2),1)*t_mean;
-        b = b - b_mean; %clear b_mean
+        %b = b - b_mean; %clear b_mean
 %        b_std = std(b,0,1);
         A = (b'*b)/(s(1)*s(2)); clear b % This is the covariance matrix % clear b; % Imagesc(A), pause,
         

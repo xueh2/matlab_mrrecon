@@ -19,6 +19,11 @@ end
 mbv = MBVColorMap;
 mbf = PerfColorMap;
 
+for n=1:3
+    mbv_interp(:,n) = interp(mbv(:,n), 2^16/256);
+    mbf_interp(:,n) = interp(mbf(:,n), 2^16/256);
+end
+
 closeall
     
 for n=1:N
@@ -40,9 +45,9 @@ for n=1:N
     for kk=1:numel(str_to_find)
 
         if(kk==1)
-            c = mbv;
+            c = mbv_interp;
         else
-            c = mbf;
+            c = mbf_interp;
         end
         
         [fname, numVb] = findFILE(stress_dicom, ['*' str_to_find{kk} '*']);
@@ -80,16 +85,16 @@ for n=1:N
 %             info.ColorType = 'indexed';
 %             info.PhotometricInterpretation = 'PALETTE COLOR';
 
-            cc = 255 * c;
+            cc = 65535 * c;
             cc = uint16(cc);
 
             info.RedPaletteColorLookupTableData = cc(:,1);
             info.GreenPaletteColorLookupTableData = cc(:,2);
             info.BluePaletteColorLookupTableData = cc(:,3);
             
-            info.RedPaletteColorLookupTableDescriptor = [256; 0; 16];
-            info.BluePaletteColorLookupTableDescriptor = [256; 0; 16];
-            info.GreenPaletteColorLookupTableDescriptor = [256; 0; 16];
+            info.RedPaletteColorLookupTableDescriptor = [65535; 0; 16];
+            info.BluePaletteColorLookupTableDescriptor = [65535; 0; 16];
+            info.GreenPaletteColorLookupTableDescriptor = [65535; 0; 16];
             info.RescaleIntercept=0;
             info.RescaleSlope=1;
             info.RescaleType='US';

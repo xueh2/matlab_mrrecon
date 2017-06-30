@@ -148,6 +148,7 @@ files_un_processed = [];
 patientID_processed = [];
 
 numP = 1;
+numR = 1;
 
 % try to match the file name to find stress and rest
 while (~isempty(files_processed))
@@ -185,7 +186,7 @@ while (~isempty(files_processed))
 
             if(numel(other_fs) == 0 )
                 % rest
-                rest_cases = [rest_cases; {f1}, patientID, study_dates, sha1];
+                rest_cases = [rest_cases; numR, {f1}, patientID, study_dates, sha1]; numR = numR + 1;
                 patientID_processed = [patientID_processed; {[patientID '_' studyID]}];
             else
                 if(numel(other_fs) >= 1 )
