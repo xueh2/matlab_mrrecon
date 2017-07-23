@@ -154,9 +154,18 @@ for n=1:num
                           
             tic
             if(~isPerf)
+                hdrFolder = fullfile(resDir, study_dates, [name]);
                 dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
                 if(~isFileExist(dicomFolder))
                     goodStatus = 0;
+                    if(isFileExist(hdrFolder))
+                        [dcmfiles, numdcm] = findFILE(dicomFolder, '*.img');
+                        if(numdcm==0)
+                            goodStatus = 0;
+                        else
+                            goodStatus = 1;
+                        end
+                    end
                 else
                     [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image*.dcm');
                     if(numdcm==0)
