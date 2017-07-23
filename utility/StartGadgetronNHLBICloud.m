@@ -6,7 +6,7 @@ function timeUsed = StartGadgetronNHLBICloud()
 tic;
 
 % StopGadgetronOnRemote('barbados', 9008);
-StopGadgetronOnRemote('denmark', 9008);
+StopGadgetronOnRemote('denmark', 9016);
 StopGadgetronOnRemote('bermuda', 9008);
 StopGadgetronOnRemote('gibraltar', 9008);
 StopGadgetronOnRemote('hongkong', 9008);
@@ -19,7 +19,7 @@ timeUsed = toc;
 tic;
 
 % StartGadgetronOnRemote('barbados', 9008);
-StartGadgetronOnRemote('denmark', 9008);
+StartGadgetronOnRemote('denmark', 9016);
 StartGadgetronOnRemote('bermuda', 9008);
 StartGadgetronOnRemote('gibraltar', 9008);
 StartGadgetronOnRemote('hongkong', 9008);

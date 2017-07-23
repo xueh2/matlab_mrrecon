@@ -66,30 +66,31 @@ end
 startN = 1
 endN = size(rest_cases, 1)
 for ii=startN:endN
-    disp([num2str(ii-startN+1) ' out of ' num2str(endN-startN+1) ' - ' rest_cases(ii, 1)]);
+    caseName = rest_cases{ii, 2};
+    disp([num2str(ii-startN+1) ' out of ' num2str(endN-startN+1) ' - ' caseName]);
     
     if(~only_making_figures)
         if(~only_processing)
             try
-                h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase(resDir, rest_cases{ii, 1}, only_reviewing);
+                h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
                 if(h_flow_rest==0)
-                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, rest_cases(ii, 1), host, resDir, checkProcessed, sendDicom, startRemoteGT, {configNamePreset});
+                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, checkProcessed, sendDicom, startRemoteGT, {configNamePreset});
 
-                    PerformGadgetronRecon_Plot_PerfusionCase(resDir, rest_cases{ii, 1}, only_reviewing);
+                    PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
                 end
             catch
                 disp(['--> Processing ... ']);
-                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, rest_cases(ii, 1), host, resDir, checkProcessed, sendDicom, startRemoteGT, {configNamePreset});
+                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, checkProcessed, sendDicom, startRemoteGT, {configNamePreset});
 
-                PerformGadgetronRecon_Plot_PerfusionCase(resDir, rest_cases{ii, 1}, only_reviewing);
+                PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
             end
         else
-            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, rest_cases(ii, 1), host, resDir, checkProcessed, sendDicom, startRemoteGT, {configNamePreset});
+            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, checkProcessed, sendDicom, startRemoteGT, {configNamePreset});
 
-            PerformGadgetronRecon_Plot_PerfusionCase(resDir, rest_cases{ii, 1}, only_reviewing);
+            PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
         end
     else
-        PerformGadgetronRecon_Plot_PerfusionCase(resDir, rest_cases{ii, 1}, only_reviewing);
+        PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
     end
     
     if(only_reviewing)

@@ -44,6 +44,9 @@ switch scannerID
     case 53531
         dataDir = 'CAMPINAS'
         resultDir = 'CAMPINAS'       
+    case 42311
+        dataDir = 'GEISINGER'
+        resultDir = 'GEISINGER'       
 end
 
 dataDir = fullfile(dataDirBase, dataDir);

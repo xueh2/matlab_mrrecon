@@ -20,7 +20,8 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, ...
     disp(['Total ' num2str(slc) ' is found ...']);
     
     try
-        perf = load_array(resDir, 'CASignal_Perf_', slc);        
+%         perf = load_array(resDir, 'CASignal_Perf_', slc);        
+        perf = load_array2(resDir, 'PerfFlowMapping_Job_', slc, '_perf_moco_upsampled');        
         perf = permute(perf, [1 2 4 3]);
         perf = flipdim(perf, 2);
     catch
@@ -223,6 +224,20 @@ function v = load_array(resDir, name, slc)
     catch
         for n=1:slc
             filename = [name num2str(n-1) '_MAG.hdr'];
+            v(:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
+        end
+    end
+end
+
+function v = load_array2(resDir, name, slc, name_after_slc)
+    try
+        for n=1:slc
+            filename = [name num2str(n-1) name_after_slc '.hdr'];
+            v(:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
+        end
+    catch
+        for n=1:slc
+            filename = [name num2str(n-1) name_after_slc '_MAG.hdr'];
             v(:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
         end
     end

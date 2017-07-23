@@ -114,7 +114,7 @@ for d=1:numdirs
 
         processed = 0;
         for kk=1:numel(scan_type)
-            if(strfind(name, scan_type{kk})==1)
+            if( ~isempty(strfind(name, scan_type{kk})) )
                 processed = 1;
                 break;
             end
