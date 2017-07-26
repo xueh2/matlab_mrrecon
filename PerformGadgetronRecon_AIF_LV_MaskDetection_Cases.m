@@ -5,7 +5,7 @@ function PerformGadgetronRecon_AIF_LV_MaskDetection_Cases(perf_cases, resDir, fi
 startN = 1
 endN = size(perf_cases, 1)
 
-upslope_thres = 0.6
+upslope_thres = 0.4
 auc_thres = 0.85
 area_thres = 10
 ro_boundary_ratio = 0.15
@@ -60,6 +60,8 @@ for ii=startN:endN
         aif_slc_mask_gt = aif_slc;
         aif_slc_mask_gt(ind_gt) = max(aif_slc(:))+1;
         figure; imagescn(aif_slc_mask_gt);
+        
+        
         
         [L, numroi] = bwlabel(mask_stress, 4);
         C = regionprops(L, 'Centroid');

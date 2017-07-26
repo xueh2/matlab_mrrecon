@@ -14,39 +14,39 @@ end
 if(~isempty(strfind(case_id, 'Cloud')))
     dataDir = 'Cloud';
     resultDir = 'Cloud';
-    return;
-end
+else
 
-scannerID = str2num(scannerID);
+    scannerID = str2num(scannerID);
 
-switch scannerID
-    case {41837, 42110, 66016}
-        dataDir = 'BARTS'
-        resultDir = 'BARTS'
-    case 42363
-        dataDir = 'ROYALFREE'
-        resultDir = 'RoyalFree'
-    case 42170
-        dataDir = 'KCL'
-        resultDir = 'KCL'
-    case 66097
-        dataDir = 'LEEDS'
-        resultDir = 'LEEDS'
-    case 42034
-        dataDir = 'LUND'
-        resultDir = 'LUND'
-    case {41672, 46184}
-        dataDir = 'KAROLINSKA'
-        resultDir = 'KAROLINSKA'
-    case 141303
-        dataDir = 'CHENIESMEWS'
-        resultDir = 'CHENIESMEWS'
-    case 53531
-        dataDir = 'CAMPINAS'
-        resultDir = 'CAMPINAS'       
-    case 42311
-        dataDir = 'GEISINGER'
-        resultDir = 'GEISINGER'       
+    switch scannerID
+        case {41837, 42110, 66016}
+            dataDir = 'BARTS'
+            resultDir = 'BARTS'
+        case 42363
+            dataDir = 'ROYALFREE'
+            resultDir = 'RoyalFree'
+        case 42170
+            dataDir = 'KCL'
+            resultDir = 'KCL'
+        case 66097
+            dataDir = 'LEEDS'
+            resultDir = 'LEEDS'
+        case 42034
+            dataDir = 'LUND'
+            resultDir = 'LUND'
+        case {41672, 46184}
+            dataDir = 'KAROLINSKA'
+            resultDir = 'KAROLINSKA'
+        case 141303
+            dataDir = 'CHENIESMEWS'
+            resultDir = 'CHENIESMEWS'
+        case 53531
+            dataDir = 'CAMPINAS'
+            resultDir = 'CAMPINAS'       
+        case 42311
+            dataDir = 'GEISINGER'
+            resultDir = 'GEISINGER'       
+    end
 end
 
 dataDir = fullfile(dataDirBase, dataDir);

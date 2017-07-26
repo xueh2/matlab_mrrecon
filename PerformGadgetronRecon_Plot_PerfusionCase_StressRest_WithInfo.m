@@ -48,7 +48,7 @@ scalingFactor = 10;
                 aif_im_rest, aif_moco_rest, aif_rest_cin, aif_rest_cin_Gd, aif_rest_cin_Gd_without_R2Star, aif_rest_cin_Gd_baseline_corrected, ... 
                 aif_rest_cin_all_echo0_signal, aif_rest_cin_all_echo1_signal, aif_rest_cin_all_echo0_signal_after_R2StarCorrection, ...
                 aif_rest_cin_all_echo0_OverPD_after_R2StarCorrection, aif_rest_cin_all_R2Star,  aif_rest_cin_all_R2Star_SLEP, ... 
-                aif_rest_PD, aif_rest_mask, aif_rest_mask_final, aif_rest, aif_rest_baseline_corrected, ... 
+                aif_rest_PD, aif_rest_mask, aif_rest_mask_final, aif_rest_LV_mask_plot, aif_rest, aif_rest_baseline_corrected, ... 
                 flow_rest, Ki_rest, PS_rest, Vp_rest, Visf_rest, E_rest, SDMap_rest, Delay_rest, ...
                 BTEX_Flow_all_rest, BTEX_PS_all_rest, BTEX_Vp_all_rest, BTEX_Visf_all_rest, BTEX_cost_all_rest, BTEX_flow_SD_all_rest, Fermi_Delay_rest] = read_in_GT_Perf_DebugOutput_results(restDir);
 
@@ -68,7 +68,7 @@ scalingFactor = 10;
                 aif_im_stress, aif_moco_stress, aif_stress_cin, aif_stress_cin_Gd, aif_stress_cin_Gd_without_R2Star, aif_stress_cin_Gd_baseline_corrected, ... 
                 aif_stress_cin_all_echo0_signal, aif_stress_cin_all_echo1_signal, aif_stress_cin_all_echo0_signal_after_R2StarCorrection, ...
                 aif_stress_cin_all_echo0_OverPD_after_R2StarCorrection, aif_stress_cin_all_R2Star,  aif_stress_cin_all_R2Star_SLEP, ... 
-                aif_stress_PD, aif_stress_mask, aif_stress_mask_final, aif_stress, aif_stress_baseline_corrected, ... 
+                aif_stress_PD, aif_stress_mask, aif_stress_mask_final, aif_stress_LV_mask_plot, aif_stress, aif_stress_baseline_corrected, ... 
                 flow_stress, Ki_stress, PS_stress, Vp_stress, Visf_stress, E_stress, SDMap_stress, Delay_stress, ...
                 BTEX_Flow_all_stress, BTEX_PS_all_stress, BTEX_Vp_all_stress, BTEX_Visf_all_stress, BTEX_cost_all_stress, BTEX_flow_SD_all_stress, Fermi_Delay_stress] = read_in_GT_Perf_DebugOutput_results(stressDir);
 
@@ -108,7 +108,7 @@ scalingFactor = 10;
                     'aif_rest_cin_Gd', 'aif_rest_cin_Gd_without_R2Star', 'aif_rest_cin_Gd_baseline_corrected', ... 
                     'aif_rest_cin_all_echo0_signal', 'aif_rest_cin_all_echo1_signal', 'aif_rest_cin_all_echo0_signal_after_R2StarCorrection', ...
                     'aif_rest_cin_all_echo0_OverPD_after_R2StarCorrection', 'aif_rest_cin_all_R2Star', 'aif_rest_cin_all_R2Star_SLEP', ...
-                    'aif_rest_PD', 'aif_rest_mask', 'aif_rest_mask_final', ...
+                    'aif_rest_PD', 'aif_rest_mask', 'aif_rest_mask_final', 'aif_rest_LV_mask_plot', ...
                     'flow_rest', 'Ki_rest', 'PS_rest', 'Vp_rest', 'Visf_rest', 'E_rest', 'SDMap_rest', 'Delay_rest', ...
                     'BTEX_Flow_all_rest', 'BTEX_PS_all_rest', 'BTEX_Visf_all_rest', 'BTEX_Vp_all_rest', 'BTEX_cost_all_rest', 'BTEX_flow_SD_all_rest', 'Fermi_Delay_rest');
                 
@@ -122,7 +122,7 @@ scalingFactor = 10;
                     'aif_stress_cin_Gd', 'aif_stress_cin_Gd_without_R2Star', 'aif_stress_cin_Gd_baseline_corrected', ...
                     'aif_stress_cin_all_echo0_signal', 'aif_stress_cin_all_echo1_signal', 'aif_stress_cin_all_echo0_signal_after_R2StarCorrection', ...
                     'aif_stress_cin_all_echo0_OverPD_after_R2StarCorrection', 'aif_stress_cin_all_R2Star', 'aif_stress_cin_all_R2Star_SLEP', ...
-                    'aif_stress_PD', 'aif_stress_mask', 'aif_stress_mask_final', ...
+                    'aif_stress_PD', 'aif_stress_mask', 'aif_stress_mask_final', 'aif_stress_LV_mask_plot', ...
                     'flow_stress', 'Ki_stress', 'PS_stress', 'Vp_stress', 'Visf_stress', 'E_stress', 'SDMap_stress', 'Delay_stress', ...
                     'BTEX_Flow_all_stress', 'BTEX_PS_all_stress', 'BTEX_Visf_all_stress', 'BTEX_Vp_all_stress', 'BTEX_cost_all_stress', 'BTEX_flow_SD_all_stress', 'Fermi_Delay_stress');
                 
@@ -496,173 +496,181 @@ scalingFactor = 10;
         end
 
         % AIF mask on perf
-        figName = fullfile(figDir, [resDir '_Stress_MOCO_With_AIF_Mask' '.fig']);
-        % if(onlyReview & isFileExist(figName))
-        if(0)
+        figName = fullfile(figDir, [resDir '_Stress_Rest_With_AIF_Mask' '.fig']);
+        if(onlyReview & isFileExist(figName))
             openfig(figName);
-        else        
-
-            [indx, indy] = find(aif_stress_mask>0);
-            c = round([mean(indx) mean(indy)]);
-            
-            maxR = 0;
-            for ii=1:numel(indx)                
-                r = norm([indx(ii)-c(1) indy(ii)-c(2)]);
-                if(r>maxR)
-                    maxR = r;
-                end                
-            end
-            
-            if(maxR<4) maxR = 4; end
-            
-            RO = size(moco_norm_stress, 1);
-            E1 = size(moco_norm_stress, 2);
-            
-            RO_ratio = RO / size(aif_stress_mask, 1);
-            E1_ratio = E1 / size(aif_stress_mask, 2);
-            
-            mask = zeros(RO, E1);
-            
-            c_perf = [c(1)*RO_ratio c(2)*E1_ratio];            
-            maxR_perf = maxR * max([RO_ratio E1_ratio]);
-                        
-            R_times = 4;
-            
-            rx = maxR_perf*R_times;
-            ry = rx*E1/RO;
-
-            for e1=1:E1
-                for ro=1:RO   
-                    dx = abs(ro-c_perf(1));
-                    dy = abs(e1-c_perf(2));
-                    d = norm([dx dy]);                   
-
-                    tt = dx*dx/(rx*rx) + dy*dy/(ry*ry);
-                    
-                    if(tt<=1)
-                        mask(ro, e1) = 1;
-                    end
-                end
-            end
-           
-            mask_boundary = zeros(RO, E1);
-            for e1=2:E1-1
-                for ro=2:RO-1
-                    a = mask(ro-1:ro+1, e1-1:e1+1);
-                    ind = find(a==0);
-                    ind2 = find(a>0);
-                    
-                    if(numel(ind)>0 & numel(ind2)>0)
-                        mask_boundary(ro, e1) = 1;
-                    end
-                end
-            end
-            
-            SLC = size(moco_norm_stress, 4);
-            N = size(moco_norm_stress, 3);
-            
-            mI = max(moco_norm_stress(:));
-
-            moco_norm = moco_norm_stress;
-            
-            for e1=1:E1
-                for ro=1:RO                    
-                    if(mask_boundary(ro, e1)==1)
-                        for slc=1:SLC
-                            for n=1:N
-                                moco_norm(ro, e1, n, slc) = mI+1;
-                            end
-                        end
-                    end
-                end
-            end
-            
-            h = figure('Name','Stress MOCO with AIF mask, Stress','NumberTitle','off'); imagescn(moco_norm, [], [], 10, 3);
+        else
+            h = figure('Name','AIF mask, Stress - Rest','NumberTitle','off'); imagescn(cat(3, aif_stress_LV_mask_plot, aif_rest_LV_mask_plot), [], [], 10);
             saveas(h, figName, 'fig');
         end
         
-        figName = fullfile(figDir, [resDir '_Rest_MOCO_With_AIF_Mask' '.fig']);
-        %if(onlyReview & isFileExist(figName))
-        if(0)
-            openfig(figName);
-        else        
-
-            [indx, indy] = find(aif_rest_mask>0);
-            c = round([mean(indx) mean(indy)]);
-            
-            maxR = 0;
-            for ii=1:numel(indx)                
-                r = norm([indx(ii)-c(1) indy(ii)-c(2)]);
-                if(r>maxR)
-                    maxR = r;
-                end                
-            end
-            
-            RO = size(moco_norm_rest, 1);
-            E1 = size(moco_norm_rest, 2);
-            
-            RO_ratio = RO / size(aif_rest_mask, 1);
-            E1_ratio = E1 / size(aif_rest_mask, 2);
-            
-            mask = zeros(RO, E1);
-            
-            c_perf = [c(1)*RO_ratio c(2)*E1_ratio];            
-            maxR_perf = maxR * max([RO_ratio E1_ratio]);
-            
-            R_times = 4;
-            
-            rx = maxR_perf*R_times;
-            ry = rx*E1/RO;
-
-            for e1=1:E1
-                for ro=1:RO   
-                    dx = abs(ro-c_perf(1));
-                    dy = abs(e1-c_perf(2));
-                    d = norm([dx dy]);                   
-
-                    tt = dx*dx/(rx*rx) + dy*dy/(ry*ry);
-                    
-                    if(tt<=1)
-                        mask(ro, e1) = 1;
-                    end
-                end
-            end
-           
-            mask_boundary = zeros(RO, E1);
-            for e1=2:E1-1
-                for ro=2:RO-1
-                    a = mask(ro-1:ro+1, e1-1:e1+1);
-                    ind = find(a==0);
-                    ind2 = find(a>0);
-                    
-                    if(numel(ind)>0 & numel(ind2)>0)
-                        mask_boundary(ro, e1) = 1;
-                    end
-                end
-            end
-            
-            SLC = size(moco_norm_rest, 4);
-            N = size(moco_norm_rest, 3);
-            
-            mI = max(moco_norm_rest(:));
-
-            moco_norm = moco_norm_rest;
-            
-            for e1=1:E1
-                for ro=1:RO                    
-                    if(mask_boundary(ro, e1)==1)
-                        for slc=1:SLC
-                            for n=1:N
-                                moco_norm(ro, e1, n, slc) = mI+1;
-                            end
-                        end
-                    end
-                end
-            end
-            
-            h = figure('Name','Rest MOCO with AIF mask, Rest','NumberTitle','off'); imagescn(moco_norm, [], [], 10, 3);
-            saveas(h, figName, 'fig');
-        end
+%         figName = fullfile(figDir, [resDir '_Stress_MOCO_With_AIF_Mask' '.fig']);
+%         % if(onlyReview & isFileExist(figName))
+%         if(0)
+%             openfig(figName);
+%         else        
+% 
+%             [indx, indy] = find(aif_stress_mask>0);
+%             c = round([mean(indx) mean(indy)]);
+%             
+%             maxR = 0;
+%             for ii=1:numel(indx)                
+%                 r = norm([indx(ii)-c(1) indy(ii)-c(2)]);
+%                 if(r>maxR)
+%                     maxR = r;
+%                 end                
+%             end
+%             
+%             if(maxR<4) maxR = 4; end
+%             
+%             RO = size(moco_norm_stress, 1);
+%             E1 = size(moco_norm_stress, 2);
+%             
+%             RO_ratio = RO / size(aif_stress_mask, 1);
+%             E1_ratio = E1 / size(aif_stress_mask, 2);
+%             
+%             mask = zeros(RO, E1);
+%             
+%             c_perf = [c(1)*RO_ratio c(2)*E1_ratio];            
+%             maxR_perf = maxR * max([RO_ratio E1_ratio]);
+%                         
+%             R_times = 4;
+%             
+%             rx = maxR_perf*R_times;
+%             ry = rx*E1/RO;
+% 
+%             for e1=1:E1
+%                 for ro=1:RO   
+%                     dx = abs(ro-c_perf(1));
+%                     dy = abs(e1-c_perf(2));
+%                     d = norm([dx dy]);                   
+% 
+%                     tt = dx*dx/(rx*rx) + dy*dy/(ry*ry);
+%                     
+%                     if(tt<=1)
+%                         mask(ro, e1) = 1;
+%                     end
+%                 end
+%             end
+%            
+%             mask_boundary = zeros(RO, E1);
+%             for e1=2:E1-1
+%                 for ro=2:RO-1
+%                     a = mask(ro-1:ro+1, e1-1:e1+1);
+%                     ind = find(a==0);
+%                     ind2 = find(a>0);
+%                     
+%                     if(numel(ind)>0 & numel(ind2)>0)
+%                         mask_boundary(ro, e1) = 1;
+%                     end
+%                 end
+%             end
+%             
+%             SLC = size(moco_norm_stress, 4);
+%             N = size(moco_norm_stress, 3);
+%             
+%             mI = max(moco_norm_stress(:));
+% 
+%             moco_norm = moco_norm_stress;
+%             
+%             for e1=1:E1
+%                 for ro=1:RO                    
+%                     if(mask_boundary(ro, e1)==1)
+%                         for slc=1:SLC
+%                             for n=1:N
+%                                 moco_norm(ro, e1, n, slc) = mI+1;
+%                             end
+%                         end
+%                     end
+%                 end
+%             end
+%             
+%             h = figure('Name','Stress MOCO with AIF mask, Stress','NumberTitle','off'); imagescn(moco_norm, [], [], 10, 3);
+%             saveas(h, figName, 'fig');
+%         end
+%         
+%         figName = fullfile(figDir, [resDir '_Rest_MOCO_With_AIF_Mask' '.fig']);
+%         %if(onlyReview & isFileExist(figName))
+%         if(0)
+%             openfig(figName);
+%         else        
+% 
+%             [indx, indy] = find(aif_rest_mask>0);
+%             c = round([mean(indx) mean(indy)]);
+%             
+%             maxR = 0;
+%             for ii=1:numel(indx)                
+%                 r = norm([indx(ii)-c(1) indy(ii)-c(2)]);
+%                 if(r>maxR)
+%                     maxR = r;
+%                 end                
+%             end
+%             
+%             RO = size(moco_norm_rest, 1);
+%             E1 = size(moco_norm_rest, 2);
+%             
+%             RO_ratio = RO / size(aif_rest_mask, 1);
+%             E1_ratio = E1 / size(aif_rest_mask, 2);
+%             
+%             mask = zeros(RO, E1);
+%             
+%             c_perf = [c(1)*RO_ratio c(2)*E1_ratio];            
+%             maxR_perf = maxR * max([RO_ratio E1_ratio]);
+%             
+%             R_times = 4;
+%             
+%             rx = maxR_perf*R_times;
+%             ry = rx*E1/RO;
+% 
+%             for e1=1:E1
+%                 for ro=1:RO   
+%                     dx = abs(ro-c_perf(1));
+%                     dy = abs(e1-c_perf(2));
+%                     d = norm([dx dy]);                   
+% 
+%                     tt = dx*dx/(rx*rx) + dy*dy/(ry*ry);
+%                     
+%                     if(tt<=1)
+%                         mask(ro, e1) = 1;
+%                     end
+%                 end
+%             end
+%            
+%             mask_boundary = zeros(RO, E1);
+%             for e1=2:E1-1
+%                 for ro=2:RO-1
+%                     a = mask(ro-1:ro+1, e1-1:e1+1);
+%                     ind = find(a==0);
+%                     ind2 = find(a>0);
+%                     
+%                     if(numel(ind)>0 & numel(ind2)>0)
+%                         mask_boundary(ro, e1) = 1;
+%                     end
+%                 end
+%             end
+%             
+%             SLC = size(moco_norm_rest, 4);
+%             N = size(moco_norm_rest, 3);
+%             
+%             mI = max(moco_norm_rest(:));
+% 
+%             moco_norm = moco_norm_rest;
+%             
+%             for e1=1:E1
+%                 for ro=1:RO                    
+%                     if(mask_boundary(ro, e1)==1)
+%                         for slc=1:SLC
+%                             for n=1:N
+%                                 moco_norm(ro, e1, n, slc) = mI+1;
+%                             end
+%                         end
+%                     end
+%                 end
+%             end
+%             
+%             h = figure('Name','Rest MOCO with AIF mask, Rest','NumberTitle','off'); imagescn(moco_norm, [], [], 10, 3);
+%             saveas(h, figName, 'fig');
+%         end
         
         %% other line plots
         delta = 0.5;

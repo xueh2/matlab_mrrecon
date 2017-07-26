@@ -8,7 +8,7 @@ tic;
 % StopGadgetronOnRemote('barbados', 9008);
 StopGadgetronOnRemote('denmark', 9008);
 StopGadgetronOnRemote('palau', 9008);
-StopGadgetronOnRemote('samoa', 9016);
+StopGadgetronOnRemote('samoa', 9008);
 % StopGadgetronOnRemote('andorra', 9008);
 StopGadgetronOnRemote('bermuda', 9008);
 StopGadgetronOnRemote('hongkong', 9008);

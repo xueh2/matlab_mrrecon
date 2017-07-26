@@ -282,21 +282,21 @@ if(has_rest)
         saveas(h, figName, 'fig');
     end 
     
-    figName = fullfile(figDir, [resDir '_Rest_AIF_Mask' '.fig']);
-    if(onlyReview)
-        if(isFileExist([figName '.fig']))
-            openfig(figName);
-        end
-    else        
-        
-        NN = size(rest_perf, 4);
-        
-        aif_moco_rest_mask = aif_moco_rest;
-        v = repmat(aif_rest_mask, [1 1 NN]);
-        ind = find(v>0);
-        aif_moco_rest_mask(ind) = 1024;
-        
-        h = figure('Name','AIF MOCO with Mask, Rest','NumberTitle','off'); imagescn(aif_moco_rest_mask(:,:,1:NN,:), [], [], 10, 3);
-        saveas(h, figName, 'fig');
-    end
+%     figName = fullfile(figDir, [resDir '_Rest_AIF_Mask' '.fig']);
+%     if(onlyReview)
+%         if(isFileExist([figName '.fig']))
+%             openfig(figName);
+%         end
+%     else        
+%         
+%         NN = size(rest_perf, 4);
+%         
+%         aif_moco_rest_mask = aif_moco_rest;
+%         v = repmat(aif_rest_mask, [1 1 NN]);
+%         ind = find(v>0);
+%         aif_moco_rest_mask(ind) = 1024;
+%         
+%         h = figure('Name','AIF MOCO with Mask, Rest','NumberTitle','off'); imagescn(aif_moco_rest_mask(:,:,1:NN,:), [], [], 10, 3);
+%         saveas(h, figName, 'fig');
+%     end
 end

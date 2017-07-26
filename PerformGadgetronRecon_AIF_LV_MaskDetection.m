@@ -263,7 +263,7 @@ if(std(LV_peak_time)>3 | (abs(peakTime_1-peakTime_2)<2))
     baseline = repmat(baseline, [1 N]);
     ctrs = ctrs - baseline;
 
-    figure; plot(ctrs'); axis([1 size(ctrs,2) 0 max(ctrs(:))])
+    figure; plot(ctrs'); axis([1 size(ctrs,2) 0 max(ctrs(:))]); legend('1', '2', '3');
 
     %         closeall
 
@@ -293,7 +293,7 @@ if(std(LV_peak_time)>3 | (abs(peakTime_1-peakTime_2)<2))
         peakTime_l1 = peakTime_3;
     end
     
-    if( abs(peakTime_1-peakTime_2)<8 & abs(peakTime_1-peakTime_3)<8 & abs(peakTime_2-peakTime_3)<8)
+    if( abs(peakTime_1-peakTime_2)<4 & abs(peakTime_1-peakTime_3)<4 & abs(peakTime_2-peakTime_3)<4)
         % three curves are all LV
         ind_c = [ind_c(l2) ind_c(l2)];
         ctrs_2 = [ctrs(l2, :); ctrs(l2, :)];
