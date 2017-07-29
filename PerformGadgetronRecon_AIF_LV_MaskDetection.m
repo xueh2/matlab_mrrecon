@@ -398,9 +398,10 @@ else
     num_s2 = numel(find(idx==ind_sorted(end-1)));
     max_s2 = max(s2);
     
-    if(max_s1/max_s2>1.4)
+    thres_Res = 1.25;
+    if(max_s1/max_s2>thres_Res)
         maxROI = ind_sorted(end);
-    elseif(max_s2/max_s1>1.4)
+    elseif(max_s2/max_s1>thres_Res)
         maxROI = ind_sorted(end-1);
     else
         if(max(s2)>max(s1) & num_s2>=0.5*num_s1)

@@ -363,6 +363,12 @@ scalingFactor = 10;
                 end
             end
             
+            NS = size(ori_stress, 3);
+            NR = size(ori_stress, 3);
+
+            NN = NS;
+            if(NN>NR) NN = NR; end
+            
             figName = fullfile(figDir, [resDir '_Stress_Rest_Ori' '.fig']);
             if(onlyReview & isFileExist(figName))
                 openfig(figName);
@@ -496,12 +502,17 @@ scalingFactor = 10;
         end
 
         % AIF mask on perf
-        figName = fullfile(figDir, [resDir '_Stress_Rest_With_AIF_Mask' '.fig']);
+        figName = fullfile(figDir, [resDir '_Stress_With_AIF_Mask_Symbol' '.fig']);
+        figName2 = fullfile(figDir, [resDir '_Rest_With_AIF_Mask_Symbol' '.fig']);
         if(onlyReview & isFileExist(figName))
             openfig(figName);
+            openfig(figName2);
         else
-            h = figure('Name','AIF mask, Stress - Rest','NumberTitle','off'); imagescn(cat(3, aif_stress_LV_mask_plot, aif_rest_LV_mask_plot), [], [], 10);
+            h = figure('Name','AIF mask, Stress','NumberTitle','off'); imagescn(aif_stress_LV_mask_plot, [], [], 10);
             saveas(h, figName, 'fig');
+            
+            h = figure('Name','AIF mask, Rest','NumberTitle','off'); imagescn(aif_rest_LV_mask_plot, [], [], 10);
+            saveas(h, figName2, 'fig');
         end
         
 %         figName = fullfile(figDir, [resDir '_Stress_MOCO_With_AIF_Mask' '.fig']);
