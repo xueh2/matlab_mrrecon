@@ -159,7 +159,11 @@ for n=1:num
                 if(~isFileExist(dicomFolder))
                     goodStatus = 0;
                     if(isFileExist(hdrFolder))
+                        try
                         [dcmfiles, numdcm] = findFILE(dicomFolder, '*.img');
+                        catch
+                            numdcm = 0;
+                        end
                         if(numdcm==0)
                             goodStatus = 0;
                         else

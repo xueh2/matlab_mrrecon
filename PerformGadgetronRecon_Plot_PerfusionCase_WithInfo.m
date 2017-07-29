@@ -28,7 +28,7 @@ if(~onlyReview)
             aif_im_rest, aif_moco_rest, aif_rest_cin, aif_rest_cin_Gd, aif_rest_cin_Gd_without_R2Star, aif_rest_cin_Gd_baseline_corrected, ... 
             aif_rest_cin_all_echo0_signal, aif_rest_cin_all_echo1_signal, aif_rest_cin_all_echo0_signal_after_R2StarCorrection, ...
             aif_rest_cin_all_echo0_OverPD_after_R2StarCorrection, aif_rest_cin_all_R2Star,  aif_rest_cin_all_R2Star_SLEP, ... 
-            aif_rest_PD, aif_rest_mask, aif_rest_mask_final, aif_rest, aif_rest_baseline_corrected, ... 
+            aif_rest_PD, aif_rest_mask, aif_rest_mask_final, aif_rest_LV_mask_plot, aif_rest, aif_rest_baseline_corrected, ... 
             flow_rest, Ki_rest, PS_rest, Vp_rest, Visf_rest, E_rest, SDMap_rest, Delay_rest, ...
             BTEX_Flow_all_rest, BTEX_PS_all_rest, BTEX_Vp_all_rest, BTEX_Visf_all_rest, BTEX_cost_all_rest, BTEX_flow_SD_all_rest, Fermi_Delay_rest] = read_in_GT_Perf_DebugOutput_results(restDir);
                  
@@ -282,21 +282,14 @@ if(has_rest)
         saveas(h, figName, 'fig');
     end 
     
-%     figName = fullfile(figDir, [resDir '_Rest_AIF_Mask' '.fig']);
-%     if(onlyReview)
-%         if(isFileExist([figName '.fig']))
-%             openfig(figName);
-%         end
-%     else        
-%         
-%         NN = size(rest_perf, 4);
-%         
-%         aif_moco_rest_mask = aif_moco_rest;
-%         v = repmat(aif_rest_mask, [1 1 NN]);
-%         ind = find(v>0);
-%         aif_moco_rest_mask(ind) = 1024;
-%         
-%         h = figure('Name','AIF MOCO with Mask, Rest','NumberTitle','off'); imagescn(aif_moco_rest_mask(:,:,1:NN,:), [], [], 10, 3);
-%         saveas(h, figName, 'fig');
-%     end
+    figName = fullfile(figDir, [resDir '_Rest_AIF_Mask' '.fig']);
+    if(onlyReview)
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
+    else        
+                
+        h = figure('Name','AIF MOCO with Mask, Rest','NumberTitle','off'); imagescn(aif_rest_LV_mask_plot, [], [], 10);
+        saveas(h, figName, 'fig');
+    end
 end
