@@ -70,5 +70,9 @@ elseif(~isempty(strfind(xmlString, 'Binning')))
 elseif(~isempty(strfind(xmlString, 'Cmr_Cine_NL_Cloud')))
     configName = 'Generic_Cartesian_NonLinear_Spirit_RealTimeCine_Cloud.xml';         
 elseif(~isempty(strfind(xmlString, 'Cine_NL')))
-    configName = 'Generic_Cartesian_NonLinear_Spirit_RealTimeCine.xml';         
+    configName = 'Generic_Cartesian_NonLinear_Spirit_RealTimeCine.xml';        
+    
+elseif(~isempty(strfind(xmlString, 'FW')))
+    configName = 'GTPrep_2DT_FatWater.xml';         
+
 end

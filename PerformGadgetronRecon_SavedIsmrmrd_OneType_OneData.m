@@ -160,7 +160,7 @@ for n=1:num
                     goodStatus = 0;
                     if(isFileExist(hdrFolder))
                         try
-                        [dcmfiles, numdcm] = findFILE(dicomFolder, '*.img');
+                        [dcmfiles, numdcm] = findFILE(dstDir, '*.img');
                         catch
                             numdcm = 0;
                         end
@@ -171,9 +171,15 @@ for n=1:num
                         end
                     end
                 else
-                    [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image*.dcm');
+                    try
+                        [dcmfiles, numdcm] = findFILE(dstDir, '*.img');
+                    catch
+                        numdcm = 0;
+                    end
                     if(numdcm==0)
                         goodStatus = 0;
+                    else
+                        goodStatus = 1;
                     end
                 end
             else

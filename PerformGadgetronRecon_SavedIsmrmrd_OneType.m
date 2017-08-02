@@ -91,6 +91,10 @@ if(cleanRemote)
     dos(command, '-echo');    
 end
 
+if(~startRemoteGT)
+    StartGadgetronOnRemote(gt_host)
+end
+
 % ------------------------------------------------------------
 
 % find data
