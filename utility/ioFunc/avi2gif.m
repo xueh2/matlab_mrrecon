@@ -1,6 +1,7 @@
 
 function avi2gif(avifile, giffile, rbglist, indlist)
 % save the hdr as an avi file
+% avi2gif(avifile, giffile, rbglist, indlist)
 
 if ( ~isFileExist(avifile) )
     return
@@ -88,3 +89,5 @@ if(isempty(colormap))
     colormap = gray(256);
 end
 imwrite(gifdata, colormap, giffile, 'gif', 'DelayTime', 1/FramesPerSecond, 'LoopCount', Inf);
+figure; imagescn(sum(gifdata, 3), [], [], [], 4);
+

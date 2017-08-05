@@ -12,6 +12,7 @@ StopGadgetronOnRemote('gibraltar', 9008);
 StopGadgetronOnRemote('hongkong', 9008);
 StopGadgetronOnRemote('palau', 9008);
 StopGadgetronOnRemote('samoa', 9008);
+StopGadgetronOnRemote('grenada', 9008);
 % StopGadgetronOnRemote('andorra', 9008);
 
 timeUsed = toc;
@@ -25,6 +26,7 @@ StartGadgetronOnRemote('gibraltar', 9008);
 StartGadgetronOnRemote('hongkong', 9008);
 StartGadgetronOnRemote('palau', 9008);
 StartGadgetronOnRemote('samoa', 9008);
+StartGadgetronOnRemote('grenada', 9008);
 % StartGadgetronOnRemote('andorra', 9008);
 
 timeUsed = toc;

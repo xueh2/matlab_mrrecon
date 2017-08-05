@@ -1,4 +1,4 @@
-function UTCases = set_up_UT_cases_Cine;
+    function UTCases = set_up_UT_cases_Cine;
 % run the gt recon
 
 set_UT_Dir('D');
@@ -155,6 +155,8 @@ UTCases = {
     
     'cine',           'meas_MID00165_FID39820_R3_RT_Cine_Linear_Res160_35ms',              'VD',   'Generic_Cartesian_Grappa_RealTimeCine.xml',         'grappa_res',              'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
 
+    'cine',           'Cmr_Cine_NL_Cloud_53531_77803904_77803911_170_20170731-105855',              'VD',   'Generic_Cartesian_Grappa_RealTimeCine.xml',         'grappa_res',              'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+    'cine',           'Cmr_Cine_NL_Cloud_53531_85471775_85471782_424_20170804-171232',              'VD',   'Generic_Cartesian_Grappa_RealTimeCine.xml',         'grappa_res',              'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
     };
 
 N = size(UTCases, 1);
