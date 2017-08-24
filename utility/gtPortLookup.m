@@ -18,7 +18,7 @@ if(strcmp(gt_host, 'denmark'))
 end
 
 if(strcmp(gt_host, 'samoa'))
-    GT_PORT = '9016';
+    GT_PORT = '9008';
 end
 
 if(strcmp(gt_host, 'barbados'))

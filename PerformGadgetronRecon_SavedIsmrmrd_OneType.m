@@ -42,6 +42,10 @@ if(strcmp(gt_host, 'gibraltar'))
     GT_PORT = '9008';
 end
 
+if(strcmp(gt_host, 'grenada'))
+    GT_PORT = '9008';
+end
+
 setenv('GT_HOST', gt_host); setenv('GT_PORT', GT_PORT);
 
 if(nargin<6)

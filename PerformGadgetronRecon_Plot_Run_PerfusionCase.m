@@ -1,6 +1,6 @@
 
-function PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures)
-% PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures)
+function PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT)
+% PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT)
 
 if(nargin < 8)
     flow_windowing = [0 6];
@@ -18,8 +18,11 @@ if(nargin < 11)
     only_making_figures = 0;
 end
 
+if(nargin < 12)
+    startRemoteGT = 1;
+end
+
 sendDicom = 0;
-startRemoteGT = 1;
 
 startN = 1
 endN = size(perf_cases, 1)
