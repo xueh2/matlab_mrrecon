@@ -366,17 +366,17 @@ for n=1:num
     tic; dos(command); timeUsed = toc;
            
     if(isPerf)
-        if(strcmp(getenv('GT_HOST'), 'localhost')==1)
+        if(strcmp(gt_host, 'localhost')==1)
             ts = tic;
             movefile(debugFolder, dstDir, 'f');
 %             command = ['move /Y ' debugFolder ' ' dstDir];
 %             dos(command, '-echo');
             disp(['copy debug output : ' num2str(toc(ts))]);
         else
-            [key, user] = sshKeyLookup(getenv('GT_HOST'));
+            [key, user] = sshKeyLookup(gt_host);
             debug_folder = ['/home/' user '/Debug/DebugOutput']
             ts = tic;
-            CopyGadgetronDebugOutputOnRemote(getenv('GT_HOST'), debug_folder, dstDir, 1)
+            CopyGadgetronDebugOutputOnRemote(gt_host, debug_folder, dstDir, 1)
             disp(['copy debug output : ' num2str(toc(ts))]);
         end
     end

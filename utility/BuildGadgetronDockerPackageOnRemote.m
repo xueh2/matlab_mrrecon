@@ -1,18 +1,23 @@
 
-function timeUsed = BuildGadgetronDockerPackageOnRemote(host, res_dir, docker_image, target_dir, create_installers)
+function timeUsed = BuildGadgetronDockerPackageOnRemote(host, res_dir, docker_image, target_dir, create_installers, remove_gtprep_xml)
 %% build docker image on remote compute and copy them
 % timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1404_cuda_gtprep', '\\macau.nhlbi.nih.gov\data1\gadgetron_installation\20160405', 1)
 % timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA55', 'hansenms/gadgetron_ubuntu1404_cuda_gtprep55', '\\137.187.134.135\share\Installer\20160512', 1)
 % timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1404_cuda_gtprep , '\\137.187.134.135\share\Installer\20160720', 1)
-% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep', '\\137.187.134.135\share\Installer\20170822', 1)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20170828', 1)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20170828_remove_gtprep_xml', 1, 1)
 
 if nargin < 1
-    host = 'barbados'
-    res_dir = '/home/GADGETRON_CUDA55'
+    host = 'denmark'
+    res_dir = '/home/GADGETRON_CUDA75'
     % docker_image = 'xueh2/gadgetron_ubuntu1404_cuda_gtprep'
-    docker_image = 'hansenms/gadgetron_ubuntu1404_cuda_gtprep55'
+    docker_image = 'hansenms/gadgetron_ubuntu1604_cuda_gtprep75'
     target_dir = '/e/temp'
     create_installers = 0
+end
+
+if nargin < 6
+    remove_gtprep_xml = 0
 end
 
 tic;
@@ -28,26 +33,33 @@ command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
 
-% curr_t = datenum(clock);
-% new_docker_image = [docker_image '_' num2str(curr_t)]
-% disp('strip image')
-% gt_command = ['cd ' res_dir ' && ./strip_docker_image ' docker_image ' ' new_docker_image];
-% command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
-% command
-% dos(command, '-echo');
-
-disp('build package')
-%gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 2048'];
-gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' docker_image ' 6144'];
+curr_t = datenum(clock);
+new_docker_image = [docker_image '_' num2str(curr_t)]
+disp('strip image')
+gt_command = ['cd ' res_dir ' && ./strip_docker_image ' docker_image ' ' new_docker_image];
 command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
 
-% disp('remove image')
-% gt_command = ['cd ' res_dir ' && docker rmi ' new_docker_image];
-% command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
-% command
-% dos(command, '-echo');
+disp('build package')
+%gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 2048'];
+if(remove_gtprep_xml)
+    % gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' docker_image ' 6144 GTPrep_*D*.xml'];
+    gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 2048 GTPrep_*DT*.xml'];
+else
+    % gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' docker_image ' 6144'];
+    gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 2048'];
+end
+
+command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
+command
+dos(command, '-echo');
+
+disp('remove image')
+gt_command = ['cd ' res_dir ' && docker rmi ' new_docker_image];
+command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
+command
+dos(command, '-echo');
 
 disp('copy package')
 gt_command = ['cd ' res_dir ' && ls -t | head -n1 '];
@@ -59,15 +71,30 @@ fw
 
 gt_command = ['cd ' res_dir ' && zip ' filename '.img.zip ' filename '.img' ];
 command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
+tic
 command
+toc
 [s, fw] = dos(command, '-echo');
 
 command = ['scp -i ' getenv('GADGETRON_KEY_FOLDER') '/gtuser_denmark_private ' user '@' host ':' res_dir '/' filename '.img.zip ' target_dir];
-command
+tic; command; toc
+dos(command, '-echo');
+
+command = ['scp -i ' getenv('GADGETRON_KEY_FOLDER') '/gtuser_denmark_private ' user '@' host ':' res_dir '/' filename '.img ' target_dir];
+tic; command; toc
 dos(command, '-echo');
 
 if(create_installers)
-    command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 3 14 1'];
+    
+    PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gtuser\mrprogs\gt_scanner_setup\VE11\config');
+    PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gtuser\mrprogs\gt_scanner_setup\VE11C\config');    
+    
+    if(remove_gtprep_xml)
+        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_MARS_All_Versions.bat ' filename ' 3 14 1'];
+    else
+        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 3 14 1'];
+    end
+    
     command
     dos(command, '-echo');
     

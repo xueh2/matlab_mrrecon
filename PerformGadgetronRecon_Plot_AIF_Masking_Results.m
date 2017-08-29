@@ -30,7 +30,8 @@ for ii=startN:endN
 
 %     aif_mask = readGTPlusExportImageSeries_Squeeze(119);
 
-    aif_mask = analyze75read('GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_AIF_Mask.xml_SLC0_CON0_PHS0_REP0_SET0_AVE0_1_119.hdr');
+    [names, num] = findFILE('.', '*119.hdr');
+    aif_mask = analyze75read(names{1});
     
     h2 = figure; imagescn(aif_mask, [], [], [], 40);
     saveas(h2, fullfile(maskDir, [caseName '_AIFMASK_GT']), 'fig');

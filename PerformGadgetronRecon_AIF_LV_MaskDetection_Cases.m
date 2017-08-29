@@ -5,8 +5,13 @@ function PerformGadgetronRecon_AIF_LV_MaskDetection_Cases(perf_cases, resDir, fi
 startN = 1
 endN = size(perf_cases, 1)
 
-upslope_thres = 0.4
-auc_thres = 0.85
+% upslope_thres = 0.4
+% auc_thres = 0.85
+
+% with scc
+upslope_thres = 0.7
+auc_thres = 0.75
+
 area_thres = 10
 ro_boundary_ratio = 0.15
 e1_boundary_ratio = 0.15
@@ -37,10 +42,15 @@ for ii=startN:endN
         aif_pd_stress = analyze75read(fullfile(stress_dir, 'DebugOutput', 'aifPD_for_TwoEcho_T2StartCorrection_0.hdr'));
         aif_moco_stress_mask = analyze75read(fullfile(stress_dir, 'DebugOutput', 'aif_LV_mask.hdr'));
 
-        [mask_stress, LV, peakTime_LV_stress, mask_RV_stress] = PerformGadgetronRecon_AIF_LV_MaskDetection(aif_moco_stress, upslope_thres, auc_thres, area_thres, max_duration, ro_boundary_ratio, e1_boundary_ratio);
+        useMask = 0;
+        [scc, mask_scc] = Matlab_gt_surface_coil_correction(aif_pd_stress(:,:,1), [], useMask, 5, 3, 3);
+        
+        aif_moco_stress_2 = aif_moco_stress ./ repmat(scc, [1 1 size(aif_moco_stress, 3)]);
+        
+        [mask_stress, LV, peakTime_LV_stress, mask_RV_stress] = PerformGadgetronRecon_AIF_LV_MaskDetection(aif_moco_stress_2, upslope_thres, auc_thres, area_thres, max_duration, ro_boundary_ratio, e1_boundary_ratio);
        
         tic
-        mask_stress_gt = Matlab_gt_perfusion_flow_aif_mask(single(aif_pd_stress), single(aif_moco_stress), upslope_thres, 0.85, auc_thres, area_thres, max_duration, ro_boundary_ratio, e1_boundary_ratio, 'kmeans', []);
+        mask_stress_gt = Matlab_gt_perfusion_flow_aif_mask(single(aif_pd_stress), single(aif_moco_stress_2), upslope_thres, 0.85, auc_thres, area_thres, max_duration, ro_boundary_ratio, e1_boundary_ratio, 'kmeans', []);
         disp(['matlab mex AIF masking - ' num2str(toc)]);
         
         ind = find(mask_stress>0);

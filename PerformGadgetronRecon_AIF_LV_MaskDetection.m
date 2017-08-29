@@ -56,6 +56,14 @@ plotFlag = 1;
 
 [upslope, auc, peak_time, foot] = Matlab_gt_perfusion_flow_feature_maps(single(aif_moco));
 
+ind = find(upslope<=0);
+upslope(ind) = 0;
+
+ind = find(auc<=0);
+auc(ind) = 0;
+
+figure; imagescn(upslope);
+figure; imagescn(auc);
 
 upslope_sorted = sort(upslope(ind_mask));
 auc_sorted = sort(auc(ind_mask));
@@ -142,7 +150,7 @@ if(numROI_2nd==3)
     
     [md, vd] = max([d1 d2 d3]);
     
-    if(md>0.4*norm([RO/2 E1/2]))
+    if(md>0.5*norm([RO/2 E1/2]))
         mask_off_ind = find(L_2nd==vd);
         mask(mask_off_ind) = 0;
         figure; imagescn(mask); title('mask after centroid masking');
