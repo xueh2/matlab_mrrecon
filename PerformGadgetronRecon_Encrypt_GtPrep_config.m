@@ -21,6 +21,12 @@ for ii=1:num
     if( ~isempty(strfind(name, 'Generic_Cartesian')) )
         continue;
     end
+    if( ~isempty(strfind(name, 'ismrmrd_storage')) )
+        continue;
+    end
+    if( ~isempty(strfind(name, 'Amazon')) )
+        continue;
+    end
     
     encrypted_config = Matlab_gt_config_xml_encryption(names{ii}, fullfile(dst_dir, [name '.xml']), key);
 end

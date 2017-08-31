@@ -36,31 +36,31 @@ if(~isempty(strfind(xmlString, 'ISMRMRD_Noise_dependency')))
     configName = 'default_measurement_dependencies.xml';
     
 elseif(~isempty(strfind(xmlString, 'DB_LGE_MOCO_AVE_OnTheFly')))
-    configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_dicom_storage.xml';
+    configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_dstore.xml';
     
 elseif(~isempty(strfind(xmlString, 'LGE_MOCO_AVE')))
-    configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_dicom_storage.xml';
+    configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_dstore.xml';
     
 elseif(~isempty(strfind(xmlString, 'T2W')))
-    configName = 'GTPrep_2DT_T2W_MOCO_AVE_OnTheFly_ismrmrd_storage.xml';
+    configName = 'GTPrep_2DT_T2W_MOCO_AVE_OnTheFly_istore.xml';
     
 elseif(~isempty(strfind(xmlString, 'T2Star_Mapping')))
-    configName = 'GTPrep_2DT_T2Star_Mapping_dicom_storage.xml';    
+    configName = 'GTPrep_2DT_T2Star_Mapping_dstore.xml';    
     
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_TwoEchoes_Interleaved')))
-    configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_POCS_FIL_MBF_MBV_Gd_Mask_dicom_storage.xml';
+    configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_OFFLINE_dstore.xml';
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_2E_Lin_Cloud')))
-    configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_POCS_FIL_MBF_MBV_Gd_Mask_dicom_storage.xml';
+    configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_OFFLINE_dstore.xml';
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_2E_NL_Cloud')))
-    configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_POCS_FIL_MBF_MBV_Gd_Mask_dicom_storage.xml';
+    configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_OFFLINE_dstore.xml';
     
 elseif(~isempty(strfind(xmlString, 'Retro_Flow')))
     configName = 'GTPrep_2DT_RetroGated_Flow.xml';    
 elseif(~isempty(strfind(xmlString, 'Retro_NLin_Flow')))
-    configName = 'GTPrep_2DT_RetroGated_Flow_L1SPIRIT_SLEP.xml'; 
+    configName = 'GTPrep_2DT_RetroGated_Flow_SLEP.xml'; 
     
 elseif(~isempty(strfind(xmlString, 'Prospective_Cine_3D')))
-    configName = 'GTPrep_3DT_RetroGated_Cine_ismrmrd_storage.xml'; 
+    configName = 'GTPrep_3DT_RetroGated_Cine_istore.xml'; 
     
 elseif(~isempty(strfind(xmlString, 'Cmr_Binning_Cloud')))
     configName = 'CMR_2DT_RTCine_KspaceBinning_Cloud.xml';         
@@ -71,6 +71,9 @@ elseif(~isempty(strfind(xmlString, 'Cmr_Cine_NL_Cloud')))
     configName = 'Generic_Cartesian_NonLinear_Spirit_RealTimeCine_Cloud.xml';         
 elseif(~isempty(strfind(xmlString, 'Cine_NL')))
     configName = 'Generic_Cartesian_NonLinear_Spirit_RealTimeCine.xml';        
+ 
+elseif(~isempty(strfind(xmlString, 'Retro_NLin_Cine')))
+    configName = 'GTPrep_2DT_RetroGated_Cine_SLEP_Gateway.xml';        
     
 elseif(~isempty(strfind(xmlString, 'FW')))
     configName = 'GTPrep_2DT_FatWater.xml';         
