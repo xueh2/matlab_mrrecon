@@ -4,8 +4,8 @@ function timeUsed = BuildGadgetronDockerPackageOnRemote(host, res_dir, docker_im
 % timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1404_cuda_gtprep', '\\macau.nhlbi.nih.gov\data1\gadgetron_installation\20160405', 1)
 % timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA55', 'hansenms/gadgetron_ubuntu1404_cuda_gtprep55', '\\137.187.134.135\share\Installer\20160512', 1)
 % timeUsed = BuildGadgetronDockerPackageOnRemote('barbados', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1404_cuda_gtprep , '\\137.187.134.135\share\Installer\20160720', 1)
-% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20170901', 1)
-% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20170901_remove_gtprep_xml', 1, 1)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20170902', 1)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('denmark', '/home/GADGETRON_CUDA75', 'xueh2/gadgetron_ubuntu1604_cuda_gtprep', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20170902_remove_gtprep_xml', 1, 1)
 
 if nargin < 1
     host = 'denmark'
