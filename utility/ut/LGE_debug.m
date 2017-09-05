@@ -4,6 +4,7 @@ cd E:\ut\LGE\meas_MID01986_FID19364_Sax_RadCV_gtPlus_PSIR_12sl_4ave_MOCO\moco_av
 cd E:\ut\LGE\MOCO_Evaluation\20150408_14h22m26s_73662\grappa_res
 
 cd E:\gtuser\gt_windows_setup\ut\LGE\gtPSIR-2015-09-30\meas_MID00268_FID61977_PSIR_4ch_MOCO\moco_ave_res
+cd \\hl-share\RawMRI\Lab-Kellman\Share\temp\DB_LGE_MOCO_AVE_OnTheFly_42363_13415235_13415240_75_20170728-151249\moco_ave_res
 
 % early enhancement
 cd E:\ut\LGE\MOCO_Evaluation\20150408_14h04m58s_73641\grappa_res
