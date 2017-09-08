@@ -128,14 +128,15 @@ hold on
 bar(1:size(bar_y, 1), bar_y,'stacked','LineWidth',1.2);
 set(gca,'XTick',1:size(bar_y, 1));
 set(gca,'XTickLabel',bar_x)
-set(gca,'FontSize', 20)
+set(gca,'FontSize', 14)
 xlim([0 size(bar_y, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Perfusion scans')
 title(['Year 2016 - 2017, N=' num2str(sum(bar_y(:)))])
 box on
-legend(sites);
+legend(sites, 'Location', 'NorthWest' );
+set(h, 'Position', [50 50 2.5*1024 1.5*768]);
 
 saveas(h, fullfile(fig_dir, 'Perfusion_sites'), 'fig');
 saveas(h, fullfile(fig_dir, 'Perfusion_sites'), 'tiff');
@@ -149,14 +150,15 @@ hold on
 bar(1:size(bar_y, 1), bar_y,'stacked','LineWidth',1.2);
 set(gca,'XTick',1:size(bar_y, 1));
 set(gca,'XTickLabel',bar_x)
-set(gca,'FontSize', 20)
+set(gca,'FontSize', 14)
 xlim([0 size(bar_y, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of LGE scans')
 title(['Year 2016 - 2017, N=' num2str(sum(bar_y(:)))])
 box on
-legend(sites);
+legend(sites, 'Location', 'NorthWest' );
+set(h, 'Position', [50 50 2.5*1024 1.5*768]);
 
 saveas(h, fullfile(fig_dir, 'LGE_sites'), 'fig');
 saveas(h, fullfile(fig_dir, 'LGE_sites'), 'tiff');
