@@ -24,35 +24,35 @@ for n=1:3
     mbf_interp(:,n) = interp(mbf(:,n), 2^16/256);
 end
 
-closeall
-for n=1:N
-           
-    stressCase = cases{n};
-    disp('=================================================');
-    [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(stressCase);
-    
-    stress_dicom = fullfile(resDir, study_dates, [stressCase '_dicom']);   
-    dst_stress = fullfile(dicomDir, study_dates, [stressCase '_dicom']);
-    dst = dst_stress;
-    
-    [fname, numVb] = findFILE(dst, ['*' 'Flow_Map_SLC' '*']);
-    
-    if(numVb==0)
-        continue;
-    end
-    
-    clear I
-    for kk=1:numVb
-        I(:,:,kk) = dicomread(fname{kk});
-    end
-
-    disp([num2str(n) ' out of ' num2str(N) ' - ' dst]);
-    figure; imagescn( double(I)/100, [0 6], [1 numVb], [12]); PerfColorMap;
-    pause
-    closeall
-end
-
-error('stop');
+% closeall
+% for n=1:N
+%            
+%     stressCase = cases{n};
+%     disp('=================================================');
+%     [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(stressCase);
+%     
+%     stress_dicom = fullfile(resDir, study_dates, [stressCase '_dicom']);   
+%     dst_stress = fullfile(dicomDir, study_dates, [stressCase '_dicom']);
+%     dst = dst_stress;
+%     
+%     [fname, numVb] = findFILE(dst, ['*' 'Flow_Map_SLC' '*']);
+%     
+%     if(numVb==0)
+%         continue;
+%     end
+%     
+%     clear I
+%     for kk=1:numVb
+%         I(:,:,kk) = dicomread(fname{kk});
+%     end
+% 
+%     disp([num2str(n) ' out of ' num2str(N) ' - ' dst]);
+%     figure; imagescn( double(I)/100, [0 6], [1 numVb], [12]); PerfColorMap;
+%     pause
+%     closeall
+% end
+% 
+% error('stop');
 
 for n=1:N
            
