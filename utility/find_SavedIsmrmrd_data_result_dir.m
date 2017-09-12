@@ -18,35 +18,47 @@ else
 
     scannerID = str2num(scannerID);
 
-    switch scannerID
-        case {41837, 42110, 66016}
-            dataDir = 'BARTS'
-            resultDir = 'BARTS'
-        case 42363
-            dataDir = 'ROYALFREE'
-            resultDir = 'RoyalFree'
-        case 42170
-            dataDir = 'KCL'
-            resultDir = 'KCL'
-        case 66097
-            dataDir = 'LEEDS'
-            resultDir = 'LEEDS'
-        case 42034
-            dataDir = 'LUND'
-            resultDir = 'LUND'
-        case {41672, 46184}
-            dataDir = 'KAROLINSKA'
-            resultDir = 'KAROLINSKA'
-        case 141303
-            dataDir = 'CHENIESMEWS'
-            resultDir = 'CHENIESMEWS'
-        case 53531
-            dataDir = 'CAMPINAS'
-            resultDir = 'CAMPINAS'       
-        case 42311
-            dataDir = 'GEISINGER'
-            resultDir = 'GEISINGER'       
+    scanner_list = print_saved_Ismrmrd_scanner_id(0);
+    
+    for ii=1:size(scanner_list,1)
+        
+        ids = scanner_list.scanner_id{ii};
+        if(~isempty(find(ids==scannerID)))
+            dataDir = scanner.sites{ii};
+            resultDir = dataDir;
+            break;
+        end        
     end
+    
+%     switch scannerID
+%         case {41837, 42110, 66016}
+%             dataDir = 'BARTS'
+%             resultDir = 'BARTS'
+%         case 42363
+%             dataDir = 'ROYALFREE'
+%             resultDir = 'ROYALFREE'
+%         case 42170
+%             dataDir = 'KCL'
+%             resultDir = 'KCL'
+%         case 66097
+%             dataDir = 'LEEDS'
+%             resultDir = 'LEEDS'
+%         case 42034
+%             dataDir = 'LUND'
+%             resultDir = 'LUND'
+%         case {41672, 46184}
+%             dataDir = 'KAROLINSKA'
+%             resultDir = 'KAROLINSKA'
+%         case 141303
+%             dataDir = 'CHENIESMEWS'
+%             resultDir = 'CHENIESMEWS'
+%         case 53531
+%             dataDir = 'CAMPINAS'
+%             resultDir = 'CAMPINAS'       
+%         case 42311
+%             dataDir = 'GEISINGER'
+%             resultDir = 'GEISINGER'       
+%     end
 end
 
 dataDir = fullfile(dataDirBase, dataDir);
