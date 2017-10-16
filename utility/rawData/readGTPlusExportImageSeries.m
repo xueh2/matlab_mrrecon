@@ -63,6 +63,10 @@ if(num==0)
     [names, num] = findFILE(folderName, ['SASHA-HC' '*.hdr']);
 end
 
+if(num==0)
+    [names, num] = findFILE(folderName, ['Generic_2DT_' '*.hdr']);
+end
+
 maxSLC = 0;
 maxE2 = 0;
 maxCON = 0;

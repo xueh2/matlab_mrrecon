@@ -74,6 +74,8 @@ elseif(~isempty(strfind(xmlString, 'Cine_NL')))
  
 elseif(~isempty(strfind(xmlString, 'Retro_NLin_Cine')))
     configName = 'GTPrep_2DT_RetroGated_Cine_SLEP_Gateway.xml';        
+elseif(~isempty(strfind(xmlString, 'Retro_Lin_Cine')))
+    configName = 'GTPrep_2DT_RetroGated_Cine.xml';            
     
 elseif(~isempty(strfind(xmlString, 'FW')))
     configName = 'GTPrep_2DT_FatWater.xml';         

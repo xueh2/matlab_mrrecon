@@ -2,6 +2,7 @@ function t = PerformGadgetronRecon_OneCase(UT_Dir, home, subdir, gt_host, res_di
 % t = PerformGadgetronRecon_OneCase(UT_Dir, home, subdir, gt_host, res_dir, deleteh5, xml, copy_debug, gt_port, startGT)
 % PerformGadgetronRecon_OneCase('D', 'binning\CNMC_20160822', 'meas_MID00156_FID28880_AX_R2_RT_Cine_Binning_Res160_LocalCloud', 'barbados', 'res', deleteh5, 'GTPrep_2DT_RTCine_KspaceBinning_Cloud.xml', copy_debug, gt_port, startGT) 
 % PerformGadgetronRecon_OneCase('D', 'binning\CNMC_20160822', 'meas_MID00041_FID28765_R2_RT_Cine_Binning_Res192_LocalCloud', 'barbados', 'res', deleteh5, 'Generic_Cartesian_NonLinear_Spirit_RealTimeCine_Cloud.xml', copy_debug, gt_port, startGT) 
+% PerformGadgetronRecon_OneCase('T', 'binning\CNMC_20160822', 'meas_MID00041_FID28765_R2_RT_Cine_Binning_Res192_LocalCloud', 'barbados', 'res', deleteh5, 'Generic_Cartesian_NonLinear_Spirit_RealTimeCine_Cloud.xml', copy_debug, gt_port, startGT) 
 
 if(nargin<5)
     res_dir = 'res';

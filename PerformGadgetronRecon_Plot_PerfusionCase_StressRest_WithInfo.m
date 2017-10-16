@@ -44,7 +44,7 @@ scalingFactor = 10;
         try
            
             tic
-            [rest_perf, ori_rest, moco_rest, moco_norm_rest, PD_rest, input_for_filter_rest, filtered_rest, ... 
+            [rest_perf, ori_rest, moco_rest, moco_norm_rest, PD_rest, input_for_filter_rest, filtered_rest, aif_acq_time_rest, perf_acq_time_rest, dst_acq_time_rest, ... 
                 aif_im_rest, aif_moco_rest, aif_rest_cin, aif_rest_cin_Gd, aif_rest_cin_Gd_without_R2Star, aif_rest_cin_Gd_baseline_corrected, ... 
                 aif_rest_cin_all_echo0_signal, aif_rest_cin_all_echo1_signal, aif_rest_cin_all_echo0_signal_after_R2StarCorrection, ...
                 aif_rest_cin_all_echo0_OverPD_after_R2StarCorrection, aif_rest_cin_all_R2Star,  aif_rest_cin_all_R2Star_SLEP, ... 
@@ -64,7 +64,7 @@ scalingFactor = 10;
         try
            
             tic
-            [stress_perf, ori_stress, moco_stress, moco_norm_stress, PD_stress, input_for_filter_stress, filtered_stress, ... 
+            [stress_perf, ori_stress, moco_stress, moco_norm_stress, PD_stress, input_for_filter_stress, filtered_stress, aif_acq_time_stress, perf_acq_time_stress, dst_acq_time_stress, ... 
                 aif_im_stress, aif_moco_stress, aif_stress_cin, aif_stress_cin_Gd, aif_stress_cin_Gd_without_R2Star, aif_stress_cin_Gd_baseline_corrected, ... 
                 aif_stress_cin_all_echo0_signal, aif_stress_cin_all_echo1_signal, aif_stress_cin_all_echo0_signal_after_R2StarCorrection, ...
                 aif_stress_cin_all_echo0_OverPD_after_R2StarCorrection, aif_stress_cin_all_R2Star,  aif_stress_cin_all_R2Star_SLEP, ... 
@@ -103,7 +103,7 @@ scalingFactor = 10;
                 
             if(has_rest)
                 tic
-                save(fullfile(figDir, 'rest.mat'), 'rest_perf', 'ori_rest', 'moco_rest', 'moco_norm_rest', 'PD_rest', 'input_for_filter_rest', 'filtered_rest', ... 
+                save(fullfile(figDir, 'rest.mat'), 'rest_perf', 'ori_rest', 'moco_rest', 'moco_norm_rest', 'PD_rest', 'input_for_filter_rest', 'filtered_rest', 'aif_acq_time_rest', 'perf_acq_time_rest', 'dst_acq_time_rest', ... 
                     'aif_im_rest', 'aif_moco_rest', 'aif_rest', 'aif_rest_baseline_corrected', 'aif_rest_cin', ... 
                     'aif_rest_cin_Gd', 'aif_rest_cin_Gd_without_R2Star', 'aif_rest_cin_Gd_baseline_corrected', ... 
                     'aif_rest_cin_all_echo0_signal', 'aif_rest_cin_all_echo1_signal', 'aif_rest_cin_all_echo0_signal_after_R2StarCorrection', ...
@@ -117,7 +117,7 @@ scalingFactor = 10;
 
             if(has_stress)
                 tic
-                save(fullfile(figDir, 'stress.mat'), 'stress_perf', 'ori_stress', 'moco_stress', 'moco_norm_stress', 'PD_stress', 'input_for_filter_stress', 'filtered_stress', ...
+                save(fullfile(figDir, 'stress.mat'), 'stress_perf', 'ori_stress', 'moco_stress', 'moco_norm_stress', 'PD_stress', 'input_for_filter_stress', 'filtered_stress', 'aif_acq_time_stress', 'perf_acq_time_stress', 'dst_acq_time_stress', ...
                     'aif_im_stress', 'aif_moco_stress', 'aif_stress', 'aif_stress_baseline_corrected', 'aif_stress_cin', ...
                     'aif_stress_cin_Gd', 'aif_stress_cin_Gd_without_R2Star', 'aif_stress_cin_Gd_baseline_corrected', ...
                     'aif_stress_cin_all_echo0_signal', 'aif_stress_cin_all_echo1_signal', 'aif_stress_cin_all_echo0_signal_after_R2StarCorrection', ...
@@ -186,6 +186,84 @@ scalingFactor = 10;
         end
         scrsz = get(0, 'ScreenSize');
 
+        C = {'m','g','r', 'k', 'c', 'y', 'b', 'r'};
+        
+        figName = fullfile(figDir, [resDir '_Stress_Rest_AIF_AcqusitionTimePlot' '.fig']);
+        if(onlyReview & isFileExist(figName))
+
+            if(isFileExist(figName))
+                openfig(figName);
+            end
+        else
+            h = figure('Name','AIF Acqusition Time Plot','NumberTitle','off', 'Position', [100 100 3*1024 1.5*768]);            
+            subplot(2, 1, 1);
+            hold on
+            
+            aif_v = interp1(dst_acq_time_stress, aif_stress_cin_Gd_baseline_corrected, aif_acq_time_stress, 'linear');
+            aif_t = (aif_acq_time_stress-dst_acq_time_stress(1))/1000;
+            plot(aif_t, aif_v, 'k+', 'MarkerSize',12, 'LineWidth', 2);
+            
+            perf_acq_time_stress = squeeze(perf_acq_time_stress);
+                        
+            for ss=1:size(perf_acq_time_stress, 2)
+                perf_t = interp1(dst_acq_time_stress, aif_stress_cin_Gd_baseline_corrected, perf_acq_time_stress(:,ss), 'linear');            
+                plot((perf_acq_time_stress(:,ss)-dst_acq_time_stress(1))/1000, perf_t, [C{ss} '.'], 'MarkerSize',16);
+            end
+            xlabel('Acqusition time, in s');
+            ylabel('AIF Gd, mmol/L')
+            legend('AIF', 'Perf slice 1', 'Perf slice 2', 'Perf slice 3')
+            title('Stress')
+            
+            xlim_v = [min(aif_t)-0.5 max(aif_t)+0.5];
+            ylim_v = [min(aif_stress_cin_Gd_baseline_corrected)-1 max(aif_stress_cin_Gd_baseline_corrected)+1];
+            
+            plot((dst_acq_time_stress-dst_acq_time_stress(1))/1000, aif_stress_cin_Gd_baseline_corrected, 'b--');            
+
+            plot([xlim_v(1) xlim_v(2)], [ylim_v(1)+0.5 ylim_v(1)+0.5], 'b-')
+            plot(aif_t, ylim_v(1)+0.5, 'k+', 'MarkerSize',12, 'LineWidth', 2)
+            
+            xlim(xlim_v);
+            ylim(ylim_v);
+            hold off
+            box on
+            grid on
+            
+            % ------------------------
+            
+            subplot(2, 1, 2);
+            hold on
+            aif_v = interp1(dst_acq_time_rest, aif_rest_cin_Gd_baseline_corrected, aif_acq_time_rest, 'linear');
+            aif_t = (aif_acq_time_rest-dst_acq_time_rest(1))/1000;
+            plot(aif_t, aif_v, 'k+', 'MarkerSize',12, 'LineWidth', 2);
+            
+            perf_acq_time_rest = squeeze(perf_acq_time_rest);
+            
+            for ss=1:size(perf_acq_time_rest, 2)
+                perf_t = interp1(dst_acq_time_rest, aif_rest_cin_Gd_baseline_corrected, perf_acq_time_rest(:,ss), 'linear');            
+                plot((perf_acq_time_rest(:,ss)-dst_acq_time_rest(1))/1000, perf_t, [C{ss} '.'], 'MarkerSize',16);
+            end
+            xlabel('Acqusition time, in s');
+            ylabel('AIF Gd, mmol/L')
+            legend('AIF', 'Perf slice 1', 'Perf slice 2', 'Perf slice 3')
+            title('Rest')
+            
+            xlim_v = [min(aif_t)-0.5 max(aif_t)+0.5];
+            ylim_v = [min(aif_rest_cin_Gd_baseline_corrected)-1 max(aif_rest_cin_Gd_baseline_corrected)+1];
+            
+            plot((dst_acq_time_rest-dst_acq_time_rest(1))/1000, aif_rest_cin_Gd_baseline_corrected, 'b--');            
+
+            plot([xlim_v(1) xlim_v(2)], [ylim_v(1)+0.5 ylim_v(1)+0.5], 'b-')
+            plot(aif_t, ylim_v(1)+0.5, 'k+', 'MarkerSize',12, 'LineWidth', 2)
+            
+            xlim(xlim_v);
+            ylim(ylim_v);            
+            hold off
+            box on
+            grid on
+            
+            saveas(h, figName, 'fig');
+        end            
+        
 
         figName = fullfile(figDir, [resDir '_Stress_Rest_Ki' '.fig']);
         if(onlyReview & isFileExist(figName))
@@ -330,7 +408,7 @@ scalingFactor = 10;
             if(onlyReview & isFileExist(figName))
                 openfig(figName);
             else
-                h = figure('Name','PDE Vp','NumberTitle','off');; imagescn(cat(3, Vp_stress(:,:,:,end), Vp_rest(:,:,:,end)), [0 20], [2 slc], scalingFactor); MBVColorMap;
+                h = figure('Name','PDE Vb','NumberTitle','off');; imagescn(cat(3, Vp_stress(:,:,:,end), Vp_rest(:,:,:,end)), [0 20], [2 slc], scalingFactor); MBVColorMap;
                 saveas(h, figName, 'fig');
             end
 

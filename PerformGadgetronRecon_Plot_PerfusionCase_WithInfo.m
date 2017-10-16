@@ -24,7 +24,7 @@ end
 
 if(~onlyReview)   
     try
-        [rest_perf, ori_rest, moco_rest, moco_norm_rest, PD_rest, input_for_filter_rest, filtered_rest, ... 
+        [rest_perf, ori_rest, moco_rest, moco_norm_rest, PD_rest, input_for_filter_rest, filtered_rest, aif_acq_time_rest, perf_acq_time_rest, dst_acq_time_rest, ... 
             aif_im_rest, aif_moco_rest, aif_rest_cin, aif_rest_cin_Gd, aif_rest_cin_Gd_without_R2Star, aif_rest_cin_Gd_baseline_corrected, ... 
             aif_rest_cin_all_echo0_signal, aif_rest_cin_all_echo1_signal, aif_rest_cin_all_echo0_signal_after_R2StarCorrection, ...
             aif_rest_cin_all_echo0_OverPD_after_R2StarCorrection, aif_rest_cin_all_R2Star,  aif_rest_cin_all_R2Star_SLEP, ... 
@@ -54,7 +54,7 @@ if(~onlyReview)
         
         if(has_rest)
             % save(fullfile(figDir, 'rest.mat'), 'rest_perf', 'ori_rest', 'moco_rest', 'moco_norm_rest', 'aif_im_rest', 'aif_moco_rest', 'aif_rest', 'aif_rest_baseline_corrected', 'aif_rest_cin', 'aif_rest_cin_Gd', 'aif_rest_cin_Gd_without_R2Star', 'aif_rest_cin_Gd_baseline_corrected', 'aif_rest_cin_all_echo0_signal', 'aif_rest_cin_all_echo1_signal', 'aif_rest_cin_all_echo0_signal_after_R2StarCorrection', 'aif_rest_cin_all_echo0_OverPD_after_R2StarCorrection', 'aif_rest_cin_all_R2Star', 'aif_rest_cin_all_R2Star_SLEP', 'aif_rest_PD', 'aif_rest_mask', 'aif_rest_mask_final', 'flow_rest', 'Ki_rest', 'PS_rest', 'Vp_rest', 'Visf_rest', 'E_rest', 'SDMap_rest', 'Delay_rest');
-            save(fullfile(figDir, 'rest.mat'), 'rest_perf', 'ori_rest', 'moco_rest', 'moco_norm_rest', 'input_for_filter_rest', 'filtered_rest', ... 
+            save(fullfile(figDir, 'rest.mat'), 'rest_perf', 'ori_rest', 'moco_rest', 'moco_norm_rest', 'input_for_filter_rest', 'filtered_rest', 'aif_acq_time_rest', 'perf_acq_time_rest', 'dst_acq_time_rest', ... 
                 'aif_im_rest', 'aif_moco_rest', 'aif_rest', 'aif_rest_baseline_corrected', 'aif_rest_cin', ... 
                 'aif_rest_cin_Gd', 'aif_rest_cin_Gd_without_R2Star', 'aif_rest_cin_Gd_baseline_corrected', ... 
                 'aif_rest_cin_all_echo0_signal', 'aif_rest_cin_all_echo1_signal', 'aif_rest_cin_all_echo0_signal_after_R2StarCorrection', ...
@@ -78,6 +78,49 @@ if(has_rest)
         figure; imagescn(Ki_rest, [0 6], [m slc], scalingFactor); PerfColorMap;
     end
     scrsz = get(0, 'ScreenSize');
+    
+    figName = fullfile(figDir, [resDir '_Rest_AIF_Acq_Plot']);
+    if(onlyReview)
+        if(isFileExist([figName '.fig']))
+            openfig(figName);
+        end
+    else
+        h = figure('Name','AIF Acqusition Time Plot','NumberTitle','off', 'Position', [100 100 3*1024 1.5*768]);            
+        hold on
+
+        aif_v = interp1(dst_acq_time_rest, aif_rest_cin_Gd_baseline_corrected, aif_acq_time_rest, 'linear');
+        aif_t = (aif_acq_time_rest-dst_acq_time_rest(1))/1000;
+        plot(aif_t, aif_v, 'k+', 'MarkerSize',12, 'LineWidth', 2);
+
+        perf_acq_time_rest = squeeze(perf_acq_time_rest);
+
+        C = {'m','g','r', 'k', 'c', 'b', 'y', 'b'};
+        for ss=1:size(perf_acq_time_rest, 2)
+            perf_t = interp1(dst_acq_time_rest, aif_rest_cin_Gd_baseline_corrected, perf_acq_time_rest(:,ss), 'linear');            
+            plot((perf_acq_time_rest(:,ss)-dst_acq_time_rest(1))/1000, perf_t, [C{ss} '.'], 'MarkerSize',16);
+        end
+        xlabel('Acqusition time, in s');
+        ylabel('AIF Gd, mmol/L')
+        legend('AIF', 'Perf slice 1', 'Perf slice 2', 'Perf slice 3')
+        title('Stress')
+
+        xlim_v = [min(aif_t)-0.5 max(aif_t)+0.5];
+        ylim_v = [min(aif_rest_cin_Gd_baseline_corrected)-1 max(aif_rest_cin_Gd_baseline_corrected)+1];
+
+        plot((dst_acq_time_rest-dst_acq_time_rest(1))/1000, aif_rest_cin_Gd_baseline_corrected, 'b--');            
+
+        plot([xlim_v(1) xlim_v(2)], [ylim_v(1)+0.5 ylim_v(1)+0.5], 'b-')
+        plot(aif_t, ylim_v(1)+0.5, 'k+', 'MarkerSize',12, 'LineWidth', 2)
+
+        xlim(xlim_v);
+        ylim(ylim_v);
+        hold off
+        box on
+        grid on
+        saveas(h, figName, 'fig')
+    end
+    
+    % ----------------------
     
     figName = fullfile(figDir, [resDir '_Rest_Ki_TwoComp']);
     if(onlyReview)
@@ -128,7 +171,7 @@ if(has_rest)
         end
     else
         if(~isempty(Visf_rest))
-            h = figure('Name','PDE Visf','NumberTitle','off'); imagescn(Visf_rest(:,:,:,end), [0 80], [1 slc], scalingFactor); PerfColorMap;
+            h = figure('Name','PDE Visf','NumberTitle','off'); imagescn(Visf_rest(:,:,:,end), [0 80], [1 slc], scalingFactor); ECVColorMap;
             saveas(h, figName, 'fig')
         end
     end
@@ -140,7 +183,7 @@ if(has_rest)
         end
     else
         if(~isempty(PS_rest))
-            h = figure('Name','PDE PS','NumberTitle','off'); imagescn(PS_rest(:,:,:,end), [0 6], [1 slc], scalingFactor); PerfColorMap;
+            h = figure('Name','PDE PS','NumberTitle','off'); imagescn(PS_rest(:,:,:,end), [0 2], [1 slc], scalingFactor); PSColorMap;
             saveas(h, figName, 'fig')
         end
     end
@@ -164,7 +207,7 @@ if(has_rest)
         end
     else
         if(~isempty(Vp_rest))
-            h = figure('Name','PDE Vp','NumberTitle','off');; imagescn(Vp_rest(:,:,:,end), [0 50], [1 slc], scalingFactor); PerfColorMap;
+            h = figure('Name','PDE Vb','NumberTitle','off');; imagescn(Vp_rest(:,:,:,end), [0 20], [1 slc], scalingFactor); MBVColorMap;
             saveas(h, figName, 'fig')
         end
     end
