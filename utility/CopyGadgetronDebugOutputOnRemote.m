@@ -24,10 +24,15 @@ end
 % command
 % dos(command, '-echo');
 
-command = ['pscp -r -i ' key '.ppk ' user '@' host ':' debug_folder ' ' dst_folder];
-% command = ['scp -o StrictHostKeyChecking=no  -i ' key ' ' user '@' host ':' debug_folder ' ' dst_folder];
+if(isunix())
+    command = ['scp -o StrictHostKeyChecking=no  -i ' key ' ' user '@' host ':' debug_folder '/* ' dst_folder];
+else    
+    command = ['pscp -r -i ' key '.ppk ' user '@' host ':' debug_folder ' ' dst_folder];
+end
+
 command
-dos(command, '-echo');
+tic; dos(command, '-echo'); copy_duration = toc;
+disp(['Copy debug output ' num2str(copy_duration)]);
 
 % command = ['pscp -r -i ' key '.ppk ' user '@' host ':' '/home/' user '/Debug/DebugOutput.tar.gz ' dst_folder];
 % command

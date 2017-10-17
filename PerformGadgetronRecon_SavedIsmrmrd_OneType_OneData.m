@@ -8,6 +8,12 @@ GT_PORT = gtPortLookup(gt_host);
 
 setenv('GT_HOST', gt_host); setenv('GT_PORT', GT_PORT);
 
+output_format = getenv('OutputFormat');
+
+if(isempty(output_format))
+    output_format = 'hdr';
+end
+
 if(nargin<4)
     resDir = dataDir;
 end
@@ -238,6 +244,7 @@ for n=1:num
         else
             [key, user] = sshKeyLookup(gt_host);
             if (~isempty(user) & startRemoteGT)
+                StopGadgetronOnRemote(gt_host, GT_PORT);                
                 StartGadgetronOnRemote(gt_host, GT_PORT);
             end
         end
@@ -288,7 +295,7 @@ for n=1:num
                         break;
                     end
 
-                    command = ['gadgetron_ismrmrd_client -f ' h5Name ' -c default_measurement_dependencies.xml -a %GT_HOST% -p %GT_PORT% ']
+                    command = ['gadgetron_ismrmrd_client -f ' h5Name ' -c default_measurement_dependencies.xml -a ' gt_host ' -p ' GT_PORT]
                     dos(command, '-echo');
 
                     noise_processed = [noise_processed; {h5Name}];
@@ -359,9 +366,9 @@ for n=1:num
     
     % run the data 
     if(isPerf)
-        command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a %GT_HOST% -p %GT_PORT% -F %OutputFormat% -G ' configNameShortened ' -o ref_' date_suffix '.h5']
+        command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a ' gt_host ' -p ' GT_PORT ' -F ' output_format ' -G ' configNameShortened ' -o ref_' date_suffix '.h5']
     else
-        command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a %GT_HOST% -p %GT_PORT% -F %OutputFormat% -G ' configNameShortened ' -o ref_' date_suffix '.h5']
+        command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a ' gt_host ' -p ' GT_PORT ' -F ' output_format ' -G ' configNameShortened ' -o ref_' date_suffix '.h5']
     end
     tic; dos(command); timeUsed = toc;
            

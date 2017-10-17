@@ -45,7 +45,12 @@ remoteFolder = data_name;
 if(strcmp(gt_host, 'localhost')==1)
     tic; copyfile(fullfile(remote_dicom_dir, remoteFolder, '*.dcm'),  '.'); timeUsed = toc;    
 else
-    command = ['pscp -i ' key '.ppk ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
+    if(isunix())
+        command = ['scp -i ' key ' ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
+    else        
+        command = ['pscp -i ' key '.ppk ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
+    end
+    
     command
     tic; dos(command, '-echo'); timeUsed = toc;
     
