@@ -7,7 +7,7 @@ function [timeUsed, remoteFolder] = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom
 [key, user] = sshKeyLookup(gt_host);
 
 if(nargin<4)
-    if(strcmp(gt_host, 'localhost')==1)
+    if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
         remote_dicom_dir = 'd:/temp/gadgetron_data';
     else
         remote_dicom_dir = '/tmp/gadgetron_data';
@@ -42,7 +42,7 @@ delete(fullfile(dstDir, '*.xml'));
 %% copy the dicom
 
 remoteFolder = data_name;
-if(strcmp(gt_host, 'localhost')==1)
+if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
     tic; copyfile(fullfile(remote_dicom_dir, remoteFolder, '*.dcm'),  '.'); timeUsed = toc;    
 else
     if(isunix())

@@ -70,7 +70,7 @@ for n=1:num
     
     dataName = fullfile(dataDir, study_dates, [name '.h5']);
 
-    if(strcmp(gt_host, 'localhost')==1)
+    if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
         [pathstr, configName, ext] = fileparts(configName);
         configName = [configName '_localhost' ext];
     end
@@ -237,7 +237,7 @@ for n=1:num
     % start gadgetron
     if(startRemoteGT)
         tstart = tic;
-        if((strcmp(gt_host, 'localhost')==1))
+        if((strcmp(gt_host, 'localhost')==1) && isunix()==0)
             cd('D:\gtuser\gt_windows_setup')
             command = ['gadgetron -p %GT_PORT% > D:\Temp\record_' GT_PORT '.txt']
             dos([command ' &'])
@@ -350,7 +350,7 @@ for n=1:num
     configNameShortened = configName(1:lenUsed);
 
     if(isPerf)
-        if(strcmp(getenv('GT_HOST'), 'localhost')==1)
+        if(strcmp(getenv('GT_HOST'), 'localhost')==1 && isunix()==0)
             debugFolder = 'D:\gtuser\mrprogs\install\DebugOutput';
             try
                 rmdir(debugFolder, 's');
@@ -373,7 +373,7 @@ for n=1:num
     tic; dos(command); timeUsed = toc;
            
     if(isPerf)
-        if(strcmp(gt_host, 'localhost')==1)
+        if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
             ts = tic;
             movefile(debugFolder, dstDir, 'f');
 %             command = ['move /Y ' debugFolder ' ' dstDir];
@@ -397,7 +397,7 @@ for n=1:num
     
     ts = tic;
     dstDir = fullfile(resDir, study_dates, name);   
-    if(strcmp(gt_host, 'localhost')==1)
+    if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
         if(startRemoteGT)
             command = ['taskkill /F /FI "IMAGENAME eq gadgetron.*"'];
             dos(command)

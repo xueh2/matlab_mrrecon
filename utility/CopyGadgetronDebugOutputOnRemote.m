@@ -25,7 +25,8 @@ end
 % dos(command, '-echo');
 
 if(isunix())
-    command = ['scp -o StrictHostKeyChecking=no  -i ' key ' ' user '@' host ':' debug_folder '/* ' dst_folder];
+    mkdir(fullfile(dst_folder, 'DebugOutput'));
+    command = ['scp -o StrictHostKeyChecking=no  -i ' key ' ' user '@' host ':' debug_folder '/* ' dst_folder '/DebugOutput/'];
 else    
     command = ['pscp -r -i ' key '.ppk ' user '@' host ':' debug_folder ' ' dst_folder];
 end
