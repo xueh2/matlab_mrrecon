@@ -1,6 +1,6 @@
 
-function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configName_preset, noise_dat_processed)
-% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configName_preset, noise_dat_processed)
+function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed)
+% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData('I:\KAROLINSKA', 'xxxx', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % setenv('OutputFormat', 'h5')
 
@@ -23,7 +23,7 @@ if(nargin<5)
 end
 
 if(nargin<6)
-    sendDicom = 0;
+    delete_old_res = 1;
 end
 
 if(nargin<7)
@@ -251,6 +251,8 @@ for n=1:num
         disp(['Start remote gadgetron : ' num2str(toc(tstart))]);
     end
     
+    mkdir(dstDir);
+    
     ts = tic;
     noise_mear_id = findNoiseDependencyMeasurementID_SavedIsmrmrd(dataName);
     disp(['find noise dependency id : ' num2str(toc(ts))]);
@@ -295,6 +297,22 @@ for n=1:num
                         break;
                     end
 
+                    command = ['gtdependencyquery -h ' gt_host ' -p ' GT_PORT ' -o ' fullfile(dstDir, 'noise.txt')]
+                    tic; dos(command, '-echo'); disp(['nosie query : ' num2str(toc)]);
+                    
+                    fid = fopen(fullfile(dstDir, 'noise.txt'), 'r');
+                    if(fid~=-1)
+                        noise_ids = fread(fid);
+                        noise_ids = char(noise_ids');
+                        fclose(fid);
+                        
+                        if(~isempty(strfind(noise_ids, noise_mear_id)))
+                            noise_processed = [noise_processed; {h5Name}];
+                            noise_id_processed = [noise_id_processed; {noise_mear_id}];
+                            break;
+                        end
+                    end
+                    
                     command = ['gadgetron_ismrmrd_client -f ' h5Name ' -c default_measurement_dependencies.xml -a ' gt_host ' -p ' GT_PORT]
                     dos(command, '-echo');
 
@@ -307,28 +325,29 @@ for n=1:num
             disp(['Noise already processed - ' noise_mear_id]);
         end
     end
-        
-    mkdir(dstDir);
+            
     cd(dstDir)
 
-    ts = tic;
-    delete(fullfile(dstDir, 'res*.h5'));
-    delete(fullfile(dstDir, 'out*.h5'));
-    delete(fullfile(dstDir, '*.xml'));
+    if(delete_old_res)
+        ts = tic;
+        delete(fullfile(dstDir, 'res*.h5'));
+        delete(fullfile(dstDir, 'out*.h5'));
+        delete(fullfile(dstDir, '*.xml'));
 
-    delete(fullfile(dstDir, '*.nii'));
-    delete(fullfile(dstDir, 'gadgetron_*.hdr'));
-    delete(fullfile(dstDir, 'gadgetron_*.img'));
-    delete(fullfile(dstDir, 'Generic*.hdr'));
-    delete(fullfile(dstDir, 'Generic*.img'));
-    delete(fullfile(dstDir, 'GTPrep*.hdr'));
-    delete(fullfile(dstDir, 'GTPrep*.img'));
-    delete(fullfile(dstDir, 'GT*.hdr'));
-    delete(fullfile(dstDir, 'GT*.img'));
-    delete(fullfile(dstDir, '*.attrib'));
+        delete(fullfile(dstDir, '*.nii'));
+        delete(fullfile(dstDir, 'gadgetron_*.hdr'));
+        delete(fullfile(dstDir, 'gadgetron_*.img'));
+        delete(fullfile(dstDir, 'Generic*.hdr'));
+        delete(fullfile(dstDir, 'Generic*.img'));
+        delete(fullfile(dstDir, 'GTPrep*.hdr'));
+        delete(fullfile(dstDir, 'GTPrep*.img'));
+        delete(fullfile(dstDir, 'GT*.hdr'));
+        delete(fullfile(dstDir, 'GT*.img'));
+        delete(fullfile(dstDir, '*.attrib'));
 
-    delete(fullfile(dstDir, '*.xml'));                 
-    disp(['delete dstDir : ' num2str(toc(ts))]);
+        delete(fullfile(dstDir, '*.xml'));                 
+        disp(['delete dstDir : ' num2str(toc(ts))]);
+    end
     
     %% run the scan
     
@@ -416,12 +435,12 @@ for n=1:num
     end
     disp(['shutdown gadgetron : ' num2str(toc(ts))]);
 
-    if(sendDicom)
-        dicomServer = 'barbados';
-        dicomPort = 11112;
-        command = ['D:\gtuser\gt_windows_setup\dcmtk-3.6.0\install_vc14\bin\storescu ' dicomServer '.nhlbi.nih.gov ' num2str(dicomPort) ' ' remoteFolder ' --scan-directories -aec DCM4CHEE --user admin --password admin'];
-        tic; dos(command, '-echo'); toc
-    end
+%     if(sendDicom)
+%         dicomServer = 'barbados';
+%         dicomPort = 11112;
+%         command = ['D:\gtuser\gt_windows_setup\dcmtk-3.6.0\install_vc14\bin\storescu ' dicomServer '.nhlbi.nih.gov ' num2str(dicomPort) ' ' remoteFolder ' --scan-directories -aec DCM4CHEE --user admin --password admin'];
+%         tic; dos(command, '-echo'); toc
+%     end
     
     tUsed = [tUsed; {name, timeUsed, configName}];
 end

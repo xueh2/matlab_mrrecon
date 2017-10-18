@@ -15,6 +15,8 @@ if( ~isFileExist(dst_folder) )
     mkdir(dst_folder);
 end
 
+mkdir(fullfile(dst_folder, 'DebugOutput'));
+
 % command = ['ssh -i ' key ' ' user '@' host ' "' 'rm -rf /home/' user '/Debug/DebugOutput.tar.gz' '"'];
 % command
 % dos(command, '-echo');
@@ -25,7 +27,7 @@ end
 % dos(command, '-echo');
 
 if(isunix())
-    command = ['scp -o StrictHostKeyChecking=no  -i ' key ' ' user '@' host ':' debug_folder '/* ' dst_folder];
+    command = ['scp -o StrictHostKeyChecking=no  -i ' key ' ' user '@' host ':' debug_folder '/* ' dst_folder '/DebugOutput/'];
 else    
     command = ['pscp -r -i ' key '.ppk ' user '@' host ':' debug_folder ' ' dst_folder];
 end
