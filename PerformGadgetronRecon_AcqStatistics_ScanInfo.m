@@ -70,7 +70,7 @@ end
 
 h = figure('Name',['Number of Patients scanned with Gadgetron up to ' date],'NumberTitle','off');
 pie(patients, labels);
-title(['Number of Patients scanned with Gadgetron is ' num2str(sum(patients)) ', from ' num2str(first_date) ' to ' num2str(last_date)], 'FontSize', 16);
+title(['Number of Patients scanned with Gadgetron is ' num2str(sum(patients)) ', from ' num2str(first_date) ' to ' num2str(last_date)], 'FontSize', 24);
 set(h, 'Position', [200 200 1.5*1024 1.5*768]);
 saveas(h, fullfile(fig_dir, 'Patient_Count'), 'fig');
 
@@ -83,7 +83,7 @@ end
 
 h = figure('Name',['Number of Perfusion scans using Gadgetron up to ' date],'NumberTitle','off');
 pie(scans(:, 3), labels);
-title(['Number of Perfusion scans with Gadgetron is ' num2str(tScan(3)) ', from ' num2str(first_date) ' to ' num2str(last_date)], 'FontSize', 16);
+title(['Number of Perfusion scans with Gadgetron is ' num2str(tScan(3)) ', from ' num2str(first_date) ' to ' num2str(last_date)], 'FontSize', 24);
 set(h, 'Position', [300 200 1.5*1024 1.5*768]);
 saveas(h, fullfile(fig_dir, 'Perfusion_Count'), 'fig');
 
@@ -97,7 +97,7 @@ end
 
 h = figure('Name',['Number of Bright blood LGE scans using Gadgetron up to ' date],'NumberTitle','off');
 pie(scans(:, 1), labels);
-title(['Number of Bright blood LGE scans with Gadgetron is ' num2str(tScan(1)) ', from ' num2str(first_date) ' to ' num2str(last_date)], 'FontSize', 16);
+title(['Number of Bright blood LGE scans with Gadgetron is ' num2str(tScan(1)) ', from ' num2str(first_date) ' to ' num2str(last_date)], 'FontSize', 24);
 set(h, 'Position', [400 200 1.5*1024 1.5*768]);
 saveas(h, fullfile(fig_dir, 'LGE_Count'), 'fig');
 
@@ -110,7 +110,7 @@ end
 
 h = figure('Name',['Number of Dark blood LGE scans using Gadgetron up to ' date],'NumberTitle','off');
 pie(scans(:, 2), labels);
-title(['Number of Dark blood LGE scans with Gadgetron is ' num2str(tScan(2)) ', from ' num2str(first_date) ' to ' num2str(last_date)], 'FontSize', 16);
+title(['Number of Dark blood LGE scans with Gadgetron is ' num2str(tScan(2)) ', from ' num2str(first_date) ' to ' num2str(last_date)], 'FontSize', 24);
 set(h, 'Position', [500 200 1.5*1024 1.5*768]);
 saveas(h, fullfile(fig_dir, 'DBLGE_Count'), 'fig');
 
@@ -135,7 +135,7 @@ xlim([0 size(bar_y, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Perfusion scans')
-title(['Number of perfusion scans using Gadgetron, Year 2016 - 2017, N=' num2str(sum(bar_y(:)))])
+title(['Number of perfusion scans using Gadgetron, Year 2016 - 2017, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -155,7 +155,7 @@ xlim([0 size(bar_y_patients, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Patients scanned with Gadgetron perfusion')
-title(['Number of patients scanned with Gadgetron perfusion, Year 2016 - 2017, N=' num2str(sum(bar_y_patients(:)))])
+title(['Number of patients scanned with Gadgetron perfusion, Year 2016 - 2017, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -177,7 +177,7 @@ xlim([0 size(bar_y, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of LGE scans')
-title(['Number of LGE scans using Gadgetron, Year 2016 - 2017, N=' num2str(sum(bar_y(:)))])
+title(['Number of LGE scans using Gadgetron, Year 2016 - 2017, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -197,7 +197,7 @@ xlim([0 size(bar_y_patients, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Patients scanned with Gadgetron LGE')
-title(['Number of patients scanned with Gadgetron LGE, Year 2016 - 2017, N=' num2str(sum(bar_y_patients(:)))])
+title(['Number of patients scanned with Gadgetron LGE, Year 2016 - 2017, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);

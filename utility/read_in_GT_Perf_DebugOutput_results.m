@@ -4,7 +4,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     aif_cin_all_echo0_OverPD_after_R2StarCorrection, aif_cin_all_R2Star,  aif_cin_all_R2Star_SLEP, ... 
     aif_PD, aif_mask, aif_mask_final, aif_LV_mask_plot, aif, aif_baseline_corrected, ... 
     flow, Ki, PS, Vp, Visf, E, SDMap, Delay, ...
-    BTEX_Flow_all, BTEX_PS_all, BTEX_Vp_all, BTEX_Visf_all, BTEX_cost_all, BTEX_flow_SD_all, Fermi_Delay] = read_in_GT_Perf_DebugOutput_results(resDir)
+    BTEX_Flow_all, BTEX_PS_all, BTEX_Vp_all, BTEX_Visf_all, BTEX_cost_all, BTEX_flow_SD_all, BTEX_Tc_all, Fermi_Delay] = read_in_GT_Perf_DebugOutput_results(resDir)
 % read in Gadgetron perfusion debug output results
 
     slc = 0;   
@@ -218,6 +218,27 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
         BTEX_flow_SD_all = flipdim(BTEX_flow_SD_all, 2);
     catch
         BTEX_flow_SD_all = [];
+    end
+    
+    try
+        RO = size(BTEX_Flow_all, 1);
+        E1 = size(BTEX_Flow_all, 2);
+        
+        BTEX_Tc_all = zeros(RO, E1, slc);
+        
+        for n=1:slc
+            fmap = BTEX_Flow_all(:,:,end,n);
+            vb_map = BTEX_Vp_all(:,:,end, n);
+            
+            ind = find(fmap(:)>0.01);
+            Tc_map = zeros(RO, E1);
+            
+            Tc_map(ind) = 60*vb_map(ind)./fmap(ind);
+            BTEX_Tc_all(:,:,n) = Tc_map;
+        end
+        
+    catch
+        BTEX_Tc_all = [];
     end
 end
 

@@ -50,7 +50,7 @@ scalingFactor = 10;
                 aif_rest_cin_all_echo0_OverPD_after_R2StarCorrection, aif_rest_cin_all_R2Star,  aif_rest_cin_all_R2Star_SLEP, ... 
                 aif_rest_PD, aif_rest_mask, aif_rest_mask_final, aif_rest_LV_mask_plot, aif_rest, aif_rest_baseline_corrected, ... 
                 flow_rest, Ki_rest, PS_rest, Vp_rest, Visf_rest, E_rest, SDMap_rest, Delay_rest, ...
-                BTEX_Flow_all_rest, BTEX_PS_all_rest, BTEX_Vp_all_rest, BTEX_Visf_all_rest, BTEX_cost_all_rest, BTEX_flow_SD_all_rest, Fermi_Delay_rest] = read_in_GT_Perf_DebugOutput_results(restDir);
+                BTEX_Flow_all_rest, BTEX_PS_all_rest, BTEX_Vp_all_rest, BTEX_Visf_all_rest, BTEX_cost_all_rest, BTEX_flow_SD_all_rest, BTEX_Tc_all_rest, Fermi_Delay_rest] = read_in_GT_Perf_DebugOutput_results(restDir);
 
             disp(['Load rest - ' num2str(toc)]);
             has_rest = 1;
@@ -70,7 +70,7 @@ scalingFactor = 10;
                 aif_stress_cin_all_echo0_OverPD_after_R2StarCorrection, aif_stress_cin_all_R2Star,  aif_stress_cin_all_R2Star_SLEP, ... 
                 aif_stress_PD, aif_stress_mask, aif_stress_mask_final, aif_stress_LV_mask_plot, aif_stress, aif_stress_baseline_corrected, ... 
                 flow_stress, Ki_stress, PS_stress, Vp_stress, Visf_stress, E_stress, SDMap_stress, Delay_stress, ...
-                BTEX_Flow_all_stress, BTEX_PS_all_stress, BTEX_Vp_all_stress, BTEX_Visf_all_stress, BTEX_cost_all_stress, BTEX_flow_SD_all_stress, Fermi_Delay_stress] = read_in_GT_Perf_DebugOutput_results(stressDir);
+                BTEX_Flow_all_stress, BTEX_PS_all_stress, BTEX_Vp_all_stress, BTEX_Visf_all_stress, BTEX_cost_all_stress, BTEX_flow_SD_all_stress, BTEX_Tc_all_stress, Fermi_Delay_stress] = read_in_GT_Perf_DebugOutput_results(stressDir);
 
             disp(['Load stress - ' num2str(toc)]);
             
@@ -110,7 +110,7 @@ scalingFactor = 10;
                     'aif_rest_cin_all_echo0_OverPD_after_R2StarCorrection', 'aif_rest_cin_all_R2Star', 'aif_rest_cin_all_R2Star_SLEP', ...
                     'aif_rest_PD', 'aif_rest_mask', 'aif_rest_mask_final', 'aif_rest_LV_mask_plot', ...
                     'flow_rest', 'Ki_rest', 'PS_rest', 'Vp_rest', 'Visf_rest', 'E_rest', 'SDMap_rest', 'Delay_rest', ...
-                    'BTEX_Flow_all_rest', 'BTEX_PS_all_rest', 'BTEX_Visf_all_rest', 'BTEX_Vp_all_rest', 'BTEX_cost_all_rest', 'BTEX_flow_SD_all_rest', 'Fermi_Delay_rest');
+                    'BTEX_Flow_all_rest', 'BTEX_PS_all_rest', 'BTEX_Visf_all_rest', 'BTEX_Vp_all_rest', 'BTEX_cost_all_rest', 'BTEX_flow_SD_all_rest', 'BTEX_Tc_all_rest', 'Fermi_Delay_rest');
                 
                 disp(['Save rest - ' num2str(toc)]);
             end
@@ -124,7 +124,7 @@ scalingFactor = 10;
                     'aif_stress_cin_all_echo0_OverPD_after_R2StarCorrection', 'aif_stress_cin_all_R2Star', 'aif_stress_cin_all_R2Star_SLEP', ...
                     'aif_stress_PD', 'aif_stress_mask', 'aif_stress_mask_final', 'aif_stress_LV_mask_plot', ...
                     'flow_stress', 'Ki_stress', 'PS_stress', 'Vp_stress', 'Visf_stress', 'E_stress', 'SDMap_stress', 'Delay_stress', ...
-                    'BTEX_Flow_all_stress', 'BTEX_PS_all_stress', 'BTEX_Visf_all_stress', 'BTEX_Vp_all_stress', 'BTEX_cost_all_stress', 'BTEX_flow_SD_all_stress', 'Fermi_Delay_stress');
+                    'BTEX_Flow_all_stress', 'BTEX_PS_all_stress', 'BTEX_Visf_all_stress', 'BTEX_Vp_all_stress', 'BTEX_cost_all_stress', 'BTEX_flow_SD_all_stress', 'BTEX_Tc_all_stress', 'Fermi_Delay_stress');
                 
                 disp(['Save stress - ' num2str(toc)]);
             end
@@ -412,6 +412,14 @@ scalingFactor = 10;
                 saveas(h, figName, 'fig');
             end
 
+            figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_Tc' '.fig']);
+            if(onlyReview & isFileExist(figName))
+                openfig(figName);
+            else
+                h = figure('Name','PDE Tc','NumberTitle','off');; imagescn(cat(3, BTEX_Tc_all_stress, BTEX_Tc_all_rest), [0 10], [2 slc], scalingFactor); PerfColorMap;
+                saveas(h, figName, 'fig');
+            end
+            
             try
                 figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_Flow_SD' '.fig']);
                 if(onlyReview & isFileExist(figName))

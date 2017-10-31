@@ -206,7 +206,7 @@ aif_mask_final = analyze75read('AifLVMask_after_Picking.hdr');
 PDMaskIntensity = analyze75read('PDMaskIntensity.hdr');
 pdPicked = analyze75read('pdPicked.hdr');
 aifPicked = analyze75read('aifPicked.hdr');
-aifMaskIntensity = analyze75read('aifMaskIntensity.hdr');
+% aifMaskIntensity = analyze75read('aifMaskIntensity.hdr');
 % aif0 = analyze75read('AIF_input_for_moco_0_MAG.hdr');
 aif_LUT = analyze75read('aif_cin_LUT_Valid.hdr');
 % aif_PD_echo0 = analyze75read('input_aif_PD_0.hdr');
@@ -336,8 +336,14 @@ aif_rest2 = aif_cin_Gd_baseline_corrected(round(peakTime):end);
 valleyTime = round(peakTime2) + peakTime - 0.5;
 foot_rest = round(peakTime - timeToPeak_rest);   
 
-if(foot_rest>4)
-    v = mean(aif_cin_Gd_without_R2Star(4:foot_rest));
+foot = aif_cin_foot_peak_valley(1);
+peak = aif_cin_foot_peak_valley(2)+1;
+maxCin = aif_cin_foot_peak_valley(3)+1;
+
+disp(['foot = ' num2str(foot) ' - peak = ' num2str(peak) ' - valley = ' num2str(maxCin)]);
+
+if(foot>4)
+    v = mean(aif_cin_Gd_without_R2Star(4:foot));
 else
     v = mean(aif_cin_Gd_without_R2Star(4:8));
 end
@@ -349,12 +355,12 @@ plot(aif_cin_Gd_baseline_corrected);
 plot(aif_cin_Gd_without_R2Star_baseline_corrected, 'r');
 hold off
 
-N = size(aif_cin_Gd_baseline_corrected, 1)
-NUsed = size(aif_cin, 1)
-
-foot = N-NUsed
-peak = round(peakTime)
-maxCin = round(valleyTime)
+% N = size(aif_cin_Gd_baseline_corrected, 1)
+% NUsed = size(aif_cin, 1)
+% 
+% foot = N-NUsed
+% peak = round(peakTime)
+% maxCin = round(valleyTime)
 
 cd(res_dir)
 
@@ -492,8 +498,8 @@ for slc=1:SLC
 %         % Visf = [0.1:0.075:0.475001];
 %         Visf = [0.1:0.075:0.75001];
         
-        Fp = [0.1:0.025:3.0001];
-        Vp = [0.02:0.005:0.08001];
+        Fp = [0.1:0.05:3.0001];
+        Vp = [0.035:0.005:0.08001];
         PS = [0.4:0.1:1.801];
         Visf = [0.15:0.025:0.65001];
         disp(['number of Q_e entries - ' num2str(numel(Fp)*numel(Vp)*numel(PS)*numel(Visf))])
@@ -512,7 +518,7 @@ for slc=1:SLC
             
         if (reComputed | ~isFileExist(Q_e_name))
 
-            if(~isFileExist(Q_e_name))
+            %if(~isFileExist(Q_e_name))
                 
                 aif_cin_final_Q = aif_cin_final;
                 aif_cin_final_Q = aif_cin_final_Q - aif_cin_final_Q(1);
@@ -524,16 +530,16 @@ for slc=1:SLC
                 toc
 
                 save(Q_e_name, 'Q_e_m', 'Fp', 'Vp', 'PS', 'Visf', 'aif_cin_final_Q');
-            else
-                load(Q_e_name);
-            end
+            %else
+            %    load(Q_e_name);
+            %end
         else
             load(Q_e_name);
         end            
         
         if(reComputed_withoutR2Star | ~isFileExist(Q_e_name_without_R2Star))
             
-            if(~isFileExist(Q_e_name_without_R2Star))
+            %if(~isFileExist(Q_e_name_without_R2Star))
                 aif_cin_final_Q = aif_cin_without_R2Star_final;
                 aif_cin_final_Q = aif_cin_final_Q - aif_cin_final_Q(1);
 
@@ -543,9 +549,9 @@ for slc=1:SLC
                 toc
 
                 save(Q_e_name_without_R2Star, 'Q_e_m_without_R2Star', 'Fp', 'Vp', 'PS', 'Visf');
-            else
-                load(Q_e_name_without_R2Star);
-            end
+            %else
+            %    load(Q_e_name_without_R2Star);
+            %end
         else
             load(Q_e_name_without_R2Star);
         end
@@ -638,7 +644,7 @@ for slc=1:SLC
 %         hematocrit_cin = 0;
 %         disp(['--> compute flow map with HCT = ' hct_str]);
 %         tic
-%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, hematocrit_cin, two_comp_data_range, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
+%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, hematocrit_cin, two_comp_data_range, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
 %         toc
         
         estimate_shift_Fermi_first_pass = 0;
@@ -649,7 +655,7 @@ for slc=1:SLC
         % hematocrit_cin = HCT;
         disp(['--> compute flow map with HCT = ' hct_str ' - estimate_shift_Fermi = ' num2str(estimate_shift_Fermi) ' - use_first_pass_deconvolution = ' num2str(use_first_pass_deconvolution)]);
         tic
-        [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
+        [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
         toc
        
         figure; imagescn(cat(3, Ki_whole_grappa_PSIR, flowmaps_grappa_PSIR(:,:,end)), [0 8]); PerfColorMap;
@@ -679,7 +685,7 @@ for slc=1:SLC
 %         
 %         disp(['--> compute flow map with HCT = ' hct_str ' - estimate_shift_Fermi = ' num2str(estimate_shift_Fermi) ' - use_first_pass_deconvolution = ' num2str(use_first_pass_deconvolution)]);
 %         tic
-%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
+%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
 %         toc
 %         
 %         try
@@ -701,7 +707,7 @@ for slc=1:SLC
 % 
 %         disp(['--> compute flow map with HCT = ' hct_str ' - estimate_shift_Fermi = ' num2str(estimate_shift_Fermi) ' - use_first_pass_deconvolution = ' num2str(use_first_pass_deconvolution)]);
 %         tic
-%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
+%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
 %         toc
 %               
 %         save(['flowmaps_Linear_WithoutFermiShift_Whole_' res '_' suffix '_' num2str(slc-1)], ... 
@@ -714,7 +720,7 @@ for slc=1:SLC
 % 
 %         disp(['--> compute flow map with HCT = ' hct_str ' - estimate_shift_Fermi = ' num2str(estimate_shift_Fermi) ' - use_first_pass_deconvolution = ' num2str(use_first_pass_deconvolution)]);
 %         tic
-%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
+%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
 %         toc
 %               
 %         save(['flowmaps_Linear_WithFermiShift_Whole_' res '_' suffix '_' num2str(slc-1)], ... 
@@ -728,7 +734,7 @@ for slc=1:SLC
 % 
 %         disp(['--> compute flow map with HCT = ' hct_str ' - estimate_shift_Fermi_first_pass = ' num2str(estimate_shift_Fermi_first_pass) ' - estimate_shift_Fermi = ' num2str(estimate_shift_Fermi) ' - use_first_pass_deconvolution = ' num2str(use_first_pass_deconvolution)]);
 %         tic
-%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
+%         [flowmaps_grappa_PSIR, grappa_interVolumeMap_grappa_PSIR, grappa_MTT_grappa_PSIR, grappa_ecv_grappa_PSIR, Ki_whole_grappa_PSIR, blood_volume_maps_grappa_PSIR, PS_maps_grappa_PSIR, SD_maps_grappa_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected_no_HCT), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, estimate_shift_Fermi, estimate_shift_Fermi_first_pass, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, HCT, two_comp_data_range, use_first_pass_deconvolution, ignore_zero_shift, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
 %         toc
 %               
 %         save(['flowmaps_Linear_WithFermiShift_FirstPass_ShiftWithFP_' res '_' suffix '_' num2str(slc-1)], ... 
@@ -741,7 +747,7 @@ for slc=1:SLC
 %         r = 1/(1-HCT);
 % 
 %         tic
-%         [flowmaps_grappa_PSIR_HCT, grappa_interVolumeMap_grappa_PSIR_HCT, grappa_MTT_grappa_PSIR_HCT, grappa_ecv_grappa_PSIR_HCT, Ki_whole_grappa_PSIR_HCT, blood_volume_maps_grappa_PSIR_HCT, PS_maps_grappa_PSIR_HCT, SD_maps_grappa_PSIR_HCT] = Matlab_gt_perfusion_flow_mapping(single(r*aif_cin_Gd_baseline_corrected), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, hematocrit, two_comp_data_range, use_first_pass_deconvolution, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
+%         [flowmaps_grappa_PSIR_HCT, grappa_interVolumeMap_grappa_PSIR_HCT, grappa_MTT_grappa_PSIR_HCT, grappa_ecv_grappa_PSIR_HCT, Ki_whole_grappa_PSIR_HCT, blood_volume_maps_grappa_PSIR_HCT, PS_maps_grappa_PSIR_HCT, SD_maps_grappa_PSIR_HCT] = Matlab_gt_perfusion_flow_mapping(single(r*aif_cin_Gd_baseline_corrected), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, hematocrit, two_comp_data_range, use_first_pass_deconvolution, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
 %         toc
 % 
 %         flowmaps_grappa_PSIR_HCT = flowmaps_grappa_PSIR_HCT*r;
@@ -766,7 +772,7 @@ for slc=1:SLC
         local_search_BTEX20_used = 0;
         
         tic
-        [flowmaps_grappa_PSIR_OnlyGlobalSearch, grappa_interVolumeMap_grappa_PSIR_OnlyGlobalSearch, grappa_MTT_grappa_PSIR_OnlyGlobalSearch, grappa_ecv_grappa_PSIR_OnlyGlobalSearch, Ki_whole_grappa_PSIR_OnlyGlobalSearch, blood_volume_maps_grappa_PSIR_OnlyGlobalSearch, PS_maps_grappa_PSIR_OnlyGlobalSearch, SD_maps_grappa_PSIR_OnlyGlobalSearch] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20_used, full_optmization_BTEX20, max_time_shift, fix_shift, hematocrit, two_comp_data_range, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
+        [flowmaps_grappa_PSIR_OnlyGlobalSearch, grappa_interVolumeMap_grappa_PSIR_OnlyGlobalSearch, grappa_MTT_grappa_PSIR_OnlyGlobalSearch, grappa_ecv_grappa_PSIR_OnlyGlobalSearch, Ki_whole_grappa_PSIR_OnlyGlobalSearch, blood_volume_maps_grappa_PSIR_OnlyGlobalSearch, PS_maps_grappa_PSIR_OnlyGlobalSearch, SD_maps_grappa_PSIR_OnlyGlobalSearch] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected), single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20_used, full_optmization_BTEX20, max_time_shift, fix_shift, hematocrit, two_comp_data_range, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
         toc
 
         flowmaps_grappa_PSIR_OnlyGlobalSearch = flowmaps_grappa_PSIR_OnlyGlobalSearch*hct_r;
@@ -788,7 +794,7 @@ for slc=1:SLC
 
 %     if (reComputed | ~isFileExist(fullfile(res_dir, ['flowmaps_Linear_NonLinear_2RR_' res '_'  suffix '_' num2str(slc-1) '.mat'])))
 %         tic
-%         [flowmaps_grappa_half_PSIR, grappa_interVolumeMap_grappa_half_PSIR, grappa_MTT_grappa_half_PSIR, grappa_ecv_grappa_half_PSIR, Ki_whole_grappa_half_PSIR, blood_volume_maps_grappa_half_PSIR, PS_maps_grappa_half_PSIR, SD_maps_grappa_half_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected), single(grappa_half_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, hematocrit, two_comp_data_range, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
+%         [flowmaps_grappa_half_PSIR, grappa_interVolumeMap_grappa_half_PSIR, grappa_MTT_grappa_half_PSIR, grappa_ecv_grappa_half_PSIR, Ki_whole_grappa_half_PSIR, blood_volume_maps_grappa_half_PSIR, PS_maps_grappa_half_PSIR, SD_maps_grappa_half_PSIR] = Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_baseline_corrected), single(grappa_half_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, data_length_FPWH_ratio, orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, max_iter_Fermi, max_iter_OneCompExp, max_iter_TwoCompExp, max_iter_TwoCompFermi, max_iter_BTEX20, max_func_eval_BTEX20, local_search_BTEX20, full_optmization_BTEX20, max_time_shift, fix_shift, hematocrit, two_comp_data_range, compute_BTEX_SD_maps, Q_e_m, Fp, PS, Vp, Visf, DebugFolder);
 %         toc
 % 
 %         flowmaps_grappa_half_PSIR = flowmaps_grappa_half_PSIR*hct_r;
@@ -814,7 +820,7 @@ for slc=1:SLC
         tic
         [flowmaps_grappa_PSIR_without_R2Star, grappa_interVolumeMap_grappa_PSIR_without_R2Star, grappa_MTT_grappa_PSIR_without_R2Star, grappa_ecv_grappa_PSIR_without_R2Star, Ki_whole_grappa_PSIR_without_R2Star, blood_volume_maps_grappa_PSIR_without_R2Star, PS_maps_grappa_PSIR_without_R2Star, SD_maps_grappa_PSIR_without_R2Star] = ... 
             Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_without_R2Star_baseline_corrected_no_HCT), ... 
-                single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, ... 
+                single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, ... 
                 data_length_FPWH_ratio, ... 
                 orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, ... 
                 obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, ... 
@@ -836,7 +842,7 @@ for slc=1:SLC
         tic
         [flowmaps_grappa_PSIR_without_R2Star, grappa_interVolumeMap_grappa_PSIR_without_R2Star, grappa_MTT_grappa_PSIR_without_R2Star, grappa_ecv_grappa_PSIR_without_R2Star, Ki_whole_grappa_PSIR_without_R2Star, blood_volume_maps_grappa_PSIR_without_R2Star, PS_maps_grappa_PSIR_without_R2Star, SD_maps_grappa_PSIR_without_R2Star] = ... 
             Matlab_gt_perfusion_flow_mapping(single(aif_cin_Gd_without_R2Star_baseline_corrected_no_HCT), ... 
-                single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak-1, maxCin-1, deltaT*1000, ... 
+                single(grappa_corrected_with_PSIR), single(perf_mask), foot, peak, maxCin, deltaT*1000, ... 
                 data_length_FPWH_ratio, ... 
                 orderBSpline_L1BSpline, numOfInternalControlPoints_L1BSpline, max_iter_L1BSpline, lambda_L1BSpline, ... 
                 obj_thres_L1BSpline, grad_thres_L1BSpline, print_iter_L1BSpline, num_of_wavLevels_L1BSpline, with_approx_coeff_L1BSpline, ... 

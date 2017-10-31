@@ -36,10 +36,12 @@ if(~isempty(strfind(xmlString, 'ISMRMRD_Noise_dependency')))
     configName = 'default_measurement_dependencies.xml';
     
 elseif(~isempty(strfind(xmlString, 'DB_LGE_MOCO_AVE_OnTheFly')))
-    configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
+    configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_dstore.xml';
+    %configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
     
 elseif(~isempty(strfind(xmlString, 'LGE_MOCO_AVE')))
-    configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
+    configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_dstore.xml';
+    %configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
     
 elseif(~isempty(strfind(xmlString, 'T2W')))
     configName = 'GTPrep_2DT_T2W_MOCO_AVE_OnTheFly_istore.xml';

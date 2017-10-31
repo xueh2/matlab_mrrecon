@@ -45,10 +45,10 @@ disp('build package')
 %gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 2048'];
 if(remove_gtprep_xml)
     % gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' docker_image ' 6144 GTPrep_*D*.xml'];
-    gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 2048 GTPrep_*DT*.xml'];
+    gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 3072 GTPrep_*DT*.xml'];
 else
     % gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' docker_image ' 6144'];
-    gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 2048'];
+    gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 3072'];
 end
 
 command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
@@ -88,12 +88,12 @@ if(create_installers)
         PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gtuser\mrprogs\gt_scanner_setup\VE11\config');
         PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gtuser\mrprogs\gt_scanner_setup\VE11C\config');    
 
-        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_MARS_All_Versions.bat ' filename ' 3 14 1'];
+        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_MARS_All_Versions.bat ' filename ' 3 15 0'];
     else
         delete('D:\gtuser\mrprogs\gt_scanner_setup\VE11\config\*.xml')
         delete('D:\gtuser\mrprogs\gt_scanner_setup\VE11C\config\*.xml')
         
-        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 3 14 1'];
+        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 3 15 0'];
     end
        
     command
