@@ -11,9 +11,9 @@ tic;
 
 [key, user] = sshKeyLookup(host);
 
-if( ~isFileExist(dst_folder) )
-    mkdir(dst_folder);
-end
+% if( ~isFileExist(dst_folder) )
+%     mkdir(dst_folder);
+% end
 
 mkdir(fullfile(dst_folder, 'DebugOutput'));
 

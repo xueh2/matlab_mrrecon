@@ -55,9 +55,11 @@ for ii=startN:endN
         end
     end
     
-    try
-        [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, perf_cases{ii, 2}, perf_cases{ii, 3}, flow_windowing, only_reviewing, checkProcessed);
-    catch
+    if(~only_processing)
+        try
+            [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, perf_cases{ii, 2}, perf_cases{ii, 3}, flow_windowing, only_reviewing, checkProcessed);
+        catch
+        end
     end
     
     if(only_reviewing)

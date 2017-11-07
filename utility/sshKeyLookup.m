@@ -41,5 +41,12 @@ elseif ( strcmp(host, 'grenada') == 1 )
 elseif ( strcmp(host, 'localhost') == 1 )
     key = 'none';
     user = 'xueh2';
+elseif ( ~isempty(strfind(host, 'eastus.cloudapp.azure.com')) )
+    key = fullfile(key_dir, 'gtuser_gtCUDA_private');
+    user = 'gtuser';
 end
-    
+
+ind = find(key=='\');
+if(~isempty(ind))
+    key(ind) = '/';
+end

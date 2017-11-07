@@ -438,11 +438,17 @@ for n=1:num
                 if(~isempty(s1)) figure; imagescn(stress.flow_stress(:,:,1,end), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap; end
                 if(~isempty(s2)) figure; imagescn(stress.flow_stress(:,:,2,end), [0 8], [], [], [], fullfile(roiDir, s2_roi)); PerfColorMap; end
                 if(~isempty(s3)) figure; imagescn(stress.flow_stress(:,:,3,end), [0 8], [], [], [], fullfile(roiDir, s3_roi)); PerfColorMap; end
+                if(~isempty(s1)) figure; imagescn(stress.Vp_stress(:,:,1,end), [0 20], [], [], [], fullfile(roiDir, s1_roi)); MBVColorMap; end
+                if(~isempty(s2)) figure; imagescn(stress.Vp_stress(:,:,2,end), [0 20], [], [], [], fullfile(roiDir, s2_roi)); MBVColorMap; end
+                if(~isempty(s3)) figure; imagescn(stress.Vp_stress(:,:,3,end), [0 20], [], [], [], fullfile(roiDir, s3_roi)); MBVColorMap; end
 
                 if(has_rest)
                     if(~isempty(r1)) figure; imagescn(rest.flow_rest(:,:,1,end), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap; end
                     if(~isempty(r2)) figure; imagescn(rest.flow_rest(:,:,2,end), [0 8], [], [], [], fullfile(roiDir, r2_roi)); PerfColorMap; end
                     if(~isempty(r3)) figure; imagescn(rest.flow_rest(:,:,3,end), [0 8], [], [], [], fullfile(roiDir, r3_roi)); PerfColorMap; end
+                    if(~isempty(r1)) figure; imagescn(rest.Vp_rest(:,:,1,end), [0 20], [], [], [], fullfile(roiDir, r1_roi)); MBVColorMap; end
+                    if(~isempty(r2)) figure; imagescn(rest.Vp_rest(:,:,2,end), [0 20], [], [], [], fullfile(roiDir, r2_roi)); MBVColorMap; end
+                    if(~isempty(r3)) figure; imagescn(rest.Vp_rest(:,:,3,end), [0 20], [], [], [], fullfile(roiDir, r3_roi)); MBVColorMap; end
                 end
                 
                 if(pause_cases) 
