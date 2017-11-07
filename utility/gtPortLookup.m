@@ -40,3 +40,8 @@ end
 if(strcmp(gt_host, 'gibraltar'))
     GT_PORT = '9008';
 end
+
+if( ~isempty(strfind(gt_host, 'eastus.cloudapp.azure.com')) )
+    GT_PORT = '9008';
+end
+

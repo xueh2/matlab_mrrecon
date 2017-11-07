@@ -660,8 +660,8 @@ for slc=1:SLC
        
         figure; imagescn(cat(3, Ki_whole_grappa_PSIR, flowmaps_grappa_PSIR(:,:,end)), [0 8]); PerfColorMap;
         figure; imagescn(SD_maps_grappa_PSIR(:,:,1), [0 1]); PerfColorMap;
-        figure; imagescn(blood_volume_maps_grappa_PSIR(:,:,end), [0 40]); PerfColorMap;
-        figure; imagescn(grappa_interVolumeMap_grappa_PSIR(:,:,end), [0 80]); PerfColorMap;
+        figure; imagescn(blood_volume_maps_grappa_PSIR(:,:,end), [0 20]); MBVColorMap;
+        figure; imagescn(grappa_interVolumeMap_grappa_PSIR(:,:,end), [0 80]); ECVColorMap;
        
         save(['flowmaps_Linear_WithoutFermiShift_FirstPass3_' res '_' suffix '_' num2str(slc-1)], ... 
             'estimate_shift_Fermi', 'use_first_pass_deconvolution', 'flowmaps_grappa_PSIR', 'grappa_interVolumeMap_grappa_PSIR', 'grappa_MTT_grappa_PSIR', 'grappa_ecv_grappa_PSIR', 'Ki_whole_grappa_PSIR', 'blood_volume_maps_grappa_PSIR', 'PS_maps_grappa_PSIR', 'SD_maps_grappa_PSIR');

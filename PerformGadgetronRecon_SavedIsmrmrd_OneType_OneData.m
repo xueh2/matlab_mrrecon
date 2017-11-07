@@ -189,20 +189,20 @@ for n=1:num
                     end
                 end
             else
-                dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
-                if(~isFileExist(dicomFolder))
-                    goodStatus = 0;
-                else
-                    if(max(aif_cin_Gd_baseline_corrected(:))<1.2)
-                        [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image*.dcm');
-                    else
-                        [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image_MOCO_Flow_Map_SLC0*.dcm');
-                    end
-                    
-                    if(numdcm==0)
-                        goodStatus = 0;
-                    end
-                end
+%                 dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
+%                 if(~isFileExist(dicomFolder))
+%                     goodStatus = 0;
+%                 else
+%                     if(max(aif_cin_Gd_baseline_corrected(:))<1.2)
+%                         [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image*.dcm');
+%                     else
+%                         [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image_MOCO_Flow_Map_SLC0*.dcm');
+%                     end
+%                     
+%                     if(numdcm==0)
+%                         goodStatus = 0;
+%                     end
+%                 end
             end
             disp(['Load dcm to check : ' num2str(toc)]);
             
