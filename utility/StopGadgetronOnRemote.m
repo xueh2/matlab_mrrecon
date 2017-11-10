@@ -9,7 +9,9 @@ tic;
 
 gt_command = ['sh -c ''/home/' user '/gt_scanner_setup_scripts/StopGadgetronService >> /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'' '];
 
-command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"']
+% command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"']
+
+command = ['ssh ' user '@' host ' "' gt_command '"']
 dos(command, '-echo');
 
 timeUsed = toc;

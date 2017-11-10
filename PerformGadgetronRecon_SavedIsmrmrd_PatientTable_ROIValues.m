@@ -138,6 +138,26 @@ rSNR = [];
 sGd = [];
 rGd = [];
 
+sf_pixel = [];
+sVisf_pixel = [];
+sVp_pixel = [];
+sPS_pixel = [];
+sE_pixel = [];
+sKi_MF_pixel = [];
+
+rf_pixel = [];
+rVisf_pixel = [];
+rVp_pixel = [];
+rPS_pixel = [];
+rE_pixel = [];
+rKi_MF_pixel = [];
+
+pre_T1_blood = [];
+pre_T1_myo = [];
+
+post_T1_blood = [];
+post_T1_myo = [];
+            
 num_column = size(PerfTable, 2);
 num = size(PerfTable, 1)-1;
 
@@ -172,6 +192,8 @@ stress_aif_T2S_baseline = zeros(num, 1);
 
 stress_aif_duration = zeros(num,1);
 HeartRate_stress = zeros(num, 1);
+
+ecv = [];
 
 for n=1:num
        
@@ -526,6 +548,20 @@ for n=1:num
             sDelay = [sDelay; res_stress.delay];
             rDelay = [rDelay; res_rest.delay];
 
+            sf_pixel        = [sf_pixel; res_stress.flow_pixels];
+            sE_pixel        = [sE_pixel; res_stress.E_pixels];
+            sVisf_pixel     = [sVisf_pixel; res_stress.Visf_pixels];
+            sVp_pixel       = [sVp_pixel; res_stress.Vp_pixels];
+            sPS_pixel       = [sPS_pixel; res_stress.PS_pixels];
+            sKi_MF_pixel    = [sKi_MF_pixel; res_stress.Ki_MF_pixels];
+            
+            rf_pixel        = [rf_pixel; res_rest.flow_pixels];
+            rE_pixel        = [rE_pixel; res_rest.E_pixels];
+            rVisf_pixel     = [rVisf_pixel; res_rest.Visf_pixels];
+            rVp_pixel       = [rVp_pixel; res_rest.Vp_pixels];
+            rPS_pixel       = [rPS_pixel; res_rest.PS_pixels];
+            rKi_MF_pixel    = [rKi_MF_pixel; res_rest.Ki_MF_pixels];
+            
             if(two_ROI)
                 % E
                 v{nV+ind} = res_stress.E_i; ind = ind+1;
@@ -645,6 +681,36 @@ for n=1:num
                 sSD_i = [sSD_i; -1 -1 -1];
                 rSD_i = [rSD_i; -1 -1 -1];
             end
+            
+            % ---------------------------------------------
+            % load T1 map
+            t1_pre = fullfile(roiDir, 'T1_pre.mat');
+            t1_post = fullfile(roiDir, 'T1_post.mat');
+            
+            pre_t1_blood = [0 0 0];
+            pre_t1_myo = [0 0 0];
+            post_t1_blood = [0 0 0];
+            post_t1_myo = [0 0 0];
+            
+            if(isFileExist(t1_pre))
+                t1_v = load(t1_pre);
+                pre_t1_blood = [t1_v.ROI_info_table(1,1).ROI_mean t1_v.ROI_info_table(3,2).ROI_mean t1_v.ROI_info_table(5,3).ROI_mean];
+                pre_t1_myo = [t1_v.ROI_info_table(2,1).ROI_mean t1_v.ROI_info_table(4,2).ROI_mean t1_v.ROI_info_table(6,3).ROI_mean];
+            end
+            
+            if(isFileExist(t1_post))
+                t1_v = load(t1_post);
+                post_t1_blood = [t1_v.ROI_info_table(1,1).ROI_mean t1_v.ROI_info_table(3,2).ROI_mean t1_v.ROI_info_table(5,3).ROI_mean];
+                post_t1_myo = [t1_v.ROI_info_table(2,1).ROI_mean t1_v.ROI_info_table(4,2).ROI_mean t1_v.ROI_info_table(6,3).ROI_mean];
+            end
+            
+            pre_T1_blood = [pre_T1_blood; pre_t1_blood];
+            pre_T1_myo = [pre_T1_myo; pre_t1_myo];
+            
+            post_T1_blood = [post_T1_blood; post_t1_blood];
+            post_T1_myo = [post_T1_myo; post_t1_myo];
+            
+            ecv = [ecv; (1-HCT) * (1./post_t1_myo - 1./pre_t1_myo) ./ (1./post_t1_blood - 1./pre_t1_blood)];
             
             % ---------------------------------------------
             % SNR
@@ -897,7 +963,13 @@ res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB,
                 sKi_Fermi_mean, rKi_Fermi_mean, ... 
                 sKi_TwoCompExp_mean, rKi_TwoCompExp_mean, ...
                 sKi_BTEX_mean, rKi_BTEX_mean, ...
-                sDelay, rDelay, sSNR, rSNR);
+                sDelay, rDelay, sSNR, rSNR, ...
+                sf_pixel, sE_pixel, sVisf_pixel, sVp_pixel, sPS_pixel, sKi_MF_pixel, ...
+                rf_pixel, rE_pixel, rVisf_pixel, rVp_pixel, rPS_pixel, rKi_MF_pixel, ...
+                pre_T1_blood, pre_T1_myo, ...            
+                post_T1_blood, post_T1_myo, ...
+                ecv ...
+);
 
 disp('=======================================================================');
 disp(['Stress flow - ' num2str(mean(sf_mean(:))) '+/-' num2str(std(sf_mean(:)))]);

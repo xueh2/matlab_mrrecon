@@ -329,9 +329,11 @@ for n=1:num
     cd(dstDir)
 
     if(delete_old_res)
+        disp(['delete dstDir : starts ... ']);
         ts = tic;
         delete(fullfile(dstDir, 'res*.h5'));
         delete(fullfile(dstDir, 'out*.h5'));
+        delete(fullfile(dstDir, 'ref*.h5'));
         delete(fullfile(dstDir, '*.xml'));
 
         delete(fullfile(dstDir, '*.nii'));
@@ -385,9 +387,11 @@ for n=1:num
     
     % run the data 
     if(isPerf)
-        command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a ' gt_host ' -p ' GT_PORT ' -F ' output_format ' -G ' configNameShortened ' -o ref_' date_suffix '.h5']
+%         command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a ' gt_host ' -p ' GT_PORT ' -F ' output_format ' -G ' configNameShortened ' -o ref_' date_suffix '.h5']
+        command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a ' gt_host ' -p ' GT_PORT ' -F ' output_format ' -G ' 'results' ' -o ref_' date_suffix '.h5']
     else
-        command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a ' gt_host ' -p ' GT_PORT ' -F ' output_format ' -G ' configNameShortened ' -o ref_' date_suffix '.h5']
+%         command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a ' gt_host ' -p ' GT_PORT ' -F ' output_format ' -G ' configNameShortened ' -o ref_' date_suffix '.h5']
+        command = ['gadgetron_ismrmrd_client -f ' dataName ' -C ' configNameUsed ' -a ' gt_host ' -p ' GT_PORT ' -F ' output_format ' -G ' 'results' ' -o ref_' date_suffix '.h5']
     end
     tic; dos(command); timeUsed = toc;
            

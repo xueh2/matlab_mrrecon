@@ -12,12 +12,12 @@ tic;
 [key, user] = sshKeyLookup(host);
 
 gt_command = ['rm -rf /home/' user '/Debug/record_' num2str(port) '.txt'];
-command = ['ssh -o StrictHostKeyChecking=no -i ' key ' ' user '@' host ' "' gt_command '"'];
+command = ['ssh -o StrictHostKeyChecking=no ' user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
     
 gt_command = ['bash -c ''nohup /home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'' '];
-command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
+command = ['ssh -o StrictHostKeyChecking=no ' user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
 

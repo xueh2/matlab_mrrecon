@@ -6,45 +6,47 @@ function [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, 
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\BARTS', {'LGE'}, '2016-01-01', '2017-01-01', 'samoa', 'I:\ReconResults\BARTS')
 % setenv('OutputFormat', 'h5')
 
-if(strcmp(gt_host, 'palau'))
-    GT_PORT = '9008';
-end
+GT_PORT = gtPortLookup(gt_host);
 
-if(strcmp(gt_host, 'localhost'))
-    GT_PORT = '9002';
-end
-
-if(strcmp(gt_host, 'denmark'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'samoa'))
-    GT_PORT = '9016';
-end
-
-if(strcmp(gt_host, 'barbados'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'andorra'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'hongkong'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'bermuda'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'gibraltar'))
-    GT_PORT = '9008';
-end
-
-if(strcmp(gt_host, 'grenada'))
-    GT_PORT = '9008';
-end
+% if(strcmp(gt_host, 'palau'))
+%     GT_PORT = '9008';
+% end
+% 
+% if(strcmp(gt_host, 'localhost'))
+%     GT_PORT = '9002';
+% end
+% 
+% if(strcmp(gt_host, 'denmark'))
+%     GT_PORT = '9008';
+% end
+% 
+% if(strcmp(gt_host, 'samoa'))
+%     GT_PORT = '9016';
+% end
+% 
+% if(strcmp(gt_host, 'barbados'))
+%     GT_PORT = '9008';
+% end
+% 
+% if(strcmp(gt_host, 'andorra'))
+%     GT_PORT = '9008';
+% end
+% 
+% if(strcmp(gt_host, 'hongkong'))
+%     GT_PORT = '9008';
+% end
+% 
+% if(strcmp(gt_host, 'bermuda'))
+%     GT_PORT = '9008';
+% end
+% 
+% if(strcmp(gt_host, 'gibraltar'))
+%     GT_PORT = '9008';
+% end
+% 
+% if(strcmp(gt_host, 'grenada'))
+%     GT_PORT = '9008';
+% end
 
 setenv('GT_HOST', gt_host); setenv('GT_PORT', GT_PORT);
 
