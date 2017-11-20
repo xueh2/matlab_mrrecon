@@ -3,7 +3,7 @@ function PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, da
 % PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT, delete_old_res)
 
 if(nargin < 8)
-    flow_windowing = [0 6];
+    flow_windowing = [0 8];
 end
 
 if(nargin < 9)

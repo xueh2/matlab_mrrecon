@@ -7,7 +7,7 @@ function timeUsed = performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST
 % performUTValidation(set_up_UT_cases_ScannerUpdate, 0, 0, 'barbados.nhlbi.nih.gov', '9006')
 % performUTValidation(set_up_UT_cases_Cloud, 0, 0, 'nauru.nhlbi.nih.gov', '9002')
 % performUTValidation(set_up_UT_cases_GT_UT, 0, 0, 'localhost', '9002')
-% performUTValidation(set_up_UT_cases_Perfusion, 0, 0, 'localhost', '9002', 74, 75, 0, 0, 1)
+% performUTValidation(set_up_UT_cases_Cine, 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0)
 % performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix)
 
 GTHome = getenv('GADGETRON_HOME')

@@ -12,8 +12,8 @@ if ( strcmp(host, 'barbados') == 1)
     key = fullfile(key_dir, 'xueh2_barbados_private');
     user = 'xueh2';
 elseif ( strcmp(host, 'denmark') == 1 )
-    key = fullfile(key_dir, 'gtuser_denmark_private');
-    user = 'gtuser';
+    key = fullfile(key_dir, 'xueh2_private');
+    user = 'xueh2';
 elseif ( strcmp(host, 'palau') == 1 )
     key = fullfile(key_dir, 'xueh2_palau_private');
     user = 'xueh2';

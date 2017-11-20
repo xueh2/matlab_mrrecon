@@ -45,4 +45,10 @@ if ( UTCollectRef )
         [path, filename, ext] = fileparts(names{ii});
         copyfile(names{ii}, fullfile(refDir, [filename ext]) );
     end
+    
+    [names, num] = findFILE(resDir, '*.h5');
+    for ii=1:num
+        [path, filename, ext] = fileparts(names{ii});
+        copyfile(names{ii}, fullfile(refDir, [filename ext]) );
+    end
 end

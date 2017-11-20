@@ -1,12 +1,12 @@
     function UTCases = set_up_UT_cases_Cine;
 % run the gt recon
 
-set_UT_Dir('D');
+% set_UT_Dir('D');
 
 % sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
 UTCases = {
 
-    'cine',                  '20160113_13h44m33s_77171',              'VD',   'ismrmrd_dump.xml',             'grappa_res',              'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+    % 'cine',                  '20160113_13h44m33s_77171',              'VD',   'ismrmrd_dump.xml',             'grappa_res',              'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
 
     'cine',                  '20160113_13h44m33s_77171',              'VD',   'Generic_Cartesian_Grappa_RealTimeCine.xml',             'grappa_res',              'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
     'cine',                  '20160113_13h44m33s_77171',              'VD',   'Generic_Cartesian_NonLinear_Spirit_RealTimeCine_ismrmrd_storage.xml',              'nl_res',              'nl_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
