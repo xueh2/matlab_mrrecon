@@ -70,12 +70,12 @@ for n=1:num
     
     dataName = fullfile(dataDir, study_dates, [name '.h5']);
 
-    if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
-        [pathstr, configName, ext] = fileparts(configName);
-        configName = [configName '_localhost' ext];
-    end
+%     if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
+%         [pathstr, configName, ext] = fileparts(configName);
+%         configName = [configName '_localhost' ext];
+%     end
     
-    if(~isempty(configName_preset))
+    if(~isempty(configName_preset{1}))
         if(n>numel(configName_preset))
             configName = configName_preset{end};
         else
@@ -214,8 +214,13 @@ for n=1:num
         disp(['Check processed : ' num2str(toc(tstart))]);
     end
     
-    finfo = dir(dataName);
-       
+    try
+        finfo = dir(dataName);
+    catch
+        disp(dataName)
+        continue;
+    end
+    
     isPerf = 0;
     if(isempty(strfind(name, 'Perfusion'))~=1)
         isPerf = 1;
@@ -226,7 +231,7 @@ for n=1:num
             continue;
         end
     else
-        if(finfo.bytes<20*1024*1024)
+        if(finfo.bytes<10*1024*1024)
             disp(['File size too small - ' num2str(n) ' - ' name]);
 %             cd(dataDir)
             ignored = [ignored; {n, name, finfo.bytes/1024}];
@@ -238,7 +243,7 @@ for n=1:num
     if(startRemoteGT)
         tstart = tic;
         if((strcmp(gt_host, 'localhost')==1) && isunix()==0)
-            cd('D:\gtuser\gt_windows_setup')
+            cd('D:\gtuser\gt_scanner_setup_scripts')
             command = ['gadgetron -p %GT_PORT% > D:\Temp\record_' GT_PORT '.txt']
             dos([command ' &'])
         else
@@ -348,13 +353,16 @@ for n=1:num
         delete(fullfile(dstDir, '*.attrib'));
 
         delete(fullfile(dstDir, '*.xml'));                 
+        
+        dicomDir = fullfile(resDir, study_dates, [name '_dicom']);
+        delete(fullfile(dicomDir, '*.*'));   
         disp(['delete dstDir : ' num2str(toc(ts))]);
     end
     
     %% run the scan
     
 %     disp([num2str(n) ' out of ' num2str(num) ' - Processing : ' name]);
-    pause(0.5)
+    % pause(0.5)
     
     files_processed = [files_processed; {name}];
     
@@ -413,7 +421,12 @@ for n=1:num
     
     ts = tic;
     try
-    [tDicom, remoteFolder] = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom(resDir, name, gt_host);
+        [tDicom, remoteFolder] = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom(resDir, name, gt_host);
+
+        [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+        dicomDir = fullfile(resDir, study_dates, [name '_dicom']);
+        rmdir(dicomDir)
+        missing_cases = PerformGadgetronRecon_CopyMapDicom_PerfusionCase([], {name}, resDir, []);
     catch
     end
     disp(['copy dicom output : ' num2str(toc(ts))]);
@@ -434,7 +447,7 @@ for n=1:num
         [key, user] = sshKeyLookup(gt_host);
         if (~isempty(user) & startRemoteGT)
             StopGadgetronOnRemote(gt_host, GT_PORT);
-            CopyGadgetronRecordOnRemote(gt_host, GT_PORT, [dstDir '\record_' gt_host '_' GT_PORT '.txt']);
+            CopyGadgetronRecordOnRemote(gt_host, GT_PORT, [dstDir '/record_' gt_host '_' GT_PORT '.txt']);
         end
     end
     disp(['shutdown gadgetron : ' num2str(toc(ts))]);

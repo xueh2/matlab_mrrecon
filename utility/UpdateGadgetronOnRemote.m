@@ -32,7 +32,8 @@ tic;
 
   
 gt_command = ['/home/' user '/gt_scanner_setup_scripts/UpdateGadgetron ' num2str(clean) ' ' branch ' ' gt_branch ' ' gtprep_branch];
-command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
+% command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
+command = ['ssh ' user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
 

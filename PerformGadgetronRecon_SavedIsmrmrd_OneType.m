@@ -92,7 +92,7 @@ xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.
 if(cleanRemote)
     [key, user] = sshKeyLookup(gt_host);
     gt_command = ['rm -rf /tmp/gadgetron_data/*'];
-    command = ['ssh -i ' key ' ' user '@' gt_host ' "' gt_command '"'];
+    command = ['ssh ' user '@' gt_host ' "' gt_command '"'];
     command
     dos(command, '-echo');    
 end
@@ -107,8 +107,13 @@ end
 
 files = [];
 
-startN = datenum(start_date);
-endN = datenum(end_date);
+if(isempty(strfind(start_date, '-')))
+    startN = datenum(start_date, 'yyyymmdd');
+    endN = datenum(end_date, 'yyyymmdd');
+else
+    startN = datenum(start_date);
+    endN = datenum(end_date);
+end
 
 configNames = [];
 study_dates = [];
@@ -116,6 +121,13 @@ study_times = [];
 
 [subdirs, numdirs] = FindSubDirs(dataDir);
 for d=1:numdirs
+    
+    curr_dir = subdirs{d};
+    disp(['Search ' subdirs{d} ' - ' num2str(d) ' out of ' num2str(numdirs)])
+    tt = datenum(str2num(curr_dir(1:4)), str2num(curr_dir(5:6)), str2num(curr_dir(7:8)));
+    if(tt<startN | tt>endN)
+        continue;
+    end
     
     [names, num] = findFILE(fullfile(dataDir, subdirs{d}), '*.h5');
     for n=1:num
@@ -137,18 +149,18 @@ for d=1:numdirs
         % find scanner ID, patient ID, study ID, measurement ID, study date and time
         [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
 
-        if(strcmp(gt_host, 'localhost')==1)
-            [pathstr, configName, ext] = fileparts(configName);
-            configName = [configName '_localhost' ext];
-        end
+%         if(strcmp(gt_host, 'localhost')==1)
+%             [pathstr, configName, ext] = fileparts(configName);
+%             configName = [configName '_localhost' ext];
+%         end
 
         if(~isempty(configNamePreset))
             configName = configNamePreset;
         end
 
-        if( str2num(measurementID) > 10000 )
-            continue;
-        end
+%         if( str2num(measurementID) > 10000 )
+%             continue;
+%         end
         tt = datenum(str2num(study_year), str2num(study_month), str2num(study_day));
 
         if (tt<=endN && tt>=startN)

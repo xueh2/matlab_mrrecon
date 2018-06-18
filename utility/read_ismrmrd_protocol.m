@@ -25,6 +25,25 @@ else
     patientID = [];
 end
 
+
+% if nargout > 2
+%     if isfield(hdr.userParameters,'userParameterDouble')
+%         patinfo.PatientAge = hdr.userParameters.userParameterDouble(12);
+%     else
+%         patinfo.PatientAge = [];
+%     end
+%     if isfield(hdr.userParameters,'userParameterDouble')
+%         patinfo.PatientWeight = hdr.userParameters.userParameterDouble(10);
+%     else
+%         patinfo.PatientWeight = [];
+%     end
+%     if isfield(hdr.userParameters,'userParameterDouble')
+%         patinfo.PatientHeight = hdr.userParameters.userParameterDouble(11);
+%     else
+%         patinfo.PatientHeight = [];
+%     end
+% end
+    
 if nargout > 1
     header = char(base64decode(str));
     protocol = MeasYaps2struct(header);

@@ -1,5 +1,5 @@
 
-function [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Find_PerfusionCases(dataDir, resDir, date_start, date_end)
+function [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Find_PerfusionCases(dataDir, resDir, date_start, date_end, onlyR3)
 % [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Find_PerfusionCases(dataDir, resDir, date_start, date_end)
 % [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Find_PerfusionCases('I:\BARTS', 'I:\ReconResults\BARTS')
 % perf_cases in {stress, rest} order
@@ -9,7 +9,11 @@ if(nargin<3)
 end
 
 if(nargin<4)
-    date_end = '2018-01-01';
+    date_end = '2019-01-01';
+end
+
+if(nargin<5)
+    onlyR3 = 0;
 end
 
 % ------------------------------------------------------------
@@ -27,6 +31,12 @@ nT = numel(scan_type);
 
 [subdirs, numdirs] = FindSubDirs(dataDir);
 for d=1:numdirs
+    subdirs{d}
+    
+    currN = datenum(num2str(subdirs{d}), 'yyyymmdd');
+    if (currN>endN || currN<startN)
+        continue;
+    end
     
     [names, num] = findFILE(fullfile(dataDir, subdirs{d}), '*.h5');
     for n=1:num
@@ -47,9 +57,9 @@ for d=1:numdirs
         % find scanner ID, patient ID, study ID, measurement ID, study date and time
         [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
 
-        if( str2num(measurementID) > 10000 )
-            continue;
-        end
+%         if( str2num(measurementID) > 10000 )
+%             continue;
+%         end
         tt = datenum(str2num(study_year), str2num(study_month), str2num(study_day));
 
         if (tt<=endN && tt>=startN)
@@ -67,6 +77,7 @@ files_processed = [];
 study_dates = [];
 sha1_processed = [];
 patientID_all = [];
+failed_cases = [];
 
 num_small_file = 1;
 
@@ -78,10 +89,17 @@ for n=1:num
     end
     
     isPerf = 0;
-    if(isempty(strfind(name, 'Perfusion'))~=1)
+    if(isempty(strfind(name, 'Perfusion_AIFR3'))~=1)
         isPerf = 1;
     end
-
+    if(isempty(strfind(name, 'Perfusion_AIF_TwoEchoes'))~=1)
+        isPerf = 1;
+    end
+    
+    if(~isPerf)
+        continue;
+    end
+    
     [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
 
     dataName = fullfile(dataDir, study_date, [name '.h5']);
@@ -124,6 +142,8 @@ for n=1:num
 
                 dset.close();
             catch
+                disp(['failed to read data set : ' dataName])
+                failed_cases = [failed_cases; {dataName}];
                 continue;
             end
             
@@ -172,7 +192,7 @@ while (~isempty(files_processed))
     end
     
     if(has_aif)
-        if(max(aif)<1.5)
+        if(max(aif)<0.2)
             files_un_processed = [files_un_processed; {f1}];  
         else    
             for ii=2:numel(files_processed)

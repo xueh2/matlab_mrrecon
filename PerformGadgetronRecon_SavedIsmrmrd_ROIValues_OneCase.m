@@ -29,9 +29,81 @@ if(isfield(a, 'flow_stress'))
     res.PS = [f1.m f2.m f3.m];
     res.PS_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-    [f1, f2, f3] = get_roi_values(stress.SDMap_stress, s1, s2, s3);
-    res.SD = [f1.m f2.m f3.m];
-    res.SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+%     [f1, f2, f3] = get_roi_values(stress.SDMap_stress, s1, s2, s3);
+%     res.SD = [f1.m f2.m f3.m];
+%     res.SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+    try
+        [f1, f2, f3] = get_roi_values(stress.flow_SD_stress, s1, s2, s3);
+        res.SD = [f1.m f2.m f3.m];
+        res.SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(stress.PS_SD_stress, s1, s2, s3);
+        res.PS_SD = [f1.m f2.m f3.m];
+        res.PS_SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(stress.Visf_SD_stress, s1, s2, s3);
+        res.Visf_SD = [f1.m f2.m f3.m];
+        res.Visf_SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(stress.Vp_SD_stress, s1, s2, s3);
+        res.Vp_SD = [f1.m f2.m f3.m];
+        res.Vp_SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(stress.CC_F_PS_stress, s1, s2, s3);
+        res.CC_F_PS = [f1.m f2.m f3.m];
+        res.CC_F_PS_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(stress.CC_F_Visf_stress, s1, s2, s3);
+        res.CC_F_Visf = [f1.m f2.m f3.m];
+        res.CC_F_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(stress.CC_F_Vp_stress, s1, s2, s3);
+        res.CC_F_Vp = [f1.m f2.m f3.m];
+        res.CC_F_Vp_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(stress.CC_PS_Visf_stress, s1, s2, s3);
+        res.CC_PS_Visf = [f1.m f2.m f3.m];
+        res.CC_PS_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(stress.CC_PS_Vp_stress, s1, s2, s3);
+        res.CC_PS_Vp = [f1.m f2.m f3.m];
+        res.CC_PS_Vp_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(stress.CC_Vp_Visf_stress, s1, s2, s3);
+        res.CC_Vp_Visf = [f1.m f2.m f3.m];
+        res.CC_Vp_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+    catch
+        res.SD = [-1 -1 -1];
+        res.SD_pixels = {-1 -1 -1};
+
+        res.PS_SD = [-1 -1 -1];
+        res.PS_SD_pixels = {-1 -1 -1};
+
+        res.Visf_SD = [-1 -1 -1];
+        res.Visf_SD_pixels = {-1 -1 -1};
+
+        res.Vp_SD = [-1 -1 -1];
+        res.Vp_SD_pixels = {-1 -1 -1};
+
+        res.CC_F_PS = [-1 -1 -1];
+        res.CC_F_PS_pixels = {-1 -1 -1};
+
+        res.CC_F_Visf = [-1 -1 -1];
+        res.CC_F_Visf_pixels = {-1 -1 -1};
+
+        res.CC_F_Vp = [-1 -1 -1];
+        res.CC_F_Vp_pixels = {-1 -1 -1};
+
+        res.CC_PS_Visf = [-1 -1 -1];
+        res.CC_PS_Visf_pixels = {-1 -1 -1};
+
+        res.CC_PS_Vp = [-1 -1 -1];
+        res.CC_PS_Vp_pixels = {-1 -1 -1};
+
+        res.CC_Vp_Visf = [-1 -1 -1];
+        res.CC_Vp_Visf_pixels = {-1 -1 -1};
+    end
 
     num_maps = size(stress.Ki_stress, 3);
     
@@ -63,6 +135,19 @@ if(isfield(a, 'flow_stress'))
     res.delay = [f1.m f2.m f3.m];
     res.delay_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
+    res.delay_flow = [];
+    res.delay_flow_pixels = [];
+    
+    nDelays = size(stress.BTEX_Flow_all_stress, 3);
+    for n=1:nDelays
+        
+        delay_flow = squeeze(stress.BTEX_Flow_all_stress(:,:,n,:));
+        [f1, f2, f3] = get_roi_values(delay_flow, s1, s2, s3);
+        
+        res.delay_flow = [res.delay_flow; f1.m f2.m f3.m];
+        res.delay_flow_pixels = [res.delay_flow_pixels; {f1.data(:) f2.data(:) f3.data(:)}];
+    end
+    
     res.flow_i = [-1 -1 -1];
     res.E_i = [-1 -1 -1];
     res.Visf_i = [-1 -1 -1];
@@ -142,9 +227,81 @@ else
     res.PS = [f1.m f2.m f3.m];
     res.PS_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-    [f1, f2, f3] = get_roi_values(rest.SDMap_rest, s1, s2, s3);
-    res.SD = [f1.m f2.m f3.m];
-    res.SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+%     [f1, f2, f3] = get_roi_values(rest.SDMap_rest, s1, s2, s3);
+%     res.SD = [f1.m f2.m f3.m];
+%     res.SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+    try
+        [f1, f2, f3] = get_roi_values(rest.flow_SD_rest, s1, s2, s3);
+        res.SD = [f1.m f2.m f3.m];
+        res.SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(rest.PS_SD_rest, s1, s2, s3);
+        res.PS_SD = [f1.m f2.m f3.m];
+        res.PS_SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(rest.Visf_SD_rest, s1, s2, s3);
+        res.Visf_SD = [f1.m f2.m f3.m];
+        res.Visf_SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(rest.Vp_SD_rest, s1, s2, s3);
+        res.Vp_SD = [f1.m f2.m f3.m];
+        res.Vp_SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(rest.CC_F_PS_rest, s1, s2, s3);
+        res.CC_F_PS = [f1.m f2.m f3.m];
+        res.CC_F_PS_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(rest.CC_F_Visf_rest, s1, s2, s3);
+        res.CC_F_Visf = [f1.m f2.m f3.m];
+        res.CC_F_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(rest.CC_F_Vp_rest, s1, s2, s3);
+        res.CC_F_Vp = [f1.m f2.m f3.m];
+        res.CC_F_Vp_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(rest.CC_PS_Visf_rest, s1, s2, s3);
+        res.CC_PS_Visf = [f1.m f2.m f3.m];
+        res.CC_PS_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(rest.CC_PS_Vp_rest, s1, s2, s3);
+        res.CC_PS_Vp = [f1.m f2.m f3.m];
+        res.CC_PS_Vp_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+
+        [f1, f2, f3] = get_roi_values(rest.CC_Vp_Visf_rest, s1, s2, s3);
+        res.CC_Vp_Visf = [f1.m f2.m f3.m];
+        res.CC_Vp_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+    catch
+        res.SD = [-1 -1 -1];
+        res.SD_pixels = {-1 -1 -1};
+
+        res.PS_SD = [-1 -1 -1];
+        res.PS_SD_pixels = {-1 -1 -1};
+
+        res.Visf_SD = [-1 -1 -1];
+        res.Visf_SD_pixels = {-1 -1 -1};
+
+        res.Vp_SD = [-1 -1 -1];
+        res.Vp_SD_pixels = {-1 -1 -1};
+
+        res.CC_F_PS = [-1 -1 -1];
+        res.CC_F_PS_pixels = {-1 -1 -1};
+
+        res.CC_F_Visf = [-1 -1 -1];
+        res.CC_F_Visf_pixels = {-1 -1 -1};
+
+        res.CC_F_Vp = [-1 -1 -1];
+        res.CC_F_Vp_pixels = {-1 -1 -1};
+
+        res.CC_PS_Visf = [-1 -1 -1];
+        res.CC_PS_Visf_pixels = {-1 -1 -1};
+
+        res.CC_PS_Vp = [-1 -1 -1];
+        res.CC_PS_Vp_pixels = {-1 -1 -1};
+
+        res.CC_Vp_Visf = [-1 -1 -1];
+        res.CC_Vp_Visf_pixels = {-1 -1 -1};
+    end
 
     num_maps = size(rest.Ki_rest, 3);
     
@@ -175,6 +332,19 @@ else
     [f1, f2, f3] = get_roi_values(rest.Delay_rest, s1, s2, s3);
     res.delay = [f1.m f2.m f3.m];
     res.delay_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+    
+    res.delay_flow = [];
+    res.delay_flow_pixels = [];
+    
+    nDelays = size(rest.BTEX_Flow_all_rest, 3);
+    for n=1:nDelays
+        
+        delay_flow = squeeze(rest.BTEX_Flow_all_rest(:,:,n,:));
+        [f1, f2, f3] = get_roi_values(delay_flow, s1, s2, s3);
+        
+        res.delay_flow = [res.delay_flow; f1.m f2.m f3.m];
+        res.delay_flow_pixels = [res.delay_flow_pixels; {f1.data(:) f2.data(:) f3.data(:)}];
+    end
     
     res.flow_i = [-1 -1 -1];
     res.E_i = [-1 -1 -1];

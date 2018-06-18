@@ -16,7 +16,11 @@ end
 
 % ------------------------------------------------------------
 
-[configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(data_name);
+try
+    [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(data_name);
+catch
+    study_dates = [];
+end
 
 dstDir = fullfile(resDir, study_dates, [data_name '_dicom']);
 mkdir(dstDir);
@@ -45,17 +49,17 @@ remoteFolder = data_name;
 if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
     tic; copyfile(fullfile(remote_dicom_dir, remoteFolder, '*.dcm'),  '.'); timeUsed = toc;    
 else
-    if(isunix())
-        command = ['scp -i ' key ' ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
-    else        
-        command = ['pscp -i ' key '.ppk ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
-    end
+%     if(isunix())
+        command = ['scp -q ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
+%     else        
+%         command = ['pscp -i ' key '.ppk ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
+%     end
     
     command
     tic; dos(command, '-echo'); timeUsed = toc;
     
     gt_command = ['rm -rf ' remote_dicom_dir '/' remoteFolder];
-    command = ['ssh -i ' key ' ' user '@' gt_host ' "' gt_command '"']
+    command = ['ssh ' user '@' gt_host ' "' gt_command '"']
     dos(command, '-echo');
 end
 

@@ -26,12 +26,12 @@ mkdir(fullfile(dst_folder, 'DebugOutput'));
 % command
 % dos(command, '-echo');
 
-if(isunix())
+% if(isunix())
     mkdir(fullfile(dst_folder, 'DebugOutput'));
-    command = ['scp -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/* ' dst_folder '/DebugOutput/'];
-else    
-    command = ['pscp -r -i ' key '.ppk ' user '@' host ':' debug_folder ' ' dst_folder];
-end
+    command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/* ' dst_folder '/DebugOutput/'];
+% else    
+%     command = ['pscp -r ' user '@' host ':' debug_folder ' ' dst_folder];
+% end
 
 command
 tic; dos(command, '-echo'); copy_duration = toc;
@@ -48,7 +48,7 @@ disp(['Copy debug output ' num2str(copy_duration)]);
     
 if(deleteRemote)
     gt_command = ['rm -rf ' debug_folder '/*.*'];
-    command = ['ssh -i ' key ' ' user '@' host ' "' gt_command '"'];
+    command = ['ssh ' user '@' host ' "' gt_command '"'];
     command
     dos(command, '-echo');    
 end

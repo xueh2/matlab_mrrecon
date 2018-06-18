@@ -18,7 +18,7 @@ if(nargin<4)
 end
 
 if(nargin<5)
-    date_end = '2018-01-01';
+    date_end = '2019-01-01';
 end
 
 if(~isempty(dates))
@@ -347,6 +347,31 @@ while (~isempty(files_processed))
 end
 
 disp(['Found ' num2str(size(perf_cases, 1)) ' stress/rest cases from ' num2str(numel(patientID_processed)) ' patients ... ']);
+
+num = size(perf_cases, 1);
+
+for ii=1:num
+    stress_file = perf_cases{ii, 2};
+    rest_file = perf_cases{ii, 3};
+    [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(stress_file);
+    
+    dataName = fullfile(dataDir, study_dates, [stress_file '.h5']);    
+    dset = ismrmrd.Dataset(dataName);
+    header = ismrmrd.xml.deserialize(dset.readxml());
+    protocolName = header.measurementInformation.protocolName;   
+    disp([stress_file ' - ' protocolName]);   
+    dset.close();
+    
+    dataName = fullfile(dataDir, study_dates, [rest_file '.h5']);    
+    dset = ismrmrd.Dataset(dataName);
+    header = ismrmrd.xml.deserialize(dset.readxml());
+    protocolName_rest = header.measurementInformation.protocolName;   
+    disp([rest_file ' - ' protocolName]);   
+    dset.close();
+    
+    perf_cases{ii, 8} = protocolName;
+    perf_cases{ii, 9} = protocolName_rest;
+end
 
 end
 

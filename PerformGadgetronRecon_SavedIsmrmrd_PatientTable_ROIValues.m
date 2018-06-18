@@ -102,6 +102,8 @@ rKi_BTEX_i = [];
 
 sDelay = [];
 rDelay = [];
+sDelay_pixel = [];
+rDelay_pixel = [];
 
 sf_mean = [];
 rf_mean = [];
@@ -127,10 +129,52 @@ rKi_TwoCompExp_mean = [];
 sKi_BTEX_mean = [];
 rKi_BTEX_mean = [];
 
+sSD_mean = [];
+rSD_mean = [];
+sPS_SD_mean = [];
+rPS_SD_mean = [];
+sVisf_SD_mean = [];
+rVisf_SD_mean = [];
+sVp_SD_mean = [];
+rVp_SD_mean = [];
+sCC_F_PS_mean = [];
+rCC_F_PS_mean = [];
+sCC_F_Vp_mean = [];
+rCC_F_Vp_mean = [];
+sCC_F_Visf_mean = [];
+rCC_F_Visf_mean = [];
+sCC_PS_Vp_mean = [];
+rCC_PS_Vp_mean = [];
+sCC_PS_Visf_mean = [];
+rCC_PS_Visf_mean = [];
+sCC_Vp_Visf_mean = [];
+rCC_Vp_Visf_mean = [];
+    
 sSD = [];
 rSD = [];
 sSD_i = [];
 rSD_i = [];
+
+sPS_SD = [];
+rPS_SD = [];
+sVisf_SD = [];
+rVisf_SD = [];
+sVp_SD = [];
+rVp_SD = [];
+
+% 4 by 4, F, PS, Vp, Visf
+sCC_F_PS = [];
+rCC_F_PS = [];
+sCC_F_Vp = [];
+rCC_F_Vp = [];
+sCC_F_Visf = [];
+rCC_F_Visf = [];
+sCC_PS_Vp = [];
+rCC_PS_Vp = [];
+sCC_PS_Visf = [];
+rCC_PS_Visf = [];
+sCC_Vp_Visf = [];
+rCC_Vp_Visf = [];
 
 sSNR = [];
 rSNR = [];
@@ -144,6 +188,11 @@ sVp_pixel = [];
 sPS_pixel = [];
 sE_pixel = [];
 sKi_MF_pixel = [];
+sKi_Fermi_pixel = [];
+sKi_TwoCompExp_pixel = [];
+
+sf_delay = [];
+sf_delay_pixel = [];
 
 rf_pixel = [];
 rVisf_pixel = [];
@@ -151,12 +200,18 @@ rVp_pixel = [];
 rPS_pixel = [];
 rE_pixel = [];
 rKi_MF_pixel = [];
+rKi_Fermi_pixel = [];
+rKi_TwoCompExp_pixel = [];
+rf_delay = [];
+rf_delay_pixel = [];
 
 pre_T1_blood = [];
 pre_T1_myo = [];
 
 post_T1_blood = [];
 post_T1_myo = [];
+
+unused_slices = [];
             
 num_column = size(PerfTable, 2);
 num = size(PerfTable, 1)-1;
@@ -457,23 +512,88 @@ for n=1:num
             
             
             if(reviewFlag)
-                if(~isempty(s1)) figure; imagescn(stress.flow_stress(:,:,1,end), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap; end
-                if(~isempty(s2)) figure; imagescn(stress.flow_stress(:,:,2,end), [0 8], [], [], [], fullfile(roiDir, s2_roi)); PerfColorMap; end
-                if(~isempty(s3)) figure; imagescn(stress.flow_stress(:,:,3,end), [0 8], [], [], [], fullfile(roiDir, s3_roi)); PerfColorMap; end
-                if(~isempty(s1)) figure; imagescn(stress.Vp_stress(:,:,1,end), [0 20], [], [], [], fullfile(roiDir, s1_roi)); MBVColorMap; end
-                if(~isempty(s2)) figure; imagescn(stress.Vp_stress(:,:,2,end), [0 20], [], [], [], fullfile(roiDir, s2_roi)); MBVColorMap; end
-                if(~isempty(s3)) figure; imagescn(stress.Vp_stress(:,:,3,end), [0 20], [], [], [], fullfile(roiDir, s3_roi)); MBVColorMap; end
+                if(~isempty(s1)) figure; imagescn(stress.flow_stress(:,:,1:3,end), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap; end
+                if(~isempty(s1)) figure; imagescn(stress.Vp_stress(:,:,1:3,end), [0 20], [], [], [], fullfile(roiDir, s1_roi)); MBVColorMap; end
+                if(~isempty(s1)) figure; imagescn(stress.PS_stress(:,:,1:3,end), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PSColorMap; end
 
                 if(has_rest)
-                    if(~isempty(r1)) figure; imagescn(rest.flow_rest(:,:,1,end), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap; end
-                    if(~isempty(r2)) figure; imagescn(rest.flow_rest(:,:,2,end), [0 8], [], [], [], fullfile(roiDir, r2_roi)); PerfColorMap; end
-                    if(~isempty(r3)) figure; imagescn(rest.flow_rest(:,:,3,end), [0 8], [], [], [], fullfile(roiDir, r3_roi)); PerfColorMap; end
-                    if(~isempty(r1)) figure; imagescn(rest.Vp_rest(:,:,1,end), [0 20], [], [], [], fullfile(roiDir, r1_roi)); MBVColorMap; end
-                    if(~isempty(r2)) figure; imagescn(rest.Vp_rest(:,:,2,end), [0 20], [], [], [], fullfile(roiDir, r2_roi)); MBVColorMap; end
-                    if(~isempty(r3)) figure; imagescn(rest.Vp_rest(:,:,3,end), [0 20], [], [], [], fullfile(roiDir, r3_roi)); MBVColorMap; end
+                    if(~isempty(r1)) figure; imagescn(rest.flow_rest(:,:,1:3,end), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap; end
+                    if(~isempty(r1)) figure; imagescn(rest.Vp_rest(:,:,1:3,end), [0 20], [], [], [], fullfile(roiDir, r1_roi)); MBVColorMap; end
+                    if(~isempty(s1)) figure; imagescn(rest.PS_rest(:,:,1:3,end), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PSColorMap; end
+                end
+                
+                % plot the histogram
+                try
+                    figure;
+
+                    subplot(4, 2, 1)
+                    pt = Perfusion_GetResultValusPerPixel(res_stress.flow_pixels);
+                    ind = find(pt>0 & pt<5.5);
+                    histfit(pt(ind), 64, 'lognormal');
+                    xlabel('Stress flow, ml/min/g')
+                    xlim([0 8])
+                    subplot(4, 2, 2)
+                    pt = Perfusion_GetResultValusPerPixel(res_rest.flow_pixels);
+                    ind = find(pt>0);
+                    histfit(pt(ind), 64, 'lognormal');
+                    xlabel('Rest flow, ml/min/g')
+                    xlim([0 8])
+
+                    subplot(4, 2, 3)
+                    pt = Perfusion_GetResultValusPerPixel(res_stress.PS_pixels);
+                    [N, X] = hist(pt, 64);
+                    ind = find(pt>0.42);
+                    histfit(pt(ind), 64, 'lognormal');
+                    xlabel('Stress PS, ml/min/g')
+                    xlim([0 8])
+                    subplot(4, 2, 4)
+                    pt = Perfusion_GetResultValusPerPixel(res_rest.PS_pixels);
+                    ind = find(pt>0);
+                    histfit(pt(ind), 64, 'lognormal');
+                    xlabel('Rest PS, ml/min/g')
+                    xlim([0 8])
+
+                    subplot(4, 2, 5)
+                    pt = Perfusion_GetResultValusPerPixel(res_stress.Visf_pixels);
+                    ind = find(pt>0);
+                    histfit(pt(ind), 64, 'lognormal');
+                    xlabel('Stress Visf, ml/g')
+                    xlim([0 70])
+                    subplot(4, 2, 6)
+                    pt = Perfusion_GetResultValusPerPixel(res_rest.Visf_pixels);
+                    ind = find(pt>0);
+                    histfit(pt(ind), 64, 'lognormal');
+                    xlabel('Rest Visf, ml/g')
+                    xlim([0 70])
+
+                    subplot(4, 2, 7)
+                    pt = Perfusion_GetResultValusPerPixel(res_stress.Vp_pixels);
+                    ind = find(pt>0);
+                    histfit(pt(ind), 64, 'kernel');
+                    xlabel('Stress Vb, ml/g')
+                    xlim([0 20])
+                    subplot(4, 2, 8)
+                    pt = Perfusion_GetResultValusPerPixel(res_rest.Vp_pixels);
+                    ind = find(pt>0);
+                    histfit(pt(ind), 64, 'kernel');
+                    xlabel('Rest Vb, ml/g')
+                    xlim([0 20])
+                catch
                 end
                 
                 if(pause_cases) 
+                    user_in = input('unaccepted slice for stress:', 's');
+                    if(numel(user_in)>0)
+                        unaccepted_slice = str2num(user_in);
+                        save('unused_slices_stress.mat', 'unaccepted_slice');
+                    end
+                    
+                    user_in = input('unaccepted slice for rest:', 's');
+                    if(numel(user_in)>0)
+                        unaccepted_slice = str2num(user_in);
+                        save('unused_slices_rest.mat', 'unaccepted_slice');
+                    end
+                    
                     user_in = input('accept cases y or n :');
                     if(user_in=='n')
                         onlyReview = 1;
@@ -484,6 +604,20 @@ for n=1:num
                 closeall
             end
 
+            if(isFileExist('unused_slices_stress.mat'))
+                u_slc = load('unused_slices_stress.mat');                
+            else
+                u_slc.unaccepted_slice = [];
+            end
+            
+            if(isFileExist('unused_slices_rest.mat'))
+                u_slc2 = load('unused_slices_rest.mat');                
+            else
+                u_slc2.unaccepted_slice = [];
+            end
+            
+            unused_slices =[unused_slices; {u_slc.unaccepted_slice} {u_slc2.unaccepted_slice}];
+            
             ind = 8;
             
             % E
@@ -544,9 +678,35 @@ for n=1:num
 
             sSD = [sSD; res_stress.SD];
             rSD = [rSD; res_rest.SD];
-
+            sPS_SD = [sPS_SD; res_stress.PS_SD];
+            rPS_SD = [rPS_SD; res_rest.PS_SD];
+            sVisf_SD = [sVisf_SD; res_stress.Visf_SD];
+            rVisf_SD = [rVisf_SD; res_rest.Visf_SD];
+            sVp_SD = [sVp_SD; res_stress.Vp_SD];
+            rVp_SD = [rVp_SD; res_rest.Vp_SD];
+            
+            sCC_F_PS = [sCC_F_PS; res_stress.CC_F_PS];
+            rCC_F_PS = [rCC_F_PS; res_rest.CC_F_PS];
+            
+            sCC_F_Vp = [sCC_F_Vp; res_stress.CC_F_Vp];
+            rCC_F_Vp = [rCC_F_Vp; res_rest.CC_F_Vp];
+            
+            sCC_F_Visf = [sCC_F_Visf; res_stress.CC_F_Visf];
+            rCC_F_Visf = [rCC_F_Visf; res_rest.CC_F_Visf];
+            
+            sCC_PS_Vp = [sCC_PS_Vp; res_stress.CC_PS_Vp];
+            rCC_PS_Vp = [rCC_PS_Vp; res_rest.CC_PS_Vp];
+            
+            sCC_PS_Visf = [sCC_PS_Visf; res_stress.CC_PS_Visf];
+            rCC_PS_Visf = [rCC_PS_Visf; res_rest.CC_PS_Visf];
+            
+            sCC_Vp_Visf = [sCC_Vp_Visf; res_stress.CC_Vp_Visf];
+            rCC_Vp_Visf = [rCC_Vp_Visf; res_rest.CC_Vp_Visf];
+            
             sDelay = [sDelay; res_stress.delay];
             rDelay = [rDelay; res_rest.delay];
+            sDelay_pixel = [sDelay_pixel; res_stress.delay_pixels];
+            rDelay_pixel = [rDelay_pixel; res_rest.delay_pixels];
 
             sf_pixel        = [sf_pixel; res_stress.flow_pixels];
             sE_pixel        = [sE_pixel; res_stress.E_pixels];
@@ -554,6 +714,11 @@ for n=1:num
             sVp_pixel       = [sVp_pixel; res_stress.Vp_pixels];
             sPS_pixel       = [sPS_pixel; res_stress.PS_pixels];
             sKi_MF_pixel    = [sKi_MF_pixel; res_stress.Ki_MF_pixels];
+            sKi_Fermi_pixel = [sKi_Fermi_pixel; res_stress.Ki_Fermi_pixels];
+            sKi_TwoCompExp_pixel = [sKi_TwoCompExp_pixel; res_stress.Ki_TwoCompExp_pixels];
+            
+            sf_delay = [sf_delay; {res_stress.delay_flow}];
+            sf_delay_pixel = [sf_delay_pixel; {res_stress.delay_flow_pixels}];
             
             rf_pixel        = [rf_pixel; res_rest.flow_pixels];
             rE_pixel        = [rE_pixel; res_rest.E_pixels];
@@ -561,7 +726,12 @@ for n=1:num
             rVp_pixel       = [rVp_pixel; res_rest.Vp_pixels];
             rPS_pixel       = [rPS_pixel; res_rest.PS_pixels];
             rKi_MF_pixel    = [rKi_MF_pixel; res_rest.Ki_MF_pixels];
-            
+            rKi_Fermi_pixel = [rKi_Fermi_pixel; res_rest.Ki_Fermi_pixels];
+            rKi_TwoCompExp_pixel = [rKi_TwoCompExp_pixel; res_rest.Ki_TwoCompExp_pixels];
+                        
+            rf_delay = [rf_delay; {res_rest.delay_flow}];
+            rf_delay_pixel = [rf_delay_pixel; {res_rest.delay_flow_pixels}];
+
             if(two_ROI)
                 % E
                 v{nV+ind} = res_stress.E_i; ind = ind+1;
@@ -704,6 +874,11 @@ for n=1:num
                 post_t1_myo = [t1_v.ROI_info_table(2,1).ROI_mean t1_v.ROI_info_table(4,2).ROI_mean t1_v.ROI_info_table(6,3).ROI_mean];
             end
             
+            disp(['pre_t1_blood is ' num2str(pre_t1_blood)])
+            disp(['post_t1_blood is ' num2str(post_t1_blood)])
+            disp(['pre_t1_myo is ' num2str(pre_t1_myo)])
+            disp(['post_t1_myo is ' num2str(post_t1_myo)])
+
             pre_T1_blood = [pre_T1_blood; pre_t1_blood];
             pre_T1_myo = [pre_T1_myo; pre_t1_myo];
             
@@ -715,7 +890,8 @@ for n=1:num
             % ---------------------------------------------
             % SNR
             
-            if(processing_snr_always | ~isFileExist(SNRResult_file))
+            % if(processing_snr_always | ~isFileExist(SNRResult_file))
+            if(processing_snr_always)
                 try
                     cd(stressDir)
                     s_gfactor = readGTPlusExportImageSeries_Squeeze(300);
@@ -884,7 +1060,134 @@ for n=1:num
         winopen(figDir);
         mkdir(roiDir);
         winopen(roiDir);
-        pause;
+        % pause;
+        
+        sf = [sf; -1 -1 -1];
+        rf = [rf; -1 -1 -1];
+        sf_i = [sf_i; -1 -1 -1];
+        rf_i = [rf_i; -1 -1 -1];
+
+        sE = [sE; -1 -1 -1];
+        rE = [rE; -1 -1 -1];
+        sE_i = [sE_i; -1 -1 -1];
+        rE_i = [rE_i; -1 -1 -1];
+
+        sPS = [sPS; -1 -1 -1];
+        rPS = [rPS; -1 -1 -1];
+        sPS_i = [sPS_i; -1 -1 -1];
+        rPS_i = [rPS_i; -1 -1 -1];
+
+        sVisf = [sVisf; -1 -1 -1];
+        rVisf = [rVisf; -1 -1 -1];
+        sVisf_i = [sVisf_i; -1 -1 -1];
+        rVisf_i = [rVisf_i; -1 -1 -1];
+
+        sVp = [sVp; -1 -1 -1];
+        rVp = [rVp; -1 -1 -1];
+        sVp_i = [sVp_i; -1 -1 -1];
+        rVp_i = [rVp_i; -1 -1 -1];
+
+        sKi_MF = [sKi_MF; -1 -1 -1];
+        rKi_MF = [rKi_MF; -1 -1 -1];
+        sKi_MF_i = [sKi_MF_i; -1 -1 -1];
+        rKi_MF_i = [rKi_MF_i; -1 -1 -1];
+
+        sKi_Fermi = [sKi_Fermi; -1 -1 -1];
+        rKi_Fermi = [rKi_Fermi; -1 -1 -1];
+        sKi_Fermi_i = [sKi_Fermi_i; -1 -1 -1];
+        rKi_Fermi_i = [rKi_Fermi_i; -1 -1 -1];
+
+        sKi_TwoCompExp = [sKi_TwoCompExp; -1 -1 -1];
+        rKi_TwoCompExp = [rKi_TwoCompExp; -1 -1 -1];
+        sKi_TwoCompExp_i = [sKi_TwoCompExp_i; -1 -1 -1];
+        rKi_TwoCompExp_i = [rKi_TwoCompExp_i; -1 -1 -1];
+
+        sKi_BTEX = [sKi_BTEX; -1 -1 -1];
+        rKi_BTEX = [rKi_BTEX; -1 -1 -1];
+        sKi_BTEX_i = [sKi_BTEX_i; -1 -1 -1];
+        rKi_BTEX_i = [rKi_BTEX_i; -1 -1 -1];
+
+        sDelay = [sDelay; -1 -1 -1];
+        rDelay = [rDelay; -1 -1 -1];
+
+%         sf_mean = [sf_mean; -1];
+%         rf_mean = [rf_mean; -1];
+% 
+%         sE_mean = [sE_mean; -1];
+%         rE_mean = [rE_mean; -1];
+% 
+%         sVp_mean = [sVp_mean; -1];
+%         rVp_mean = [rVp_mean; -1];
+% 
+%         sVisf_mean = [sVisf_mean; -1];
+%         rVisf_mean = [rVisf_mean; -1];
+% 
+%         sPS_mean = [sPS_mean; -1];
+%         rPS_mean = [rPS_mean; -1];
+% 
+%         sKi_MF_mean = [sKi_MF_mean; -1];
+%         rKi_MF_mean = [rKi_MF_mean; -1];
+%         sKi_Fermi_mean = [sKi_Fermi_mean; -1];
+%         rKi_Fermi_mean = [rKi_Fermi_mean; -1];
+%         sKi_TwoCompExp_mean = [sKi_TwoCompExp_mean; -1];
+%         rKi_TwoCompExp_mean = [rKi_TwoCompExp_mean; -1];
+%         sKi_BTEX_mean = [sKi_BTEX_mean; -1];
+%         rKi_BTEX_mean = [rKi_BTEX_mean; -1];
+
+        sSD = [sSD; -1 -1 -1];
+        rSD = [rSD; -1 -1 -1];
+        sSD_i = [sSD_i; -1 -1 -1];
+        rSD_i = [rSD_i; -1 -1 -1];
+
+        sPS_SD = [sPS_SD; -1 -1 -1];
+        rPS_SD = [rPS_SD; -1 -1 -1];
+        sVisf_SD = [sVisf_SD; -1 -1 -1];
+        rVisf_SD = [rVisf_SD; -1 -1 -1];
+        sVp_SD = [sVp_SD; -1 -1 -1];
+        rVp_SD = [rVp_SD; -1 -1 -1];
+
+        sCC_F_PS = [sCC_F_PS; -1 -1 -1];
+        rCC_F_PS = [sCC_F_PS; -1 -1 -1];
+
+        sCC_F_Vp = [sCC_F_Vp; -1 -1 -1];
+        rCC_F_Vp = [rCC_F_Vp; -1 -1 -1];
+
+        sCC_F_Visf = [sCC_F_Visf; -1 -1 -1];
+        rCC_F_Visf = [rCC_F_Visf; -1 -1 -1];
+
+        sCC_PS_Vp = [sCC_PS_Vp; -1 -1 -1];
+        rCC_PS_Vp = [rCC_PS_Vp; -1 -1 -1];
+
+        sCC_PS_Visf = [sCC_PS_Visf; -1 -1 -1];
+        rCC_PS_Visf = [rCC_PS_Visf; -1 -1 -1];
+
+        sCC_Vp_Visf = [sCC_Vp_Visf; -1 -1 -1];
+        rCC_Vp_Visf = [rCC_Vp_Visf; -1 -1 -1];
+            
+        sSNR = [sSNR; -1 -1 -1];
+        rSNR = [rSNR; -1 -1 -1];
+
+        sf_pixel = [sf_pixel; cell(1,3)];
+        sVisf_pixel = [sVisf_pixel; cell(1,3)];
+        sVp_pixel = [sVp_pixel; cell(1,3)];
+        sPS_pixel = [sPS_pixel; cell(1,3)];
+        sE_pixel = [sE_pixel; cell(1,3)];
+        sKi_MF_pixel = [sKi_MF_pixel; cell(1,3)];
+
+        rf_pixel = [rf_pixel; cell(1,3)];
+        rVisf_pixel = [rVisf_pixel; cell(1,3)];
+        rVp_pixel = [rVp_pixel; cell(1,3)];
+        rPS_pixel = [rPS_pixel; cell(1,3)];
+        rE_pixel = [rE_pixel; cell(1,3)];
+        rKi_MF_pixel = [rKi_MF_pixel; cell(1,3)];
+
+        pre_T1_blood = [pre_T1_blood; -1 -1 -1];
+        pre_T1_myo = [pre_T1_myo; -1 -1 -1];
+
+        post_T1_blood = [post_T1_blood; -1 -1 -1];
+        post_T1_myo = [post_T1_myo; -1 -1 -1];
+        
+        ecv = [ecv; -1 -1 -1];
     end
 end
 
@@ -915,6 +1218,27 @@ for n=1:size(sf,1)
     
     sKi_BTEX_mean = [sKi_BTEX_mean; get_entry_mean(sKi_BTEX(n,:))];
     rKi_BTEX_mean = [rKi_BTEX_mean; get_entry_mean(rKi_BTEX(n,:))];  
+    
+    sSD_mean = [sSD_mean; get_entry_mean(sSD(n,:))];
+    rSD_mean = [rSD_mean; get_entry_mean(rSD(n,:))];
+    sPS_SD_mean = [sPS_SD_mean; get_entry_mean(sPS_SD(n,:))];
+    rPS_SD_mean = [rPS_SD_mean; get_entry_mean(rPS_SD(n,:))];
+    sVisf_SD_mean = [sVisf_SD_mean; get_entry_mean(sVisf_SD(n,:))];
+    rVisf_SD_mean = [rVisf_SD_mean; get_entry_mean(rVisf_SD(n,:))];
+    sVp_SD_mean = [sVp_SD_mean; get_entry_mean(sVp_SD(n,:))];
+    rVp_SD_mean = [rVp_SD_mean; get_entry_mean(rVp_SD(n,:))];
+    sCC_F_PS_mean = [sCC_F_PS_mean; get_entry_mean(sCC_F_PS(n,:))];
+    rCC_F_PS_mean = [rCC_F_PS_mean; get_entry_mean(rCC_F_PS(n,:))];
+    sCC_F_Vp_mean = [sCC_F_Vp_mean; get_entry_mean(sCC_F_Vp(n,:))];
+    rCC_F_Vp_mean = [rCC_F_Vp_mean; get_entry_mean(rCC_F_Vp(n,:))];
+    sCC_F_Visf_mean = [sCC_F_Visf_mean; get_entry_mean(sCC_F_Visf(n,:))];
+    rCC_F_Visf_mean = [rCC_F_Visf_mean; get_entry_mean(rCC_F_Visf(n,:))];
+    sCC_PS_Vp_mean = [sCC_PS_Vp_mean; get_entry_mean(sCC_PS_Vp(n,:))];
+    rCC_PS_Vp_mean = [rCC_PS_Vp_mean; get_entry_mean(rCC_PS_Vp(n,:))];
+    sCC_PS_Visf_mean = [sCC_PS_Visf_mean; get_entry_mean(sCC_PS_Visf(n,:))];
+    rCC_PS_Visf_mean = [rCC_PS_Visf_mean; get_entry_mean(rCC_PS_Visf(n,:))];
+    sCC_Vp_Visf_mean = [sCC_Vp_Visf_mean; get_entry_mean(sCC_Vp_Visf(n,:))];
+    rCC_Vp_Visf_mean = [rCC_Vp_Visf_mean; get_entry_mean(rCC_Vp_Visf(n,:))];
 end
 
 sVp_mean
@@ -954,6 +1278,15 @@ res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB,
                 sKi_TwoCompExp, rKi_TwoCompExp, sKi_TwoCompExp_i, rKi_TwoCompExp_i, ...
                 sKi_BTEX, rKi_BTEX, sKi_BTEX_i, rKi_BTEX_i, ... 
                 sSD, rSD, sSD_i, rSD_i, ...
+                sPS_SD, rPS_SD, ...
+                sVisf_SD, rVisf_SD, ...
+                sVp_SD, rVp_SD, ...
+                sCC_F_PS, rCC_F_PS, ...
+                sCC_F_Vp, rCC_F_Vp, ... 
+                sCC_F_Visf, rCC_F_Visf, ...
+                sCC_PS_Vp, rCC_PS_Vp, ... 
+                sCC_PS_Visf, rCC_PS_Visf, ...
+                sCC_Vp_Visf, rCC_Vp_Visf, ...
                 sf_mean, rf_mean, ... 
                 sE_mean, rE_mean, ... 
                 sPS_mean, rPS_mean, ...
@@ -963,12 +1296,36 @@ res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB,
                 sKi_Fermi_mean, rKi_Fermi_mean, ... 
                 sKi_TwoCompExp_mean, rKi_TwoCompExp_mean, ...
                 sKi_BTEX_mean, rKi_BTEX_mean, ...
-                sDelay, rDelay, sSNR, rSNR, ...
-                sf_pixel, sE_pixel, sVisf_pixel, sVp_pixel, sPS_pixel, sKi_MF_pixel, ...
-                rf_pixel, rE_pixel, rVisf_pixel, rVp_pixel, rPS_pixel, rKi_MF_pixel, ...
+                sSD_mean, ...
+                rSD_mean, ...
+                sPS_SD_mean, ...
+                rPS_SD_mean, ...
+                sVisf_SD_mean, ...
+                rVisf_SD_mean, ...
+                sVp_SD_mean, ...
+                rVp_SD_mean, ...
+                sCC_F_PS_mean, ...
+                rCC_F_PS_mean, ...
+                sCC_F_Vp_mean, ...
+                rCC_F_Vp_mean, ...
+                sCC_F_Visf_mean, ...
+                rCC_F_Visf_mean, ...
+                sCC_PS_Vp_mean, ...
+                rCC_PS_Vp_mean, ...
+                sCC_PS_Visf_mean, ...
+                rCC_PS_Visf_mean, ...
+                sCC_Vp_Visf_mean, ...
+                rCC_Vp_Visf_mean, ...
+                sDelay, rDelay, sDelay_pixel, rDelay_pixel, ..., 
+                sSNR, rSNR, ...
+                sf_pixel, sE_pixel, sVisf_pixel, sVp_pixel, sPS_pixel, sKi_MF_pixel, sKi_Fermi_pixel, sKi_TwoCompExp_pixel, ...
+                sf_delay, sf_delay_pixel, ...
+                rf_pixel, rE_pixel, rVisf_pixel, rVp_pixel, rPS_pixel, rKi_MF_pixel, rKi_Fermi_pixel, rKi_TwoCompExp_pixel, ...                
+                rf_delay, rf_delay_pixel, ...
                 pre_T1_blood, pre_T1_myo, ...            
                 post_T1_blood, post_T1_myo, ...
-                ecv ...
+                ecv, ...
+                unused_slices ...
 );
 
 disp('=======================================================================');

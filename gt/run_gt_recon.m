@@ -18,7 +18,7 @@ GT_PORT = getenv('GT_PORT')
 
 if(startRemoteGT)
     if((strcmp(GT_HOST, 'localhost')==1))
-        cd('D:\gtuser\gt_windows_setup')
+        cd('D:\gtuser\gt_scanner_setup_scripts')
         command = ['gadgetron -p %GT_PORT% > D:\Temp\record_' GT_PORT '.txt']
         dos([command ' &'])
     else
@@ -115,7 +115,7 @@ if ( isVD )
             hasAdj = 1;
             if(deleteh5)
                 % check whether two measurements are in the dat file
-                command = ['siemens_to_ismrmrd -f ' dataName ' -o test_meas.h5 --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 --studyDate ' studyDate]
+                command = ['siemens_to_ismrmrd -f  ' dataName ' -o test_meas.h5 --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 --studyDate ' studyDate]
                 dos(command, '-echo');
 
                 if(~isFileExist('test_meas.h5'))
@@ -150,25 +150,25 @@ if ( isVD )
                 delete(h5Name);
 
                 if(hasAdj)                            
-                    command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 -X -H --studyDate ' studyDate]
+                    command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 -X -H --studyDate ' studyDate]
                     if(flashRef)
                         command = [command ' -F'];
                     end
                     dos(command, '-echo');
 
-                    command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 --studyDate ' studyDate]
+                    command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 --studyDate ' studyDate]
                     if(flashRef)
                         command = [command ' -F'];
                     end
                     dos(command, '-echo');
                 else
-                    command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 1 -X -H --studyDate ' studyDate]
+                    command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 1 -X -H --studyDate ' studyDate]
                     if(flashRef)
                         command = [command ' -F'];
                     end
                     dos(command, '-echo');
 
-                    command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 1 --studyDate ' studyDate]
+                    command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 1 --studyDate ' studyDate]
                     if(flashRef)
                         command = [command ' -F'];
                     end

@@ -3,7 +3,7 @@ function res = PerformGadgetronRecon_parse_scan_info(scan_info)
 % parse the scan info
 % res = PerformGadgetronRecon_parse_scan_info(scan_info)
 
-res = struct('num_pt', 0, 'LGE', 0, 'pt_LGE', 0, 'DBLGE', 0, 'pt_DBLGE', 0, 'Perf', 0, 'pt_Perf', 0, 'Binning', 0, 'pt_Binning', 0, 'RTCine', 0, 'pt_RTCine', 0, 'T2W', 0, 'pt_T2W', 0, 'T2S', 0, 'pt_T2S', 0, 'study_dates', [], 'week_num', []);
+res = struct('num_pt', 0, 'LGE', 0, 'pt_LGE', 0, 'DBLGE', 0, 'pt_DBLGE', 0, 'Perf', 0, 'pt_Perf', 0, 'Binning', 0, 'pt_Binning', 0, 'RTCine', 0, 'pt_RTCine', 0, 'T2W', 0, 'pt_T2W', 0, 'T2S', 0, 'pt_T2S', 0, 'RetroCine', 0, 'pt_RetroCine', 0, 'study_dates', [], 'week_num', []);
 
 res.num_pt = size(scan_info, 1);
 
@@ -27,6 +27,9 @@ res.pt_T2W = sum(scan_info.T2W>0);
 
 res.T2S = sum(scan_info.T2S);
 res.pt_T2S = sum(scan_info.T2S>0);
+
+res.RetroCine = sum(scan_info.RetroCine);
+res.pt_RetroCine = sum(scan_info.RetroCine>0);
 
 start_date = [];
 end_date = [];
@@ -83,5 +86,6 @@ disp(['Binning          : ' num2str(res.Binning) ' from ' num2str(res.pt_Binning
 disp(['RT Cine          : ' num2str(res.RTCine) ' from ' num2str(res.pt_RTCine) ' patients']);
 disp(['T2W              : ' num2str(res.T2W) ' from ' num2str(res.pt_T2W) ' patients']);
 disp(['T2S              : ' num2str(res.T2S) ' from ' num2str(res.pt_T2S) ' patients']);
+disp(['RetroCine        : ' num2str(res.RetroCine) ' from ' num2str(res.pt_RetroCine) ' patients']);
 disp(['---------------------------------------------------']);
 

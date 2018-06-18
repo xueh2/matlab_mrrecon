@@ -1,11 +1,11 @@
 
-function [mag, header] = plotComplexImageArray(im, voxelsize, newNpe, centre, width, delayTime, plotFlag)
+function [mag, header] = plotComplexImageArray(im, voxelsize, newNpe, centre, width, delayTime, endo_pt, epi_pt, plotFlag)
 
-if ( nargin < 2 )
+if ( nargin < 2 | isempty(voxelsize) )
     voxelsize = [1 1 1];
 end
 
-if ( nargin < 3 )
+if ( nargin < 3 | isempty(newNpe) )
     newNpe = size(im,2);
 end
 
@@ -15,10 +15,18 @@ if ( nargin < 5 )
 end
 
 if ( nargin < 6 )
-   delayTime = 0.1;
+   delayTime = 1/30;
 end
 
-if ( nargin < 7 )
+if( nargin < 7 )
+    endo_pt = [];
+end
+
+if( nargin < 8 )
+    epi_pt = [];
+end
+
+if ( nargin < 9 )
    plotFlag = 1;
 end
 
@@ -87,7 +95,7 @@ if ( length(s) == 3 )
 
     if ( plotFlag )
         magWindowed = normalizeWindowSetting(mag, centre, width);        
-        imArrayMrFtkPlayer(magWindowed, header,delayTime);
+        imArrayMrFtkPlayer(magWindowed, header,delayTime, endo_pt, epi_pt);
     end
 end
 
@@ -117,7 +125,7 @@ if ( length(s) == 2 )
 
     if ( plotFlag )
         magWindowed = normalizeWindowSetting(mag, centre, width);        
-        imArrayMrFtkPlayer(magWindowed, header,delayTime);
+        imArrayMrFtkPlayer(magWindowed, header,delayTime, endo_pt, epi_pt);
     end
 end
 

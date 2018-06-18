@@ -3,6 +3,9 @@ function UTCases = set_up_UT_cases_SNR_Recon_Test;
 
 % sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
 UTCases = {
+    
+    'SNR_Unit_Recon\NoiseDebug', 'meas_MID00951_FID18854_SNR_GFactor',                       'VD',   'Generic_Cartesian_Grappa.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
+
     % R=1
     'SNR_Unit_Recon\SNRUnitTest', 'meas_MID00393_FID114595_R1_PEFOV100_PERes100',                       'VD',   'GTPrep_2DT_Cartesian_GFactor_Offline.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
     'SNR_Unit_Recon\SNRUnitTest', 'meas_MID00394_FID114596_R1_PEFOV75_PERes75',                       'VD',   'GTPrep_2DT_Cartesian_GFactor_Offline.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   

@@ -122,7 +122,9 @@ FigureBottom=(ScreenHeight-FigureHeight)/2;
 FigureLeft=(ScreenWidth-FigureWidth)/2;
 fig_handle=gcf;%figure;
 set(fig_handle,'Units','Inches')
+pos_f = get(fig_handle, 'Position');
 set(fig_handle,'Position',[FigureLeft FigureBottom FigureWidth FigureHeight])
+% set(fig_handle,'Position',[pos_f(1) pos_f(2) FigureWidth FigureHeight])
 
 % calculate sub-image dimensions in inches
 SubImageWidth=FigureWidth*Xsize/X0size;

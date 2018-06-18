@@ -13,7 +13,8 @@ StopGadgetronOnRemote('hongkong', 9008);
 % StopGadgetronOnRemote('palau', 9008);
 StopGadgetronOnRemote('samoa', 9008);
 StopGadgetronOnRemote('grenada', 9008);
-% StopGadgetronOnRemote('andorra', 9008);
+StopGadgetronOnRemote('andorra', 9008);
+StopGadgetronOnRemote('137.187.134.104', 9008);
 
 timeUsed = toc;
 
@@ -27,8 +28,8 @@ StartGadgetronOnRemote('hongkong', 9008);
 % StartGadgetronOnRemote('palau', 9008);
 StartGadgetronOnRemote('samoa', 9017);
 StartGadgetronOnRemote('grenada', 9008);
-% StartGadgetronOnRemote('andorra', 9008);
-
+StartGadgetronOnRemote('andorra', 9008);
+StartGadgetronOnRemote('137.187.134.104', 9008);
 timeUsed = toc;
 
 dos('gadgetron_cloudbus_relay &');

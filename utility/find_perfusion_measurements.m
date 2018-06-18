@@ -2,9 +2,12 @@
 % idir = 'Z:\RawData\RoyalFree\'
 % startdate = 20161015;
 % enddate = 20170724;
-idir = '\\hl-share\RawMRI\Lab-Kellman\RawData\LEEDS\';
-startdate = 20170601;
-enddate = 20171026;
+% idir = '\\hl-share\RawMRI\Lab-Kellman\RawData\LEEDS\';
+% startdate = 20170601;
+% enddate = 20171026;
+% idir = '\\hl-share\RawMRI\Lab-Kellman\RawData\CLOUD\';
+startdate = 20180108;
+enddate = 20180109;
 
 clear out
         

@@ -13,7 +13,7 @@ end
 num = numel(scan_info);
 
 patients = zeros(num, 1);
-scans = zeros(num, 7); % LGE, DBLGE, Perf, Binning, RTCine, T2W, T2S
+scans = zeros(num, 8); % LGE, DBLGE, Perf, Binning, RTCine, T2W, T2S, RetroCine
 
 minw = zeros(num, 1);
 maxw = zeros(num, 1);
@@ -36,6 +36,7 @@ for ii=1:num
     scans(ii, 5) = res.RTCine;
     scans(ii, 6) = res.T2W;
     scans(ii, 7) = res.T2S;     
+    scans(ii, 8) = res.RetroCine;
     
     minw(ii) = res.week_num(1);
     maxw(ii) = res.week_num(2);
@@ -60,6 +61,7 @@ disp(['Total number of Binning  : ' num2str(tScan(4))]);
 disp(['Total number of RTCine   : ' num2str(tScan(5))]);
 disp(['Total number of T2W      : ' num2str(tScan(6))]);
 disp(['Total number of T2S      : ' num2str(tScan(7))]);
+disp(['Total number of RetroCine: ' num2str(tScan(8))]);
 
 %% plot patients
 
@@ -114,6 +116,19 @@ title(['Number of Dark blood LGE scans with Gadgetron is ' num2str(tScan(2)) ', 
 set(h, 'Position', [500 200 1.5*1024 1.5*768]);
 saveas(h, fullfile(fig_dir, 'DBLGE_Count'), 'fig');
 
+%% plot RetroCine
+
+labels = cell(num, 1);
+for ii=1:num
+    labels{ii} = [sites{ii} ', N=' num2str(scans(ii, 1))];
+end
+
+h = figure('Name',['Number of RetroCine scans using Gadgetron up to ' date],'NumberTitle','off');
+pie(scans(:, 1), labels);
+title(['Number of RetroCine scans with Gadgetron is ' num2str(tScan(8)) ', from ' num2str(first_date) ' to ' num2str(last_date)], 'FontSize', 24);
+set(h, 'Position', [400 200 1.5*1024 1.5*768]);
+saveas(h, fullfile(fig_dir, 'RetroCine_Count'), 'fig');
+
 %% count every week data
 
 week_record = cell(num, 1);
@@ -135,7 +150,7 @@ xlim([0 size(bar_y, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Perfusion scans')
-title(['Number of perfusion scans using Gadgetron, Year 2016 - 2017, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
+title(['Number of perfusion scans using Gadgetron, Year 2016 - 2018, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -155,7 +170,7 @@ xlim([0 size(bar_y_patients, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Patients scanned with Gadgetron perfusion')
-title(['Number of patients scanned with Gadgetron perfusion, Year 2016 - 2017, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
+title(['Number of patients scanned with Gadgetron perfusion for stress studies, Year 2016 - 2018, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -177,7 +192,7 @@ xlim([0 size(bar_y, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of LGE scans')
-title(['Number of LGE scans using Gadgetron, Year 2016 - 2017, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
+title(['Number of LGE scans using Gadgetron, Year 2016 - 2018, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -197,7 +212,7 @@ xlim([0 size(bar_y_patients, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Patients scanned with Gadgetron LGE')
-title(['Number of patients scanned with Gadgetron LGE, Year 2016 - 2017, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
+title(['Number of patients scanned with Gadgetron LGE, Year 2016 - 2018, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -260,11 +275,18 @@ function [bar_x, bar_y, bar_y_patients] = make_week_plot(week_record, week_recor
 % bar_y_patients: number of patients per week
 
 mW = weeknum(datenum('20161231', 'yyyymmdd'));
+mW2 = weeknum(datenum('20171231', 'yyyymmdd'));
 
 bar_x = [];
 for kk=minW:maxW
     w = kk;
-    if(w>mW) w = w - mW; end
+    
+    if(w>mW+mW2) 
+        w = w - mW - mW2; 
+    else
+        if(w>mW) w = w - mW; end
+    end
+    
     bar_x = [bar_x; {num2str(w)}];
 end
 

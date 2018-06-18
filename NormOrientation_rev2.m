@@ -1,5 +1,5 @@
 function  [rotate90, flip] = NormOrientation_rev2 (rowvec, colvec, normvec);
-% function  [rotate90, flip] = NormOrientation_rev2 (quaternion);
+% function  [rotate90, flip] = NormOrientation_rev2 (rowvec, colvec, normvec);
 % 
 % main orientation is SAG, COR, or TRA
 %

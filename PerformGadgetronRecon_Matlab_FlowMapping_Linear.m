@@ -1,5 +1,5 @@
 
-function PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, h5Name, resDir, roiDir, dataRole, HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star, res, res_Q_e)
+function PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, h5Name, resDir, roiDir, dataRole, HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star, res, res_Q_e, cutoff_mini_bolus)
 % PerformGadgetronRecon_Matllab_FlowMapping_Linear(dataDir, h5Name, resDir, roiDir, dataRole, HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star, res, res_Q_e)
 % PerformGadgetronRecon_Matlab_FlowMapping_Linear('I:\BARTS', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_42110_204543119_204543128_323_20160614-120954', 'I:\ReconResults\BARTS')
 % PerformGadgetronRecon_Matlab_FlowMapping_Linear('I:\KAROLINSKA', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_41672_2309137_2309147_949_20160825-093814', 'I:\ReconResults\KAROLINSKA')
@@ -28,6 +28,10 @@ if(nargin<11)
     res_Q_e = res;
 end
 
+if(nargin<12)
+    cutoff_mini_bolus = false;
+end
+
 UTDir = getenv('GTPLUS_UT_DIR');
 
 aif_N_runup = 3;
@@ -50,8 +54,15 @@ T2_0_blood_1p5T = 220;
 T1_0_myo_1p5T = 1100;
 T2_0_myo_1p5T = 45;
 
-[configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(h5Name);
-res_dir = fullfile(resDir, study_dates, h5Name);
+study_dates = h5Name;
+is_h5 = 1;
+try
+    [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(h5Name);
+    res_dir = fullfile(resDir, study_dates, h5Name)
+catch
+    res_dir = fullfile(resDir, h5Name)
+    is_h5 = 0;
+end
 
 hct_str = num2str(HCT);
 ind = find(hct_str=='.');
@@ -79,18 +90,22 @@ slc2_name = fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_' suffix 
 slc3_name = fullfile(res_dir, ['flowmaps_Linear_without_R2Star_' res '_' suffix '_2.mat']);
 
 processed_linear_withoutR2Star = 0;
-if(~reComputed_withoutR2Star & isFileExist(Q_e_name) & isFileExist(slc1_name) & isFileExist(slc2_name) & isFileExist(slc3_name))
+if(~reComputed_withoutR2Star & isFileExist(Q_e_name_without_R2Star) & isFileExist(slc1_name) & isFileExist(slc2_name) & isFileExist(slc3_name))
     disp(['Already processed without R2* correction - ' res_dir ' - ' dataRole ' - hct : ' num2str(HCT)]);
     processed_linear_withoutR2Star = 1;
 end
 
-if(processed_linear & processed_linear_withoutR2Star)
-%if(processed_linear)
+% if(processed_linear & processed_linear_withoutR2Star)
+if(processed_linear)
     return;
 end
 
 %% read in h5 file
-dset = ismrmrd.Dataset(fullfile(dataDir, study_dates, [h5Name '.h5']));
+if(is_h5)
+    dset = ismrmrd.Dataset(fullfile(dataDir, study_dates, [h5Name '.h5']));
+else
+    dset = ismrmrd.Dataset(fullfile(resDir, h5Name, [h5Name '.h5']));
+end
 header = ismrmrd.xml.deserialize(dset.readxml());
 
 FA_Perf = header.sequenceParameters.flipAngle_deg(1)
@@ -317,6 +332,33 @@ figure; imagescn(cat(4, gd0_upsampled, gd0_half_upsampled), [0 2], [], [], 3);
 
 % -------------------------------------
 
+if(cutoff_mini_bolus)
+    
+    figure;
+    hold on
+    plot(aif_cin_Gd_baseline_corrected);
+    
+    num_pt = size(aif_cin_Gd_baseline_corrected,1)
+    
+    prompt = {'Enter start of big bolus:'};
+    title = 'Input new data start';
+    dims = [1 35];
+    definput = {'50'};
+    answer = inputdlg(prompt,title,dims,definput)
+    
+    data_start = str2num(answer{1});
+    
+    aif_cin_Gd_baseline_corrected = aif_cin_Gd_baseline_corrected(data_start:end);
+    aif_cin_Gd_without_R2Star = aif_cin_Gd_without_R2Star(data_start:end);
+    
+    gd0_upsampled = gd0_upsampled(:,:,data_start:end);
+    gd1_upsampled = gd1_upsampled(:,:,data_start:end);
+    gd2_upsampled = gd2_upsampled(:,:,data_start:end);
+    gd0_half_upsampled = gd0_half_upsampled(:,:,data_start:end);
+    gd1_half_upsampled = gd1_half_upsampled(:,:,data_start:end);
+    gd2_half_upsampled = gd2_half_upsampled(:,:,data_start:end);
+end
+    
 % sampleinterval = 0.5;
 % sigmas = [1.6 4.0 5.3];
 % sigmaMeasure = 0.1;
@@ -336,9 +378,15 @@ aif_rest2 = aif_cin_Gd_baseline_corrected(round(peakTime):end);
 valleyTime = round(peakTime2) + peakTime - 0.5;
 foot_rest = round(peakTime - timeToPeak_rest);   
 
-foot = aif_cin_foot_peak_valley(1);
-peak = aif_cin_foot_peak_valley(2)+1;
-maxCin = aif_cin_foot_peak_valley(3)+1;
+if(cutoff_mini_bolus)
+    foot = foot_rest;
+    peak = peakTime;
+    maxCin = valleyTime;
+else    
+    foot = aif_cin_foot_peak_valley(1);
+    peak = aif_cin_foot_peak_valley(2)+1;
+    maxCin = aif_cin_foot_peak_valley(3)+1;
+end
 
 disp(['foot = ' num2str(foot) ' - peak = ' num2str(peak) ' - valley = ' num2str(maxCin)]);
 
@@ -361,6 +409,7 @@ hold off
 % foot = N-NUsed
 % peak = round(peakTime)
 % maxCin = round(valleyTime)
+% save PerfMapping aif_cin_Gd aif_cin_Gd_baseline_corrected gd0_upsampled gd1_upsampled gd2_upsampled
 
 cd(res_dir)
 
@@ -443,6 +492,8 @@ else
     hct_r = 1;
 end
 
+flowmaps = {};
+
 for slc=1:SLC
 
     disp(['========================================================']);
@@ -500,8 +551,9 @@ for slc=1:SLC
         
         Fp = [0.1:0.05:3.0001];
         Vp = [0.035:0.005:0.08001];
-        PS = [0.4:0.1:1.801];
-        Visf = [0.15:0.025:0.65001];
+        PS = [0.4:0.1:2.401];
+        % Visf = [0.15:0.025:0.65001];
+        Visf = [0.1:0.02:0.5001];
         disp(['number of Q_e entries - ' num2str(numel(Fp)*numel(Vp)*numel(PS)*numel(Visf))])
 
         L     = 0.1;    % cm
@@ -663,8 +715,10 @@ for slc=1:SLC
         figure; imagescn(blood_volume_maps_grappa_PSIR(:,:,end), [0 20]); MBVColorMap;
         figure; imagescn(grappa_interVolumeMap_grappa_PSIR(:,:,end), [0 80]); ECVColorMap;
        
-        save(['flowmaps_Linear_WithoutFermiShift_FirstPass3_' res '_' suffix '_' num2str(slc-1)], ... 
+        save(['flowmaps_Linear_' res '_' suffix '_' num2str(slc-1)], ... 
             'estimate_shift_Fermi', 'use_first_pass_deconvolution', 'flowmaps_grappa_PSIR', 'grappa_interVolumeMap_grappa_PSIR', 'grappa_MTT_grappa_PSIR', 'grappa_ecv_grappa_PSIR', 'Ki_whole_grappa_PSIR', 'blood_volume_maps_grappa_PSIR', 'PS_maps_grappa_PSIR', 'SD_maps_grappa_PSIR');
+        
+        flowmaps{slc} = flowmaps_grappa_PSIR;
         
         % --------------------------------------
         
@@ -858,3 +912,6 @@ for slc=1:SLC
 
     closeall
 end
+
+save flowmaps flowmaps aif_cin_Gd aif_cin_Gd_baseline_corrected gd0_upsampled gd1_upsampled gd2_upsampled
+

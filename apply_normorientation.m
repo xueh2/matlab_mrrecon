@@ -4,7 +4,6 @@ function I = apply_normorientation(I, Rotate90, Flip);
 
 %     ***************************************
 %     *  Peter Kellman  (kellman@nih.gov)   *
-%     *  Laboratory for Cardiac Energetics  *
 %     *  NIH NHLBI                          *
 %     ***************************************
 

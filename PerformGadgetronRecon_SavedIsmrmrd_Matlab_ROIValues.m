@@ -1,5 +1,5 @@
 
-function [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_SNR_Gd_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, report_column, prefix, processing_always, processing_snr_always, processing_Gd_always, prefix_SNR)
+function [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_Matlab_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, report_column, prefix, processing_always, processing_snr_always, processing_Gd_always, prefix_SNR)
 % [ROITable, sf, rf, sf_i, rf_i, res_table] = PerformGadgetronRecon_SavedIsmrmrd_Matlab_ROIValues(PerfTable, resDir, contourDir, stress_column, rest_column, ischemia_column, hct_column, fixed_HCT, report_column, prefix, processing_always)
 % if isempty(fixed_HCT)==1, measured HCT is used; if(fixed_HCT>=0 & fixed_HCT<=1), this value is used
 
@@ -149,9 +149,11 @@ for n=1:num
     disp([num2str(n) ' out of ' num2str(num) ' - ' PerfTable{n+1, report_column} ' - Processing : '  ' - ' PerfTable{n+1, rest_column}]); 
     disp(['==================================================================']);  
        
-    [configName, scannerID, pID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(stressCase);
+    [configName, scannerID, pID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time_stress] = parseSavedISMRMRD(stressCase);
+    [configName, scannerID, pID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time_rest] = parseSavedISMRMRD(restCase);
 
-    figDir = fullfile(resDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' pID '_' studyID '_' study_dates '_Figure']) 
+    % figDir = fullfile(resDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' pID '_' studyID '_' study_dates '_Figure']) 
+    figDir = fullfile(resDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' pID '_' studyID '_' study_dates '_' study_time_stress '_' study_time_rest '_Figure']);
     
     roiDir = fullfile(contourDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' pID '_' studyID '_' study_dates '_ROI'])
     
@@ -208,7 +210,7 @@ for n=1:num
         scanInd = [scanInd; n];
         patientID = [patientID; {pID}];
         scanDate = [scanDate; study_dates];
-        scanTime = [scanTime; study_time];
+        scanTime = [scanTime; study_time_stress];
         hematocrit = [hematocrit; HCT];
 
         age = [age; PerfTable{n+1, 12}];
@@ -239,10 +241,14 @@ for n=1:num
         
         two_ROI = 0;
 
-        PerfResult_file = fullfile(roiDir, [prefix '_PerfResult_' suffix '.mat']);
+        % PerfResult_file = fullfile(roiDir, [prefix '_PerfResult_' suffix '.mat']);
+        PerfResult_file = fullfile(figDir, [prefix '_PerfResult_' suffix '.mat']);
         
         SNRResult_file = fullfile(roiDir, [prefix_SNR '_SNR_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
         Gd_Result_file = fullfile(roiDir, [prefix_SNR '_Gd_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
+        
+%         SNRResult_file = fullfile(figDir, [prefix_SNR '_SNR_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
+%         Gd_Result_file = fullfile(figDir, [prefix_SNR '_Gd_PerfResult_' scannerID '_' pID '_' studyID '_' study_dates '.mat']);
         
         has_result_file = 0;
         if(~processing_always & isFileExist(PerfResult_file) & isFileExist(SNRResult_file) & isFileExist(Gd_Result_file))
@@ -673,37 +679,38 @@ for n=1:num
             % ---------------------------------------------
             % SNR
             
-            if(processing_snr_always | ~isFileExist(SNRResult_file))
+            %if(processing_snr_always | ~isFileExist(SNRResult_file))
+            if(0)
                 try
-%                     sdata1 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_0_MAG.hdr'));
-%                     sdata2 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_1_MAG.hdr'));
-%                     sdata3 = analyze75read(fullfile(stressDir, 'DebugOutput', 'moco_2_MAG.hdr'));
+                    sdata1 = analyze75read(fullfile(stressDir, 'DebugOutput', 'input_spatiotemporal_filter__row0_MAG.hdr'));
+                    sdata2 = analyze75read(fullfile(stressDir, 'DebugOutput', 'input_spatiotemporal_filter__row1_MAG.hdr'));
+                    sdata3 = analyze75read(fullfile(stressDir, 'DebugOutput', 'input_spatiotemporal_filter__row2_MAG.hdr'));
 
                     cd(stressDir)
                     s_gfactor = readGTPlusExportImageSeries_Squeeze(300);
-                    s_gfactor = flipdim(s_gfactor, 2);
+                    % s_gfactor = flipdim(s_gfactor, 2);
 
-                    moco_perf = readGTPlusExportImageSeries_Squeeze(104);
-                    moco_perf = flipdim(moco_perf, 2);
-                    
-                    sdata1 = squeeze(moco_perf(:,:,1,:));
-                    sdata2 = squeeze(moco_perf(:,:,2,:));
-                    sdata3 = squeeze(moco_perf(:,:,3,:));
+%                     moco_perf = readGTPlusExportImageSeries_Squeeze(104);
+%                     moco_perf = flipdim(moco_perf, 2);
+%                     
+%                     sdata1 = squeeze(moco_perf(:,:,1,:));
+%                     sdata2 = squeeze(moco_perf(:,:,2,:));
+%                     sdata3 = squeeze(moco_perf(:,:,3,:));
 
-%                     rdata1 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_0_MAG.hdr'));
-%                     rdata2 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_1_MAG.hdr'));
-%                     rdata3 = analyze75read(fullfile(restDir, 'DebugOutput', 'moco_2_MAG.hdr'));
+                    rdata1 = analyze75read(fullfile(restDir, 'DebugOutput', 'input_spatiotemporal_filter__row0_MAG.hdr'));
+                    rdata2 = analyze75read(fullfile(restDir, 'DebugOutput', 'input_spatiotemporal_filter__row1_MAG.hdr'));
+                    rdata3 = analyze75read(fullfile(restDir, 'DebugOutput', 'input_spatiotemporal_filter__row2_MAG.hdr'));
 
                     cd(restDir)
                     r_gfactor = readGTPlusExportImageSeries_Squeeze(300);
-                    r_gfactor = flipdim(r_gfactor, 2);
+%                     r_gfactor = flipdim(r_gfactor, 2);
 
-                    moco_perf = readGTPlusExportImageSeries_Squeeze(104);
-                    moco_perf = flipdim(moco_perf, 2);
-                    
-                    rdata1 = squeeze(moco_perf(:,:,1,:));
-                    rdata2 = squeeze(moco_perf(:,:,2,:));
-                    rdata3 = squeeze(moco_perf(:,:,3,:));
+%                     moco_perf = readGTPlusExportImageSeries_Squeeze(104);
+%                     moco_perf = flipdim(moco_perf, 2);
+%                     
+%                     rdata1 = squeeze(moco_perf(:,:,1,:));
+%                     rdata2 = squeeze(moco_perf(:,:,2,:));
+%                     rdata3 = squeeze(moco_perf(:,:,3,:));
                     
 %                     sdata1 = flipdim(sdata1, 2);
 %                     sdata2 = flipdim(sdata2, 2);
@@ -712,13 +719,15 @@ for n=1:num
 %                     rdata2 = flipdim(rdata2, 2);
 %                     rdata3 = flipdim(rdata3, 2);
 
-                    snr_s1 = 25 * sdata1 ./ squeeze(s_gfactor(:,:,1,:));
-                    snr_s2 = 25 * sdata2 ./ squeeze(s_gfactor(:,:,2,:));
-                    snr_s3 = 25 * sdata3 ./ squeeze(s_gfactor(:,:,3,:));
+                    num_stress = size(sdata1, 3);
+                    snr_s1 = 25 * sdata1 ./ squeeze(s_gfactor(:,:,1,1:num_stress));
+                    snr_s2 = 25 * sdata2 ./ squeeze(s_gfactor(:,:,2,1:num_stress));
+                    snr_s3 = 25 * sdata3 ./ squeeze(s_gfactor(:,:,3,1:num_stress));
 
-                    snr_r1 = 25 * rdata1 ./ squeeze(r_gfactor(:,:,1,:));
-                    snr_r2 = 25 * rdata2 ./ squeeze(r_gfactor(:,:,2,:));
-                    snr_r3 = 25 * rdata3 ./ squeeze(r_gfactor(:,:,3,:));
+                    num_rest = size(rdata1, 3);
+                    snr_r1 = 25 * rdata1 ./ squeeze(r_gfactor(:,:,1,1:num_rest));
+                    snr_r2 = 25 * rdata2 ./ squeeze(r_gfactor(:,:,2,1:num_rest));
+                    snr_r3 = 25 * rdata3 ./ squeeze(r_gfactor(:,:,3,1:num_rest));
 
                     cd(roiDir)
                     if(~isempty(s1))
@@ -1221,7 +1230,7 @@ for n=1:num
             end
             
             PerfResult = v;
-            save(PerfResult_file, 'PerfResult', 'res_stress', 'res_rest', 'two_ROI', 'sSplenic', 'rSplenic', 'pre_T1_blood', 'pre_T1_myo', 'post_T1_blood', 'post_T1_myo', 's_SNR', 'r_SNR');           
+            save(PerfResult_file, 'PerfResult', 'res_stress', 'res_rest', 'two_ROI', 'sSplenic', 'rSplenic', 'pre_T1_blood', 'pre_T1_myo', 'post_T1_blood', 'post_T1_myo');           
         end
     
         ROITable = [ROITable; v];
@@ -1367,8 +1376,11 @@ if(isfield(a1, 'flowmaps_grappa_PSIR'))
     res.Visf = [f1.m f2.m f3.m];
 
     [f1, f2, f3] = get_roi_values(a1.blood_volume_maps_grappa_PSIR, a2.blood_volume_maps_grappa_PSIR, a3.blood_volume_maps_grappa_PSIR, s1, s2, s3);
-    res.Vp = [f1.m f2.m f3.m] * (1-HCT);
-    res.Vb = [f1.m f2.m f3.m];
+    Vp_1 = median(f1.data(:));
+    Vp_2 = median(f2.data(:));
+    Vp_3 = median(f3.data(:));
+    res.Vp = [Vp_1 Vp_2 Vp_3] * (1-HCT);
+    res.Vb = [Vp_1 Vp_2 Vp_3];
 
     [f1, f2, f3] = get_roi_values(a1.PS_maps_grappa_PSIR, a2.PS_maps_grappa_PSIR, a3.PS_maps_grappa_PSIR, s1, s2, s3);
     res.PS = [f1.m f2.m f3.m];
@@ -1591,18 +1603,21 @@ end
 function [f1, f2, f3] = get_roi_values(a1, a2, a3, s1, s2, s3)
     if(isempty(s1) | isempty(a1))
         f1.m = -1;
+        f1.data = [-1];
     else
         f1 = roi_statistics(flipdim(a1(:,:,end), 2), s1.ROI_info_table(1,1));
     end
     
     if(isempty(s2) | isempty(a2))
         f2.m = -1;
+        f2.data = [-1];
     else
         f2 = roi_statistics(flipdim(a2(:,:,end), 2), s2.ROI_info_table(1,1));
     end
     
     if(isempty(s3) | isempty(a3))
         f3.m = -1;
+        f3.data = [-1];
     else
         f3 = roi_statistics(flipdim(a3(:,:,end), 2), s3.ROI_info_table(1,1));
     end

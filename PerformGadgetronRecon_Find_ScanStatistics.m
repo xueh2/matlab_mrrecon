@@ -9,7 +9,7 @@ if(nargin<3)
 end
 
 if(nargin<4)
-    date_end = '2018-01-01';
+    date_end = '2019-01-01';
 end
 
 % ------------------------------------------------------------
@@ -93,6 +93,7 @@ Binning = [];
 RTCine = [];
 T2W = [];
 T2S = [];
+RetroCine = [];
 
 num_small_file = 1;
 
@@ -110,7 +111,7 @@ for n=1:num
         isPerf = 1;
     end
 
-    [isLGE, isDBLGE, isPerf, isBinning, isRTCine, isT2W, isT2S] = find_data_type(name);
+    [isLGE, isDBLGE, isPerf, isBinning, isRTCine, isT2W, isT2S, isRetroCine] = find_data_type(name);
     [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
 
     dataName = fullfile(dataDir, study_date, [name '.h5']);
@@ -166,6 +167,7 @@ for n=1:num
         if(isRTCine) RTCine(found_pt) = RTCine(found_pt) + 1; end
         if(isT2W) T2W(found_pt) = T2W(found_pt) + 1; end
         if(isT2S) T2S(found_pt) = T2S(found_pt) + 1; end
+        if(isRetroCine) RetroCine(found_pt) = RetroCine(found_pt) + 1; end
     else
         patientID_all = [patientID_all; {[patientID '_' studyID]}];
         scannerID_all = [scannerID_all; {scannerID}];
@@ -177,6 +179,10 @@ for n=1:num
             wn = wn + maxW;
         end
         
+        if( wn<maxW & ~isempty(strfind(study_date, '2018')) )
+            wn = wn + 2*maxW;
+        end
+        
         week_num = [week_num; wn];
         
         if(isLGE) LGE = [LGE; 1]; else LGE = [LGE; 0]; end
@@ -186,15 +192,16 @@ for n=1:num
         if(isRTCine) RTCine = [RTCine; 1]; else RTCine = [RTCine; 0]; end
         if(isT2W) T2W = [T2W; 1]; else T2W = [T2W; 0]; end
         if(isT2S) T2S = [T2S; 1]; else T2S = [T2S; 0]; end
-    end
+         if(isRetroCine) RetroCine = [RetroCine; 1]; else RetroCine = [RetroCine; 0]; end
+   end
 end
 
-scan_info = table(patientID_all, sha1_processed, study_dates, week_num, scannerID_all, LGE, DBLGE, Perf, Binning, RTCine, T2W, T2S);
+scan_info = table(patientID_all, sha1_processed, study_dates, week_num, scannerID_all, LGE, DBLGE, Perf, Binning, RTCine, T2W, T2S, RetroCine);
 
 end
 
 % {LGE, DBLGE, perfusion, binning cine, realtime cine, T2w, T2*}
-function [isLGE, isDBLGE, isPerf, isBinning, isRTCine, isT2W, isT2S] = find_data_type(name)
+function [isLGE, isDBLGE, isPerf, isBinning, isRTCine, isT2W, isT2S, isRetroCine] = find_data_type(name)
 
     isLGE = 0;
     isDBLGE = 0;
@@ -203,7 +210,8 @@ function [isLGE, isDBLGE, isPerf, isBinning, isRTCine, isT2W, isT2S] = find_data
     isRTCine = 0;
     isT2W = 0;
     isT2S = 0;
-
+    isRetroCine = 0;
+    
     if(~isempty(strfind(name, 'DB_LGE')))
         isDBLGE = 1;
     elseif(~isempty(strfind(name, 'LGE')))
@@ -218,5 +226,7 @@ function [isLGE, isDBLGE, isPerf, isBinning, isRTCine, isT2W, isT2S] = find_data
         isT2W = 1;
     elseif(~isempty(strfind(name, 'T2Star')))
         isT2S = 1;
+    elseif(~isempty(strfind(name, 'Retro_Lin_Cine')))
+        isRetroCine = 1;
     end
 end

@@ -1,5 +1,16 @@
 
-function [xyAxes, xyImageHandle] = plotMrFtkImage(im, header, h, showAxis)
+function [xyAxes, xyImageHandle, endo_handle, epi_handle] = plotMrFtkImage(im, header, h, showAxis, endo_pt, epi_pt)
+
+if(nargin<5)
+    endo_pt = [];
+end
+
+if(nargin<6)
+    epi_pt = [];
+end
+
+endo_handle = -1;
+epi_handle = -1;
 
 xlim3D(1) = header.spacingX*-0.5;
 xlim3D(2) = header.spacingX*(header.sizeX-0.5);
@@ -21,6 +32,7 @@ else
 end
 % xy
 axes(xyAxes); colormap(gray);
+hold on
 axis(xyAxes, 'ij', 'equal');
 if ( ~showAxis )
     axis(xyAxes, 'off');
@@ -44,5 +56,15 @@ x = [xlim3D(1) xlim3D(2); xlim3D(1) xlim3D(2)];
 y = [ylim3D(1) ylim3D(1); ylim3D(2) ylim3D(2)];
 axes(xyAxes);
 xyImageHandle = surface('XData',x,'YData',y,'ZData',[0 0; 0 0],'CData', double(vi),'FaceColor','texturemap','EdgeColor','none');
+
+if(~isempty(endo_pt))
+    endo_handle = plot(xyAxes, endo_pt(:,1), endo_pt(:,2), 'r');
+end
+
+if(~isempty(epi_pt))
+    epi_handle = plot(xyAxes, epi_pt(:,1), epi_pt(:,2), 'g');
+end
+
+hold off
 
 set(gcf, 'Renderer', 'OpenGL');

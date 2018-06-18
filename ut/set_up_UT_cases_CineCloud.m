@@ -1,8 +1,6 @@
 function UTCases = set_up_UT_cases_CineCloud;
 % run the gt recon
 
-set_UT_Dir('D')
-
 % sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
 UTCases = { 
     

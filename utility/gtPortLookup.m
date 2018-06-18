@@ -21,7 +21,7 @@ if(strcmp(gt_host, 'samoa'))
     GT_PORT = '9016';
 end
 
-if(strcmp(gt_host, 'barbados'))
+if(strcmp(gt_host, 'barbados') | strcmp(gt_host, '137.187.134.104'))
     GT_PORT = '9008';
 end
 
@@ -30,7 +30,7 @@ if(strcmp(gt_host, 'andorra'))
 end
 
 if(strcmp(gt_host, 'hongkong'))
-    GT_PORT = '9008';
+    GT_PORT = '9016';
 end
 
 if(strcmp(gt_host, 'bermuda'))

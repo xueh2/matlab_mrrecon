@@ -1,4 +1,4 @@
-function R = quat2mat(q);
+                                                                                                                  function R = quat2mat(q);
 % function R = quat2mat(q);
 %
 % function to convert quaternion vector (q) to rotation matrix (R)

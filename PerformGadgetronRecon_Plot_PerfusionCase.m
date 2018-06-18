@@ -1,5 +1,5 @@
 
-function h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase(resDir, restCase, onlyReview, baseDir)
+function h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase(resDir, restCase, onlyReview, checkProcessed, baseDir)
 % PerformGadgetronRecon_Plot_PerfusionCase(resDir, restCase, onlyReview, baseDir)
 % PerformGadgetronRecon_Plot_PerfusionCase('I:\ReconResults\ROYALFREE', restCase, onlyReview)
 
@@ -8,13 +8,17 @@ if(nargin < 3)
 end
 
 if(nargin < 4)
+    checkProcessed = 1;
+end
+
+if(nargin < 5)
     baseDir = resDir;
 end
 
 [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(restCase);
 restDir = fullfile(resDir, study_dates, restCase)
 
-h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(resDir, restDir, scannerID, patientID, studyID, study_dates, onlyReview, baseDir);
+h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(resDir, restDir, scannerID, patientID, studyID, study_dates, onlyReview, checkProcessed, baseDir);
 
 % if(~onlyReview)   
 %     try
