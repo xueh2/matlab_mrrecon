@@ -102,21 +102,27 @@ for n=1:num
                     aif_cin_Gd = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_LUTCorrection.hdr'));
                     aif_cin_Gd_without_R2Star = analyze75read(fullfile(dstDir, 'DebugOutput', 'cin_all_echo0_without_R2Star_LUTCorrection.hdr'));
                     aif_cin_Gd_baseline_corrected = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_echo0_all_signal_baseline_corrected.hdr'));
-                    aif_cin_all_echo0_signal = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_signal.hdr'));
-                    aif_cin_all_echo1_signal = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo1_signal.hdr'));
-                    aif_cin_all_echo0_signal_after_R2StarCorrection = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_signal_after_R2StarCorrection.hdr'));
-                    aif_cin_all_echo0_OverPD_after_R2StarCorrection = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_OverPD_after_R2StarCorrection.hdr'));
-                    aif_cin_all_R2Star = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_R2Star.hdr'));
-                    aif_cin_all_R2Star_SLEP = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_R2Star_SLEP.hdr'));
-                    cin_used_all_for_computeFlowMap = analyze75read(fullfile(dstDir, 'DebugOutput', 'cin_used_all_for_computeFlowMap.hdr'));
-                    aif_PD = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifPD_for_TwoEcho_T2StartCorrection_0.hdr'));
-                    aif_mask = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_LV_mask_for_TwoEcho_T2StartCorrection_0.hdr'));
-                    aif_mask_final = analyze75read(fullfile(dstDir, 'DebugOutput', 'AifLVMask_after_Picking.hdr'));
-                    PDMaskIntensity = analyze75read(fullfile(dstDir, 'DebugOutput', 'PDMaskIntensity.hdr'));
-                    pdPicked = analyze75read(fullfile(dstDir, 'DebugOutput', 'pdPicked.hdr'));
-                    aifPicked = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifPicked.hdr'));
-                    aifMaskIntensity = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifMaskIntensity.hdr'));
-                    aif_LUT = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_LUT_Valid.hdr'));
+                    
+                    if(max(aif_cin_Gd_baseline_corrected)<1.2)
+                        disp('max(aif_cin_Gd_baseline_corrected)<1.2')
+                        goodStatus = 1;
+                    else                    
+                        aif_cin_all_echo0_signal = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_signal.hdr'));
+                        aif_cin_all_echo1_signal = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo1_signal.hdr'));
+                        aif_cin_all_echo0_signal_after_R2StarCorrection = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_signal_after_R2StarCorrection.hdr'));
+                        aif_cin_all_echo0_OverPD_after_R2StarCorrection = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_echo0_OverPD_after_R2StarCorrection.hdr'));
+                        aif_cin_all_R2Star = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_R2Star.hdr'));
+                        aif_cin_all_R2Star_SLEP = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_all_R2Star_SLEP.hdr'));
+                        cin_used_all_for_computeFlowMap = analyze75read(fullfile(dstDir, 'DebugOutput', 'cin_used_all_for_computeFlowMap.hdr'));
+                        aif_PD = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifPD_for_TwoEcho_T2StartCorrection_0.hdr'));
+                        aif_mask = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_LV_mask_for_TwoEcho_T2StartCorrection_0.hdr'));
+                        aif_mask_final = analyze75read(fullfile(dstDir, 'DebugOutput', 'AifLVMask_after_Picking.hdr'));
+                        PDMaskIntensity = analyze75read(fullfile(dstDir, 'DebugOutput', 'PDMaskIntensity.hdr'));
+                        pdPicked = analyze75read(fullfile(dstDir, 'DebugOutput', 'pdPicked.hdr'));
+                        aifPicked = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifPicked.hdr'));
+                        aifMaskIntensity = analyze75read(fullfile(dstDir, 'DebugOutput', 'aifMaskIntensity.hdr'));
+                        aif_LUT = analyze75read(fullfile(dstDir, 'DebugOutput', 'aif_cin_LUT_Valid.hdr'));
+                    end
 %                     
 %                     if(max(aif_cin_Gd_baseline_corrected)>1.5)
 %                         dstAcqTimes = analyze75read(fullfile(dstDir, 'DebugOutput', 'dstAcqTimes_0.hdr'));
@@ -215,6 +221,7 @@ for n=1:num
     end
     
     try
+        cd(resDir)
         finfo = dir(dataName);
     catch
         disp(dataName)

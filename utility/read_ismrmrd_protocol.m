@@ -1,4 +1,4 @@
-function [patientID, protocol] = read_ismrmrd_protocol(filename);
+function [patientID, protocol , ismrmrd_header] = read_ismrmrd_protocol(filename);
 % function [patientID, protocol] = read_ismrmrd_protocol(filename);
 
 % uses Matlab Central base64decode.m
@@ -47,6 +47,9 @@ end
 if nargout > 1
     header = char(base64decode(str));
     protocol = MeasYaps2struct(header);
+end
+if nargout > 2
+    ismrmrd_header = hdr;
 end
 
 

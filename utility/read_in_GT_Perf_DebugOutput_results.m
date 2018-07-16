@@ -8,7 +8,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     BTEX_flow_SD_all, BTEX_PS_SD_all, BTEX_Visf_SD_all, BTEX_Vp_SD_all, BTEX_cov_all, ...
     flow_SD, PS_SD, Vp_SD, Visf_SD, BTEX_cov, ... 
     CC_F_PS, CC_F_Vp, CC_F_Visf, CC_PS_Vp, CC_PS_Visf, CC_Vp_Visf, ... 
-    BTEX_Tc_all, Fermi_Delay] = read_in_GT_Perf_DebugOutput_results(resDir)
+    BTEX_Tc_all, Fermi_Delay] = read_in_GT_Perf_DebugOutput_results(resDir, only_aif)
 
 % read in Gadgetron perfusion debug output results
 % [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_time, perf_acq_time, dst_acq_time, ... 
@@ -18,6 +18,10 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
 %     aif_PD, aif_mask, aif_mask_final, aif_LV_mask_plot, aif, aif_baseline_corrected, aif_plots, ... 
 %     flow, Ki, PS, Vp, Visf, E, SDMap, Delay, ...
 %     BTEX_Flow_all, BTEX_PS_all, BTEX_Vp_all, BTEX_Visf_all, BTEX_cost_all, BTEX_flow_SD_all, BTEX_Tc_all, Fermi_Delay] = read_in_GT_Perf_DebugOutput_results(resDir)
+
+    if(nargin<2)
+        only_aif = 0;
+    end
 
 
     perf=[];
@@ -74,54 +78,9 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     
     disp(['Total ' num2str(slc) ' is found ...']);
     
-    try
-%         perf = load_array(resDir, 'CASignal_Perf_', slc);        
-        perf = load_array2(resDir, 'PerfFlowMapping_Job_', slc, '_perf_moco_upsampled');        
-        perf = permute(perf, [1 2 4 3]);
-        perf = flipdim(perf, 2);
-    catch
-        try
-            perf = load_array(resDir, 'CASignal_Perf_', slc);
-            perf = permute(perf, [1 2 4 3]);
-            perf = flipdim(perf, 2);
-        catch
-            try
-                perf = readGTPlusExportImageSeries_Squeeze(resDir, 108);
-            catch
-                perf = [];
-            end
-        end        
-    end
-
     aif_acq_time = analyze75read(fullfile(resDir, 'DebugOutput', 'AIF_AcqTimes_0'));   
     perf_acq_time = load_array(resDir, 'Perf_AcqTimes_', slc);
     dst_acq_time = analyze75read(fullfile(resDir, 'DebugOutput', 'dstAcqTimes_0'));   
-    
-    ori = load_array(resDir, 'perf_', slc);   
-    ori = flipdim(ori, 2);
-
-    moco = load_array(resDir, 'input_for_SRNorm_', slc);   
-    moco = flipdim(moco, 2);
-    
-    moco_norm = load_array(resDir, 'SRNorm_', slc);   
-    moco_norm = flipdim(moco_norm, 2);
-
-    PD = load_array(resDir, 'PD_', slc);   
-    PD = flipdim(PD, 2);
-
-    try
-        input_for_filter = load_array(resDir, 'input_spatiotemporal_filter__row', slc);   
-        input_for_filter = flipdim(input_for_filter, 2);
-    catch
-        input_for_filter = [];
-    end
-    
-    try
-        filtered = load_array(resDir, 'output_spatiotemporal_filter__row', slc);   
-        filtered = flipdim(filtered, 2);
-    catch
-        filtered = [];
-    end
     
     try
         r1 = analyze75read(fullfile(resDir, 'DebugOutput', 'aif_moco.hdr'));
@@ -177,6 +136,10 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     if(max(aif_baseline_corrected)<1.2)
         return;
     end
+           
+    if(only_aif)
+        return;
+    end
     
     % load aif figures
     try
@@ -185,6 +148,51 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
         aif_plots = permute(aif_plots, [2 1 3]);
     catch
         aif_plots = [];
+    end
+    
+    try
+%         perf = load_array(resDir, 'CASignal_Perf_', slc);        
+        perf = load_array2(resDir, 'PerfFlowMapping_Job_', slc, '_perf_moco_upsampled');        
+        perf = permute(perf, [1 2 4 3]);
+        perf = flipdim(perf, 2);
+    catch
+        try
+            perf = load_array(resDir, 'CASignal_Perf_', slc);
+            perf = permute(perf, [1 2 4 3]);
+            perf = flipdim(perf, 2);
+        catch
+            try
+                perf = readGTPlusExportImageSeries_Squeeze(resDir, 108);
+            catch
+                perf = [];
+            end
+        end        
+    end
+    
+    ori = load_array(resDir, 'perf_', slc);   
+    ori = flipdim(ori, 2);
+
+    moco = load_array(resDir, 'input_for_SRNorm_', slc);   
+    moco = flipdim(moco, 2);
+    
+    moco_norm = load_array(resDir, 'SRNorm_', slc);   
+    moco_norm = flipdim(moco_norm, 2);
+
+    PD = load_array(resDir, 'PD_', slc);   
+    PD = flipdim(PD, 2);
+
+    try
+        input_for_filter = load_array(resDir, 'input_spatiotemporal_filter__row', slc);   
+        input_for_filter = flipdim(input_for_filter, 2);
+    catch
+        input_for_filter = [];
+    end
+    
+    try
+        filtered = load_array(resDir, 'output_spatiotemporal_filter__row', slc);   
+        filtered = flipdim(filtered, 2);
+    catch
+        filtered = [];
     end
     
     try

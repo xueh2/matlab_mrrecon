@@ -1,7 +1,7 @@
 
 function timeUsed = BuildGadgetronDockerPackageOnRemote(host, res_dir, docker_image, target_dir, create_installers, remove_gtprep_xml, chroot_size)
 %% build docker image on remote compute and copy them
-% timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'xueh3/gadgetron_ubuntu1604_gtprep', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20180415', 1)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_ubuntu1604_gtprep', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20180709', 1)
 % timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'xueh3/gadgetron_ubuntu1604_gtprep', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20180410_no_xml', 1, 1)
 % timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'hxue/gadgetron_ubuntu1604_gtprep_stripped', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20180224', 1)
 % timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'xueh5/gadgetron_ubuntu1604_gtprep_no_mkl', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20180224', 1)
@@ -39,17 +39,17 @@ command = ['ssh ' user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
 
-if( isempty(strfind(docker_image, '_stripped')) )
-    curr_t = datenum(clock);
-    new_docker_image = [docker_image '_' num2str(curr_t)]
-    disp('strip image')
-    gt_command = ['cd ' res_dir ' && ./strip_docker_image ' docker_image ' ' new_docker_image];
-    command = ['ssh '  user '@' host ' "' gt_command '"'];
-    command
-    dos(command, '-echo');
-else
+% if( isempty(strfind(docker_image, '_stripped')) )
+%     curr_t = datenum(clock);
+%     new_docker_image = [docker_image '_' num2str(curr_t)]
+%     disp('strip image')
+%     gt_command = ['cd ' res_dir ' && ./strip_docker_image ' docker_image ' ' new_docker_image];
+%     command = ['ssh '  user '@' host ' "' gt_command '"'];
+%     command
+%     dos(command, '-echo');
+% else
     new_docker_image = docker_image;
-end
+% end
 
 disp('build package')
 %gt_command = ['cd ' res_dir ' && sudo ./create_chroot_from_image ' new_docker_image ' 2048'];
@@ -65,13 +65,13 @@ command = ['ssh '  user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
 
-if( isempty(strfind(docker_image, '_stripped')) )
-    disp('remove stripped image')
-    gt_command = ['cd ' res_dir ' && docker rmi ' new_docker_image];
-    command = ['ssh '  user '@' host ' "' gt_command '"'];
-    command
-    dos(command, '-echo');
-end
+% if( isempty(strfind(docker_image, '_stripped')) )
+%     disp('remove stripped image')
+%     gt_command = ['cd ' res_dir ' && docker rmi ' new_docker_image];
+%     command = ['ssh '  user '@' host ' "' gt_command '"'];
+%     command
+%     dos(command, '-echo');
+% end
 
 disp('copy package')
 gt_command = ['cd ' res_dir ' && ls -t | head -n1 '];

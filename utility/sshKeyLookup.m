@@ -49,7 +49,7 @@ elseif ( ~isempty(strfind(host, 'xueh2worker2.eastus.cloudapp.azure.com')) )
     
 elseif ( ~isempty(strfind(host, 'eastus.cloudapp.azure.com')) )
     key = fullfile(key_dir, 'gtuser_gtCUDA_private');
-    user = 'gtuser';
+    user = 'xueh2';
 end
 
 ind = find(key=='\');
