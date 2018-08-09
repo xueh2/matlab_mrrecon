@@ -1,5 +1,5 @@
 
-function [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, configNamePreset)
+function [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, configNamePreset, gt_port_used)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, configNamePreset)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\KAROLINSKA', {'LGE'}, '2016-01-01', '2017-01-01', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\ROYALFREE',  {'LGE'}, '2016-01-01', '2017-01-01', 'samoa', 'I:\ReconResults\ROYALFREE')
@@ -48,7 +48,7 @@ GT_PORT = gtPortLookup(gt_host);
 %     GT_PORT = '9008';
 % end
 
-setenv('GT_HOST', gt_host); setenv('GT_PORT', GT_PORT);
+setenv('GT_HOST', gt_host); 
 
 if(nargin<6)
     resDir = dataDir;
@@ -74,6 +74,13 @@ if(nargin<11)
     configNamePreset = [];
 end
 
+if(nargin<11)
+    gt_port_used = GT_PORT;
+end
+
+GT_PORT = gt_port_used;
+setenv('GT_PORT', GT_PORT);
+
 getenv('GT_HOST')
 getenv('GT_PORT')
 
@@ -97,7 +104,7 @@ if(cleanRemote)
     dos(command, '-echo');    
 end
 
-if(~startRemoteGT)
+if(startRemoteGT)
     StartGadgetronOnRemote(gt_host)
 end
 
@@ -192,5 +199,5 @@ ignored = [];
 % end
 
 % [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, styleSheet);
-[tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, []);
+[tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, [], GT_PORT);
 

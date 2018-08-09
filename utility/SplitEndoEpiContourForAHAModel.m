@@ -35,17 +35,30 @@ if nargout > 1 % compute endo and epi contours
         c1 = res_endo{ii};
         c2 = res_epi{ii};
         c1x = c1(:,1); c1y = c1(:,2);
-        c1x_interp = interp1(linspace(0,1,length(c1x)),c1x, linspace(0,1,100));
-        c1y_interp = interp1(linspace(0,1,length(c1y)),c1y, linspace(0,1,100));
+        c1x_interp = interp1(linspace(0,1,length(c1x)),c1x, linspace(0,1,1000),'spline');
+        c1y_interp = interp1(linspace(0,1,length(c1y)),c1y, linspace(0,1,1000),'spline');
         c1_interp = [c1x_interp(:), c1y_interp(:)];
         c2x = c2(:,1); c2y = c2(:,2);
-        c2x_interp = interp1(linspace(0,1,length(c2x)),c2x, linspace(0,1,100));
-        c2y_interp = interp1(linspace(0,1,length(c2y)),c2y, linspace(0,1,100));
+        c2x_interp = interp1(linspace(0,1,length(c2x)),c2x, linspace(0,1,1000),'spline');
+        c2y_interp = interp1(linspace(0,1,length(c2y)),c2y, linspace(0,1,1000),'spline');
         c2_interp = [c2x_interp(:), c2y_interp(:)];
-        mid = (c1_interp + c2_interp)/2;
         
+        mid = (c1_interp + c2_interp)/2;
+%         for n = 1:length(c2)
+%             z = c2(n,:);
+%             % find point in c1_interp which is closest angle to each point z in
+%             % c2_interp
+%             normA = sqrt(c1(:,1).^2 + c1(:,2).^2);
+%             normB = sqrt(z(:,1).^2 + z(:,2).^2);
+%             costheta = (z * c1')'./(normA .* normB);
+%             [junk,ind] = sort(costheta);
+%             mid(n,:) = (c1(ind(end),:) + z)/2;
+%         end
         endo_res{ii} = [c1_interp; mid(end:-1:1, :); c1_interp(1,:)];
         epi_res{ii} = [c2_interp; mid(end:-1:1, :); c2_interp(1,:)];
+        
+%         endo_res{ii} = [c1_interp; mid(end:-1:1, :); c1_interp(1,:)];
+%         epi_res{ii} = [c2_interp; mid(end:-1:1, :); c2_interp(1,:)];
     end
 end
 

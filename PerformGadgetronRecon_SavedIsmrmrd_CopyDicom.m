@@ -24,7 +24,7 @@ end
 
 dstDir = fullfile(resDir, study_dates, [data_name '_dicom']);
 mkdir(dstDir);
-cd(dstDir)
+% cd(dstDir)
 
 delete(fullfile(dstDir, 'res*.h5'));
 delete(fullfile(dstDir, 'out*.h5'));
@@ -47,10 +47,10 @@ delete(fullfile(dstDir, '*.xml'));
 
 remoteFolder = data_name;
 if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
-    tic; copyfile(fullfile(remote_dicom_dir, remoteFolder, '*.dcm'),  '.'); timeUsed = toc;    
+    tic; copyfile(fullfile(remote_dicom_dir, remoteFolder, '*.dcm'),  dstDir); timeUsed = toc;    
 else
 %     if(isunix())
-        command = ['scp -q ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
+        command = ['scp -q ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm ' dstDir];
 %     else        
 %         command = ['pscp -i ' key '.ppk ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
 %     end

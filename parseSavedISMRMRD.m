@@ -58,7 +58,7 @@ elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_TwoEchoes_Interleaved')))
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_2E_Lin_Cloud')))
     configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_OFFLINE_dstore.xml';
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_2E_NL_Cloud')))
-    configName = 'GTPrep_2DT_Perf_AIF_2E_NL_Mapping_OFFLINE_dstore.xml';
+    configName = 'GTPrep_2DT_Perf_AIF_2E_NL_Mapping_MBF_MBV_Mask_Gateway.xml';
  elseif(~isempty(strfind(xmlString, 'Perfusion_AIFR3_2E')))
     configName = 'GTPrep_2DT_Perf_AIFR3_2E_Lin_Mapping_MBF_MBV_Mask_OFFLINE.xml';
    

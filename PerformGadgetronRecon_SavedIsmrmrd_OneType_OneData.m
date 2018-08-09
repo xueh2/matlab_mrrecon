@@ -1,12 +1,12 @@
 
-function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed)
+function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData('I:\KAROLINSKA', 'xxxx', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % setenv('OutputFormat', 'h5')
 
 GT_PORT = gtPortLookup(gt_host);
 
-setenv('GT_HOST', gt_host); setenv('GT_PORT', GT_PORT);
+setenv('GT_HOST', gt_host); 
 
 output_format = getenv('OutputFormat');
 
@@ -37,6 +37,12 @@ end
 if(nargin<9)
     noise_dat_processed = [];
 end
+
+if(nargin<10)
+    gt_port = GT_PORT;
+end
+setenv('GT_PORT', gt_port);
+GT_PORT = gt_port;
 
 GTHome = getenv('GADGETRON_HOME');
 GTConfigFolder = fullfile(GTHome, 'share/gadgetron/config');
@@ -221,7 +227,6 @@ for n=1:num
     end
     
     try
-        cd(resDir)
         finfo = dir(dataName);
     catch
         disp(dataName)

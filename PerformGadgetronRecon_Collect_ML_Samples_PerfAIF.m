@@ -1,10 +1,18 @@
 
-function [error_lists, weak_aif_lists] = PerformGadgetronRecon_Collect_ML_Samples_PerfAIF(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, sample_dir, run_case)
+function [error_lists, weak_aif_lists] = PerformGadgetronRecon_Collect_ML_Samples_PerfAIF(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, sample_dir, run_case, only_aif)
 % PerformGadgetronRecon_Collect_ML_Samples_PerfAIF(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, sample_dir)
 
 case_lists = []
 error_lists = []
 weak_aif_lists = []
+
+if( ~exist('run_case', 'var') )
+    run_case = 1;
+end
+
+if( ~exist('only_aif', 'var') )
+    only_aif = 1;
+end
 
 startN = 1
 endN = size(perf_cases, 1)
@@ -49,7 +57,7 @@ for ii=startN:numel(case_lists)
 %             continue;
         end
         
-        save_case(case_dir, sample_dir, case_lists{ii});
+        save_case(case_dir, sample_dir, case_lists{ii}, only_aif);
         
 %         [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_time, perf_acq_time, dst_acq_time, ... 
 %         aif_im, aif_moco, aif_cin, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_Gd_baseline_corrected, ... 
@@ -86,7 +94,7 @@ for ii=startN:numel(case_lists)
         error_lists = [error_lists; case_lists(ii)];
         
         try
-            save_case(case_dir, sample_dir, case_lists{ii});
+            save_case(case_dir, sample_dir, case_lists{ii}, only_aif);
         catch
             disp([case_lists{ii} ' should be removed ... '])
         end
@@ -94,9 +102,7 @@ for ii=startN:numel(case_lists)
 end
 end
 
-function save_case(case_dir, sample_dir, case_name)
-
-    only_aif = 1;
+function save_case(case_dir, sample_dir, case_name, only_aif)
 
     [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_time, perf_acq_time, dst_acq_time, ... 
         aif_im, aif_moco, aif_cin, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_Gd_baseline_corrected, ... 
@@ -115,7 +121,9 @@ function save_case(case_dir, sample_dir, case_name)
         mkdir(fullfile(sample_dir, case_name));        
         cd(fullfile(sample_dir, case_name))
 
-        % save perf aif_moco_echo1 ori moco moco_norm PD input_for_filter filtered aif_acq_time perf_acq_time dst_acq_time aif_im aif_moco aif_cin aif_cin_Gd aif_cin_Gd_without_R2Star aif_cin_Gd_baseline_corrected aif_cin_all_echo0_signal aif_cin_all_echo1_signal aif_cin_all_echo0_signal_after_R2StarCorrection aif_cin_all_echo0_OverPD_after_R2StarCorrection aif_cin_all_R2Star  aif_cin_all_R2Star_SLEP aif_PD aif_mask aif_mask_final aif_LV_mask_plot aif aif_baseline_corrected aif_plots flow Ki PS Vp Visf E SDMap Delay BTEX_Flow_all BTEX_PS_all BTEX_Vp_all BTEX_Visf_all BTEX_cost_all BTEX_flow_SD_all BTEX_PS_SD_all BTEX_Visf_SD_all BTEX_Vp_SD_all BTEX_cov_all flow_SD PS_SD Vp_SD Visf_SD BTEX_cov CC_F_PS CC_F_Vp CC_F_Visf CC_PS_Vp CC_PS_Visf CC_Vp_Visf BTEX_Tc_all Fermi_Delay
-
+        if (~only_aif)
+            save perf aif_moco_echo1 ori moco moco_norm PD input_for_filter filtered aif_acq_time perf_acq_time dst_acq_time aif_im aif_moco aif_cin aif_cin_Gd aif_cin_Gd_without_R2Star aif_cin_Gd_baseline_corrected aif_cin_all_echo0_signal aif_cin_all_echo1_signal aif_cin_all_echo0_signal_after_R2StarCorrection aif_cin_all_echo0_OverPD_after_R2StarCorrection aif_cin_all_R2Star  aif_cin_all_R2Star_SLEP aif_PD aif_mask aif_mask_final aif_LV_mask_plot aif aif_baseline_corrected aif_plots flow Ki PS Vp Visf E SDMap Delay BTEX_Flow_all BTEX_PS_all BTEX_Vp_all BTEX_Visf_all BTEX_cost_all BTEX_flow_SD_all BTEX_PS_SD_all BTEX_Visf_SD_all BTEX_Vp_SD_all BTEX_cov_all flow_SD PS_SD Vp_SD Visf_SD BTEX_cov CC_F_PS CC_F_Vp CC_F_Visf CC_PS_Vp CC_PS_Visf CC_Vp_Visf BTEX_Tc_all Fermi_Delay
+        end
+        
         save aif aif_moco_echo1 aif_acq_time aif_im aif_moco aif_cin aif_cin_Gd aif_cin_Gd_without_R2Star aif_cin_Gd_baseline_corrected aif_cin_all_echo0_signal aif_cin_all_echo1_signal aif_cin_all_echo0_signal_after_R2StarCorrection aif_cin_all_echo0_OverPD_after_R2StarCorrection aif_cin_all_R2Star  aif_cin_all_R2Star_SLEP aif_PD aif_mask aif_mask_final aif_LV_mask_plot aif aif_baseline_corrected aif_plots 
 end

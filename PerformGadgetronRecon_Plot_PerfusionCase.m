@@ -15,8 +15,8 @@ if(nargin < 5)
     baseDir = resDir;
 end
 
-[configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(restCase);
-restDir = fullfile(resDir, study_dates, restCase)
+[configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(restCase)
+restDir = fullfile(resDir, study_dates, restCase);
 
 h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(resDir, restDir, scannerID, patientID, studyID, study_dates, onlyReview, checkProcessed, baseDir);
 

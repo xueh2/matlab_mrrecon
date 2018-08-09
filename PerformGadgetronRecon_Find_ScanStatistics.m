@@ -54,8 +54,12 @@ for d=1:numdirs
         [pathstr, name, ext] = fileparts(names{n});
 
         % find scanner ID, patient ID, study ID, measurement ID, study date and time
-        [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
-
+        try
+            [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+        catch
+            continue;
+        end
+        
         if( str2num(measurementID) > 10000 )
             continue;
         end

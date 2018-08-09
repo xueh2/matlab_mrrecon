@@ -145,5 +145,8 @@ for ii=startCase:endCase
 end
 
 if ( UTCollectRef == 0 & compRef==1 )
-    winopen(logfile);
+    try
+        dos(['code ' logfile]);
+    catch
+    end
 end
