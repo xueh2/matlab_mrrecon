@@ -1,4 +1,4 @@
-function imagescn(I, scale, dims, FigureWidth, timedimension, roi_name)
+function imagescn(I, scale, dims, FigureWidth, timedimension, roi_name, FigureLeft, FigureBottom)
 % function imagescn(I,[min max],[rows cols],FigureWidth,timedimension, roi_name)
 %
 % function to display multiple images
@@ -49,6 +49,13 @@ if ~exist('timedimension'); timedimension=[]; moviemodeflag=0; end
 
 if(nargin<6) 
     roi_name = []; 
+end
+
+if(nargin<7) 
+    FigureLeft = -1; 
+end
+if(nargin<8) 
+    FigureBottom = -1; 
 end
 
 if nargin>=5
@@ -118,8 +125,15 @@ aspect_ratio=Y0size/X0size; % aspect ratio
 if ~exist('FigureWidth'); FigureWidth=6;end  % figure width in inches (default is 6")
 if isempty(FigureWidth); FigureWidth=6;end
 FigureHeight=FigureWidth*aspect_ratio; % figure height in inches
-FigureBottom=(ScreenHeight-FigureHeight)/2;
-FigureLeft=(ScreenWidth-FigureWidth)/2;
+
+if(FigureBottom<0)
+    FigureBottom=(ScreenHeight-FigureHeight)/2;
+end
+
+if(FigureLeft<0)
+    FigureLeft=(ScreenWidth-FigureWidth)/2;
+end
+
 fig_handle=gcf;%figure;
 set(fig_handle,'Units','Inches')
 pos_f = get(fig_handle, 'Position');

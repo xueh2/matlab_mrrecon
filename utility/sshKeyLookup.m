@@ -15,6 +15,9 @@ if ( strcmp(host, 'barbados') == 1 | strcmp(host, '137.187.135.191')==1)
 
 elseif ( strcmp(host, 'denmark') == 1 )
     key = fullfile(key_dir, 'xueh2_private');
+    
+elseif ( strcmp(host, 'bahrain') == 1 | strcmp(host, '137.187.135.36')==1 )
+    key = fullfile(key_dir, 'xueh2_private');
 
 elseif ( strcmp(host, 'palau') == 1 )
     key = fullfile(key_dir, 'xueh2_palau_private');

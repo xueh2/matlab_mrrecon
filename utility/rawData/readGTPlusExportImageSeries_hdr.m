@@ -36,6 +36,10 @@ if(num==0)
 end
 
 if(num==0)
+    [names, num] = findFILE(folderName, ['Generic_Spiral.xml' '*.hdr']);
+end
+
+if(num==0)
     [names, num] = findFILE(folderName, ['GTPrep_' '*.hdr']);
 end
 
@@ -59,6 +63,10 @@ end
 
 if(num==0)
     [names, num] = findFILE(folderName, ['GTPrep_2DT_Perf_AIF_2E' '*.hdr']);
+end
+
+if(num==0)
+    [names, num] = findFILE(folderName, ['GTPrep_2DT_Perf_AIFR3_2E' '*.hdr']);
 end
 
 if(num==0)

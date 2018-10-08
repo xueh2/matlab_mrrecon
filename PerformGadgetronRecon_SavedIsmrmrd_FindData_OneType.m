@@ -19,6 +19,16 @@ study_times = [];
 [subdirs, numdirs] = FindSubDirs(dataDir);
 for d=1:numdirs
     
+    try
+        currN = datenum(subdirs{d}, 'yyyymmdd');
+
+        if(currN<startN | currN>endN)
+            continue;
+        end
+    catch
+        continue;
+    end
+    
     [names, num] = findFILE(fullfile(dataDir, subdirs{d}), '*.h5');
     for n=1:num
 

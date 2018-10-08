@@ -1,5 +1,6 @@
 
-function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port)
+function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, ... 
+    checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port, copy_debug_output)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData('I:\KAROLINSKA', 'xxxx', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % setenv('OutputFormat', 'h5')
@@ -41,6 +42,11 @@ end
 if(nargin<10)
     gt_port = GT_PORT;
 end
+
+if(nargin<11)
+    copy_debug_output = 0;
+end
+
 setenv('GT_PORT', gt_port);
 GT_PORT = gt_port;
 
@@ -69,6 +75,10 @@ for n=1:num
     
     isPerf = 0;
     if(isempty(strfind(name, 'Perfusion'))~=1)
+        isPerf = 1;
+    end
+    
+    if(copy_debug_output)
         isPerf = 1;
     end
        
@@ -233,9 +243,9 @@ for n=1:num
         continue;
     end
     
-    isPerf = 0;
+%     isPerf = 0;
     if(isempty(strfind(name, 'Perfusion'))~=1)
-        isPerf = 1;
+%         isPerf = 1;
         if(finfo.bytes<200*1024*1024)
             disp(['File size too small - ' num2str(n) ' - ' name]);
 %             cd(dataDir)
@@ -438,7 +448,10 @@ for n=1:num
         [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
         dicomDir = fullfile(resDir, study_dates, [name '_dicom']);
         rmdir(dicomDir)
-        missing_cases = PerformGadgetronRecon_CopyMapDicom_PerfusionCase([], {name}, resDir, []);
+        
+        if(isempty(strfind(name, 'Perfusion'))~=1)
+            missing_cases = PerformGadgetronRecon_CopyMapDicom_PerfusionCase([], {name}, resDir, []);
+        end
     catch
     end
     disp(['copy dicom output : ' num2str(toc(ts))]);

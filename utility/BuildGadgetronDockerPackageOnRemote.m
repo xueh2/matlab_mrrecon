@@ -3,9 +3,10 @@ function timeUsed = BuildGadgetronDockerPackageOnRemote(host, res_dir, docker_im
 %% build docker image on remote compute and copy them
 % create_installers = 1
 % remove_gtprep_xml = 0
-% strip_image = 1
-% chroot_size = 4.25*1024
-% timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_ubuntu1604_gtprep', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20180731', create_installers, remove_gtprep_xml, strip_image, chroot_size)
+% strip_image = 0
+% chroot_size = 3.5*1024
+% timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_ubuntu1604_gtprep_stripped', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20180807', create_installers, remove_gtprep_xml, strip_image, chroot_size)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'gadgetron/ubuntu_1804_no_cuda', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20180810', create_installers, remove_gtprep_xml, strip_image, chroot_size)
 
 if nargin < 1
     host = 'denmark'
@@ -107,12 +108,12 @@ if(create_installers)
         PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gt_scanner_setup\VE11\config');
         PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gt_scanner_setup\VE11C\config');    
 
-        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_MARS_All_Versions.bat ' filename ' 3 16 0'];
+        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_MARS_All_Versions.bat ' filename ' 3 17 0'];
     else
         delete('D:\gtuser\mrprogs\gt_scanner_setup\VE11\config\*.xml')
         delete('D:\gtuser\mrprogs\gt_scanner_setup\VE11C\config\*.xml')
         
-        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 3 16 0'];
+        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 3 17 0'];
     end
        
     command
@@ -120,7 +121,7 @@ if(create_installers)
     
     disp(['target_dir = ' target_dir]);
     disp(['filename = ' filename]);
-    CopyGadgetronInstallersAll(target_dir, filename, '3.16.0');
+    CopyGadgetronInstallersAll(target_dir, filename, '3.17.0');
 end
 
 timeUsed = toc;

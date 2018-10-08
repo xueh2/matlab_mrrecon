@@ -9,7 +9,11 @@ catch
     protocol = [];
     return
 end
-hdr = ismrmrd.xml.deserialize(dset.readxml);
+try
+    hdr = ismrmrd.xml.deserialize(dset.readxml);
+catch
+   hdr.userParameters = []; 
+end
 if isfield(hdr.userParameters,'userParameterBase64')
     str = hdr.userParameters.userParameterBase64.value;
 else

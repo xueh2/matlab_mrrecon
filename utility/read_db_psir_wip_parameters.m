@@ -4,7 +4,7 @@ function out = read_db_psir_wip_parameters(filename);
 
 seqname = protocol.tSequenceFileName;
 
-if ~isempty(findstr(seqname,'PSIR_T2'))
+% if ~isempty(findstr(seqname,'PSIR_T2'))
 
     out.seqname = seqname;
     out.T1_myo = protocol.sWipMemBlock.alFree_{28};
@@ -14,6 +14,6 @@ if ~isempty(findstr(seqname,'PSIR_T2'))
     out.delta = protocol.sWipMemBlock.alFree_{32};
     out.TE = protocol.sWipMemBlock.alFree_{26};
     
-else
-    out = [];
-end
+% else
+%     out = [];
+% end

@@ -29,12 +29,39 @@ mkdir(fullfile(dst_folder, 'DebugOutput'));
 % if(isunix())
     mkdir(fullfile(dst_folder, 'DebugOutput'));
     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/* ' dst_folder '/DebugOutput/'];
+    command
+    tic; dos(command, '-echo'); copy_duration = toc;
+
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/incomingKSpace_REAL* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/incomingKSpace_IMAG* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+%     
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/coilMap_* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/complexIm_* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/CmrSpatioTemporalFilter_* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/input_for_fil_* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/res_after_fil_* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/res_afterunwrapping_* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/kspace_before_POCS_* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/kspace_after_POCS_* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/unwarppedIm_* ' dst_folder '/DebugOutput/'];
+%     tic; dos(command, '-echo'); copy_duration = toc;
+  
 % else    
 %     command = ['pscp -r ' user '@' host ':' debug_folder ' ' dst_folder];
 % end
 
-command
-tic; dos(command, '-echo'); copy_duration = toc;
+% command
+% tic; dos(command, '-echo'); copy_duration = toc;
 disp(['Copy debug output ' num2str(copy_duration)]);
 
 % command = ['pscp -r -i ' key '.ppk ' user '@' host ':' '/home/' user '/Debug/DebugOutput.tar.gz ' dst_folder];

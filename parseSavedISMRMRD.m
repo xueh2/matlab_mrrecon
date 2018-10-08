@@ -11,8 +11,8 @@ end
 
 st = name(ind(end)+1:end);
 if(isempty(strfind(st, ':')))
-    study_time = name(ind2+1:end);
-    study_dates = name(ind(end)+1:ind2-1);
+    study_time = name(ind2(end)+1:end);
+    study_dates = name(ind(end)+1:ind2(end)-1);
 else
     study_time = [name(len-7:len-6) name(len-4:len-3) name(len-1:len)];
     study_dates = [name(len-18:len-15) name(len-13:len-12) name(len-9:len-10)];
@@ -83,7 +83,7 @@ elseif(~isempty(strfind(xmlString, 'Cine_NL')))
 elseif(~isempty(strfind(xmlString, 'Retro_NLin_Cine')))
     configName = 'GTPrep_2DT_RetroGated_Cine_SLEP_Gateway.xml';        
 elseif(~isempty(strfind(xmlString, 'Retro_Lin_Cine')))
-    configName = 'GTPrep_2DT_RetroGated_Cine_Fil_dstore.xml';  
+    configName = 'Generic_2DT_RetroGated_Cine_ECG_dstore.xml';  
     
 elseif(~isempty(strfind(xmlString, 'RT_Cine_LIN')))
     configName = 'Generic_RTCine_PInterp_Fil_dstore.xml';            

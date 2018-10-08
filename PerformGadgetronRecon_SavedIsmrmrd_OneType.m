@@ -1,9 +1,7 @@
 
-function [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, configNamePreset, gt_port_used)
-% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, configNamePreset)
-% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\KAROLINSKA', {'LGE'}, '2016-01-01', '2017-01-01', 'localhost', 'I:\ReconResults\KAROLINSKA')
-% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\ROYALFREE',  {'LGE'}, '2016-01-01', '2017-01-01', 'samoa', 'I:\ReconResults\ROYALFREE')
-% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType('I:\BARTS', {'LGE'}, '2016-01-01', '2017-01-01', 'samoa', 'I:\ReconResults\BARTS')
+function [files, tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, ... 
+    cleanRemote, checkProcessed, sendDicom, startRemoteGT, copy_debug_output, configNamePreset, gt_port_used)
+% [files, tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, copy_debug_output, configNamePreset, gt_port_used)
 % setenv('OutputFormat', 'h5')
 
 GT_PORT = gtPortLookup(gt_host);
@@ -71,10 +69,14 @@ if(nargin<10)
 end
 
 if(nargin<11)
+    copy_debug_output = 0;
+end
+
+if(nargin<12)
     configNamePreset = [];
 end
 
-if(nargin<11)
+if(nargin<13)
     gt_port_used = GT_PORT;
 end
 
@@ -129,6 +131,16 @@ study_times = [];
 [subdirs, numdirs] = FindSubDirs(dataDir);
 for d=1:numdirs
     
+    try
+        currN = datenum(subdirs{d}, 'yyyymmdd');
+
+        if(currN<startN | currN>endN)
+            continue;
+        end
+    catch
+        continue;
+    end
+        
     curr_dir = subdirs{d};
     disp(['Search ' subdirs{d} ' - ' num2str(d) ' out of ' num2str(numdirs)])
     tt = datenum(str2num(curr_dir(1:4)), str2num(curr_dir(5:6)), str2num(curr_dir(7:8)));
@@ -199,5 +211,5 @@ ignored = [];
 % end
 
 % [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, styleSheet);
-[tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, [], GT_PORT);
+[tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, [], GT_PORT, copy_debug_output);
 

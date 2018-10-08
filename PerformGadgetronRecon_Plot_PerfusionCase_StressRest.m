@@ -30,13 +30,12 @@ function [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRe
         stressDir = fullfile(resDir, [], stressCase)        
     end
     
+    h_flow_stress = -1;
+    h_flow_rest = -1;
+    has_stress = -1;
+    has_rest = -1;
     try
         [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest_WithInfo(resDir, restDir, stressDir, scannerID, patientID, studyID, study_dates_stress, study_time_stress, study_dates_rest, study_time_rest, flow_windowing, onlyReview, checkprocessed, baseDir);
     catch
-        h_flow_stress = -1;
-        h_flow_rest = -1;
-        has_stress = -1;
-        has_rest = -1;
-        closeall
     end
     

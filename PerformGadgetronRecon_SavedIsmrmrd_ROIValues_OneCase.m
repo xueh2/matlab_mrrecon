@@ -1,8 +1,14 @@
 
-function res = PerformGadgetronRecon_SavedIsmrmrd_ROIValues_OneCase(s1, s2, s3, a)
+function res = PerformGadgetronRecon_SavedIsmrmrd_ROIValues_OneCase(s1, s2, s3, a, s1_visf, s2_visf, s3_visf)
 % res = PerformGadgetronRecon_SavedIsmrmrd_ROIValues_OneCase(s1, s2, s3, stress)
 % given the ROIs s1/s2/s3, get the flow and other values
 % res has [flow, Ki, E, Visf, Vp, PS, SD, Ki_MF, Ki_Fermi, Ki_TwoCompExp, Ki_BTEX]
+
+if(nargin<7)
+    s1_visf = s1;
+    s2_visf = s2;
+    s3_visf = s3;
+end
 
 if(isfield(a, 'flow_stress'))
     %% stress
@@ -17,7 +23,7 @@ if(isfield(a, 'flow_stress'))
     res.E = [f1.m f2.m f3.m];
     res.E_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-    [f1, f2, f3] = get_roi_values(stress.Visf_stress, s1, s2, s3);
+    [f1, f2, f3] = get_roi_values(stress.Visf_stress, s1_visf, s2_visf, s3_visf);
     res.Visf = [f1.m f2.m f3.m];
     res.Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
@@ -42,7 +48,7 @@ if(isfield(a, 'flow_stress'))
         res.PS_SD = [f1.m f2.m f3.m];
         res.PS_SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-        [f1, f2, f3] = get_roi_values(stress.Visf_SD_stress, s1, s2, s3);
+        [f1, f2, f3] = get_roi_values(stress.Visf_SD_stress, s1_visf, s2_visf, s3_visf);
         res.Visf_SD = [f1.m f2.m f3.m];
         res.Visf_SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
@@ -54,7 +60,7 @@ if(isfield(a, 'flow_stress'))
         res.CC_F_PS = [f1.m f2.m f3.m];
         res.CC_F_PS_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-        [f1, f2, f3] = get_roi_values(stress.CC_F_Visf_stress, s1, s2, s3);
+        [f1, f2, f3] = get_roi_values(stress.CC_F_Visf_stress, s1_visf, s2_visf, s3_visf);
         res.CC_F_Visf = [f1.m f2.m f3.m];
         res.CC_F_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
@@ -62,7 +68,7 @@ if(isfield(a, 'flow_stress'))
         res.CC_F_Vp = [f1.m f2.m f3.m];
         res.CC_F_Vp_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-        [f1, f2, f3] = get_roi_values(stress.CC_PS_Visf_stress, s1, s2, s3);
+        [f1, f2, f3] = get_roi_values(stress.CC_PS_Visf_stress, s1_visf, s2_visf, s3_visf);
         res.CC_PS_Visf = [f1.m f2.m f3.m];
         res.CC_PS_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
@@ -70,7 +76,7 @@ if(isfield(a, 'flow_stress'))
         res.CC_PS_Vp = [f1.m f2.m f3.m];
         res.CC_PS_Vp_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-        [f1, f2, f3] = get_roi_values(stress.CC_Vp_Visf_stress, s1, s2, s3);
+        [f1, f2, f3] = get_roi_values(stress.CC_Vp_Visf_stress, s1_visf, s2_visf, s3_visf);
         res.CC_Vp_Visf = [f1.m f2.m f3.m];
         res.CC_Vp_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
     catch
@@ -215,7 +221,7 @@ else
     res.E = [f1.m f2.m f3.m];
     res.E_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-    [f1, f2, f3] = get_roi_values(rest.Visf_rest, s1, s2, s3);
+    [f1, f2, f3] = get_roi_values(rest.Visf_rest, s1_visf, s2_visf, s3_visf);
     res.Visf = [f1.m f2.m f3.m];
     res.Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
@@ -240,7 +246,7 @@ else
         res.PS_SD = [f1.m f2.m f3.m];
         res.PS_SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-        [f1, f2, f3] = get_roi_values(rest.Visf_SD_rest, s1, s2, s3);
+        [f1, f2, f3] = get_roi_values(rest.Visf_SD_rest, s1_visf, s2_visf, s3_visf);
         res.Visf_SD = [f1.m f2.m f3.m];
         res.Visf_SD_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
@@ -252,7 +258,7 @@ else
         res.CC_F_PS = [f1.m f2.m f3.m];
         res.CC_F_PS_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-        [f1, f2, f3] = get_roi_values(rest.CC_F_Visf_rest, s1, s2, s3);
+        [f1, f2, f3] = get_roi_values(rest.CC_F_Visf_rest, s1_visf, s2_visf, s3_visf);
         res.CC_F_Visf = [f1.m f2.m f3.m];
         res.CC_F_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
@@ -260,7 +266,7 @@ else
         res.CC_F_Vp = [f1.m f2.m f3.m];
         res.CC_F_Vp_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-        [f1, f2, f3] = get_roi_values(rest.CC_PS_Visf_rest, s1, s2, s3);
+        [f1, f2, f3] = get_roi_values(rest.CC_PS_Visf_rest, s1_visf, s2_visf, s3_visf);
         res.CC_PS_Visf = [f1.m f2.m f3.m];
         res.CC_PS_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
@@ -268,7 +274,7 @@ else
         res.CC_PS_Vp = [f1.m f2.m f3.m];
         res.CC_PS_Vp_pixels = {f1.data(:) f2.data(:) f3.data(:)};
 
-        [f1, f2, f3] = get_roi_values(rest.CC_Vp_Visf_rest, s1, s2, s3);
+        [f1, f2, f3] = get_roi_values(rest.CC_Vp_Visf_rest, s1_visf, s2_visf, s3_visf);
         res.CC_Vp_Visf = [f1.m f2.m f3.m];
         res.CC_Vp_Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
     catch

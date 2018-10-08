@@ -266,7 +266,7 @@ for n=1:num
     disp(['==================================================================']);  
        
     [configName, scannerID, pID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time_stress] = parseSavedISMRMRD(stressCase);
-    [configName, scannerID, pID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time_rest] = parseSavedISMRMRD(restCase);
+    [configName, scannerID, pID, studyID, measurementID, study_dates_rest, study_year, study_month, study_day, study_time_rest] = parseSavedISMRMRD(restCase);
 
     figDir = fullfile(resDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' scannerID '_' pID '_' studyID '_' study_dates '_' study_time_stress '_' study_time_rest '_Figure']) 
     
@@ -286,10 +286,17 @@ for n=1:num
     patientID = [patientID; {pID}];
     scanDate = [scanDate; study_dates];
     scanTime = [scanTime; study_time_stress];
-    stressHB = [stressHB; PerfTable{n+1, 9}];
-    restHB = [restHB; PerfTable{n+1, 13}];
-    age = [age; PerfTable{n+1, 14}];
-    gender = [gender; PerfTable{n+1, 15}];
+    if(size(PerfTable, 2)>9)
+        stressHB = [stressHB; PerfTable{n+1, 9}];
+        restHB = [restHB; PerfTable{n+1, 13}];
+        age = [age; PerfTable{n+1, 14}];
+        gender = [gender; PerfTable{n+1, 15}];
+    else
+        stressHB = [stressHB; -1];
+        restHB = [restHB; -1];
+        age = [age; PerfTable{n+1, 6}];
+        gender = [gender; PerfTable{n+1, 5}];
+    end
     
     if(hct_column>0)
         hematocrit = [hematocrit; PerfTable{n+1, hct_column}];
@@ -399,9 +406,17 @@ for n=1:num
         
         r1_roi = 'r1.mat';
         r2_roi = 'r2.mat';
-        r3_roi = 'r3.mat';
+        r3_roi = 'r3.mat';        
     end
         
+    s1_visf_roi = 's_visf_1.mat';
+    s2_visf_roi = 's_visf_2.mat';
+    s3_visf_roi = 's_visf_3.mat';
+
+    r1_visf_roi = 'r_visf_1.mat';
+    r2_visf_roi = 'r_visf_2.mat';
+    r3_visf_roi = 'r_visf_3.mat';        
+
     has_roi_1 = isFileExist(fullfile(roiDir, s1_roi)) | isFileExist(fullfile(roiDir, r1_roi));
     has_roi_2 = isFileExist(fullfile(roiDir, s2_roi)) | isFileExist(fullfile(roiDir, r2_roi));
     has_roi_3 = isFileExist(fullfile(roiDir, s3_roi)) | isFileExist(fullfile(roiDir, r3_roi));
@@ -411,7 +426,7 @@ for n=1:num
         
        two_ROI = 0;
 
-        PerfResult_file = fullfile(roiDir, 'PerfResult.mat');
+        PerfResult_file = fullfile(figDir, 'PerfResult.mat');
         if(~processing_always & isFileExist(PerfResult_file))
             tt = load(PerfResult_file);
             v = tt.PerfResult;
@@ -458,9 +473,46 @@ for n=1:num
                 r3 = [];
             end
                        
+            if(isFileExist(fullfile(roiDir, s1_visf_roi)))
+                s1_visf = load(fullfile(roiDir, s1_visf_roi));
+            else
+                s1_visf = [];
+            end
+            
+            if(isFileExist(fullfile(roiDir, s2_visf_roi)))
+                s2_visf = load(fullfile(roiDir, s2_visf_roi));
+            else
+                s2_visf = [];
+            end
+            
+            
+            if(isFileExist(fullfile(roiDir, s3_visf_roi)))
+                s3_visf = load(fullfile(roiDir, s3_visf_roi));
+            else
+                s3_visf = [];
+            end
+
+            if(isFileExist(fullfile(roiDir, r1_visf_roi)))
+                r1_visf = load(fullfile(roiDir, r1_visf_roi));
+            else
+                r1_visf = [];
+            end 
+            
+            if(isFileExist(fullfile(roiDir, r2_visf_roi)))
+                r2_visf = load(fullfile(roiDir, r2_visf_roi));
+            else
+                r2_visf = [];
+            end
+            
+            if(isFileExist(fullfile(roiDir, r3_visf_roi)))
+                r3_visf = load(fullfile(roiDir, r3_visf_roi));
+            else
+                r3_visf = [];
+            end
+            
             if(has_rest)
                 rest = load(fullfile(figDir, 'rest.mat'));
-                res_rest = PerformGadgetronRecon_SavedIsmrmrd_ROIValues_OneCase(r1, r2, r3, rest);
+                res_rest = PerformGadgetronRecon_SavedIsmrmrd_ROIValues_OneCase(r1, r2, r3, rest, r1_visf, r2_visf, r3_visf);
             else
                 res_rest.flow = [-1 -1 -1];
                 res_rest.E = [-1 -1 -1];
@@ -478,7 +530,7 @@ for n=1:num
             end
             
             stress = load(fullfile(figDir, 'stress.mat'));
-            res_stress = PerformGadgetronRecon_SavedIsmrmrd_ROIValues_OneCase(s1, s2, s3, stress);
+            res_stress = PerformGadgetronRecon_SavedIsmrmrd_ROIValues_OneCase(s1, s2, s3, stress, s1_visf, s2_visf, s3_visf);
             
             v{nV+1} = res_stress.flow;
             disp(['stress flow : ' num2str(v{nV+1})]);
@@ -512,14 +564,34 @@ for n=1:num
             
             
             if(reviewFlag)
-                if(~isempty(s1)) figure; imagescn(stress.flow_stress(:,:,1:3,end), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap; end
-                if(~isempty(s1)) figure; imagescn(stress.Vp_stress(:,:,1:3,end), [0 20], [], [], [], fullfile(roiDir, s1_roi)); MBVColorMap; end
-                if(~isempty(s1)) figure; imagescn(stress.PS_stress(:,:,1:3,end), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PSColorMap; end
+                
+                try
+                    if(~isempty(s1)) figure; imagescn(stress.flow_stress(:,:,1,end), [0 8], [], [], [], fullfile(roiDir, s1_roi)); PerfColorMap; end
+                    if(~isempty(s2)) figure; imagescn(stress.flow_stress(:,:,2,end), [0 8], [], [], [], fullfile(roiDir, s2_roi)); PerfColorMap; end
+                    if(~isempty(s3)) figure; imagescn(stress.flow_stress(:,:,3,end), [0 8], [], [], [], fullfile(roiDir, s3_roi)); PerfColorMap; end
 
-                if(has_rest)
-                    if(~isempty(r1)) figure; imagescn(rest.flow_rest(:,:,1:3,end), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap; end
-                    if(~isempty(r1)) figure; imagescn(rest.Vp_rest(:,:,1:3,end), [0 20], [], [], [], fullfile(roiDir, r1_roi)); MBVColorMap; end
-                    if(~isempty(s1)) figure; imagescn(rest.PS_rest(:,:,1:3,end), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PSColorMap; end
+                    if(~isempty(s1)) figure; imagescn(stress.Vp_stress(:,:,1,end), [0 20], [], [], [], fullfile(roiDir, s1_roi)); MBVColorMap; end
+                    if(~isempty(s2)) figure; imagescn(stress.Vp_stress(:,:,2,end), [0 20], [], [], [], fullfile(roiDir, s2_roi)); MBVColorMap; end
+                    if(~isempty(s3)) figure; imagescn(stress.Vp_stress(:,:,3,end), [0 20], [], [], [], fullfile(roiDir, s3_roi)); MBVColorMap; end
+
+                    if(~isempty(s1_visf)) figure; imagescn(stress.Visf_stress(:,:,1,end), [0 80], [], [], [], fullfile(roiDir, s1_visf_roi)); ECVColorMap; end
+                    if(~isempty(s2_visf)) figure; imagescn(stress.Visf_stress(:,:,2,end), [0 80], [], [], [], fullfile(roiDir, s2_visf_roi)); ECVColorMap; end
+                    if(~isempty(s3_visf)) figure; imagescn(stress.Visf_stress(:,:,3,end), [0 80], [], [], [], fullfile(roiDir, s3_visf_roi)); ECVColorMap; end
+
+                    if(has_rest)
+                        if(~isempty(r1)) figure; imagescn(rest.flow_rest(:,:,1,end), [0 8], [], [], [], fullfile(roiDir, r1_roi)); PerfColorMap; end
+                        if(~isempty(r2)) figure; imagescn(rest.flow_rest(:,:,2,end), [0 8], [], [], [], fullfile(roiDir, r2_roi)); PerfColorMap; end
+                        if(~isempty(r3)) figure; imagescn(rest.flow_rest(:,:,3,end), [0 8], [], [], [], fullfile(roiDir, r3_roi)); PerfColorMap; end
+
+                        if(~isempty(r1)) figure; imagescn(rest.Vp_rest(:,:,1,end), [0 20], [], [], [], fullfile(roiDir, r1_roi)); MBVColorMap; end
+                        if(~isempty(r2)) figure; imagescn(rest.Vp_rest(:,:,2,end), [0 20], [], [], [], fullfile(roiDir, r2_roi)); MBVColorMap; end
+                        if(~isempty(r3)) figure; imagescn(rest.Vp_rest(:,:,3,end), [0 20], [], [], [], fullfile(roiDir, r3_roi)); MBVColorMap; end
+
+                        if(~isempty(r1_visf)) figure; imagescn(rest.Visf_rest(:,:,1,end), [0 80], [], [], [], fullfile(roiDir, r1_visf_roi)); ECVColorMap; end
+                        if(~isempty(r2_visf)) figure; imagescn(rest.Visf_rest(:,:,2,end), [0 80], [], [], [], fullfile(roiDir, r2_visf_roi)); ECVColorMap; end
+                        if(~isempty(r3_visf)) figure; imagescn(rest.Visf_rest(:,:,3,end), [0 80], [], [], [], fullfile(roiDir, r3_visf_roi)); ECVColorMap; end
+                    end
+                catch
                 end
                 
                 % plot the histogram
@@ -1190,6 +1262,9 @@ for n=1:num
         ecv = [ecv; -1 -1 -1];
     end
 end
+
+cd(resDir)
+save Leeds_res
 
 for n=1:size(sf,1)
     sf_mean = [sf_mean; get_entry_mean(sf(n,:))];

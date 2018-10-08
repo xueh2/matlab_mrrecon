@@ -190,23 +190,20 @@ scalingFactor = 10;
     %     h = figure; 
     %     imagescn(cat(4, a, b), [], [], 25)
     %     saveas(h, fullfile(figDir, [resDir '_AIF_FIG']), 'fig')
+    
+        slc = size(Ki_rest, 4);
+        m = size(Ki_rest, 3);
 
+        different_image_size = 0;
+        if(size(Ki_rest, 1)~=size(Ki_stress,1) || size(Ki_rest, 2)~=size(Ki_stress,2) )
+            disp(['Image size mismatch - Rest :' num2str(size(Ki_rest)) ' - Stress : ' num2str(size(Ki_stress))]);
+            different_image_size = 1;
+        end
+            
         if(~onlyReview)
-            slc = size(Ki_rest, 4);
-            m = size(Ki_rest, 3);
-
-            different_image_size = 0;
-            if(size(Ki_rest, 1)~=size(Ki_stress,1) || size(Ki_rest, 2)~=size(Ki_stress,2) )
-                disp(['Image size mismatch - Rest :' num2str(size(Ki_rest)) ' - Stress : ' num2str(size(Ki_stress))]);
-                different_image_size = 1;
-            end
-
             if(~different_image_size)
                 figure; imagescn(cat(4, Ki_stress, Ki_rest), flow_windowing, [m 2*slc], scalingFactor); PerfColorMap;
             end
-        else
-            slc = 3;
-            different_image_size = 0;
         end
         scrsz = get(0, 'ScreenSize');
 
@@ -401,61 +398,61 @@ scalingFactor = 10;
             end
         end
 
+        %% ------------------------------------------------
         figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_Visf' '.fig']);   
-        % if(~isFileExist(figName) & ~different_image_size)
         if(~different_image_size)
-
             if(onlyReview & isFileExist(figName))
                 openfig(figName);
             else        
                 h = figure('Name',[ resDir '_PDE Visf'],'NumberTitle','off'); imagescn(cat(3, Visf_stress(:,:,:,end), Visf_rest(:,:,:,end)), [0 80], [2 slc], scalingFactor); ECVColorMap;
                 saveas(h, figName, 'fig');
             end
+        end
+        
+        figName = fullfile(figDir, [resDir '_PDE_Stress_Visf' '.fig']);
+        figName1 = fullfile(figDir, [resDir '_PDE_Stress_Visf_Map - ' num2str(1)  '.fig']);
+        figName2 = fullfile(figDir, [resDir '_PDE_Stress_Visf_Map - ' num2str(2)  '.fig']);
+        figName3 = fullfile(figDir, [resDir '_PDE_Stress_Visf_Map - ' num2str(3)  '.fig']);
 
-            figName = fullfile(figDir, [resDir '_PDE_Stress_Visf' '.fig']);
-            figName1 = fullfile(figDir, [resDir '_PDE_Stress_Visf_Map - ' num2str(1)  '.fig']);
-            figName2 = fullfile(figDir, [resDir '_PDE_Stress_Visf_Map - ' num2str(2)  '.fig']);
-            figName3 = fullfile(figDir, [resDir '_PDE_Stress_Visf_Map - ' num2str(3)  '.fig']);
+        if(onlyReview & isFileExist(figName) & isFileExist(figName1))
+            openfig(figName);
+            h_visf_stress(1) = openfig(figName1);
+            h_visf_stress(2) = openfig(figName2);
+            h_visf_stress(3) = openfig(figName3);
+        else
+            h = figure('Name',[ resDir '_Stress Visf maps'],'NumberTitle','off'); imagescn(Visf_stress(:,:,:,end), [0 80], [1 slc], scalingFactor); ECVColorMap;
+            saveas(h, figName, 'fig');
 
-            if(onlyReview & isFileExist(figName) & isFileExist(figName1))
-                openfig(figName);
-                h_visf_stress(1) = openfig(figName1);
-                h_visf_stress(2) = openfig(figName2);
-                h_visf_stress(3) = openfig(figName3);
-            else
-                h = figure('Name',[ resDir '_Stress Visf maps'],'NumberTitle','off'); imagescn(Visf_stress(:,:,:,end), [0 80], [1 slc], scalingFactor); ECVColorMap;
-                saveas(h, figName, 'fig');
-
-                for s=1:slc
-                    h_visf_stress(s) = figure('Name', [ resDir '_Stress Visf maps - ' num2str(s)],'NumberTitle','off'); imagescn(Visf_stress(:,:,s,end), [0 80], [1 1], scalingFactor); ECVColorMap;
-                    figName = fullfile(figDir, [resDir '_PDE_Stress_Visf_Map - ' num2str(s) '.fig']);
-                    saveas(h_visf_stress(s), figName, 'fig');
-                end
+            for s=1:slc
+                h_visf_stress(s) = figure('Name', [ resDir '_Stress Visf maps - ' num2str(s)],'NumberTitle','off'); imagescn(Visf_stress(:,:,s,end), [0 80], [1 1], scalingFactor); ECVColorMap;
+                figName = fullfile(figDir, [resDir '_PDE_Stress_Visf_Map - ' num2str(s) '.fig']);
+                saveas(h_visf_stress(s), figName, 'fig');
             end
-            
-            figName = fullfile(figDir, [resDir '_PDE_Rest_Visf' '.fig']);
-            figName1 = fullfile(figDir, [resDir '_PDE_Rest_Visf_Map - ' num2str(1)  '.fig']);
-            figName2 = fullfile(figDir, [resDir '_PDE_Rest_Visf_Map - ' num2str(2)  '.fig']);
-            figName3 = fullfile(figDir, [resDir '_PDE_Rest_Visf_Map - ' num2str(3)  '.fig']);
+        end
 
-            if(onlyReview & isFileExist(figName) & isFileExist(figName1) )
-                openfig(figName);
-                h_visf_rest(1) = openfig(figName1);
-                h_visf_rest(2) = openfig(figName2);
-                h_visf_rest(3) = openfig(figName3);
-            else
-                h = figure('Name',[ resDir '_Rest Visf maps'],'NumberTitle','off'); imagescn(Visf_rest(:,:,:,end), [0 80], [1 slc], scalingFactor); ECVColorMap;
-                saveas(h, figName, 'fig');
+        figName = fullfile(figDir, [resDir '_PDE_Rest_Visf' '.fig']);
+        figName1 = fullfile(figDir, [resDir '_PDE_Rest_Visf_Map - ' num2str(1)  '.fig']);
+        figName2 = fullfile(figDir, [resDir '_PDE_Rest_Visf_Map - ' num2str(2)  '.fig']);
+        figName3 = fullfile(figDir, [resDir '_PDE_Rest_Visf_Map - ' num2str(3)  '.fig']);
 
-                for s=1:slc
-                    h_visf_rest(s) = figure('Name', [ resDir '_Rest Visf maps - ' num2str(s)],'NumberTitle','off'); imagescn(Visf_rest(:,:,s,end), [0 80], [1 1], scalingFactor); ECVColorMap;
-                    figName = fullfile(figDir, [resDir '_PDE_Rest_Visf_Map - ' num2str(s) '.fig']);
-                    saveas(h_visf_rest(s), figName, 'fig');
-                end
+        if(onlyReview & isFileExist(figName) & isFileExist(figName1) )
+            openfig(figName);
+            h_visf_rest(1) = openfig(figName1);
+            h_visf_rest(2) = openfig(figName2);
+            h_visf_rest(3) = openfig(figName3);
+        else
+            h = figure('Name',[ resDir '_Rest Visf maps'],'NumberTitle','off'); imagescn(Visf_rest(:,:,:,end), [0 80], [1 slc], scalingFactor); ECVColorMap;
+            saveas(h, figName, 'fig');
+
+            for s=1:slc
+                h_visf_rest(s) = figure('Name', [ resDir '_Rest Visf maps - ' num2str(s)],'NumberTitle','off'); imagescn(Visf_rest(:,:,s,end), [0 80], [1 1], scalingFactor); ECVColorMap;
+                figName = fullfile(figDir, [resDir '_PDE_Rest_Visf_Map - ' num2str(s) '.fig']);
+                saveas(h_visf_rest(s), figName, 'fig');
             end
+        end
             
-            
-            
+        %% ------------------------------------------------    
+        if(~different_image_size)    
             figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_PS' '.fig']);
             if(onlyReview & isFileExist(figName))
                 openfig(figName);
@@ -637,11 +634,11 @@ scalingFactor = 10;
                 if(isFileExist(figName) ) 
                     openfig(figName);
                 else
-                    h = figure('Name',[ resDir '_Stress MOCO with/without filtering'],'NumberTitle','off'); imagescn(cat(4, input_for_filter_stress(:,:,1:NN,:), filtered_stress(:,:,1:NN,:)), [], [2 slc], scalingFactor, 3);
+                    h = figure('Name',[ resDir '_Stress MOCO with/without filtering'],'NumberTitle','off'); imagescn(cat(4, input_for_filter_stress, filtered_stress), [], [2 slc], scalingFactor, 3);
                     saveas(h, figName, 'fig');
                 end
             else
-                h = figure('Name',[ resDir '_Stress MOCO with/without filtering'],'NumberTitle','off'); imagescn(cat(4, input_for_filter_stress(:,:,1:NN,:), filtered_stress(:,:,1:NN,:)), [], [2 slc], scalingFactor, 3);
+                h = figure('Name',[ resDir '_Stress MOCO with/without filtering'],'NumberTitle','off'); imagescn(cat(4, input_for_filter_stress, filtered_stress), [], [2 slc], scalingFactor, 3);
                 saveas(h, figName, 'fig');
             end
         end
@@ -652,11 +649,11 @@ scalingFactor = 10;
                 if(isFileExist(figName) ) 
                     openfig(figName);
                 else
-                    h = figure('Name',[ resDir '_Rest MOCO with/without filtering'],'NumberTitle','off'); imagescn(cat(4, input_for_filter_rest(:,:,1:NN,:), filtered_rest(:,:,1:NN,:)), [], [2 slc], scalingFactor, 3);
+                    h = figure('Name',[ resDir '_Rest MOCO with/without filtering'],'NumberTitle','off'); imagescn(cat(4, input_for_filter_rest, filtered_rest), [], [2 slc], scalingFactor, 3);
                     saveas(h, figName, 'fig');
                 end
             else
-                h = figure('Name',[ resDir '_Rest MOCO with/without filtering'],'NumberTitle','off'); imagescn(cat(4, input_for_filter_rest(:,:,1:NN,:), filtered_rest(:,:,1:NN,:)), [], [2 slc], scalingFactor, 3);
+                h = figure('Name',[ resDir '_Rest MOCO with/without filtering'],'NumberTitle','off'); imagescn(cat(4, input_for_filter_rest, filtered_rest), [], [2 slc], scalingFactor, 3);
                 saveas(h, figName, 'fig');
             end
         end
@@ -691,7 +688,7 @@ scalingFactor = 10;
             ind = find(v>0);
             aif_moco_stress_mask(ind) = 1024;
 
-            h = figure('Name',[ resDir '_AIF MOCO with Mask, Stress'],'NumberTitle','off'); imagescn(aif_moco_stress_mask(:,:,1:NN,:), [], [], 10, 3);
+            h = figure('Name',[ resDir '_AIF MOCO with Mask, Stress'],'NumberTitle','off'); imagescn(aif_moco_stress_mask, [], [], 10, 3);
             saveas(h, figName, 'fig');
         end
 
@@ -705,7 +702,7 @@ scalingFactor = 10;
             ind = find(v>0);
             aif_moco_rest_mask(ind) = 1024;
 
-            h = figure('Name',[ resDir '_AIF MOCO with Mask, Rest'],'NumberTitle','off'); imagescn(aif_moco_rest_mask(:,:,1:NN,:), [], [], 10, 3);
+            h = figure('Name',[ resDir '_AIF MOCO with Mask, Rest'],'NumberTitle','off'); imagescn(aif_moco_rest_mask, [], [], 10, 3);
             saveas(h, figName, 'fig');
         end
 

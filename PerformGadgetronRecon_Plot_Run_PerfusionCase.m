@@ -69,11 +69,11 @@ for ii=startN:endN
         catch
         end
         
-        if(~has_stress)
+        if(has_stress<0)
             PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml});
         end
 
-        if(~has_rest)
+        if(has_rest<0)
             PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml});
         end
     end

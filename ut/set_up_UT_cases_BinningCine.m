@@ -1,10 +1,12 @@
 function UTCases = set_up_UT_cases_BinningCine;
 % run the gt recon
 
-set_UT_Dir('D')
+% set_UT_Dir('D')
 
 % sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
 UTCases = {  
+    'binning',                  'Cmr_Binning_Cloud_42306_550032516_550032526_221_20180906-124219',              'VD',   'CMR_2DT_RTCine_KspaceBinning.xml',         'grappa_res',              'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...    
+    
     'binning\20150923_StudyLoid_12.0.123557963_CNMC2359-C0832',                  '20150923_11h51m34s_62440',              'VD',   'GTPrep_2DT_RTCine_KspaceBinning.xml',         'grappa_res',              'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...    
     'binning\20150923_StudyLoid_12.0.123557963_CNMC2359-C0832',                  '20150923_11h51m34s_62440',              'VD',   'CMR_2DT_RTCine_KspaceBinning.xml',            'generic_res',              'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...    
     

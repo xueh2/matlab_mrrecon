@@ -21,12 +21,13 @@ if(nargin<4)
 end
 
 tic
-% UpdateGadgetronOnRemote('barbados', clean, branch, gt_branch, gtprep_branch)
+UpdateGadgetronOnRemote('barbados', clean, branch, gt_branch, gtprep_branch)
 UpdateGadgetronOnRemote('denmark', clean, branch, gt_branch, gtprep_branch)
 UpdateGadgetronOnRemote('bermuda', clean, branch, gt_branch, gtprep_branch)
 UpdateGadgetronOnRemote('gibraltar', clean, branch, gt_branch, gtprep_branch)
 UpdateGadgetronOnRemote('palau', clean, branch, gt_branch, gtprep_branch)
-UpdateGadgetronOnRemote('hongkong', clean, branch, gt_branch, gtprep_branch)
-UpdateGadgetronOnRemote('samoa', clean, branch, gt_branch, gtprep_branch)
-% UpdateGadgetronOnRemote('andorra', clean, branch, gt_branch, gtprep_branch)
+% UpdateGadgetronOnRemote('hongkong', clean, branch, gt_branch, gtprep_branch)
+% UpdateGadgetronOnRemote('samoa', clean, branch, gt_branch, gtprep_branch)
+UpdateGadgetronOnRemote('andorra', clean, branch, gt_branch, gtprep_branch)
+UpdateGadgetronOnRemote('grenada', clean, branch, gt_branch, gtprep_branch)
 timeUsed = toc;
