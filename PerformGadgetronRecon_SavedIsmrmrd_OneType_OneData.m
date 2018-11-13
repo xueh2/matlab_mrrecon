@@ -264,7 +264,7 @@ for n=1:num
     % start gadgetron
     if(startRemoteGT)
         tstart = tic;
-        if((strcmp(gt_host, 'localhost')==1) && isunix()==0)
+        if((strcmp(gt_host, 'localhost')) && isunix()==0)
             cd('D:\gtuser\gt_scanner_setup_scripts')
             command = ['gadgetron -p %GT_PORT% > D:\Temp\record_' GT_PORT '.txt']
             dos([command ' &'])
@@ -401,8 +401,21 @@ for n=1:num
     configNameShortened = configName(1:lenUsed);
 
     if(isPerf)
-        if(strcmp(getenv('GT_HOST'), 'localhost')==1 && isunix()==0)
+        if( ~isempty(strfind(getenv('GT_HOST'), 'localhost')) && isunix()==0)
             debugFolder = 'D:\gtuser\mrprogs\install\DebugOutput';
+            try
+                rmdir(debugFolder, 's');
+            catch
+            end
+
+            try
+                mkdir(debugFolder);
+            catch
+            end
+        end
+        
+        if(~isempty(strfind(getenv('GT_HOST'), 'localhost')) && isunix()==1)
+            debugFolder = '/home/xueh2/Debug/DebugOutput';
             try
                 rmdir(debugFolder, 's');
             catch
@@ -426,9 +439,13 @@ for n=1:num
     tic; dos(command); timeUsed = toc;
            
     if(isPerf)
-        if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
+        if(~isempty(strfind(getenv('GT_HOST'), 'localhost')))
             ts = tic;
-            movefile(debugFolder, dstDir, 'f');
+            %movefile(debugFolder, dstDir, 'f');
+            mkdir(dstDir);
+            disp(dstDir);
+            copyfile(fullfile(debugFolder, '*.*'),dstDir); 
+            
 %             command = ['move /Y ' debugFolder ' ' dstDir];
 %             dos(command, '-echo');
             disp(['copy debug output : ' num2str(toc(ts))]);
@@ -458,7 +475,7 @@ for n=1:num
     
     ts = tic;
     dstDir = fullfile(resDir, study_dates, name);   
-    if(strcmp(gt_host, 'localhost')==1 && isunix()==0)
+    if(~isempty(strfind(getenv('GT_HOST'), 'localhost')) && isunix()==0)
         if(startRemoteGT)
             command = ['taskkill /F /FI "IMAGENAME eq gadgetron.*"'];
             dos(command)

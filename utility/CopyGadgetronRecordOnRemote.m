@@ -7,8 +7,12 @@ tic;
 
 [key, user] = sshKeyLookup(host);
 
-% command = ['pscp -i ' key '.ppk ' user '@' host ':' '/home/' user '/Debug/record_' num2str(port) '.txt ' dstFile  ];
-command = ['scp ' user '@' host ':' '/home/' user '/Debug/record_' num2str(port) '.txt ' dstFile  ];
+if(strcmp(host, 'localhost')==1)
+    command = ['cp ' '/home/' user '/Debug/record_' num2str(port) '.txt ' dstFile  ];
+else  
+    command = ['scp ' user '@' host ':' '/home/' user '/Debug/record_' num2str(port) '.txt ' dstFile  ];
+end
+
 dos(command, '-echo');
 
 timeUsed = toc;

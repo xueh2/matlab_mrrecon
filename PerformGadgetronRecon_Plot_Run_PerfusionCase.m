@@ -39,11 +39,21 @@ for ii=startN:endN
                 [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, perf_cases{ii, 2}, perf_cases{ii, 3}, flow_windowing, only_reviewing, checkProcessed);
             catch
                 h_flow_stress = 0;
+                has_stress = 0;
+                has_rest = 0;
             end
             
             if(h_flow_stress==0 | ~ishandle(h_flow_stress))
                 disp(['--> Processing ... ']);
-                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2:3), host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
+                
+                if(~has_stress)
+                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
+                end
+
+                if(~has_rest)
+                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
+                end
+%                 PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2:3), host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
 
                 [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, perf_cases{ii, 2}, perf_cases{ii, 3}, flow_windowing, only_reviewing, checkProcessed);
             end

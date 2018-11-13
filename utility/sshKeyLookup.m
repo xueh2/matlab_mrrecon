@@ -53,6 +53,9 @@ elseif ( ~isempty(strfind(host, 'xueh2worker2.eastus.cloudapp.azure.com')) )
 elseif ( ~isempty(strfind(host, 'eastus.cloudapp.azure.com')) )
     key = fullfile(key_dir, 'gtuser_gtCUDA_private');
     user = 'xueh2';
+elseif ( ~isempty(strfind(host, 'localhost')) )
+    key = '/home/xueh2/.ssh/id_rsa';
+    user = 'xueh2';
 end
 
 ind = find(key=='\');

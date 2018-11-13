@@ -3682,8 +3682,8 @@ for i = 1:size(ROI_table,2)
             
             % close the polygon
 			if (x(end)~=x(1)) & (y(end)~=y(1))
-				x = [x , x(1)];
-				y = [y , y(1)];
+				x = [x(:)' , x(1)];
+				y = [y(:)' , y(1)];
 			end;
             
             if debug==1
@@ -3862,7 +3862,7 @@ if nargin == 13
 	setappdata(h_angle, 'alpha0', alpha0);	
 end;
 
-h_number = text(number_x, number_y, num2str(roi_number),...
+h_number = text(double(number_x), double(number_y), num2str(roi_number),...
 	'color', roi_color, ...
 	'HorizontalAlignment', 'center' , ...
 	'ButtonDownFcn', 'ROI_tool(''ROI_Pos_Adjust_Entry'',2)'); 

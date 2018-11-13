@@ -600,15 +600,21 @@ scalingFactor = 10;
                 if(isFileExist(figName) ) 
                     openfig(figName);
                 else
-                    ss = moco_stress(:,:,[1 4 NN],:);
-                    rr = moco_rest(:,:,[1 4 NN],:);
+                    moco_pd_stress = cat(3, PD_stress, moco_stress);
+                    ss = moco_pd_stress(:,:,[1 4 round(NN/2) NN],:);
+                    
+                    moco_pd_rest = cat(3, PD_rest, moco_rest);
+                    rr = moco_pd_rest(:,:,[1 4 round(NN/2) NN],:);
 
-                    h = figure('Name',[ resDir '_Rest-Stress SR-PD CoMOCO'],'NumberTitle','off'); imagescn(cat(4, ss, rr), [], [2*slc 3], scalingFactor);
+                    h = figure('Name',[ resDir '_Rest-Stress SR-PD CoMOCO'],'NumberTitle','off'); imagescn(cat(4, ss, rr), [], [2*slc 4], scalingFactor);
                     saveas(h, figName, 'fig');
                 end
             else
-                ss = moco_stress(:,:,[1 4 NN],:);
-                rr = moco_rest(:,:,[1 4 NN],:);
+                moco_pd_stress = cat(3, PD_stress, moco_stress);
+                ss = moco_pd_stress(:,:,[1 4 NN],:);
+
+                moco_pd_rest = cat(3, PD_rest, moco_rest);
+                rr = moco_pd_rest(:,:,[1 4 NN],:);
 
                 h = figure('Name',[ resDir '_Rest-Stress SR-PD CoMOCO'],'NumberTitle','off'); imagescn(cat(4, ss, rr), [], [2*slc 3], scalingFactor);
                 saveas(h, figName, 'fig');
