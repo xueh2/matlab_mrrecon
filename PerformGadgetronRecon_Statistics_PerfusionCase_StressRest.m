@@ -27,6 +27,7 @@ rest_aif_valley_intensity_no_T2Star = zeros(num,1);
 rest_aif_T2S_peak = zeros(num, 1);
 rest_aif_T2S_baseline = zeros(num, 1);
 
+rest_aif_auc = zeros(num,1);
 rest_aif_duration = zeros(num,1);
 HeartRate_rest = zeros(num, 1);
 
@@ -43,6 +44,7 @@ stress_aif_peak_intensity_no_T2Star = zeros(num,1);
 stress_aif_T2S_peak = zeros(num, 1);
 stress_aif_T2S_baseline = zeros(num, 1);
 
+stress_aif_auc = zeros(num,1);
 stress_aif_duration = zeros(num,1);
 HeartRate_stress = zeros(num, 1);
 
@@ -130,9 +132,9 @@ for ii=1:num
         stress_aif_T2S_baseline(ii) = Rest_Stress_Record{ind_item}; ind_item = ind_item + 1;
     else
         try
-            [HeartRate_rest(ii), aif_cin_Gd_rest, aif_cin_Gd_rest_without_R2Star, aif_cin_all_echo0_signal_rest, aif_cin_all_echo0_signal_after_R2StarCorrection_rest, footTime_rest, peakTime_rest, valleyTime_rest, R2Star_rest, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, restCase);
+            [HeartRate_rest(ii), aif_cin_Gd_rest, aif_cin_Gd_rest_without_R2Star, aif_cin_all_echo0_signal_rest, aif_cin_all_echo0_signal_after_R2StarCorrection_rest, footTime_rest, peakTime_rest, valleyTime_rest, auc_rest, R2Star_rest, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, restCase);
 
-            [HeartRate_stress(ii), aif_cin_Gd_stress, aif_cin_Gd_stress_without_R2Star, aif_cin_all_echo0_signal_stress, aif_cin_all_echo0_signal_after_R2StarCorrection_stress, footTime_stress, peakTime_stress, valleyTime_stress, R2Star_stress,KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, stressCase);
+            [HeartRate_stress(ii), aif_cin_Gd_stress, aif_cin_Gd_stress_without_R2Star, aif_cin_all_echo0_signal_stress, aif_cin_all_echo0_signal_after_R2StarCorrection_stress, footTime_stress, peakTime_stress, valleyTime_stress, auc_stress, R2Star_stress,KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, stressCase);
 
             stressCase_all{ii} = stressCase;
             restCase_all{ii} = stressCase;
@@ -150,6 +152,8 @@ for ii=1:num
             rest_aif_valley_no_T2Star(ii) = (aif_cin_Gd_rest_without_R2Star(r1) + aif_cin_Gd_rest_without_R2Star(r2) + aif_cin_Gd_rest_without_R2Star(r3))/3;
             rest_aif_valley_intensity(ii) = (aif_cin_all_echo0_signal_after_R2StarCorrection_rest(r1) + aif_cin_all_echo0_signal_after_R2StarCorrection_rest(r2) + aif_cin_all_echo0_signal_after_R2StarCorrection_rest(r3))/3;
             rest_aif_valley_intensity_no_T2Star(ii) = (aif_cin_all_echo0_signal_rest(r1) + aif_cin_all_echo0_signal_rest(r2) + aif_cin_all_echo0_signal_rest(r3))/3;
+            
+            rest_aif_auc(ii) = auc_rest;
             
             rest_aif_duration(ii) = (valleyTime_rest - footTime_rest) * 0.5;
 
@@ -185,6 +189,8 @@ for ii=1:num
             stress_aif_valley_no_T2Star(ii) = (aif_cin_Gd_stress_without_R2Star(r1) + aif_cin_Gd_stress_without_R2Star(r2) + aif_cin_Gd_stress_without_R2Star(r3))/3;
             stress_aif_valley_intensity(ii) = (aif_cin_all_echo0_signal_after_R2StarCorrection_stress(r1) + aif_cin_all_echo0_signal_after_R2StarCorrection_stress(r2) + aif_cin_all_echo0_signal_after_R2StarCorrection_stress(r3))/3;
             stress_aif_valley_intensity_no_T2Star(ii) = (aif_cin_all_echo0_signal_stress(r1) + aif_cin_all_echo0_signal_stress(r2) + aif_cin_all_echo0_signal_stress(r3))/3;
+            
+            stress_aif_auc(ii) = auc_stress;
             
             stress_aif_duration(ii) = (valleyTime_stress - footTime_stress) * 0.5;
 
@@ -266,16 +272,19 @@ res_table = table(ind_case_all, patientID, study_date, stress_time, rest_time, f
     stress_aif_valley, stress_aif_valley_no_T2Star, stress_aif_valley_intensity, stress_aif_valley_intensity_no_T2Star, ... 
     rest_aif_peak_intensity, rest_aif_peak_intensity_no_T2Star, ...
     rest_aif_valley, rest_aif_valley_no_T2Star, rest_aif_valley_intensity, rest_aif_valley_intensity_no_T2Star, ... 
-    rest_aif_T2S_peak, rest_aif_T2S_baseline, stress_aif_T2S_peak, stress_aif_T2S_baseline);
+    rest_aif_T2S_peak, rest_aif_T2S_baseline, stress_aif_T2S_peak, stress_aif_T2S_baseline, ...
+    rest_aif_auc, stress_aif_auc);
 
 valid_ind = find(rest_aif_peak(:)>1.5 & stress_aif_peak(:)>1.5);
 
 disp(['Aif peak Gd (mmol/L),              rest   - ' num2str(mean(rest_aif_peak(valid_ind))) ' +/- ' num2str(std(rest_aif_peak(valid_ind)))]);
 disp(['Aif peak Gd no T2* (mmol/L),       rest   - ' num2str(mean(rest_aif_peak_no_T2Star(valid_ind))) ' +/- ' num2str(std(rest_aif_peak_no_T2Star(valid_ind)))]);
 disp(['Aif duration (seconds),            rest   - ' num2str(mean(rest_aif_duration(valid_ind))) ' +/- ' num2str(std(rest_aif_duration(valid_ind)))]);
+disp(['Aif AUC (sec.mmol/L),              rest   - ' num2str(mean(rest_aif_auc(valid_ind))) ' +/- ' num2str(std(rest_aif_auc(valid_ind)))]);
 disp(['Heart rate,                        rest   - ' num2str(mean(HeartRate_rest(valid_ind))) ' +/- ' num2str(std(HeartRate_rest(valid_ind)))]);
 
 disp(['Aif peak Gd (mmol/L),              stress - ' num2str(mean(stress_aif_peak(valid_ind))) ' +/- ' num2str(std(stress_aif_peak(valid_ind)))]);
 disp(['Aif peak Gd no T2* (mmol/L),       stress - ' num2str(mean(stress_aif_peak_no_T2Star(valid_ind))) ' +/- ' num2str(std(stress_aif_peak_no_T2Star(valid_ind)))]);
 disp(['Aif duration (seconds),            stress - ' num2str(mean(stress_aif_duration(valid_ind))) ' +/- ' num2str(std(stress_aif_duration(valid_ind)))]);
+disp(['Aif AUC (sec.mmol/L),              stress - ' num2str(mean(stress_aif_auc(valid_ind))) ' +/- ' num2str(std(stress_aif_auc(valid_ind)))]);
 disp(['Heart rate,                        stress - ' num2str(mean(HeartRate_stress(valid_ind))) ' +/- ' num2str(std(HeartRate_stress(valid_ind)))]);

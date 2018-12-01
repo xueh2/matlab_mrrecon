@@ -45,11 +45,14 @@ end
 if(~isempty(C1) & isempty(C2) & isempty(C3))
     BW1=roipoly(fmap0,C1(:,1), C1(:,2));
 
-    rvi = round(rv_insertion);
-
-    inBW1 = 0;        
-    if( BW1(rvi(1,2), rvi(1,1)) | BW1(rvi(2,2), rvi(2,1)) )
-        inBW1 = 1;
+    inBW1 = 1;      
+    if(~isempty(rv_insertion))    
+        rvi = round(rv_insertion);              
+        if( BW1(rvi(1,2), rvi(1,1)) | BW1(rvi(2,2), rvi(2,1)) )
+            inBW1 = 1;
+        else
+            inBW1 = 0;
+        end
     end
 
     if(inBW1)

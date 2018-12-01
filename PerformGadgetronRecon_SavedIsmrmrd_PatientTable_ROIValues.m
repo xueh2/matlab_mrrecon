@@ -105,6 +105,24 @@ rDelay = [];
 sDelay_pixel = [];
 rDelay_pixel = [];
 
+sf_sd = [];
+sVisf_sd = [];
+sVp_sd = [];
+sPS_sd = [];
+sf_sd_m = [];
+sVisf_sd_m = [];
+sVp_sd_m = [];
+sPS_sd_m = [];
+
+rf_sd = [];
+rVisf_sd = [];
+rVp_sd = [];
+rPS_sd = [];
+rf_sd_m = [];
+rVisf_sd_m = [];
+rVp_sd_m = [];
+rPS_sd_m = [];
+
 sf_mean = [];
 rf_mean = [];
 
@@ -182,6 +200,12 @@ rSNR = [];
 sGd = [];
 rGd = [];
 
+sf_SD = [];
+sVisf_SD = [];
+sVp_SD = [];
+sPS_SD = [];
+sE_SD = [];
+
 sf_pixel = [];
 sVisf_pixel = [];
 sVp_pixel = [];
@@ -193,6 +217,12 @@ sKi_TwoCompExp_pixel = [];
 
 sf_delay = [];
 sf_delay_pixel = [];
+
+rf_SD = [];
+rVisf_SD = [];
+rVp_SD = [];
+rPS_SD = [];
+rE_SD = [];
 
 rf_pixel = [];
 rVisf_pixel = [];
@@ -229,6 +259,7 @@ rest_aif_valley_intensity_no_T2Star = zeros(num,1);
 rest_aif_T2S_peak = zeros(num, 1);
 rest_aif_T2S_baseline = zeros(num, 1);
 
+rest_aif_auc = zeros(num,1);
 rest_aif_duration = zeros(num,1);
 HeartRate_rest = zeros(num, 1);
 
@@ -245,6 +276,7 @@ stress_aif_peak_intensity_no_T2Star = zeros(num,1);
 stress_aif_T2S_peak = zeros(num, 1);
 stress_aif_T2S_baseline = zeros(num, 1);
 
+stress_aif_auc = zeros(num,1);
 stress_aif_duration = zeros(num,1);
 HeartRate_stress = zeros(num, 1);
 
@@ -316,7 +348,7 @@ for n=1:num
     
     %% aif related
     try
-        [HeartRate_rest(n), aif_cin_Gd_rest, aif_cin_Gd_rest_without_R2Star, aif_cin_all_echo0_signal_rest, aif_cin_all_echo0_signal_after_R2StarCorrection_rest, footTime_rest, peakTime_rest, valleyTime_rest, R2Star_rest, SampledInterval_rest, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, restCase);
+        [HeartRate_rest(n), aif_cin_Gd_rest, aif_cin_Gd_rest_without_R2Star, aif_cin_all_echo0_signal_rest, aif_cin_all_echo0_signal_after_R2StarCorrection_rest, footTime_rest, peakTime_rest, valleyTime_rest, auc_rest, R2Star_rest, SampledInterval_rest, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, restCase);
         has_rest = 1;
     catch
         aif_cin_Gd_rest = -1;
@@ -331,7 +363,7 @@ for n=1:num
         has_rest = 0;
     end
     
-    [HeartRate_stress(n), aif_cin_Gd_stress, aif_cin_Gd_stress_without_R2Star, aif_cin_all_echo0_signal_stress, aif_cin_all_echo0_signal_after_R2StarCorrection_stress, footTime_stress, peakTime_stress, valleyTime_stress, R2Star_stress, SampledInterval_stress, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, stressCase);
+    [HeartRate_stress(n), aif_cin_Gd_stress, aif_cin_Gd_stress_without_R2Star, aif_cin_all_echo0_signal_stress, aif_cin_all_echo0_signal_after_R2StarCorrection_stress, footTime_stress, peakTime_stress, valleyTime_stress, auc_stress, R2Star_stress, SampledInterval_stress, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, stressCase);
 
     rest_time = [rest_time; {study_time_rest}];
     stress_time = [stress_time; {study_time_stress}];
@@ -351,6 +383,8 @@ for n=1:num
         rest_aif_valley_intensity(n) = (aif_cin_all_echo0_signal_after_R2StarCorrection_rest(r1) + aif_cin_all_echo0_signal_after_R2StarCorrection_rest(r2) + aif_cin_all_echo0_signal_after_R2StarCorrection_rest(r3))/3;
         rest_aif_valley_intensity_no_T2Star(n) = (aif_cin_all_echo0_signal_rest(r1) + aif_cin_all_echo0_signal_rest(r2) + aif_cin_all_echo0_signal_rest(r3))/3;
 
+        rest_aif_auc(n) = auc_rest;
+        
         rest_aif_duration(n) = (valleyTime_rest - footTime_rest) * 0.5;
 
         figure; hold on; plot(aif_cin_all_echo0_signal_rest); plot(aif_cin_all_echo0_signal_after_R2StarCorrection_rest, 'r'); hold off
@@ -385,6 +419,8 @@ for n=1:num
     stress_aif_valley_no_T2Star(n) = (aif_cin_Gd_stress_without_R2Star(r1) + aif_cin_Gd_stress_without_R2Star(r2) + aif_cin_Gd_stress_without_R2Star(r3))/3;
     stress_aif_valley_intensity(n) = (aif_cin_all_echo0_signal_after_R2StarCorrection_stress(r1) + aif_cin_all_echo0_signal_after_R2StarCorrection_stress(r2) + aif_cin_all_echo0_signal_after_R2StarCorrection_stress(r3))/3;
     stress_aif_valley_intensity_no_T2Star(n) = (aif_cin_all_echo0_signal_stress(r1) + aif_cin_all_echo0_signal_stress(r2) + aif_cin_all_echo0_signal_stress(r3))/3;
+
+    stress_aif_auc(n) = auc_stress;
 
     stress_aif_duration(n) = (valleyTime_stress - footTime_stress) * SampledInterval_rest/1e3;
             
@@ -789,6 +825,11 @@ for n=1:num
             sKi_Fermi_pixel = [sKi_Fermi_pixel; res_stress.Ki_Fermi_pixels];
             sKi_TwoCompExp_pixel = [sKi_TwoCompExp_pixel; res_stress.Ki_TwoCompExp_pixels];
             
+            sf_sd = [sf_sd; res_stress.flow_sd];
+            sPS_sd = [sPS_sd; res_stress.PS_sd];
+            sVisf_sd = [sVisf_sd; res_stress.Visf_sd];
+            sVp_sd = [sVp_sd; res_stress.Vp_sd];
+            
             sf_delay = [sf_delay; {res_stress.delay_flow}];
             sf_delay_pixel = [sf_delay_pixel; {res_stress.delay_flow_pixels}];
             
@@ -801,6 +842,11 @@ for n=1:num
             rKi_Fermi_pixel = [rKi_Fermi_pixel; res_rest.Ki_Fermi_pixels];
             rKi_TwoCompExp_pixel = [rKi_TwoCompExp_pixel; res_rest.Ki_TwoCompExp_pixels];
                         
+            rf_sd = [rf_sd; res_rest.flow_sd];
+            rPS_sd = [rPS_sd; res_rest.PS_sd];
+            rVisf_sd = [rVisf_sd; res_rest.Visf_sd];
+            rVp_sd = [rVp_sd; res_rest.Vp_sd];
+            
             rf_delay = [rf_delay; {res_rest.delay_flow}];
             rf_delay_pixel = [rf_delay_pixel; {res_rest.delay_flow_pixels}];
 
@@ -1314,6 +1360,16 @@ for n=1:size(sf,1)
     rCC_PS_Visf_mean = [rCC_PS_Visf_mean; get_entry_mean(rCC_PS_Visf(n,:))];
     sCC_Vp_Visf_mean = [sCC_Vp_Visf_mean; get_entry_mean(sCC_Vp_Visf(n,:))];
     rCC_Vp_Visf_mean = [rCC_Vp_Visf_mean; get_entry_mean(rCC_Vp_Visf(n,:))];
+    
+    sf_sd_m = [sf_sd_m; get_entry_mean(sf_sd(n,:))];
+    sPS_sd_m = [sPS_sd_m; get_entry_mean(sPS_sd(n,:))];
+    sVisf_sd_m = [sVisf_sd_m; get_entry_mean(sVisf_sd(n,:))];
+    sVp_sd_m = [sVp_sd_m; get_entry_mean(sVp_sd(n,:))];
+    
+    rf_sd_m = [rf_sd_m; get_entry_mean(rf_sd(n,:))];
+    rPS_sd_m = [rPS_sd_m; get_entry_mean(rPS_sd(n,:))];
+    rVisf_sd_m = [rVisf_sd_m; get_entry_mean(rVisf_sd(n,:))];
+    rVp_sd_m = [rVp_sd_m; get_entry_mean(rVp_sd(n,:))];
 end
 
 sVp_mean
@@ -1338,11 +1394,11 @@ res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB,
                 HeartRate_stress, ... 
                 stress_aif_peak, stress_aif_peak_no_T2Star, stress_aif_peak_intensity, stress_aif_peak_intensity_no_T2Star, ... 
                 stress_aif_valley, stress_aif_valley_no_T2Star, stress_aif_valley_intensity, stress_aif_valley_intensity_no_T2Star, ... 
-                stress_aif_T2S_peak, stress_aif_T2S_baseline, stress_aif_duration, ...                
+                stress_aif_T2S_peak, stress_aif_T2S_baseline, stress_aif_duration, stress_aif_auc, ...                
                 HeartRate_rest, ... 
                 rest_aif_peak, rest_aif_peak_no_T2Star, rest_aif_peak_intensity, rest_aif_peak_intensity_no_T2Star, ... 
                 rest_aif_valley, rest_aif_valley_no_T2Star, rest_aif_valley_intensity, rest_aif_valley_intensity_no_T2Star, ... 
-                rest_aif_T2S_peak, rest_aif_T2S_baseline, rest_aif_duration, ...                 
+                rest_aif_T2S_peak, rest_aif_T2S_baseline, rest_aif_duration, rest_aif_auc, ...                 
                 sf, rf, sf_i, rf_i, ... 
                 sE, rE, sE_i, rE_i, ... 
                 sPS, rPS, sPS_i, rPS_i, ...
@@ -1392,6 +1448,14 @@ res_table = table(scanInd, patientID, scanDate, scanTime, age, gender, stressHB,
                 sCC_Vp_Visf_mean, ...
                 rCC_Vp_Visf_mean, ...
                 sDelay, rDelay, sDelay_pixel, rDelay_pixel, ..., 
+                sf_sd, sf_sd_m, ...
+                sPS_sd, sPS_sd_m, ...
+                sVisf_sd, sVisf_sd_m, ...
+                sVp_sd, sVp_sd_m, ...
+                rf_sd, rf_sd_m, ...
+                rPS_sd, rPS_sd_m, ...
+                rVisf_sd, rVisf_sd_m, ...
+                rVp_sd, rVp_sd_m, ...
                 sSNR, rSNR, ...
                 sf_pixel, sE_pixel, sVisf_pixel, sVp_pixel, sPS_pixel, sKi_MF_pixel, sKi_Fermi_pixel, sKi_TwoCompExp_pixel, ...
                 sf_delay, sf_delay_pixel, ...

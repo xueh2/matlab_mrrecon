@@ -42,6 +42,9 @@ UTCases = {
     'FATWATER_PSIR', 'BH_PSIR_FW_segm_724_4e_42363_345380291_345380374_1872_20180817-161559',  'VD',   'GTPrep_2DT_FW_PSIR_Diego.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
     
     'FATWATER_PSIR', 'FB_PSIR_FW_MOCO_724_3e_42363_345380291_345380374_1882_20180817-162814',  'VD',   'GTPrep_2DT_FW_MOCO_AVE_PSIR_Diego.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
+    
+    'FatWater/Cine', 'FatWater_42363_64992122_64992127_172_20181115-123837',  'VD',   'GTPrep_2DT_FW_CINE_Diego.xml',  'grappa_res',  'grappa_ref',   'IsmrmrdParameterMap_Siemens.xsl'  ; ...   
+    
    };
 
 N = size(UTCases, 1);

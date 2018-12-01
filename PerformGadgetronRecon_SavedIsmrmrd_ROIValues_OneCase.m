@@ -10,6 +10,21 @@ if(nargin<7)
     s3_visf = s3;
 end
 
+f_min = 0.1;
+f_max = 4.0;
+
+E_min = 0.05;
+E_max = 1.0;
+
+Visf_min = 5;
+Visf_max = 40;
+
+Vp_min = 5;
+Vp_max = 15;
+
+PS_min = 0.1;
+PS_max = 3.0;
+
 if(isfield(a, 'flow_stress'))
     %% stress
     
@@ -19,21 +34,37 @@ if(isfield(a, 'flow_stress'))
     res.flow = [f1.m f2.m f3.m];
     res.flow_pixels = {f1.data(:) f2.data(:) f3.data(:)};
     
+    res.flow_sd(1) = get_sd(f1.data(:), f_min, f_max);
+    res.flow_sd(2) = get_sd(f2.data(:), f_min, f_max);
+    res.flow_sd(3) = get_sd(f3.data(:), f_min, f_max);
+    
     [f1, f2, f3] = get_roi_values(stress.E_stress, s1, s2, s3);
     res.E = [f1.m f2.m f3.m];
     res.E_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+    res.E_sd(1) = get_sd(f1.data(:), E_min, E_max);
+    res.E_sd(2) = get_sd(f2.data(:), E_min, E_max);
+    res.E_sd(3) = get_sd(f3.data(:), E_min, E_max);
 
     [f1, f2, f3] = get_roi_values(stress.Visf_stress, s1_visf, s2_visf, s3_visf);
     res.Visf = [f1.m f2.m f3.m];
     res.Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
-
+    res.Visf_sd(1) = get_sd(f1.data(:), Visf_min, Visf_max);
+    res.Visf_sd(2) = get_sd(f2.data(:), Visf_min, Visf_max);
+    res.Visf_sd(3) = get_sd(f3.data(:), Visf_min, Visf_max);
+    
     [f1, f2, f3] = get_roi_values(stress.Vp_stress, s1, s2, s3);
     res.Vp = [f1.m f2.m f3.m];
     res.Vp_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+    res.Vp_sd(1) = get_sd(f1.data(:), Vp_min, Vp_max);
+    res.Vp_sd(2) = get_sd(f2.data(:), Vp_min, Vp_max);
+    res.Vp_sd(3) = get_sd(f3.data(:), Vp_min, Vp_max);
     
     [f1, f2, f3] = get_roi_values(stress.PS_stress, s1, s2, s3);
     res.PS = [f1.m f2.m f3.m];
     res.PS_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+    res.PS_sd(1) = get_sd(f1.data(:), PS_min, PS_max);
+    res.PS_sd(2) = get_sd(f2.data(:), PS_min, PS_max);
+    res.PS_sd(3) = get_sd(f3.data(:), PS_min, PS_max);
 
 %     [f1, f2, f3] = get_roi_values(stress.SDMap_stress, s1, s2, s3);
 %     res.SD = [f1.m f2.m f3.m];
@@ -217,21 +248,37 @@ else
     res.flow = [f1.m f2.m f3.m];
     res.flow_pixels = {f1.data(:) f2.data(:) f3.data(:)};
     
+    res.flow_sd(1) = get_sd(f1.data(:), f_min, f_max);
+    res.flow_sd(2) = get_sd(f2.data(:), f_min, f_max);
+    res.flow_sd(3) = get_sd(f3.data(:), f_min, f_max);
+    
     [f1, f2, f3] = get_roi_values(rest.E_rest, s1, s2, s3);
     res.E = [f1.m f2.m f3.m];
     res.E_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+    res.E_sd(1) = get_sd(f1.data(:), E_min, E_max);
+    res.E_sd(2) = get_sd(f2.data(:), E_min, E_max);
+    res.E_sd(3) = get_sd(f3.data(:), E_min, E_max);
 
     [f1, f2, f3] = get_roi_values(rest.Visf_rest, s1_visf, s2_visf, s3_visf);
     res.Visf = [f1.m f2.m f3.m];
     res.Visf_pixels = {f1.data(:) f2.data(:) f3.data(:)};
-
+    res.Visf_sd(1) = get_sd(f1.data(:), Visf_min, Visf_max);
+    res.Visf_sd(2) = get_sd(f2.data(:), Visf_min, Visf_max);
+    res.Visf_sd(3) = get_sd(f3.data(:), Visf_min, Visf_max);
+    
     [f1, f2, f3] = get_roi_values(rest.Vp_rest, s1, s2, s3);
     res.Vp = [f1.m f2.m f3.m];
     res.Vp_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+    res.Vp_sd(1) = get_sd(f1.data(:), Vp_min, Vp_max);
+    res.Vp_sd(2) = get_sd(f2.data(:), Vp_min, Vp_max);
+    res.Vp_sd(3) = get_sd(f3.data(:), Vp_min, Vp_max);
     
     [f1, f2, f3] = get_roi_values(rest.PS_rest, s1, s2, s3);
     res.PS = [f1.m f2.m f3.m];
     res.PS_pixels = {f1.data(:) f2.data(:) f3.data(:)};
+    res.PS_sd(1) = get_sd(f1.data(:), PS_min, PS_max);
+    res.PS_sd(2) = get_sd(f2.data(:), PS_min, PS_max);
+    res.PS_sd(3) = get_sd(f3.data(:), PS_min, PS_max);
 
 %     [f1, f2, f3] = get_roi_values(rest.SDMap_rest, s1, s2, s3);
 %     res.SD = [f1.m f2.m f3.m];
@@ -456,4 +503,18 @@ function [f1, f2, f3] = get_2nd_roi_values(a, s1, s2, s3)
     end
 end
 
+function sd = get_sd(data, minv, maxv)
+
+    if(numel(data)==1)
+        sd = -1;
+        return;
+    end
+
+    if(minv>=0 & maxv>=0)
+        ind = find(data>minv & data<maxv);
+        sd = std(data(ind(:)));
+    else
+        sd = std(data(:));
+    end
+end
 

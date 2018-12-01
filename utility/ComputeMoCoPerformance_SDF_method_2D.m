@@ -39,7 +39,7 @@ for n=1:num
         
         [a_dice, a_FP, a_FN] = ComputeDSC_2D_FP_FN(s1, s2);
         [a_BSE, distPercentages, distRealNumbers, dist] = computeBSE_WithSDF_2D(s1, sdf1, s2, sdf2, voxelSize(1), voxelSize(2), 1.5*voxelSize(1));
-        a_BSE = 0;
+%         a_BSE = 0;
         
         dice(n, m) = a_dice;
         FP(n, m) = a_FP;

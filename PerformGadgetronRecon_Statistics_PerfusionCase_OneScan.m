@@ -1,5 +1,7 @@
 
-function [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, footTime, peakTime, valleyTime, R2Star, SampledInternval, KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, caseName)
+function [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, ... 
+    footTime, peakTime, valleyTime, aif_auc, R2Star, SampledInternval, ... 
+    KiMap, flowMap, EMap, PSMap, VisfMap, VpMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, caseName)
 % [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, foot, peak, valley, KiMap, flowMap, EMap, PSMap, VisfMap, BloodVolumeMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan(resDir, caseName)
 % [HeartRate, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_all_echo0_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, foot, peak, valley, KiMap, flowMap, EMap, PSMap, VisfMap, BloodVolumeMap] = PerformGadgetronRecon_Statistics_PerfusionCase_OneScan('I:\ReconResults\BARTS', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_42110_196106578_196106587_845_20160613-114338')
 
@@ -52,6 +54,12 @@ footTime = round(peakTime - timeToPeak_rest);
 
 v = mean(aif_cin_Gd_without_R2Star(4:footTime));
 aif_cin_Gd_without_R2Star_baseline_corrected = aif_cin_Gd_without_R2Star - v;
+
+aif_auc = 0;
+for t=footTime:valleyTime
+    d_auc = (aif_cin_Gd_without_R2Star_baseline_corrected(t) + aif_cin_Gd_without_R2Star_baseline_corrected(t+1)) * SampledInternval /2;
+    aif_auc = aif_auc + d_auc;
+end
 
 KiMap = [];
 flowMap = [];

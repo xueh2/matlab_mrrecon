@@ -126,7 +126,7 @@ for n=start:num
     try
         [h_flow_stress, h_flow_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir,  stressCase, restCase, [0 6], onlyReview, 0);            
     catch
-        continue;
+%         continue;
     end
     
     figure;

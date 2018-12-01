@@ -89,8 +89,14 @@ elseif(~isempty(strfind(xmlString, 'RT_Cine_LIN')))
     configName = 'Generic_RTCine_PInterp_Fil_dstore.xml';            
     
 elseif(~isempty(strfind(xmlString, 'FatWater_Nav3D')))    
-    configName = 'GTPrep_3DT_FatWater_Diego.xml';         
-elseif(~isempty(strfind(xmlString, 'FW')))
-    configName = 'GTPrep_2DT_FatWater_Diego.xml';         
+    configName = 'GTPrep_3DT_FatWater_Diego.xml'; 
+elseif(~isempty(strfind(xmlString, 'FatWaterCine')))
+    configName = 'GTPrep_2DT_FW_CINE_Diego.xml'; 
+elseif(~isempty(strfind(xmlString, 'FatWater_MOCO_AVE_PSIR')))
+    configName = 'GTPrep_2DT_FW_MOCO_AVE_PSIR_Diego_AVE.xml'; 
+elseif(~isempty(strfind(xmlString, 'FatWater_MOCO_AVE')))
+    configName = 'GTPrep_2DT_FW_MOCO_AVE_Diego.xml';     
+elseif(~isempty(strfind(xmlString, 'FatWater')))
+    configName = 'GTPrep_2DT_FW_Diego.xml';         
 
 end

@@ -30,9 +30,9 @@ function perf_add_endo_epi_contours(Gd, contourDir)
         rvi1 = rvi1(:,:,end);
         rvi2 = rvi2(:,:,end);
         
-        [v, ind] = max(rvi0(:)); [rvi0_s, rvi0_e] = CCMS_Contour(rvi0, v/2, 4, 0);
-        [v, ind] = max(rvi0(:)); [rvi1_s, rvi1_e] = CCMS_Contour(rvi1, v/2, 4, 0);
-        [v, ind] = max(rvi0(:)); [rvi2_s, rvi2_e] = CCMS_Contour(rvi2, v/2, 4, 0);
+        [v, ind] = max(rvi0(:)); [rvi0_s, rvi0_e] = CCMS_Contour(rvi0, v*0.9, 4, 0);
+        [v, ind] = max(rvi0(:)); [rvi1_s, rvi1_e] = CCMS_Contour(rvi1, v*0.9, 4, 0);
+        [v, ind] = max(rvi0(:)); [rvi2_s, rvi2_e] = CCMS_Contour(rvi2, v*0.9, 4, 0);
         
         ptN = size(rvi0_s,1);        
         rvi0 = zeros(2*ptN, 2);

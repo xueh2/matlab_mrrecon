@@ -453,6 +453,7 @@ for n=1:num
             [key, user] = sshKeyLookup(gt_host);
             debug_folder = ['/home/' user '/Debug/DebugOutput']
             ts = tic;
+
             CopyGadgetronDebugOutputOnRemote(gt_host, debug_folder, dstDir, 1)
             disp(['copy debug output : ' num2str(toc(ts))]);
         end

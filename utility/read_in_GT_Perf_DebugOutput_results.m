@@ -133,7 +133,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
         aif_baseline_corrected = [];
     end
    
-    if(max(aif_baseline_corrected)<1.2)
+    if(max(aif_baseline_corrected)<0.2)
         return;
     end
            

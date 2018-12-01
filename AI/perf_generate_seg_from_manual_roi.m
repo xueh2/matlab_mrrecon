@@ -29,6 +29,7 @@ ps_ro = ps_ro -1;
 ps_e1 = ps_e1 -1;
 
 rs = size(fmap_resized, 1)/size(fmap,1);
+rs = double(rs);
 
 % --------------------------------------------
 
