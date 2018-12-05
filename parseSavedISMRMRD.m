@@ -86,7 +86,7 @@ elseif(~isempty(strfind(xmlString, 'Retro_Lin_Cine')))
     configName = 'Generic_2DT_RetroGated_Cine_ECG_dstore.xml';  
     
 elseif(~isempty(strfind(xmlString, 'RT_Cine_LIN')))
-    configName = 'Generic_RTCine_PInterp_Fil_dstore.xml';            
+    configName = 'Generic_RTCine_PInterp_Fil_ECG_dstore.xml';            
     
 elseif(~isempty(strfind(xmlString, 'FatWater_Nav3D')))    
     configName = 'GTPrep_3DT_FatWater_Diego.xml'; 

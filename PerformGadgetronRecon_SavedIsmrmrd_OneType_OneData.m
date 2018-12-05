@@ -463,9 +463,9 @@ for n=1:num
     try
         [tDicom, remoteFolder] = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom(resDir, name, gt_host);
 
-        [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
-        dicomDir = fullfile(resDir, study_dates, [name '_dicom']);
-        rmdir(dicomDir)
+%         [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+%         dicomDir = fullfile(resDir, study_dates, [name '_dicom']);
+%         rmdir(dicomDir)
         
         if(isempty(strfind(name, 'Perfusion'))~=1)
             missing_cases = PerformGadgetronRecon_CopyMapDicom_PerfusionCase([], {name}, resDir, []);

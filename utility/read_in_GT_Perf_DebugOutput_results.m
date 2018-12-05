@@ -8,7 +8,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     BTEX_flow_SD_all, BTEX_PS_SD_all, BTEX_Visf_SD_all, BTEX_Vp_SD_all, BTEX_cov_all, ...
     flow_SD, PS_SD, Vp_SD, Visf_SD, BTEX_cov, ... 
     CC_F_PS, CC_F_Vp, CC_F_Visf, CC_PS_Vp, CC_PS_Visf, CC_Vp_Visf, ... 
-    BTEX_Tc_all, Fermi_Delay] = read_in_GT_Perf_DebugOutput_results(resDir, only_aif)
+    BTEX_Tc_all, Fermi_Delay, aif_scan_geometry_info, scan_geometry_info] = read_in_GT_Perf_DebugOutput_results(resDir, only_aif)
 
 % read in Gadgetron perfusion debug output results
 % [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_time, perf_acq_time, dst_acq_time, ... 
@@ -150,6 +150,14 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
         aif_plots = [];
     end
     
+    % read in aif slice and image position
+    xmlContent = xml_load(fullfile(resDir, ['results_SLC0_CON0_PHS0_REP0_SET0_AVE0_1_1104.attrib']));
+    aif_slice_dir = getXMLField(xmlContent, 'slice_dir');
+    aif_read_dir = getXMLField(xmlContent, 'read_dir');
+    aif_phase_dir = getXMLField(xmlContent, 'phase_dir');
+    aif_PatientPosition = getXMLField(xmlContent, 'PatientPosition');
+    aif_patient_table_position = getXMLField(xmlContent, 'patient_table_position');
+    
     try
 %         perf = load_array(resDir, 'CASignal_Perf_', slc);        
         perf = load_array2(resDir, 'PerfFlowMapping_Job_', slc, '_perf_moco_upsampled');        
@@ -181,6 +189,20 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     PD = load_array(resDir, 'PD_', slc);   
     PD = flipdim(PD, 2);
 
+    for s=1:slc
+        [names, num] = findFILE('.', ['*_SLC' num2str(s-1) '*103.attrib']);
+        names{1}
+        xmlContent = xml_load(names{1});
+        slice_dir(s,:) = getXMLField(xmlContent, 'slice_dir');
+        read_dir(s,:) = getXMLField(xmlContent, 'read_dir');
+        phase_dir(s,:) = getXMLField(xmlContent, 'phase_dir');
+        PatientPosition(s,:) = getXMLField(xmlContent, 'PatientPosition');
+        patient_table_position(s,:) = getXMLField(xmlContent, 'patient_table_position');
+    end
+        
+    aif_scan_geometry_info = table(aif_slice_dir, aif_read_dir, aif_phase_dir, aif_PatientPosition, aif_patient_table_position);    
+    scan_geometry_info = table(slice_dir, read_dir, phase_dir, PatientPosition, patient_table_position);
+    
     try
         input_for_filter = load_array(resDir, 'input_spatiotemporal_filter__row', slc);   
         input_for_filter = flipdim(input_for_filter, 2);
@@ -494,5 +516,16 @@ function [CC_F_PS, CC_F_Vp, CC_F_Visf, CC_PS_Vp, CC_PS_Visf, CC_Vp_Visf] = compu
         CC_PS_Vp(ind) = 0;
         CC_PS_Visf(ind) = 0;
         CC_Vp_Visf(ind) = 0;
+    end
+end
+
+function v = getXMLField(xmlContent, vname)
+
+    for ii=1:numel(xmlContent)        
+        if(strcmp(xmlContent(ii).meta(1).name, vname)==1)            
+            for j=1:numel(xmlContent(ii).meta)
+                v(j) = str2double(xmlContent(ii).meta(j).value);
+            end            
+        end        
     end
 end
