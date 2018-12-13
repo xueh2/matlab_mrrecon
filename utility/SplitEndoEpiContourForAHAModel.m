@@ -1,17 +1,17 @@
 
-function [res, endo_res, epi_res] = SplitEndoEpiContourForAHAModel(endo, epi, lv_center, rv_insertion, num_seg, plot_flag)
-% [res, endo, epi] = SplitEndoEpiContourForAHAModel(endo, epi, lv_center, rv_insertion, num_seg)
+function [res, endo_res, epi_res] = SplitEndoEpiContourForAHAModel(endo, epi, lv_center, rv_center, rv_insertion, num_seg, RO, E1, plot_flag)
+% [res, endo, epi] = SplitEndoEpiContourForAHAModel(endo, epi, lv_center, rv_center, rv_insertion, num_seg, RO, E1, plot_flag)
 %
 % res are the contours for num_seg
 %
 % endo and epi are the contours split transmurally into endo and epi
 
-if(nargin<6)
+if(nargin<8)
     plot_flag = 0;
 end
 
-res_endo = SplitContourForAHAModel(endo, lv_center, rv_insertion, num_seg);
-res_epi = SplitContourForAHAModel(epi, lv_center, rv_insertion, num_seg);
+res_endo = SplitContourForAHAModel(endo, lv_center, rv_center, rv_insertion, num_seg, RO, E1);
+res_epi = SplitContourForAHAModel(epi, lv_center, rv_center, rv_insertion, num_seg, RO, E1);
 
 if(numel(res_endo)~=numel(res_epi))
     res = [];

@@ -124,7 +124,13 @@ end
 end
 
 function pts = apply_max_min(pts, max_d, min_d)
-    ind2 = find(pts>=min_d & pts<=max_d);
+    st = isnan(pts);
+    
+    ind2 = [];    
+    while(isempty(ind2))
+        ind2 = find(pts>=min_d & pts<=max_d & st==0);
+        max_d = max_d*1.1;
+    end
     pts = pts(ind2);
 end
 

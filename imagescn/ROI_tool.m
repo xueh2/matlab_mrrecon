@@ -1708,7 +1708,7 @@ ylim = axes_values{2};
 size_x = xlim(2) - xlim(1);
 size_y = ylim(2) - ylim(1);
 handles.circle_size = min([size_x, size_y]);
-handles.circle_ratio = str2num(get(handles.Push_Radius_edit, 'String'))/100;
+handles.circle_ratio = str2num(get(handles.Push_Radius_edit, 'String'))/200;
 handles.Color        = 'r';
 
 set(handles.Parent_figure, 'Tag', 'ROI_Draw_figure', ...
@@ -2556,7 +2556,7 @@ theta = 0:(360/basic_points):360;
 
 if ~isempty(handlesDraw.h_circle) | (Mode==1)
 	delete(handlesDraw.h_circle);
-	handlesDraw.h_circle = plot(x-100 ,y-100, 'w-', 'Tag', 'Cursor_Circle', 'Userdata', [x',y']); 
+	handlesDraw.h_circle = plot(x-100 ,y-100, 'r-', 'Tag', 'Cursor_Circle', 'Userdata', [x',y']); 
 	guidata(findobj('Tag', 'ROI_Draw_figure'), handlesDraw );
 end;
 
@@ -2770,7 +2770,7 @@ if save_mat | save_matlab_var
     if save_mat
         if nargin < 2
             fname = []; pname = [];
-            [fname,pname] = uiputfile('*.mat', 'Save .mat file');
+            [fname,pname] = uiputfile('roi_new.mat', 'Save .mat file');
         end;
     end
     if save_matlab_var

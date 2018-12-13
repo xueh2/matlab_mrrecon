@@ -94,7 +94,7 @@ function [sectors, sector_contours, sector_endo_contours, sector_epi_contours] =
     plot(rvi(1), rvi(2), 'b+');
     hold off
     
-    [res, sector_endo_contours, sector_epi_contours] = SplitEndoEpiContourForAHAModel(fil_endo, fil_epi, lv_center, rvi, num_sectors, plot_flag);
+    [res, sector_endo_contours, sector_epi_contours] = SplitEndoEpiContourForAHAModel(fil_endo, fil_epi, lv_center, rv_center, rvi, num_sectors, RO, E1, plot_flag);
     
     figure;imagescn(sectors+rv_mask+rvi_mask);
     hold on
@@ -145,13 +145,26 @@ function sector_contour = get_sector_contour(sectors, s, new_len, n_components)
 
     P = mask2poly(logical(t)); 
     
-    sector_contour = [P.X' P.Y'];
-    
-    if(new_len>0)
-        sector_contour = resample_contour(sector_contour, new_len);
-        sector_contour = filter_contour(sector_contour, n_components);
+    p_ind = 1;
+    p_len = 0;
+    for pp=1:numel(P)
+        if(P(pp).Length>p_len)
+            p_ind = pp;
+            p_len = P(pp).Length;
+        end
     end
     
+    if(p_len>0)
+    
+        sector_contour = [P(p_ind).X' P(p_ind).Y'];
+
+        if(new_len>0)
+            sector_contour = resample_contour(sector_contour, new_len);
+            sector_contour = filter_contour(sector_contour, n_components);
+        end
+    else
+        sector_contour = [];
+    end
 %     [c_s, c_e] = CCMS_Contour(t, 0.5, 4, 0);
 %     
 %     ptN = size(c_s,1);        

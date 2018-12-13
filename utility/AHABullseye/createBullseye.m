@@ -1,4 +1,4 @@
-function bullseyeChild = createBullseye(data)
+function bullseyeChild = createBullseye(data , linestyle)
 
 %     CREATEBULLSEYE creates a bullseye, with the main function of creating
 %     an AHA 17 segment bullseye. Each row in "data" should have the 
@@ -21,7 +21,11 @@ function bullseyeChild = createBullseye(data)
 % August 4 2014                   
 % =========================================================================
 
-     
+    if nargin > 1;
+        style = linestyle;
+    else
+        style = [];
+    end
     
     sz = size(data);
     ax = gca;
@@ -39,7 +43,7 @@ function bullseyeChild = createBullseye(data)
             wedgeSize = 360/data(i,3);
             createWedge(j*wedgeSize + data(i,4), ...
                 (j+1)*wedgeSize + data(i,4), ...
-                data(i,1),data(i,2));
+                data(i,1),data(i,2), style);
             
             count = count+1;
         end
@@ -55,7 +59,7 @@ function bullseyeChild = createBullseye(data)
     
 end
 
-function [wedgeHandle,XData,YData] = createWedge(theta1,theta2,rho1,rho2)
+function [wedgeHandle,XData,YData] = createWedge(theta1,theta2,rho1,rho2, style)
     
 %     CREATEWEDGE creates an unfilled wedge on the polar graph where:
 %       -theta1 is the starting angle of the wedge
@@ -66,8 +70,12 @@ function [wedgeHandle,XData,YData] = createWedge(theta1,theta2,rho1,rho2)
 %     Example: createWedge(45,135,3,3.5);
 %       
     
-    [theta,rho] = getWedgeBorder(theta1,theta2,rho1,rho2);    
-    wedgeHandle = polar(gca,theta,rho);
+    [theta,rho] = getWedgeBorder(theta1,theta2,rho1,rho2); 
+    if ~isempty(style)
+        wedgeHandle = polar(gca,theta,rho,style);
+    else
+        wedgeHandle = polar(gca,theta,rho);
+    end
     XData = get(wedgeHandle,'XData');
     YData = get(wedgeHandle,'YData');
 

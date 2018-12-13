@@ -21,27 +21,29 @@ end
 
 h_axes=flipud(findobj(h,'type','axes'));
 
+contour_offset = 0;
+
 for slc=1:SLC
     axes(h_axes(slc))
     
     if(numel(endoC)>=slc)
         endo = endoC{slc};
         hold on    
-        plot(endo(:,2)+1, endo(:,1)+1, 'b', 'LineWidth', 2);
+        plot(endo(:,2)+contour_offset, endo(:,1)+contour_offset, 'b', 'LineWidth', 2);
         hold off
     end
     
     if(numel(epiC)>=slc)
         epi = epiC{slc};
         hold on    
-        plot(epi(:,2)+1, epi(:,1)+1, 'r', 'LineWidth', 2);
+        plot(epi(:,2)+contour_offset, epi(:,1)+contour_offset, 'r', 'LineWidth', 2);
         hold off
     end
     
     if(numel(rvC)>=slc)
         rv = rvC{slc};
         hold on    
-        plot(rv(:,2)+1, rv(:,1)+1, 'w', 'LineWidth', 2);
+        plot(rv(:,2)+contour_offset, rv(:,1)+contour_offset, 'w', 'LineWidth', 2);
         hold off
     end 
     
@@ -49,7 +51,7 @@ for slc=1:SLC
         rvi_x = rvi(slc, 1);
         rvi_y = rvi(slc, 2);
         hold on    
-        plot(rvi_y+1, rvi_x+1, 'm+', 'MarkerSize', 20);
+        plot(rvi_y+contour_offset, rvi_x+contour_offset, 'm+', 'MarkerSize', 20);
         hold off
     end 
 end

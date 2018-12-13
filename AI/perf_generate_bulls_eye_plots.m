@@ -1,6 +1,7 @@
 
-function [h_f, h_PS, h_Vb, h_Visf, h_Tc, h_delay] = perf_generate_bulls_eye_plots(bulls_eye, trainingCaseDir)
+function [h_f, h_PS, h_Vb, h_Visf, h_Tc, h_delay, res] = perf_generate_bulls_eye_plots(bulls_eye, trainingCaseDir)
 % create bulls eye plot for flow, PS, Visf, Vb, Tc and delay_time
+% [h_f, h_PS, h_Vb, h_Visf, h_Tc, h_delay, res] = perf_generate_bulls_eye_plots(bulls_eye, trainingCaseDir)
 
 % load data
 
@@ -11,27 +12,34 @@ Visf = readNPY(fullfile(trainingCaseDir, 'visf_map_resized_training.npy'));
 Tc = readNPY(fullfile(trainingCaseDir, 'Tc_map_resized_training.npy'));
 delay = readNPY(fullfile(trainingCaseDir, 'delay_map_resized_training.npy'));
 
-cmap = PerfColorMap;
-[h_f, h_f_32] = create_bulls_eye(f, bulls_eye, [0 8], 'Flow, ml/min/g', cmap, 4.5, 0.1);
+res = struct('basal_f', [], 'mid_f', [], 'apex_f', [], ...
+    'basal_Vb', [], 'mid_Vb', [], 'apex_Vb', [], ...
+    'basal_Visf', [], 'mid_Visf', [], 'apex_Visf', [], ...
+    'basal_Tc', [], 'mid_Tc', [], 'apex_Tc', [], ...
+    'basal_delay', [], 'mid_delay', [], 'apex_delay', [], ...
+    'basal_PS', [], 'mid_PS', [], 'apex_PS', []);
 
-cmap = PSColorMap;
-[h_PS, h_PS_32] = create_bulls_eye(PS, bulls_eye, [0 2], 'PS, ml/min/g', cmap, 2.5, 0.1);
+cmap = PerfColorMap(0);
+[h_f, h_f_32, res.basal_f, res.mid_f, res.apex_f] = create_bulls_eye(f, bulls_eye, [0 8], 'Flow, ml/min/g', cmap, 4.5, 0.1);
 
-cmap = MBVColorMap;
-[h_Vb, h_Vb_32] = create_bulls_eye(Vb, bulls_eye, [0 20], 'Vb, 100ml/g', cmap, 20, 2);
+cmap = PSColorMap(0);
+[h_PS, h_PS_32, res.basal_PS, res.mid_PS, res.apex_PS] = create_bulls_eye(PS, bulls_eye, [0 4], 'PS, ml/min/g', cmap, 2.5, 0.1);
 
-cmap = ECVColorMap;
-[h_Visf, h_Visf_32] = create_bulls_eye(Visf, bulls_eye, [0 80], 'Visf, 100ml/g', cmap, 60, 2);
+cmap = MBVColorMap(0);
+[h_Vb, h_Vb_32, res.basal_Vb, res.mid_Vb, res.apex_Vb] = create_bulls_eye(Vb, bulls_eye, [0 20], 'Vb, 100ml/g', cmap, 20, 2);
 
-cmap = PerfColorMap;
-[h_Tc, h_Tc_32] = create_bulls_eye(Tc, bulls_eye, [0 20], 'Tc, seconds', cmap, 20, 0.5);
+cmap = ECVColorMap(0);
+[h_Visf, h_Visf_32, res.basal_Visf, res.mid_Visf, res.apex_Visf] = create_bulls_eye(Visf, bulls_eye, [0 80], 'Visf, 100ml/g', cmap, 60, 2);
 
-cmap = PerfColorMap;
-[h_delay, h_delay_32] = create_bulls_eye(delay, bulls_eye, [0 8], 'Delay, seconds', cmap, 20, 0.01);
+cmap = PerfColorMap(0);
+[h_Tc, h_Tc_32, res.basal_Tc, res.mid_Tc, res.apex_Tc] = create_bulls_eye(Tc, bulls_eye, [0 20], 'Tc, seconds', cmap, 20, 0.5);
+
+cmap = PerfColorMap(0);
+[h_delay, h_delay_32, res.basal_delay, res.mid_delay, res.apex_delay] = create_bulls_eye(delay, bulls_eye, [0 8], 'Delay, seconds', cmap, 20, 0.01);
 
 end
 
-function [h_16, h_32] = create_bulls_eye(data, bulls_eye, windows, comments, cmap, max_d, min_d)
+function [h_16, h_32, basal, mid, apex] = create_bulls_eye(data, bulls_eye, windows, comments, cmap, max_d, min_d)
 
     [basal, mid, apex] = get_AHA_values(data, bulls_eye, max_d, min_d);
    
@@ -80,7 +88,10 @@ function [h_16, h_32] = create_bulls_eye(data, bulls_eye, windows, comments, cma
     
     h_32 = h_16;
 %     h_32 = figure('Name', ['AHA 32, ' comments], 'NumberTitle','off');
-    c = createBullseye([0 0.5 1 0; 0.5 0.75 4 45; 0.75 1 4 45; 1 1.25 6 0; 1.25 1.5 6 0; 1.5 1.75 6 0; 1.75 2 6 0]);
+    c1 = createBullseye([0 0.5 1 0; 0.5 0.75 4 45; 0.75 1 4 45; 1 1.25 6 0; 1.25 1.5 6 0; 1.5 1.75 6 0; 1.75 2 6 0],':');
+    c = createBullseye([0 0.5 1 0; 0.5 1 4 45; 1 1.5 6 0; 1.5 2 6 0]);
+    
+    set(c1,'Color','k','LineWidth',2)
     set(c,'Color','k','LineWidth',2)
 
     fillBullseye(double(cat(2, apex.m_endo)),0.5,0.75,-315,45); % inner circle (apical)
@@ -91,6 +102,13 @@ function [h_16, h_32] = create_bulls_eye(data, bulls_eye, windows, comments, cma
     fillBullseye(double(cat(2, mid.m_epi)),1.25,1.5,-300,60); % mid circle (mid)
     fillBullseye(double(cat(2, basal.m_epi)),1.75,2,-300,60); % outer circle (basal)
 
+%     c1 = createBullseye([0 0.5 1 0; 0.5 0.75 4 45; 0.75 1 4 45; 1 1.25 6 0; 1.25 1.5 6 0; 1.5 1.75 6 0; 1.75 2 6 0],':');
+%     set(c1,'Color','k','LineWidth',2)
+%     c = createBullseye([0 0.5 1 0; 0.5 1 4 45; 1 1.5 6 0; 1.5 2 6 0]);
+%     
+%     set(c,'Color','k','LineWidth',2)
+    
+    uistack(c1,'top');   
     uistack(c,'top');
     set(gca,'clim',windows);
     colormap(cmap);

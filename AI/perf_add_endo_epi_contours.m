@@ -30,30 +30,84 @@ function perf_add_endo_epi_contours(Gd, contourDir)
         rvi1 = rvi1(:,:,end);
         rvi2 = rvi2(:,:,end);
         
-        [v, ind] = max(rvi0(:)); [rvi0_s, rvi0_e] = CCMS_Contour(rvi0, v*0.9, 4, 0);
-        [v, ind] = max(rvi0(:)); [rvi1_s, rvi1_e] = CCMS_Contour(rvi1, v*0.9, 4, 0);
-        [v, ind] = max(rvi0(:)); [rvi2_s, rvi2_e] = CCMS_Contour(rvi2, v*0.9, 4, 0);
+        RO = size(Gd,1);
+        E1 = size(Gd,2);
         
-        ptN = size(rvi0_s,1);        
-        rvi0 = zeros(2*ptN, 2);
-        for pt=1:ptN
-            rvi0( 2*(pt-1)+1, :) = rvi0_s(pt, 2:-1:1);
-            rvi0( 2*(pt-1)+2, :) = rvi0_e(pt, 2:-1:1);
+        [v, ind] = max(rvi0(:));
+        [y, x] = ind2sub([RO E1], ind);
+
+        if(y<=1 || y>=RO || x<=1 || x>=E1)
+            y = RO/2;
+            x = E1/2;
         end
+
+        %P = mask2poly(logical(rvi0>v*0.9));
+        rvi0 = [x-1 y-1; x-1 y+1; x+1 y+1; x+1 y-1];
+        rvi0 = rvi0(:,2:-1:1)-1;
         
-        ptN = size(rvi1_s,1);        
-        rvi1 = zeros(2*ptN, 2);
-        for pt=1:ptN
-            rvi1( 2*(pt-1)+1, :) = rvi1_s(pt, 2:-1:1);
-            rvi1( 2*(pt-1)+2, :) = rvi1_e(pt, 2:-1:1);
-        end
+%         [v, ind] = max(rvi1(:));
+%         P = mask2poly(logical(rvi1>v*0.9));
+%         rvi1 = [P(1).Y' P(1).X']-1;
+%         
+%         [v, ind] = max(rvi2(:));
+%         P = mask2poly(logical(rvi2>v*0.9));
+%         rvi2 = [P(1).Y' P(1).X']-1;
         
-        ptN = size(rvi2_s,1);        
-        rvi2 = zeros(2*ptN, 2);
-        for pt=1:ptN
-            rvi2( 2*(pt-1)+1, :) = rvi2_s(pt, 2:-1:1);
-            rvi2( 2*(pt-1)+2, :) = rvi2_e(pt, 2:-1:1);
+        [v, ind] = max(rvi1(:));
+        [y, x] = ind2sub([RO E1], ind);
+        if(y<=1 || y>=RO || x<=1 || x>=E1)
+            y = RO/2;
+            x = E1/2;
         end
+        rvi1 = [x-1 y-1; x-1 y+1; x+1 y+1; x+1 y-1];
+        rvi1 = rvi1(:,2:-1:1)-1;
+        
+        [v, ind] = max(rvi2(:));
+        [y, x] = ind2sub([RO E1], ind);
+        if(y<=1 || y>=RO || x<=1 || x>=E1)
+            y = RO/2;
+            x = E1/2;
+        end
+        rvi2 = [x-1 y-1; x-1 y+1; x+1 y+1; x+1 y-1];
+        rvi2 = rvi2(:,2:-1:1)-1;
+
+        a = max(rv0, [], 1);
+        if(abs(a(1)-a(2))<0.5)
+            rv0 = endo0 + 5;
+        end
+        a = max(rv1, [], 1);
+        if(abs(a(1)-a(2))<0.5)
+            rv1 = endo1 + 5;
+        end
+        a = max(rv2, [], 1);
+        if(abs(a(1)-a(2))<0.5)
+            rv2 = endo2 + 5;
+        end
+
+%         [v, ind] = max(rvi0(:)); [rvi0_s, rvi0_e] = CCMS_Contour(rvi0, v*0.9, 4, 0);
+%         [v, ind] = max(rvi0(:)); [rvi1_s, rvi1_e] = CCMS_Contour(rvi1, v*0.9, 4, 0);
+%         [v, ind] = max(rvi0(:)); [rvi2_s, rvi2_e] = CCMS_Contour(rvi2, v*0.9, 4, 0);
+%         
+%         ptN = size(rvi0_s,1);        
+%         rvi0 = zeros(2*ptN, 2);
+%         for pt=1:ptN
+%             rvi0( 2*(pt-1)+1, :) = rvi0_s(pt, 2:-1:1);
+%             rvi0( 2*(pt-1)+2, :) = rvi0_e(pt, 2:-1:1);
+%         end
+%         
+%         ptN = size(rvi1_s,1);        
+%         rvi1 = zeros(2*ptN, 2);
+%         for pt=1:ptN
+%             rvi1( 2*(pt-1)+1, :) = rvi1_s(pt, 2:-1:1);
+%             rvi1( 2*(pt-1)+2, :) = rvi1_e(pt, 2:-1:1);
+%         end
+%         
+%         ptN = size(rvi2_s,1);        
+%         rvi2 = zeros(2*ptN, 2);
+%         for pt=1:ptN
+%             rvi2( 2*(pt-1)+1, :) = rvi2_s(pt, 2:-1:1);
+%             rvi2( 2*(pt-1)+2, :) = rvi2_e(pt, 2:-1:1);
+%         end
         
     catch
         disp(['cannot load all contours : ' contourDir]);

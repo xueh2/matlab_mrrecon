@@ -29,6 +29,9 @@ UTCases = {
     
     'perfusion/cloud',  'Perfusion_AIFR3_2E_Lin_Cloud_42363_9649032_9649037_1273_20180927-175606',      'VD',   'GTPrep_2DT_Perf_AIFR3_2E_Lin_Mapping_MBF_MBV_Mask_Cloud_istore.xml',          'cloud_flow_res',          'cloud_flow_ref',   'IsmrmrdParameterMap_Siemens_Perfusion.xsl'   ; ...
     'perfusion/cloud',  'Perfusion_AIFR3_2E_Lin_Cloud_42363_9649032_9649037_1273_20180927-175606',      'VD',   'GTPrep_2DT_Perf_AIFR3_2E_Lin_Mapping_MBF_MBV_Mask_OFFLINE.xml',          'grappa_flow_res',          'grappa_flow_ref',   'IsmrmrdParameterMap_Siemens_Perfusion.xsl'   ; ...
+    
+    'perfusion',  'meas_MID01381_FID10263_SSFP_Perf_Half_Dose_Rest',      'VD',   'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_MBF_MBV_Mask_Gateway_istore.xml',          'cloud_flow_res',          'cloud_flow_ref',   'IsmrmrdParameterMap_Siemens_Perfusion.xsl'   ; ...
+    
 };
 
 N = size(UTCases, 1);

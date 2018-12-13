@@ -19,10 +19,10 @@ S = struct('im', [], 'roi', [], ...
 S.im = fmap_resized_training;
 S.roi = contour_roi;
 
-ps_ro = contour_roi(1);
+ps_ro = contour_roi(1); % y
 pe_ro = contour_roi(2);
 
-ps_e1 = contour_roi(3);
+ps_e1 = contour_roi(3); % x
 pe_e1 = contour_roi(4);
 
 ps_ro = ps_ro -1;
@@ -39,7 +39,12 @@ S.rv_resized_training = [roi.ROI_info_table(startROI+2,slc).ROI_x_original roi.R
 S.rvi_resized_training = [ mean(roi.ROI_info_table(startROI+3,slc).ROI_x_original) mean(roi.ROI_info_table(startROI+3,slc).ROI_y_original)];
 
 [S.endo_resized_training_mask, S.epi_resized_training_mask, S.rv_resized_training_mask, S.myo_resized_training_mask, S.rvi_resized_training_mask, S.endo_epi_resized_training_mask, S.endo_epi_rv_resized_training_mask, S.endo_epi_rvi_resized_training_mask, S.endo_epi_rv_rvi_resized_training_mask] = create_mask(S.endo_resized_training, S.epi_resized_training, S.rv_resized_training, S.rvi_resized_training, fmap_resized_training);
-
+if(plotFlag)
+    plot_mask(fmap_resized_training, S.endo_resized_training_mask, S.epi_resized_training_mask, S.rv_resized_training_mask, S.rvi_resized_training_mask);
+    hold on
+    plot(S.rvi_resized_training(1), S.rvi_resized_training(2), 'y+', 'MarkerSize', 16);
+    hold off
+end
 % --------------------------------------------
 
 S.endo_resized = S.endo_resized_training;
@@ -72,8 +77,14 @@ if(plotFlag)
     figure; imagescn(cat(3, S.endo_mask, S.epi_mask, S.rv_mask, S.myo_mask, S.rvi_mask, S.endo_epi_mask, S.endo_epi_rv_mask, S.endo_epi_rvi_mask, S.endo_epi_rv_rvi_mask), [], [3 3]);
     
     plot_mask(fmap, S.endo_mask, S.epi_mask, S.rv_mask, S.rvi_mask);
+    hold on
+    plot(S.rvi(1), S.rvi(2), 'y+', 'MarkerSize', 16);
+    hold off
+    
     plot_mask(fmap_resized, S.endo_resized_mask, S.epi_resized_mask, S.rv_resized_mask, S.rvi_resized_mask);
-    plot_mask(fmap_resized_training, S.endo_resized_training_mask, S.epi_resized_training_mask, S.rv_resized_training_mask, S.rvi_resized_training_mask);
+    hold on
+    plot(S.rvi_resized(1), S.rvi_resized(2), 'y+', 'MarkerSize', 16);
+    hold off
 end
 
 end
@@ -103,8 +114,8 @@ function [endo_mask, epi_mask, rv_mask, myo_mask, rvi_mask, endo_epi_mask, endo_
 
     for y=1:3
         for x=1:3
-            rv_i_x_all(x+(y-1)*3) = rv_i_x-x-2;
-            rv_i_y_all(x+(y-1)*3) = rv_i_y-y-2;
+            rv_i_x_all(x+(y-1)*3) = rv_i_x+(x-2);
+            rv_i_y_all(x+(y-1)*3) = rv_i_y+(y-2);
         end
     end
 

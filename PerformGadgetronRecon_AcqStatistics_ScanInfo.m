@@ -137,7 +137,7 @@ for ii=1:num
     [week_record{ii}, week_record_patients{ii}] = get_week_usage(scan_info{ii});
 end
 
-[bar_x, bar_y, bar_y_patients] = make_week_plot(week_record, week_record_patients, min(minw), max(maxw), 'Perf');
+[bar_x, bar_y, bar_y_patients] = make_week_plot(week_record, week_record_patients, min(minw), max(maxw), {'Perf'});
 
 %% ------------------------------------
 h = figure('Name',['Number of perfusion scans using Gadgetron up to ' date],'NumberTitle','off');
@@ -180,7 +180,7 @@ saveas(h, fullfile(fig_dir, 'Perfusion_Patient_sites'), 'tiff');
 
 %%
 
-[bar_x, bar_y, bar_y_patients] = make_week_plot(week_record, week_record_patients, min(minw), max(maxw), 'LGE');
+[bar_x, bar_y, bar_y_patients] = make_week_plot(week_record, week_record_patients, min(minw), max(maxw), {'LGE'});
 
 h = figure('Name',['Number of LGE scans using Gadgetron up to ' date],'NumberTitle','off');
 hold on
@@ -219,6 +219,48 @@ set(h, 'Position', [50 50 2.5*1024 1.5*768]);
 
 saveas(h, fullfile(fig_dir, 'LGE_Patient_sites'), 'fig');
 saveas(h, fullfile(fig_dir, 'LGE_Patient_sites'), 'tiff');
+
+%%
+
+[bar_x, bar_y, bar_y_patients] = make_week_plot(week_record, week_record_patients, min(minw), max(maxw), {'T2S'});
+
+h = figure('Name',['Number of T2* scans using Gadgetron up to ' date],'NumberTitle','off');
+hold on
+bar(1:size(bar_y, 1), bar_y,'stacked','LineWidth',1.2);
+set(gca,'XTick',1:size(bar_y, 1));
+set(gca,'XTickLabel',bar_x)
+set(gca,'FontSize', 14)
+xlim([0 size(bar_y, 1)+1])
+hold off
+xlabel('Scan week num')
+ylabel('# of T2* scans')
+title(['Number of T2* scans using Gadgetron, Year 2016 - 2018, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
+box on
+legend(sites, 'Location', 'NorthWest' );
+set(h, 'Position', [50 50 2.5*1024 1.5*768]);
+
+saveas(h, fullfile(fig_dir, 'T2S_sites'), 'fig');
+saveas(h, fullfile(fig_dir, 'T2S_sites'), 'tiff');
+
+%% ------------------------------------
+
+h = figure('Name',['Number of patients scanned with Gadgetron T2* up to ' date],'NumberTitle','off');
+hold on
+bar(1:size(bar_y_patients, 1), bar_y_patients,'stacked','LineWidth',1.2);
+set(gca,'XTick',1:size(bar_y_patients, 1));
+set(gca,'XTickLabel',bar_x)
+set(gca,'FontSize', 14)
+xlim([0 size(bar_y_patients, 1)+1])
+hold off
+xlabel('Scan week num')
+ylabel('# of Patients scanned with Gadgetron T2*')
+title(['Number of patients scanned with Gadgetron T2*, Year 2016 - 2018, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
+box on
+legend(sites, 'Location', 'NorthWest' );
+set(h, 'Position', [50 50 2.5*1024 1.5*768]);
+
+saveas(h, fullfile(fig_dir, 'T2S_Patient_sites'), 'fig');
+saveas(h, fullfile(fig_dir, 'T2S_Patient_sites'), 'tiff');
 
 end
 
@@ -305,35 +347,39 @@ for ii=1:num
     for jj=1:numCase
         x = wr(jj, 1)-minW+1;        
         
-        if(strcmp(scan_to_plot, 'LGE')==1)
-            bar_y(x, ii) = bar_y(x, ii) + wr(jj, 2);            
-            bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 2);
+        for ss=1:numel(scan_to_plot)
             
-        elseif(strcmp(scan_to_plot, 'DBLGE')==1)
-            bar_y(x, ii) = bar_y(x, ii) + wr(jj, 3);
-            bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 3);
+            curr_scan_to_plot = scan_to_plot{ss};
             
-        elseif(strcmp(scan_to_plot, 'Perf')==1)
-            bar_y(x, ii) = bar_y(x, ii) + wr(jj, 4);
-            bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 4);
-            
-        elseif(strcmp(scan_to_plot, 'Binning')==1)
-            bar_y(x, ii) = bar_y(x, ii) + wr(jj, 5);
-            bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 5);
-            
-        elseif(strcmp(scan_to_plot, 'RTCine')==1)
-            bar_y(x, ii) = bar_y(x, ii) + wr(jj, 6);
-            bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 6);
-            
-        elseif(strcmp(scan_to_plot, 'T2W')==1)
-            bar_y(x, ii) = bar_y(x, ii) + wr(jj, 7);
-            bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 7);
-            
-        elseif(strcmp(scan_to_plot, 'T2S')==1)
-            bar_y(x, ii) = bar_y(x, ii) + wr(jj, 8);
-            bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 8);
+            if(strcmp(curr_scan_to_plot, 'LGE')==1)
+                bar_y(x, ii) = bar_y(x, ii) + wr(jj, 2);            
+                bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 2);
+
+            elseif(strcmp(curr_scan_to_plot, 'DBLGE')==1)
+                bar_y(x, ii) = bar_y(x, ii) + wr(jj, 3);
+                bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 3);
+
+            elseif(strcmp(curr_scan_to_plot, 'Perf')==1)
+                bar_y(x, ii) = bar_y(x, ii) + wr(jj, 4);
+                bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 4);
+
+            elseif(strcmp(curr_scan_to_plot, 'Binning')==1)
+                bar_y(x, ii) = bar_y(x, ii) + wr(jj, 5);
+                bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 5);
+
+            elseif(strcmp(curr_scan_to_plot, 'RTCine')==1)
+                bar_y(x, ii) = bar_y(x, ii) + wr(jj, 6);
+                bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 6);
+
+            elseif(strcmp(curr_scan_to_plot, 'T2W')==1)
+                bar_y(x, ii) = bar_y(x, ii) + wr(jj, 7);
+                bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 7);
+
+            elseif(strcmp(curr_scan_to_plot, 'T2S')==1)
+                bar_y(x, ii) = bar_y(x, ii) + wr(jj, 8);
+                bar_y_patients(x, ii) = bar_y_patients(x, ii) + wr_pt(jj, 8);
+            end
         end
-        
     end
 end
 
