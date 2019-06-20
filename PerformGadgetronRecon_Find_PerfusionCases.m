@@ -5,11 +5,11 @@ function [perf_cases, rest_cases, files_un_processed] = PerformGadgetronRecon_Fi
 % perf_cases in {stress, rest} order
 
 if(nargin<3)
-    date_start = '2016-01-01';
+    date_start = '2014-01-01';
 end
 
 if(nargin<4)
-    date_end = '2019-01-01';
+    date_end = '2020-01-01';
 end
 
 if(nargin<5)
@@ -121,9 +121,13 @@ for n=1:num
         isPerf = 0;
         if(isempty(strfind(name, 'Perfusion'))~=1)
             isPerf = 1;
-            if(finfo.bytes<200*1024*1024)
-                disp([num2str(num_small_file) ' - file size too small - ' num2str(n) ' - ' name ' - ' num2str(finfo.bytes/1024/1024) 'Mb']);
-                num_small_file = num_small_file + 1;
+            try
+                if(finfo.bytes<200*1024*1024)
+                    disp([num2str(num_small_file) ' - file size too small - ' num2str(n) ' - ' name ' - ' num2str(finfo.bytes/1024/1024) 'Mb']);
+                    num_small_file = num_small_file + 1;
+                    continue;
+                end
+            catch
                 continue;
             end
         end

@@ -193,6 +193,10 @@ for ii=1:num
                     if ( strcmp(xmlContent(n).meta(1).name, 'EPI') == 1 )
                         epi = n;
                     end
+                    
+                    if ( ~isempty(strfind(xmlContent(n).meta(1).name, 'GT_ROI')) )
+                        sector_no = str2double(xmlContent(n).meta(1).name(end));                        
+                    end
                 end
 %             end
             
@@ -218,14 +222,18 @@ for ii=1:num
                 end
             end
             
-            endo_pt = [endo_pt; {phs curr_endo_pt}];
-            epi_pt = [epi_pt; {phs curr_epi_pt}];
+            endo_pt = [endo_pt; {phs slc curr_endo_pt}];
+            epi_pt = [epi_pt; {phs slc curr_epi_pt}];
         end
         
         real_name = [filename];
         real2D = analyze75read([fullfile(pathstr, real_name) '.img']);
 
-        data(:,:,slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = real2D;
+        try
+            data(:,:,slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = real2D;
+        catch
+            data(:,:,slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = permute(real2D, [2 1]);
+        end
     end
 end
 
@@ -243,6 +251,7 @@ if(~isempty(endo_pt))
     for n=1:N
         endo_pt_sorted{n, 1} = endo_pt{ind_order(n), 1};
         endo_pt_sorted{n, 2} = endo_pt{ind_order(n), 2};
+        endo_pt_sorted{n, 3} = endo_pt{ind_order(n), 3};
     end
     endo_pt = endo_pt_sorted;
 end
@@ -261,6 +270,7 @@ if(~isempty(epi_pt))
     for n=1:N
         epi_pt_sorted{n, 1} = epi_pt{ind_order(n), 1};
         epi_pt_sorted{n, 2} = epi_pt{ind_order(n), 2};
+        epi_pt_sorted{n, 3} = epi_pt{ind_order(n), 3};
     end
     epi_pt = epi_pt_sorted;
 end

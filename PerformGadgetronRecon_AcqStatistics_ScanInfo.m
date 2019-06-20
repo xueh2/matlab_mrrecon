@@ -6,8 +6,14 @@ if(nargin<2)
     sites = [];
 end
 
+if(isunix())
+    baseDir = '/mnt/Lab-Kellman/'
+else
+    baseDir = '\\hl-share\RawMRI\Lab-Kellman\'
+end
+
 if(nargin < 3)
-    fig_dir = '\\hl-share\RawMRI\Lab-Kellman\Share\data_record';
+    fig_dir = fullfile(baseDir, 'Share', 'data_record');
 end
 
 num = numel(scan_info);
@@ -150,7 +156,7 @@ xlim([0 size(bar_y, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Perfusion scans')
-title(['Number of perfusion scans using Gadgetron, Year 2016 - 2018, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
+title(['Number of perfusion scans using Gadgetron, Year 2016 - 2019, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -170,7 +176,7 @@ xlim([0 size(bar_y_patients, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Patients scanned with Gadgetron perfusion')
-title(['Number of patients scanned with Gadgetron perfusion for stress studies, Year 2016 - 2018, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
+title(['Number of patients scanned with Gadgetron perfusion for stress studies, Year 2016 - 2019, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -192,7 +198,7 @@ xlim([0 size(bar_y, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of LGE scans')
-title(['Number of LGE scans using Gadgetron, Year 2016 - 2018, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
+title(['Number of LGE scans using Gadgetron, Year 2016 - 2019, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -212,7 +218,7 @@ xlim([0 size(bar_y_patients, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Patients scanned with Gadgetron LGE')
-title(['Number of patients scanned with Gadgetron LGE, Year 2016 - 2018, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
+title(['Number of patients scanned with Gadgetron LGE, Year 2016 - 2019, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -234,7 +240,7 @@ xlim([0 size(bar_y, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of T2* scans')
-title(['Number of T2* scans using Gadgetron, Year 2016 - 2018, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
+title(['Number of T2* scans using Gadgetron, Year 2016 - 2019, N=' num2str(sum(bar_y(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -254,7 +260,7 @@ xlim([0 size(bar_y_patients, 1)+1])
 hold off
 xlabel('Scan week num')
 ylabel('# of Patients scanned with Gadgetron T2*')
-title(['Number of patients scanned with Gadgetron T2*, Year 2016 - 2018, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
+title(['Number of patients scanned with Gadgetron T2*, Year 2016 - 2019, N=' num2str(sum(bar_y_patients(:)))], 'FontSize', 24)
 box on
 legend(sites, 'Location', 'NorthWest' );
 set(h, 'Position', [50 50 2.5*1024 1.5*768]);
@@ -318,16 +324,19 @@ function [bar_x, bar_y, bar_y_patients] = make_week_plot(week_record, week_recor
 
 mW = weeknum(datenum('20161231', 'yyyymmdd'));
 mW2 = weeknum(datenum('20171231', 'yyyymmdd'));
+mW3 = weeknum(datenum('20181231', 'yyyymmdd'));
 
 bar_x = [];
 for kk=minW:maxW
     w = kk;
     
-    if(w>mW+mW2) 
-        w = w - mW - mW2; 
-    else
-        if(w>mW) w = w - mW; end
-    end
+%     if(w>mW+mW2+mW3)
+%         w = w - mW - mW2 - mW3; 
+%     elseif(w>mW+mW2) 
+%         w = w - mW - mW2; 
+%     else
+%         if(w>mW) w = w - mW; end
+%     end
     
     bar_x = [bar_x; {num2str(w)}];
 end

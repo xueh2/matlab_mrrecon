@@ -1,6 +1,7 @@
 
-function S = perf_generate_seg_from_manual_roi(roi, contour_roi, fmap, fmap_resized, fmap_resized_training, startROI, slc, plotFlag)
+function S = perf_generate_seg_from_manual_roi(roi, contour_roi, fmap, fmap_resized, fmap_resized_training, startROI, slc, plotFlag, upsample_ratio)
 % contours are starting with index 1
+% allow an extra upsampling ratio
 
 S = struct('im', [], 'roi', [], ... 
         ...
@@ -19,17 +20,31 @@ S = struct('im', [], 'roi', [], ...
 S.im = fmap_resized_training;
 S.roi = contour_roi;
 
-ps_ro = contour_roi(1); % y
-pe_ro = contour_roi(2);
+if(size(contour_roi, 2)==2)
+    ps_ro = contour_roi(1, 1); % y
+    pe_ro = contour_roi(1, 2);
 
-ps_e1 = contour_roi(3); % x
-pe_e1 = contour_roi(4);
+    ps_e1 = contour_roi(2,1); % x
+    pe_e1 = contour_roi(2,2);
+else
+    ps_ro = contour_roi(3); % y
+    pe_ro = contour_roi(4);
+
+    ps_e1 = contour_roi(1); % x
+    pe_e1 = contour_roi(2);
+end
 
 ps_ro = ps_ro -1;
 ps_e1 = ps_e1 -1;
 
 rs = size(fmap_resized, 1)/size(fmap,1);
 rs = double(rs);
+
+if(upsample_ratio>1)
+    RO = size(fmap_resized_training,1);
+    E1 = size(fmap_resized_training,2);
+    fmap_resized_training_upsampled = Matlab_gt_resize_2D_image(double(fmap_resized_training), RO*upsample_ratio, E1*upsample_ratio, 5);
+end
 
 % --------------------------------------------
 
@@ -39,6 +54,28 @@ S.rv_resized_training = [roi.ROI_info_table(startROI+2,slc).ROI_x_original roi.R
 S.rvi_resized_training = [ mean(roi.ROI_info_table(startROI+3,slc).ROI_x_original) mean(roi.ROI_info_table(startROI+3,slc).ROI_y_original)];
 
 [S.endo_resized_training_mask, S.epi_resized_training_mask, S.rv_resized_training_mask, S.myo_resized_training_mask, S.rvi_resized_training_mask, S.endo_epi_resized_training_mask, S.endo_epi_rv_resized_training_mask, S.endo_epi_rvi_resized_training_mask, S.endo_epi_rv_rvi_resized_training_mask] = create_mask(S.endo_resized_training, S.epi_resized_training, S.rv_resized_training, S.rvi_resized_training, fmap_resized_training);
+
+if(upsample_ratio>1)
+    S.endo_resized_training_upsampled = upsample_ratio * (S.endo_resized_training-1) + 1;
+    S.epi_resized_training_upsampled = upsample_ratio * (S.epi_resized_training-1) + 1;
+    S.rv_resized_training_upsampled = upsample_ratio * (S.rv_resized_training-1) + 1;
+    S.rvi_resized_training_upsampled = upsample_ratio * (S.rvi_resized_training-1) + 1;
+    
+    [S.endo_resized_training_mask_upsampled, S.epi_resized_training_mask_upsampled, ...
+        S.rv_resized_training_mask_upsampled, S.myo_resized_training_mask_upsampled, ...
+        S.rvi_resized_training_mask_upsampled, S.endo_epi_resized_training_mask_upsampled, ...
+        S.endo_epi_rv_resized_training_mask_upsampled, S.endo_epi_rvi_resized_training_mask_upsampled, ...
+        S.endo_epi_rv_rvi_resized_training_mask_upsampled] = create_mask(S.endo_resized_training_upsampled, S.epi_resized_training_upsampled, ...
+            S.rv_resized_training_upsampled, S.rvi_resized_training_upsampled, fmap_resized_training_upsampled);    
+        
+    if(plotFlag)
+        plot_mask(fmap_resized_training_upsampled, S.endo_resized_training_mask_upsampled, S.epi_resized_training_mask_upsampled, S.rv_resized_training_mask_upsampled, S.rvi_resized_training_mask_upsampled);
+        hold on
+        plot(S.rvi_resized_training_upsampled(1), S.rvi_resized_training_upsampled(2), 'y+', 'MarkerSize', 16);
+        hold off
+    end
+end
+
 if(plotFlag)
     plot_mask(fmap_resized_training, S.endo_resized_training_mask, S.epi_resized_training_mask, S.rv_resized_training_mask, S.rvi_resized_training_mask);
     hold on

@@ -1,5 +1,5 @@
 function [patientID, protocol , ismrmrd_header] = read_ismrmrd_protocol(filename);
-% function [patientID, protocol] = read_ismrmrd_protocol(filename);
+% function [patientID, protocol, ismrmrd_header] = read_ismrmrd_protocol(filename);
 
 % uses Matlab Central base64decode.m
 try
@@ -22,7 +22,7 @@ else
     return    
 end
 
-
+    
 if isfield(hdr.subjectInformation,'patientID')
     patientID = hdr.subjectInformation.patientID;
 else

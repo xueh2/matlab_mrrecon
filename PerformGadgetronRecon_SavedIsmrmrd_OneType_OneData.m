@@ -63,6 +63,10 @@ ignored = [];
 files_processed = [];
 noise_id_processed = [];
 
+is_remote_computer = IsRemoteComputer(gt_host);
+
+[keyfile, user] = sshKeyLookup(gt_host);
+
 for n=1:num
 
     name = files{n};
@@ -264,12 +268,11 @@ for n=1:num
     % start gadgetron
     if(startRemoteGT)
         tstart = tic;
-        if((strcmp(gt_host, 'localhost')) && isunix()==0)
+        if(~is_remote_computer && isunix()==0)
             cd('D:\gtuser\gt_scanner_setup_scripts')
             command = ['gadgetron -p %GT_PORT% > D:\Temp\record_' GT_PORT '.txt']
             dos([command ' &'])
         else
-            [key, user] = sshKeyLookup(gt_host);
             if (~isempty(user) & startRemoteGT)
                 StopGadgetronOnRemote(gt_host, GT_PORT);                
                 StartGadgetronOnRemote(gt_host, GT_PORT);
@@ -364,16 +367,18 @@ for n=1:num
         delete(fullfile(dstDir, '*.xml'));
 
         delete(fullfile(dstDir, '*.nii'));
-        delete(fullfile(dstDir, 'gadgetron_*.hdr'));
-        delete(fullfile(dstDir, 'gadgetron_*.img'));
-        delete(fullfile(dstDir, 'Generic*.hdr'));
-        delete(fullfile(dstDir, 'Generic*.img'));
-        delete(fullfile(dstDir, 'GTPrep*.hdr'));
-        delete(fullfile(dstDir, 'GTPrep*.img'));
-        delete(fullfile(dstDir, 'GT*.hdr'));
-        delete(fullfile(dstDir, 'GT*.img'));
+%         delete(fullfile(dstDir, 'gadgetron_*.hdr'));
+%         delete(fullfile(dstDir, 'gadgetron_*.img'));
+%         delete(fullfile(dstDir, 'Generic*.hdr'));
+%         delete(fullfile(dstDir, 'Generic*.img'));
+%         delete(fullfile(dstDir, 'GTPrep*.hdr'));
+%         delete(fullfile(dstDir, 'GTPrep*.img'));
+%         delete(fullfile(dstDir, 'GT*.hdr'));
+%         delete(fullfile(dstDir, 'GT*.img'));
         delete(fullfile(dstDir, '*.attrib'));
-
+        delete(fullfile(dstDir, '*.hdr'));
+        delete(fullfile(dstDir, '*.img'));
+        
         delete(fullfile(dstDir, '*.xml'));                 
         
         dicomDir = fullfile(resDir, study_dates, [name '_dicom']);
@@ -401,12 +406,12 @@ for n=1:num
     configNameShortened = configName(1:lenUsed);
 
     if(isPerf)
-        if( ~isempty(strfind(getenv('GT_HOST'), 'localhost')) && isunix()==0)
+        if( ~is_remote_computer && isunix()==0)
             debugFolder = 'D:\gtuser\mrprogs\install\DebugOutput';
-            try
-                rmdir(debugFolder, 's');
-            catch
-            end
+%             try
+%                 rmdir(debugFolder, 's');
+%             catch
+%             end
 
             try
                 mkdir(debugFolder);
@@ -414,12 +419,12 @@ for n=1:num
             end
         end
         
-        if(~isempty(strfind(getenv('GT_HOST'), 'localhost')) && isunix()==1)
-            debugFolder = '/home/xueh2/Debug/DebugOutput';
-            try
-                rmdir(debugFolder, 's');
-            catch
-            end
+        if(~is_remote_computer && isunix()==1)
+            debugFolder = '~/Debug/DebugOutput';
+%             try
+%                 rmdir(debugFolder, 's');
+%             catch
+%             end
 
             try
                 mkdir(debugFolder);
@@ -439,22 +444,32 @@ for n=1:num
     tic; dos(command); timeUsed = toc;
            
     if(isPerf)
-        if(~isempty(strfind(getenv('GT_HOST'), 'localhost')))
+        if(~is_remote_computer)
             ts = tic;
-            %movefile(debugFolder, dstDir, 'f');
             mkdir(dstDir);
             disp(dstDir);
-            copyfile(fullfile(debugFolder, '*.*'),dstDir); 
+            if(isunix())
+                gt_command = ['cp -r ' fullfile(debugFolder, '*.*') ' ' dstDir '/DebugOutput'];
+                gt_command
+                dos(gt_command, '-echo');
+            else
+                copyfile(fullfile(debugFolder, '*.*'), fullfile(dstDir, 'DebugOutput')); 
+            end
             
 %             command = ['move /Y ' debugFolder ' ' dstDir];
 %             dos(command, '-echo');
             disp(['copy debug output : ' num2str(toc(ts))]);
         else
-            [key, user] = sshKeyLookup(gt_host);
             debug_folder = ['/home/' user '/Debug/DebugOutput']
             ts = tic;
 
-            CopyGadgetronDebugOutputOnRemote(gt_host, debug_folder, dstDir, 1)
+            ind = find(resDir=='\');
+            if(isempty(ind))
+                ind = find(resDir=='/');
+            end
+            dst_dir = ['/mnt/Lab-Kellman/ReconResults/' resDir(ind(end)+1:end) '/' study_dates '/' name '/DebugOutput'];            
+            CopyGadgetronDebugOutputOnRemote(gt_host, debug_folder, dst_dir, 1)
+            
             disp(['copy debug output : ' num2str(toc(ts))]);
         end
     end
@@ -476,7 +491,7 @@ for n=1:num
     
     ts = tic;
     dstDir = fullfile(resDir, study_dates, name);   
-    if(~isempty(strfind(getenv('GT_HOST'), 'localhost')) && isunix()==0)
+    if(~is_remote_computer && isunix()==0)
         if(startRemoteGT)
             command = ['taskkill /F /FI "IMAGENAME eq gadgetron.*"'];
             dos(command)
@@ -487,7 +502,6 @@ for n=1:num
 
         copyfile(['D:\Temp\record_' GT_PORT '.txt'], [dstDir '\record_' gt_host '_' GT_PORT '.txt']);
     else
-        [key, user] = sshKeyLookup(gt_host);
         if (~isempty(user) & startRemoteGT)
             StopGadgetronOnRemote(gt_host, GT_PORT);
             CopyGadgetronRecordOnRemote(gt_host, GT_PORT, [dstDir '/record_' gt_host '_' GT_PORT '.txt']);

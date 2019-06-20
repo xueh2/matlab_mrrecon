@@ -5,12 +5,27 @@ function [h_f, h_PS, h_Vb, h_Visf, h_Tc, h_delay, res] = perf_generate_bulls_eye
 
 % load data
 
-f = readNPY(fullfile(trainingCaseDir, 'fmap_resized_training.npy'));
-PS = readNPY(fullfile(trainingCaseDir, 'PS_map_resized_training.npy'));
-Vb = readNPY(fullfile(trainingCaseDir, 'vb_map_resized_training.npy'));
-Visf = readNPY(fullfile(trainingCaseDir, 'visf_map_resized_training.npy'));
-Tc = readNPY(fullfile(trainingCaseDir, 'Tc_map_resized_training.npy'));
-delay = readNPY(fullfile(trainingCaseDir, 'delay_map_resized_training.npy'));
+f = readNPY(fullfile(trainingCaseDir, 'fmap_resized_training_norm.npy'));
+PS = readNPY(fullfile(trainingCaseDir, 'PS_map_resized_training_norm.npy'));
+Vb = readNPY(fullfile(trainingCaseDir, 'vb_map_resized_training_norm.npy'));
+Visf = readNPY(fullfile(trainingCaseDir, 'visf_map_resized_training_norm.npy'));
+Tc = readNPY(fullfile(trainingCaseDir, 'Tc_map_resized_training_norm.npy'));
+delay = readNPY(fullfile(trainingCaseDir, 'delay_map_resized_training_norm.npy'));
+
+RO = size(f, 1);
+E1 = size(f, 2);
+
+sRO = size(bulls_eye(1).sectors, 1);
+sE1 = size(bulls_eye(1).sectors, 2);
+
+if(RO~=sRO | E1~=sE1)
+    f = Matlab_gt_resize_2D_image(double(f), sRO, sE1, 5);
+    PS = Matlab_gt_resize_2D_image(double(PS), sRO, sE1, 5);
+    Vb = Matlab_gt_resize_2D_image(double(Vb), sRO, sE1, 5);
+    Visf = Matlab_gt_resize_2D_image(double(Visf), sRO, sE1, 5);
+    Tc = Matlab_gt_resize_2D_image(double(Tc), sRO, sE1, 5);
+    delay = Matlab_gt_resize_2D_image(double(delay), sRO, sE1, 5);
+end
 
 res = struct('basal_f', [], 'mid_f', [], 'apex_f', [], ...
     'basal_Vb', [], 'mid_Vb', [], 'apex_Vb', [], ...
@@ -20,22 +35,22 @@ res = struct('basal_f', [], 'mid_f', [], 'apex_f', [], ...
     'basal_PS', [], 'mid_PS', [], 'apex_PS', []);
 
 cmap = PerfColorMap(0);
-[h_f, h_f_32, res.basal_f, res.mid_f, res.apex_f] = create_bulls_eye(f, bulls_eye, [0 8], 'Flow, ml/min/g', cmap, 4.5, 0.1);
+[h_f, h_f_32, res.basal_f, res.mid_f, res.apex_f] = create_bulls_eye(f, bulls_eye, [0 8], 'Flow, ml/min/g', cmap, 6, 0.1);
 
 cmap = PSColorMap(0);
-[h_PS, h_PS_32, res.basal_PS, res.mid_PS, res.apex_PS] = create_bulls_eye(PS, bulls_eye, [0 4], 'PS, ml/min/g', cmap, 2.5, 0.1);
+[h_PS, h_PS_32, res.basal_PS, res.mid_PS, res.apex_PS] = create_bulls_eye(PS, bulls_eye, [0 4], 'PS, ml/min/g', cmap, 4.5, 0.1);
 
 cmap = MBVColorMap(0);
-[h_Vb, h_Vb_32, res.basal_Vb, res.mid_Vb, res.apex_Vb] = create_bulls_eye(Vb, bulls_eye, [0 20], 'Vb, 100ml/g', cmap, 20, 2);
+[h_Vb, h_Vb_32, res.basal_Vb, res.mid_Vb, res.apex_Vb] = create_bulls_eye(Vb, bulls_eye, [0 20], 'Vb, 100ml/g', cmap, 40, 1);
 
 cmap = ECVColorMap(0);
-[h_Visf, h_Visf_32, res.basal_Visf, res.mid_Visf, res.apex_Visf] = create_bulls_eye(Visf, bulls_eye, [0 80], 'Visf, 100ml/g', cmap, 60, 2);
+[h_Visf, h_Visf_32, res.basal_Visf, res.mid_Visf, res.apex_Visf] = create_bulls_eye(Visf, bulls_eye, [0 80], 'Visf, 100ml/g', cmap, 80, 2);
 
 cmap = PerfColorMap(0);
-[h_Tc, h_Tc_32, res.basal_Tc, res.mid_Tc, res.apex_Tc] = create_bulls_eye(Tc, bulls_eye, [0 20], 'Tc, seconds', cmap, 20, 0.5);
+[h_Tc, h_Tc_32, res.basal_Tc, res.mid_Tc, res.apex_Tc] = create_bulls_eye(Tc, bulls_eye, [0 20], 'Tc, seconds', cmap, 25, 0.25);
 
 cmap = PerfColorMap(0);
-[h_delay, h_delay_32, res.basal_delay, res.mid_delay, res.apex_delay] = create_bulls_eye(delay, bulls_eye, [0 8], 'Delay, seconds', cmap, 20, 0.01);
+[h_delay, h_delay_32, res.basal_delay, res.mid_delay, res.apex_delay] = create_bulls_eye(delay, bulls_eye, [0 8], 'Delay, seconds', cmap, 40, 0.01);
 
 end
 

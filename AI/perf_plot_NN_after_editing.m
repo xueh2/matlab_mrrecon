@@ -1,40 +1,118 @@
 
-function [h_Gd, h_fmap, h_fSD, h_Gd_be, h_fmap_be, h_fSD_be, h_Gd_be16, h_fmap_be16, h_fSD_be16] = perf_plot_NN_after_editing(trainingDataDir, Seg, bulls_eye)
-% [h_Gd, h_fmap, h_fSD, h_Gd_be, h_fmap_be, h_fSD_be] = perf_plot_NN_after_editing(trainingDataDir, Seg, bulls_eye)
+function [h_Gd, h_fmap, h_fSD, h_Gd_be, h_fmap_be, h_fSD_be, h_Gd_be16, h_fmap_be16, h_fSD_be16] = perf_plot_NN_after_editing(trainingDataDir, Seg, bulls_eye, upsampling_ratio)
+% [h_Gd, h_fmap, h_fSD, h_Gd_be, h_fmap_be, h_fSD_be] = perf_plot_NN_after_editing(trainingDataDir, Seg, bulls_eye, upsampling_ratio)
 
 if(nargin<3)
     bulls_eye = [];
 end
 
-endo_epi_rv_rvi_resized_training_mask = cat(4, Seg(1).endo_epi_rv_rvi_resized_training_mask, Seg(2).endo_epi_rv_rvi_resized_training_mask, Seg(3).endo_epi_rv_rvi_resized_training_mask);
-figure; imagescn(endo_epi_rv_rvi_resized_training_mask, [], [1 3], 12);
+SLC = numel(Seg);
 
-endo.C0 = Seg(1).endo_resized_training(:, 2:-1:1);
-endo.C1 = Seg(2).endo_resized_training(:, 2:-1:1);
-endo.C2 = Seg(3).endo_resized_training(:, 2:-1:1);
+if(SLC==3)
+    
+    data.fmap_resized_training = readNPY(fullfile(trainingDataDir, 'fmap_resized_training_norm.npy'));
+    data.Gd_resized_training = readNPY(fullfile(trainingDataDir, 'Gd_resized_training_norm.npy'));
+    data.fSD_resized_training = readNPY(fullfile(trainingDataDir, 'fSD_resized_training_norm.npy'));
+    
+    if(upsampling_ratio>1)
 
-epi.C0 = Seg(1).epi_resized_training(:, 2:-1:1);
-epi.C1 = Seg(2).epi_resized_training(:, 2:-1:1);
-epi.C2 = Seg(3).epi_resized_training(:, 2:-1:1);
+        endo_epi_rv_rvi_resized_training_mask = cat(4, Seg(1).endo_epi_rv_rvi_resized_training_mask_upsampled, Seg(2).endo_epi_rv_rvi_resized_training_mask_upsampled, Seg(3).endo_epi_rv_rvi_resized_training_mask_upsampled);
+        figure; imagescn(endo_epi_rv_rvi_resized_training_mask, [], [1 3], 12);
 
-endo_epi_rv_rvi.rv0 = Seg(1).rv_resized_training(:, 2:-1:1);
-endo_epi_rv_rvi.rv1 = Seg(2).rv_resized_training(:, 2:-1:1);
-endo_epi_rv_rvi.rv2 = Seg(3).rv_resized_training(:, 2:-1:1);
+        endo.C0 = Seg(1).endo_resized_training_upsampled(:, 2:-1:1);
+        endo.C1 = Seg(2).endo_resized_training_upsampled(:, 2:-1:1);
+        endo.C2 = Seg(3).endo_resized_training_upsampled(:, 2:-1:1);
 
-endo_epi_rv_rvi.rvi = zeros(3,2);
-endo_epi_rv_rvi.rvi(1,:) = Seg(1).rvi_resized_training(2:-1:1);
-endo_epi_rv_rvi.rvi(2,:) = Seg(2).rvi_resized_training(2:-1:1);
-endo_epi_rv_rvi.rvi(3,:) = Seg(3).rvi_resized_training(2:-1:1);
+        epi.C0 = Seg(1).epi_resized_training_upsampled(:, 2:-1:1);
+        epi.C1 = Seg(2).epi_resized_training_upsampled(:, 2:-1:1);
+        epi.C2 = Seg(3).epi_resized_training_upsampled(:, 2:-1:1);
 
-data.fmap_resized_training = readNPY(fullfile(trainingDataDir, 'fmap_resized_training.npy'));
-data.Gd_resized_training = readNPY(fullfile(trainingDataDir, 'Gd_resized_training.npy'));
-data.fSD_resized_training = readNPY(fullfile(trainingDataDir, 'fSD_resized_training.npy'));
+        endo_epi_rv_rvi.rv0 = Seg(1).rv_resized_training_upsampled(:, 2:-1:1);
+        endo_epi_rv_rvi.rv1 = Seg(2).rv_resized_training_upsampled(:, 2:-1:1);
+        endo_epi_rv_rvi.rv2 = Seg(3).rv_resized_training_upsampled(:, 2:-1:1);
 
-h_Gd = perf_plot_contours_on_images(data.Gd_resized_training, [{endo.C0}, {endo.C1}, {endo.C2}], [{epi.C0}, {epi.C1}, {epi.C2}], [{endo_epi_rv_rvi.rv0}, {endo_epi_rv_rvi.rv1}, {endo_epi_rv_rvi.rv2}], endo_epi_rv_rvi.rvi, [0 1.5]);
-h_fmap = perf_plot_contours_on_images(data.fmap_resized_training, [{endo.C0}, {endo.C1}, {endo.C2}], [{epi.C0}, {epi.C1}, {epi.C2}], [{endo_epi_rv_rvi.rv0}, {endo_epi_rv_rvi.rv1}, {endo_epi_rv_rvi.rv2}], endo_epi_rv_rvi.rvi, [0 8]);
-h_fSD = perf_plot_contours_on_images(data.fSD_resized_training, [{endo.C0}, {endo.C1}, {endo.C2}], [{epi.C0}, {epi.C1}, {epi.C2}], [{endo_epi_rv_rvi.rv0}, {endo_epi_rv_rvi.rv1}, {endo_epi_rv_rvi.rv2}], endo_epi_rv_rvi.rvi, [0 1]);
+        endo_epi_rv_rvi.rvi = zeros(3,2);
+        endo_epi_rv_rvi.rvi(1,:) = Seg(1).rvi_resized_training_upsampled(2:-1:1);
+        endo_epi_rv_rvi.rvi(2,:) = Seg(2).rvi_resized_training_upsampled(2:-1:1);
+        endo_epi_rv_rvi.rvi(3,:) = Seg(3).rvi_resized_training_upsampled(2:-1:1);
 
-h_mask = perf_plot_contours_on_images(squeeze(endo_epi_rv_rvi_resized_training_mask), [{endo.C0}, {endo.C1}, {endo.C2}], [{epi.C0}, {epi.C1}, {epi.C2}], [{endo_epi_rv_rvi.rv0}, {endo_epi_rv_rvi.rv1}, {endo_epi_rv_rvi.rv2}], endo_epi_rv_rvi.rvi, [0 5]);
+        RO = size(data.fmap_resized_training,1);
+        E1 = size(data.fmap_resized_training,2);
+        
+        data.fmap_resized_training = Matlab_gt_resize_2D_image(double(data.fmap_resized_training), upsampling_ratio*RO, upsampling_ratio*E1, 5);
+        data.Gd_resized_training = Matlab_gt_resize_2D_image(double(data.Gd_resized_training), upsampling_ratio*RO, upsampling_ratio*E1, 5);
+        data.fSD_resized_training = Matlab_gt_resize_2D_image(double(data.fSD_resized_training), upsampling_ratio*RO, upsampling_ratio*E1, 5);
+    else        
+        endo_epi_rv_rvi_resized_training_mask_upsampled = cat(4, Seg(1).endo_epi_rv_rvi_resized_training_mask_upsampled, Seg(2).endo_epi_rv_rvi_resized_training_mask_upsampled, Seg(3).endo_epi_rv_rvi_resized_training_mask_upsampled);
+        figure; imagescn(endo_epi_rv_rvi_resized_training_mask_upsampled, [], [1 3], 12);
+
+        endo.C0 = Seg(1).endo_resized_training(:, 2:-1:1);
+        endo.C1 = Seg(2).endo_resized_training(:, 2:-1:1);
+        endo.C2 = Seg(3).endo_resized_training(:, 2:-1:1);
+
+        epi.C0 = Seg(1).epi_resized_training(:, 2:-1:1);
+        epi.C1 = Seg(2).epi_resized_training(:, 2:-1:1);
+        epi.C2 = Seg(3).epi_resized_training(:, 2:-1:1);
+
+        endo_epi_rv_rvi.rv0 = Seg(1).rv_resized_training(:, 2:-1:1);
+        endo_epi_rv_rvi.rv1 = Seg(2).rv_resized_training(:, 2:-1:1);
+        endo_epi_rv_rvi.rv2 = Seg(3).rv_resized_training(:, 2:-1:1);
+
+        endo_epi_rv_rvi.rvi = zeros(3,2);
+        endo_epi_rv_rvi.rvi(1,:) = Seg(1).rvi_resized_training(2:-1:1);
+        endo_epi_rv_rvi.rvi(2,:) = Seg(2).rvi_resized_training(2:-1:1);
+        endo_epi_rv_rvi.rvi(3,:) = Seg(3).rvi_resized_training(2:-1:1);
+
+    end
+    
+    h_Gd = perf_plot_contours_on_images(data.Gd_resized_training, [{endo.C0}, {endo.C1}, {endo.C2}], [{epi.C0}, {epi.C1}, {epi.C2}], [{endo_epi_rv_rvi.rv0}, {endo_epi_rv_rvi.rv1}, {endo_epi_rv_rvi.rv2}], endo_epi_rv_rvi.rvi, [0 1.5]);
+    h_fmap = perf_plot_contours_on_images(data.fmap_resized_training, [{endo.C0}, {endo.C1}, {endo.C2}], [{epi.C0}, {epi.C1}, {epi.C2}], [{endo_epi_rv_rvi.rv0}, {endo_epi_rv_rvi.rv1}, {endo_epi_rv_rvi.rv2}], endo_epi_rv_rvi.rvi, [0 8]);
+    h_fSD = perf_plot_contours_on_images(data.fSD_resized_training, [{endo.C0}, {endo.C1}, {endo.C2}], [{epi.C0}, {epi.C1}, {epi.C2}], [{endo_epi_rv_rvi.rv0}, {endo_epi_rv_rvi.rv1}, {endo_epi_rv_rvi.rv2}], endo_epi_rv_rvi.rvi, [0 1]);
+
+    h_mask = perf_plot_contours_on_images(squeeze(endo_epi_rv_rvi_resized_training_mask), [{endo.C0}, {endo.C1}, {endo.C2}], [{epi.C0}, {epi.C1}, {epi.C2}], [{endo_epi_rv_rvi.rv0}, {endo_epi_rv_rvi.rv1}, {endo_epi_rv_rvi.rv2}], endo_epi_rv_rvi.rvi, [0 5]);
+else
+    endo_epi_rv_rvi_resized_training_mask = cat(4, Seg(1).endo_epi_rv_rvi_resized_training_mask, Seg(2).endo_epi_rv_rvi_resized_training_mask, Seg(3).endo_epi_rv_rvi_resized_training_mask, Seg(4).endo_epi_rv_rvi_resized_training_mask);
+    figure; imagescn(endo_epi_rv_rvi_resized_training_mask, [], [1 4], 12);
+
+    endo.C0 = Seg(1).endo_resized_training(:, 2:-1:1);
+    endo.C1 = Seg(2).endo_resized_training(:, 2:-1:1);
+    endo.C2 = Seg(3).endo_resized_training(:, 2:-1:1);
+    endo.C3 = Seg(4).endo_resized_training(:, 2:-1:1);
+
+    epi.C0 = Seg(1).epi_resized_training(:, 2:-1:1);
+    epi.C1 = Seg(2).epi_resized_training(:, 2:-1:1);
+    epi.C2 = Seg(3).epi_resized_training(:, 2:-1:1);
+    epi.C3 = Seg(4).epi_resized_training(:, 2:-1:1);
+
+    endo_epi_rv_rvi.rv0 = Seg(1).rv_resized_training(:, 2:-1:1);
+    endo_epi_rv_rvi.rv1 = Seg(2).rv_resized_training(:, 2:-1:1);
+    endo_epi_rv_rvi.rv2 = Seg(3).rv_resized_training(:, 2:-1:1);
+    endo_epi_rv_rvi.rv3 = Seg(4).rv_resized_training(:, 2:-1:1);
+
+    endo_epi_rv_rvi.rvi = zeros(SLC,2);
+    endo_epi_rv_rvi.rvi(1,:) = Seg(1).rvi_resized_training(2:-1:1);
+    endo_epi_rv_rvi.rvi(2,:) = Seg(2).rvi_resized_training(2:-1:1);
+    endo_epi_rv_rvi.rvi(3,:) = Seg(3).rvi_resized_training(2:-1:1);
+    endo_epi_rv_rvi.rvi(4,:) = Seg(4).rvi_resized_training(2:-1:1);
+
+    data.fmap_resized_training = readNPY(fullfile(trainingDataDir, 'fmap_resized_training_norm.npy'));
+    data.Gd_resized_training = readNPY(fullfile(trainingDataDir, 'Gd_resized_training_norm.npy'));
+    data.fSD_resized_training = readNPY(fullfile(trainingDataDir, 'fSD_resized_training_norm.npy'));
+
+%     data.fmap_resized_training = data.fmap_resized_training(:,:, good_slices_basal_to_apex);
+%     data.Gd_resized_training = data.Gd_resized_training(:,:, :, good_slices_basal_to_apex);
+%     data.fSD_resized_training = data.fSD_resized_training(:,:, good_slices_basal_to_apex);
+    
+    enC = [{endo.C0}, {endo.C1}, {endo.C2}, {endo.C3}];
+    epC = [{epi.C0}, {epi.C1}, {epi.C2}, {epi.C3}];
+    rvC = [{endo_epi_rv_rvi.rv0}, {endo_epi_rv_rvi.rv1}, {endo_epi_rv_rvi.rv2}, {endo_epi_rv_rvi.rv3}];
+    
+    h_Gd = perf_plot_contours_on_images(data.Gd_resized_training, enC, epC, rvC, endo_epi_rv_rvi.rvi, [0 1.5]);
+    h_fmap = perf_plot_contours_on_images(data.fmap_resized_training, enC, epC, rvC, endo_epi_rv_rvi.rvi, [0 8]);
+    h_fSD = perf_plot_contours_on_images(data.fSD_resized_training, enC, epC, rvC, endo_epi_rv_rvi.rvi, [0 1]);
+
+    h_mask = perf_plot_contours_on_images(squeeze(endo_epi_rv_rvi_resized_training_mask), enC, epC, rvC, endo_epi_rv_rvi.rvi, [0 5]);
+end
 
 h_Gd_be = -1;
 h_fmap_be = -1;

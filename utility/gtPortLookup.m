@@ -45,3 +45,18 @@ if( ~isempty(strfind(gt_host, 'eastus.cloudapp.azure.com')) )
     GT_PORT = '9008';
 end
 
+if(strcmp(gt_host, '137.187.135.157'))
+    if(isunix())
+        [~, result] = system('ifconfig');
+    else
+        [~, result] = system('ipconfig');
+    end
+    
+    if(~isempty(strfind(result, '137.187.135.157')))
+        GT_PORT = '9006';
+    else
+        GT_PORT = '9008';
+    end
+end
+
+

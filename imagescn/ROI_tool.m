@@ -2043,8 +2043,11 @@ for i = 1:length(h_axes_interest)
 	% if the ROI exists, erase it before writing a new one in its place!
 	if exist_current_ROI==1
 		old_handles = ROI_info_table(i_current_ROI(1), h_axes_index).ROI_Data;
-		delete(old_handles(1,:));
-		
+        try
+            delete(old_handles(1,:));
+        catch
+        end
+        
 		% handle_values = [h_circle, h_center, h_size, h_angle, h_number];
 		handle_values = Make_ROI_Elements(...
 			xs,ys,...
@@ -2600,6 +2603,9 @@ if ~isempty(update_list)
         ypts = get(h_circle, 'ydata');
         im = get(findobj(get(h_circle, 'Parent'), 'Type', 'Image'), 'CData');
 
+        Ny = size(im, 1);
+        Nx = size(im, 2);
+        
         % check boundary conditions
         %xpts(xpts<=1) = 1;  xpts(xpts>size(im,1)) = size(im,1);
         %ypts(ypts<=1) = 1;  ypts(ypts>size(im,2)) = size(im,2);
@@ -2607,7 +2613,23 @@ if ~isempty(update_list)
         % reduce the matrix size        
         min_xpts = min(xpts); max_xpts = max(xpts);
         min_ypts = min(ypts); max_ypts = max(ypts);
-         
+        
+        if(min_xpts<1)
+            min_xpts = 1;
+        end
+        
+        if(min_ypts<1)
+            min_ypts = 1;
+        end
+        
+        if(max_xpts>Nx)
+            max_xpts = Nx;
+        end
+        
+        if(max_ypts>Ny)
+            max_ypts = Ny;
+        end
+        
         % shift indexes
         xpts2 = xpts - floor(min_xpts) ;
         ypts2 = ypts - floor(min_ypts) ;

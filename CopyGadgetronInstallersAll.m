@@ -11,11 +11,15 @@ function CopyGadgetronInstallersAll(dstDir, chroot_string, gt_string)
 CopyGadgetronInstallers('D:\installer\VE11', fullfile(dstDir, 'VE11'), chroot_string);
 % CopyGadgetronInstallers('D:\installer\VE11_Seq', fullfile(dstDir, 'VE11'), gt_string);
 
+CopyGadgetronInstallers('D:\installer\VE11C_gt', fullfile(dstDir, 'VE11C_gt'), chroot_string);
 CopyGadgetronInstallers('D:\installer\VE11C', fullfile(dstDir, 'VE11C'), chroot_string);
 CopyGadgetronInstallers('D:\installer\VE11S', fullfile(dstDir, 'VE11S'), chroot_string);
 
 % CopyGadgetronInstallers('D:\installer\VE11B', fullfile(dstDir, 'VE11B'), chroot_string);
 CopyGadgetronInstallers('D:\installer\VE11P', fullfile(dstDir, 'VE11P'), chroot_string);
+
+CopyGadgetronInstallers('D:\installer\NXVA11A', fullfile(dstDir, 'NXVA11A'), chroot_string);
+
 
 installFile = 'D:\Temp\install_chroot_image.sh';
 if(isFileExist(installFile))

@@ -1,5 +1,10 @@
 
 function header = CreateFtkHeaderInfo(data, voxelsize)
+% header = CreateFtkHeaderInfo(data, voxelsize)
+
+if(nargin<2)
+    voxelsize = ones(12,1);
+end
 
 [ysize, xsize, zsize, tsize, nsize, msize] = size(data);
 

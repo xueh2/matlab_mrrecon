@@ -22,10 +22,10 @@ for ii=1:num
     mkdir(dstDir);
     
     if(use_h5)
-        dos(['mv ' names{ii} ' ' fullfile(home, name, [name '.h5'])]);
-%         movefile(names{ii}, fullfile(home, name, [name '.h5']));
+%         dos(['mv ' names{ii} ' ' fullfile(home, name, [name '.h5'])]);
+         movefile(names{ii}, fullfile(home, name, [name '.h5']));
     else
-        dos(['mv ' names{ii} ' ' fullfile(home, name, [name '.dat'])]);
-%         movefile(names{ii}, fullfile(home, name, [name '.dat']));
+%         dos(['mv ' names{ii} ' ' fullfile(home, name, [name '.dat'])]);
+         movefile(names{ii}, fullfile(home, name, [name '.dat']));
     end
 end

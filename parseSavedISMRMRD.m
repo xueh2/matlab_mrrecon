@@ -38,7 +38,7 @@ if(~isempty(strfind(xmlString, 'ISMRMRD_Noise_dependency')))
     
 elseif(~isempty(strfind(xmlString, 'DB_LGE_MOCO_AVE_OnTheFly')))
     configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_dstore.xml';
-    %configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
+    configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
     
 elseif(~isempty(strfind(xmlString, 'LGE_MOCO_AVE')))
     configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_dstore.xml';
@@ -50,17 +50,20 @@ elseif(~isempty(strfind(xmlString, 'T2W')))
 elseif(~isempty(strfind(xmlString, 'T2Star_Mapping')))
     configName = 'GTPrep_2DT_T2Star_Mapping_dstore.xml';    
     
+elseif(~isempty(strfind(xmlString, 'T1SR_Mapping')))
+    configName = 'CMR_2DT_T1Mapping_SASHA_MOCO_dstore.xml';    
+    
 elseif(~isempty(strfind(xmlString, 'T2_Mapping')))
     configName = 'GTPrep_2DT_MOCO_AVE_T2_Mapping_dstore.xml';
     
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_TwoEchoes_Interleaved')))
-    configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_OFFLINE_dstore.xml';
+    configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_MBF_MBV_Mask_AI_N3Fil_CMR_View_OFFLINE.xml';
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_2E_Lin_Cloud')))
     configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_OFFLINE_dstore.xml';
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_2E_NL_Cloud')))
     configName = 'GTPrep_2DT_Perf_AIF_2E_NL_Mapping_MBF_MBV_Mask_Gateway.xml';
  elseif(~isempty(strfind(xmlString, 'Perfusion_AIFR3_2E')))
-    configName = 'GTPrep_2DT_Perf_AIFR3_2E_Lin_Mapping_MBF_MBV_Mask_OFFLINE.xml';
+    configName = 'GTPrep_2DT_Perf_AIFR3_2E_Lin_Mapping_MBF_MBV_Mask_AI_CMR_View_OFFLINE.xml';
    
 elseif(~isempty(strfind(xmlString, 'Retro_Flow')))
     configName = 'GTPrep_2DT_RetroGated_Flow.xml';    
@@ -86,7 +89,8 @@ elseif(~isempty(strfind(xmlString, 'Retro_Lin_Cine')))
     configName = 'Generic_2DT_RetroGated_Cine_ECG_dstore.xml';  
     
 elseif(~isempty(strfind(xmlString, 'RT_Cine_LIN')))
-    configName = 'Generic_RTCine_PInterp_Fil_ECG_dstore.xml';            
+%     configName = 'Generic_RTCine_DeepGrappaOne.xml';            
+    configName = 'Generic_RTCine_PInterp_Fil_dstore.xml'; 
     
 elseif(~isempty(strfind(xmlString, 'FatWater_Nav3D')))    
     configName = 'GTPrep_3DT_FatWater_Diego.xml'; 

@@ -34,6 +34,9 @@ UTCases = {
     
     'ut\20170420_phantom_perfusion\T2',                    'meas_MID00078_FID44965_T2map_3pt_TRUFI_192i',               'VD',   'Generic_Cartesian_Grappa_SNR.xml',                                  'generic_res',              'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
     
+    'B1map',                    'meas_MID00510_FID182597_b1map',               'VD',   'Generic_Cartesian_Grappa_EPI_B1Mapping.xml',                                  'generic_res',              'generic_ref',   'IsmrmrdParameterMap_Siemens_EPI_FLASHREF.xsl'   ; ...
+    
+    'B1map\new_seq',                    'meas_MID00533_FID21654_b1map_75pct',               'VD',   'Generic_Cartesian_Grappa_EPI_B1Mapping.xml',                                  'generic_res',              'generic_ref',   'IsmrmrdParameterMap_Siemens_EPI_FLASHREF.xsl'   ; ...    
     };
 
 N = size(UTCases, 1);

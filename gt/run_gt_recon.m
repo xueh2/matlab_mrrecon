@@ -15,11 +15,12 @@ end
 
 GT_HOST = getenv('GT_HOST')
 GT_PORT = getenv('GT_PORT')
+OutputFormat = getenv('OutputFormat')
 
 if(startRemoteGT)
     if((strcmp(GT_HOST, 'localhost')==1))
         cd('D:\gtuser\gt_scanner_setup_scripts')
-        command = ['gadgetron -p %GT_PORT% > D:\Temp\record_' GT_PORT '.txt']
+        command = ['gadgetron -p ' GT_PORT ' > D:\Temp\record_' GT_PORT '.txt']
         dos([command ' &'])
     else
         [key, user] = sshKeyLookup(GT_HOST);
@@ -67,6 +68,8 @@ end
 configNameShortened = configName(1:lenUsed);
 
 date_suffix = datestr(date, 'yyyymmdd');
+time_now = datestr(now, 'HHMMSS');
+date_suffix = [date_suffix '_' time_now];
 
 xml_opt = ' -C ';
 if(remoteXml)
@@ -95,20 +98,23 @@ if ( isVD )
             dos(command);
         end
         
-        command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a %GT_HOST% -p %GT_PORT% -F %OutputFormat% -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
+        command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a ' GT_HOST ' -p ' GT_PORT ' -F ' OutputFormat ' -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
         command
         tic; dos(command); timeUsed = toc;
     else
 
         if(h5Only)
             
-            [names, num] = findFILE(folderDir, 'ISMRMRD_Noise_dependency_*.h5');          
+            [names, num] = findFILE(folderDir, 'ISMRMRD_Noise_dependency_*.h5');   
+            if(num==0)
+                [names, num] = findFILE(folderDir, '*noise*.h5');   
+            end
             for n=1:num
-                command = ['gadgetron_ismrmrd_client -f ' names{n} ' -c default_measurement_dependencies.xml -a %GT_HOST% -p %GT_PORT% ']
+                command = ['gadgetron_ismrmrd_client -f ' names{n} ' -c default_measurement_dependencies.xml -a ' GT_HOST ' -p ' GT_PORT]
                 dos(command, '-echo');
             end            
             
-            command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a %GT_HOST% -p %GT_PORT% -F %OutputFormat% -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
+            command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a ' GT_HOST ' -p ' GT_PORT ' -F ' OutputFormat ' -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]                           
             command
             tic; dos(command); timeUsed = toc;
         else
@@ -130,7 +136,7 @@ if ( isVD )
                 command = ['siemens_to_ismrmrd -f ' names{n} ' -o ' names{n} '_AdjCoilSens.h5 --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xml --user-stylesheet %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl -z 1 --studyDate ' studyDate]
                 dos(command, '-echo');
                 
-                command = ['gadgetron_ismrmrd_client -f ' names{n} '_AdjCoilSens.h5 -c default_measurement_dependencies.xml -a %GT_HOST% -p %GT_PORT% ']
+                command = ['gadgetron_ismrmrd_client -f ' names{n} '_AdjCoilSens.h5 -c default_measurement_dependencies.xml -a ' GT_HOST ' -p ' GT_PORT]
                 dos(command, '-echo');
             end            
                        
@@ -149,18 +155,32 @@ if ( isVD )
 
                 delete(h5Name);
 
-                if(hasAdj)                            
-                    command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 -X -H --studyDate ' studyDate]
+                if(hasAdj)       
+                    command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 3 -X -H --studyDate ' studyDate]
                     if(flashRef)
                         command = [command ' -F'];
                     end
                     dos(command, '-echo');
 
-                    command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 --studyDate ' studyDate]
+                    command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 3 --studyDate ' studyDate]
                     if(flashRef)
                         command = [command ' -F'];
                     end
                     dos(command, '-echo');
+                    
+                    if(~isFileExist(h5Name))                    
+                        command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 -X -H --studyDate ' studyDate]
+                        if(flashRef)
+                            command = [command ' -F'];
+                        end
+                        dos(command, '-echo');
+
+                        command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 --studyDate ' studyDate]
+                        if(flashRef)
+                            command = [command ' -F'];
+                        end
+                        dos(command, '-echo');
+                    end                    
                 else
                     command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 1 -X -H --studyDate ' studyDate]
                     if(flashRef)
@@ -176,7 +196,7 @@ if ( isVD )
                 end
             end
 
-            command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a %GT_HOST% -p %GT_PORT% -F %OutputFormat% -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
+            command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a ' GT_HOST ' -p ' GT_PORT ' -F ' OutputFormat ' -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
             command
             tic; dos(command); timeUsed = toc;
         end
@@ -201,7 +221,7 @@ else
             dos(command);
         end
 
-        command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a %GT_HOST% -p %GT_PORT% -F %OutputFormat% -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
+        command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a ' GT_HOST ' -p ' GT_PORT ' -F ' OutputFormat ' -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
         command
         tic; dos(command); timeUsed = toc;
     end

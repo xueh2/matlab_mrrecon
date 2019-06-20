@@ -11,18 +11,26 @@ tic;
 
 [key, user] = sshKeyLookup(host);
 
+is_remote_computer = IsRemoteComputer(host);
+
 gt_command = ['rm -rf /home/' user '/Debug/record_' num2str(port) '.txt'];
-if(isempty(strfind(host, 'localhost')))
+if(is_remote_computer)
     command = ['ssh -o StrictHostKeyChecking=no ' user '@' host ' "' gt_command '"'];
 else
     command = gt_command;
 end
 command
 dos(command, '-echo');
-    
-gt_command = ['bash -c ''nohup /home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 137.187.134.184 ' ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'' '];
+  
+if(is_remote_computer)
+    gt_command = ['nohup /home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 8899 9988 137.187.135.157 ' ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];    
+else
+    % gt_command = ['/home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 8899 9988 137.187.135.157 > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];
+    % gt_command = ['nohup /home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 8899 9988 137.187.135.157 ' ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];    
+    gt_command = ['gadgetron -p ' num2str(port) ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];    
+end
 
-if(isempty(strfind(host, 'localhost')))
+if(is_remote_computer)
     command = ['ssh -o StrictHostKeyChecking=no ' user '@' host ' "' gt_command '"'];
 else
     command = gt_command;

@@ -1,4 +1,5 @@
-function C = mask2contour(sectors, s, new_len, n_components)
+function sector_contour = get_sector_contour(sectors, s, new_len, n_components)
+% sector_contour = get_sector_contour(sectors, s, new_len, n_components)
 
     if (nargin<3)
         new_len = 0;
@@ -12,7 +13,6 @@ function C = mask2contour(sectors, s, new_len, n_components)
     ind = find(sectors(:)==s);
     t(ind(:)) = 1;
 
-    % P = mask2poly(t,'Exact','CW');
     P = mask2poly(logical(t)); 
     
     p_ind = 1;
@@ -26,18 +26,14 @@ function C = mask2contour(sectors, s, new_len, n_components)
     
     if(p_len>0)
     
-%         if(isunix())
-            C = [P(p_ind).X' P(p_ind).Y'];
-%         else
-%             C = [P(p_ind).Y' P(p_ind).X'];
-%         end
+        sector_contour = [P(p_ind).X' P(p_ind).Y'];
 
         if(new_len>0)
-            C = resample_contour(C, new_len);
-            C = filter_contour(C, n_components);
+            sector_contour = resample_contour(sector_contour, new_len);
+            sector_contour = filter_contour(sector_contour, n_components);
         end
     else
-        C = [];
+        sector_contour = [];
     end
 %     [c_s, c_e] = CCMS_Contour(t, 0.5, 4, 0);
 %     

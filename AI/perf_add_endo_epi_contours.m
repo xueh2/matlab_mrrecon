@@ -4,9 +4,20 @@ function perf_add_endo_epi_contours(Gd, contourDir)
 %     h = openfig('T:\ReconResults\ML_Perf\template_roi.fig')
 %     ROI_info_table = getappdata(h, 'ROI_Info_Table');
 % 
-    ah = load('T:\ReconResults\ML_Perf\template_roi2.mat');
-    ROI_info_table = ah.ROI_info_table;
-    
+  
+        RO = size(Gd,1);
+        E1 = size(Gd,2);
+        N = size(Gd,3);
+        SLC = size(Gd,4);
+
+        if(SLC==3)
+            ah = load('T:\ReconResults\ML_Perf\template_roi2.mat');
+            ROI_info_table = ah.ROI_info_table;
+        else
+            ah = load('T:\ReconResults\ML_Perf\template_roi_4SAX.mat');
+            ROI_info_table = ah.ROI_info_table;
+        end
+        
 %     figure; imagescn(Gd, [0 1.5], [1 3], [12], 3);
     
     try
@@ -30,8 +41,13 @@ function perf_add_endo_epi_contours(Gd, contourDir)
         rvi1 = rvi1(:,:,end);
         rvi2 = rvi2(:,:,end);
         
-        RO = size(Gd,1);
-        E1 = size(Gd,2);
+        if(SLC>3)
+            endo3 = analyze75read(fullfile(contourDir, 'endo_3'));
+            epi3 = analyze75read(fullfile(contourDir, 'epi_3'));
+            rv3 = analyze75read(fullfile(contourDir, 'endo_epi_rv_rvi_rv_3'));
+            rvi3 = analyze75read(fullfile(contourDir, 'prob_endo_epi_rv_rvi_3'));
+            rvi3 = rvi3(:,:,end);
+        end
         
         [v, ind] = max(rvi0(:));
         [y, x] = ind2sub([RO E1], ind);
@@ -70,7 +86,18 @@ function perf_add_endo_epi_contours(Gd, contourDir)
         end
         rvi2 = [x-1 y-1; x-1 y+1; x+1 y+1; x+1 y-1];
         rvi2 = rvi2(:,2:-1:1)-1;
-
+        
+        if(SLC>3)
+            [v, ind] = max(rvi3(:));
+            [y, x] = ind2sub([RO E1], ind);
+            if(y<=1 || y>=RO || x<=1 || x>=E1)
+                y = RO/2;
+                x = E1/2;
+            end
+            rvi3 = [x-1 y-1; x-1 y+1; x+1 y+1; x+1 y-1];
+            rvi3 = rvi3(:,2:-1:1)-1;
+        end
+        
         a = max(rv0, [], 1);
         if(abs(a(1)-a(2))<0.5)
             rv0 = endo0 + 5;
@@ -84,6 +111,13 @@ function perf_add_endo_epi_contours(Gd, contourDir)
             rv2 = endo2 + 5;
         end
 
+        if(SLC>3)
+            a = max(rv3, [], 1);
+            if(abs(a(1)-a(2))<0.5)
+                rv3 = endo3 + 5;
+            end 
+        end
+        
 %         [v, ind] = max(rvi0(:)); [rvi0_s, rvi0_e] = CCMS_Contour(rvi0, v*0.9, 4, 0);
 %         [v, ind] = max(rvi0(:)); [rvi1_s, rvi1_e] = CCMS_Contour(rvi1, v*0.9, 4, 0);
 %         [v, ind] = max(rvi0(:)); [rvi2_s, rvi2_e] = CCMS_Contour(rvi2, v*0.9, 4, 0);
@@ -131,6 +165,13 @@ function perf_add_endo_epi_contours(Gd, contourDir)
     ROI_info_table2 = set_roi_info_table(ROI_info_table2, 11, 3, rv2+1);
     ROI_info_table2 = set_roi_info_table(ROI_info_table2, 12, 3, rvi2+1);
 
+    if(SLC>3)
+        ROI_info_table2 = set_roi_info_table(ROI_info_table2, 13, 4, endo3+1);
+        ROI_info_table2 = set_roi_info_table(ROI_info_table2, 14, 4, epi3+1);
+        ROI_info_table2 = set_roi_info_table(ROI_info_table2, 15, 4, rv3+1);
+        ROI_info_table2 = set_roi_info_table(ROI_info_table2, 16, 4, rvi3+1);
+    end
+    
     % setappdata(h, 'ROI_Info_Table', ROI_info_table2);
 
     ROI_info_table = ROI_info_table2;

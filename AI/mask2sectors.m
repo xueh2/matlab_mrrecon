@@ -19,15 +19,44 @@ function [sectors, sector_contours, sector_endo_contours, sector_epi_contours] =
     rv_center = [mean(J) mean(I)];
     figure; imagescn(rv_mask); hold on; plot(rv_center(1), rv_center(2), 'b+');
 
-    % find rvi
-    [I, J] = find(rvi_mask>0);
-    rvi = [mean(J) mean(I)];
-    figure; imagescn(rvi_mask); hold on; plot(rvi(1), rvi(2), 'b+');
-
     lv_center2 = img_to_xy(lv_center, RO, E1);
     rv_center2 = img_to_xy(rv_center, RO, E1);
-    rvi2 = img_to_xy(rvi, RO, E1);
+    
+    % find rvi
+    if(isempty(rvi_mask))
+        % assume image is in normal orientation
         
+        [I, J] = find(rv_mask>0);
+        
+        num_pt_rv = numel(I);
+        
+        rv_vec = [rv_center2(1)-lv_center2(1), rv_center2(2)-lv_center2(2)];
+
+        rvi = [];
+        max_angle = 0;
+        for pt=1:num_pt_rv
+            
+            rv_pt = img_to_xy([J(pt) I(pt)], RO, E1);
+            
+            % angle to rv_center - lv_center            
+            rv_angle = get_angle(rv_pt-lv_center2,  rv_vec);
+            
+            if(rv_angle<=180 & rv_angle>max_angle)
+                max_angle = rv_angle;
+                rvi = [J(pt) I(pt)];
+            end
+        end
+        
+        rvi_mask = zeros(size(endo_mask));
+        rvi_mask(rvi) = 1;
+    else
+        [I, J] = find(rvi_mask>0);
+        rvi = [mean(J) mean(I)];
+        figure; imagescn(rvi_mask); hold on; plot(rvi(1), rvi(2), 'b+');
+    end
+    
+    rvi2 = img_to_xy(rvi, RO, E1);
+    
     % split endo/epi to sectors
     rvi_vec = [rvi2(1)-lv_center2(1), rvi2(2)-lv_center2(2)];
     rv_vec = [rv_center2(1)-lv_center2(1), rv_center2(2)-lv_center2(2)];
@@ -78,7 +107,23 @@ function [sectors, sector_contours, sector_endo_contours, sector_epi_contours] =
     endo = [P.X' P.Y'];
     
     P = mask2poly(logical(epi_mask));
-    epi = [P.X' P.Y'];
+    try
+        epi = [P.X' P.Y'];
+    catch
+        if(numel(P)>1)
+            
+            maxLen = P(1).Length;
+            ind = 1;
+            for k=2:numel(P)
+                if(P(k).Length>maxLen)
+                    maxLen = P(k).Length;
+                    ind = k;
+                end
+            end
+            
+            epi = [P(ind).X' P(ind).Y'];
+        end
+    end
     
     endo_longer = resample_contour(endo, new_len);
     epi_longer = resample_contour(epi, new_len);
@@ -124,9 +169,14 @@ function r = get_angle(a, b)
 end
 
 function pt = img_to_xy(pt, RO, E1)
+%     pt = pt -1;
+%     a = [pt(2), E1-1-pt(1)];
+%     pt = a;
+
     pt = pt -1;
-    a = [pt(2), E1-1-pt(1)];
+    a = [pt(1) RO-1-pt(2)];
     pt = a;
+
 end
 
 function sector_contour = get_sector_contour(sectors, s, new_len, n_components)

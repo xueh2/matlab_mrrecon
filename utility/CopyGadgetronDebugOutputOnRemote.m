@@ -15,8 +15,13 @@ tic;
 %     mkdir(dst_folder);
 % end
 
-mkdir(fullfile(dst_folder, 'DebugOutput'));
+% mkdir(fullfile(dst_folder, 'DebugOutput'));
 
+gt_command = ['mkdir -p ' dst_folder];
+command = ['ssh ' user '@' host ' "' gt_command '"'];
+command
+dos(command, '-echo');
+    
 % command = ['ssh -i ' key ' ' user '@' host ' "' 'rm -rf /home/' user '/Debug/DebugOutput.tar.gz' '"'];
 % command
 % dos(command, '-echo');
@@ -27,8 +32,12 @@ mkdir(fullfile(dst_folder, 'DebugOutput'));
 % dos(command, '-echo');
 
 % if(isunix())
-    mkdir(fullfile(dst_folder, 'DebugOutput'));
-    command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/* ' dst_folder '/DebugOutput/'];
+%     mkdir(fullfile(dst_folder, 'DebugOutput'));
+%     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/* ' dst_folder '/DebugOutput/'];
+%     command
+    
+    gt_command = ['cp -r ' debug_folder '/* ' dst_folder];
+    command = ['ssh ' user '@' host ' "' gt_command '"'];
     command
     tic; dos(command, '-echo'); copy_duration = toc;
 

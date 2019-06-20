@@ -4,7 +4,13 @@ function perf_add_endo_epi_contours_from_manual_seg(contourDir, endo, epi, rv, r
 % input endo/epi/rv contours are 1 based cell array
 % rvi: [SLC 2] rv insertion point
 
-    ah = load('T:\ReconResults\ML_Perf\template_roi2.mat');
+    if(isunix())
+        baseDir = '/mnt/Lab-Kellman/'
+    else
+        baseDir = '\\hl-share\RawMRI\Lab-Kellman\'
+    end
+
+    ah = load(fullfile(baseDir, 'RawData', 'MachinLearning_Labelled_data', 'Cine', 'r.mat'));
     ROI_info_table = ah.ROI_info_table;
     
 %     figure; imagescn(Gd, [0 1.5], [1 3], [12], 3);

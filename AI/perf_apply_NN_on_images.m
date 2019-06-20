@@ -9,18 +9,27 @@ endo = [];
 epi = [];
 endo_epi_rv_rvi = [];
 
-tic
-Gd_resized_training = readNPY(fullfile(trainingDataDir, 'Gd_resized_training.npy'));
-size(Gd_resized_training)
-toc
+try
+    tic
+    Gd_resized_training = readNPY(fullfile(trainingDataDir, 'Gd_resized_training_norm.npy'));
+    size(Gd_resized_training)
+    toc
+catch
+    tic
+    Gd_resized_training = readNPY(fullfile(trainingDataDir, 'Gd_resized_training.npy'));
+    size(Gd_resized_training)
+    toc
+end
 
-if(~isFileExist(fullfile(trainingDataDir, 'Gd_resized_training_1.img')))
+SLC = size(Gd_resized_training, 4);
+
+% if(~isFileExist(fullfile(trainingDataDir, 'Gd_resized_training_1.img')))
     SLC = size(Gd_resized_training, 4);
     for slc=1:SLC
         header = CreateGtImageHeader(Gd_resized_training(:,:,:,slc));
         Matlab_gt_write_analyze(single(Gd_resized_training(:,:,:,slc)), header, fullfile(trainingDataDir, ['Gd_resized_training_' num2str(slc)]));
     end
-end
+% end
 
 % ---------------------------------------------------------------------------------------------------------
 % endo 
@@ -52,6 +61,18 @@ if(~isempty(endo_model))
         ' -t endo -f ' endo_model ];
     command
     dos(command);
+    
+    if(SLC>3)
+        command = ['gadgetron_CMR_ML_perf_seg_sax -i ' fullfile(trainingDataDir, 'Gd_resized_training_4') ... 
+        ' -s ' fullfile(contourDir, 'seg_endo_3') ...
+        ' -p ' fullfile(contourDir, 'prob_endo_3') ...
+        ' --endo ' fullfile(contourDir, 'endo_3') ... 
+        ' --endo-smoothing 48' ...
+        ' -t endo -f ' endo_model ];
+    
+        command
+        dos(command);
+    end
 end
 
 endo.seg0 = analyze75read(fullfile(contourDir, 'seg_endo_0'));
@@ -66,6 +87,11 @@ endo.C0 = analyze75read(fullfile(contourDir, 'endo_0'));
 endo.C1 = analyze75read(fullfile(contourDir, 'endo_1'));
 endo.C2 = analyze75read(fullfile(contourDir, 'endo_2'));              
 
+if(SLC>3)
+    endo.seg3 = analyze75read(fullfile(contourDir, 'seg_endo_3'));
+    endo.prob3 = analyze75read(fullfile(contourDir, 'prob_endo_3'));
+    endo.C3 = analyze75read(fullfile(contourDir, 'endo_3'));
+end
 
 % ---------------------------------------------------------------------------------------------------------
 % epi 
@@ -93,6 +119,16 @@ if(~isempty(epi_model))
         ' -t epi -f ' epi_model ];
     command
     dos(command);
+    
+    if(SLC>3)
+        command = ['gadgetron_CMR_ML_perf_seg_sax -i ' fullfile(trainingDataDir, 'Gd_resized_training_4') ... 
+        ' -s ' fullfile(contourDir, 'seg_epi_3') ...
+        ' -p ' fullfile(contourDir, 'prob_epi_3') ...
+        ' --epi ' fullfile(contourDir, 'epi_3') ... 
+        ' -t epi -f ' epi_model ];
+        command
+        dos(command);
+    end
 end    
 epi.seg0 = analyze75read(fullfile(contourDir, 'seg_epi_0'));
 epi.seg1 = analyze75read(fullfile(contourDir, 'seg_epi_1'));
@@ -106,7 +142,11 @@ epi.C0 = analyze75read(fullfile(contourDir, 'epi_0'));
 epi.C1 = analyze75read(fullfile(contourDir, 'epi_1'));
 epi.C2 = analyze75read(fullfile(contourDir, 'epi_2'));
 
-
+if(SLC>3)
+    epi.seg3 = analyze75read(fullfile(contourDir, 'seg_epi_3'));
+    epi.prob3 = analyze75read(fullfile(contourDir, 'prob_epi_3'));
+    epi.C3 = analyze75read(fullfile(contourDir, 'epi_3'));
+end
 % ---------------------------------------------------------------------------------------------------------
 % endo_epi_rv_rvi 
 if(~isempty(endo_epi_rv_rvi_model))
@@ -139,6 +179,18 @@ if(~isempty(endo_epi_rv_rvi_model))
         ' -t endo_epi_rv_rvi -f ' endo_epi_rv_rvi_model ];
     command
     dos(command);
+    
+    if(SLC>3)
+        command = ['gadgetron_CMR_ML_perf_seg_sax -i ' fullfile(trainingDataDir, 'Gd_resized_training_4') ... 
+        ' -s ' fullfile(contourDir, 'seg_endo_epi_rv_rvi_3') ...
+        ' -p ' fullfile(contourDir, 'prob_endo_epi_rv_rvi_3') ...
+        ' --endo ' fullfile(contourDir, 'endo_epi_rv_rvi_endo_3') ... 
+        ' --epi ' fullfile(contourDir, 'endo_epi_rv_rvi_epi_3') ... 
+        ' --rv ' fullfile(contourDir, 'endo_epi_rv_rvi_rv_3') ... 
+        ' -t endo_epi_rv_rvi -f ' endo_epi_rv_rvi_model ];
+        command
+        dos(command);
+    end
 end
    
 endo_epi_rv_rvi.rv0 = analyze75read(fullfile(contourDir, 'endo_epi_rv_rvi_rv_0'));
@@ -164,4 +216,18 @@ endo_epi_rv_rvi.prob2_rvi = endo_epi_rv_rvi.prob_2(:,:,5);
 [maxP, I2] = max(endo_epi_rv_rvi.prob2_rvi(:));
 [x2, y2] = ind2sub(size(endo_epi_rv_rvi.prob2_rvi), I2);
 
-endo_epi_rv_rvi.rvi = [x0 y0; x1 y1; x2 y2];
+if(SLC>3)
+    endo_epi_rv_rvi.rv3 = analyze75read(fullfile(contourDir, 'endo_epi_rv_rvi_rv_3'));
+    endo_epi_rv_rvi.prob_3 = analyze75read(fullfile(contourDir, 'prob_endo_epi_rv_rvi_3'));
+    endo_epi_rv_rvi.prob3_rv = endo_epi_rv_rvi.prob_3(:,:,4);
+    endo_epi_rv_rvi.prob3_rvi = endo_epi_rv_rvi.prob_3(:,:,5);
+
+    [maxP, I3] = max(endo_epi_rv_rvi.prob3_rvi(:));
+    [x3, y3] = ind2sub(size(endo_epi_rv_rvi.prob3_rvi), I3);
+end
+
+if(SLC==3)
+    endo_epi_rv_rvi.rvi = [x0 y0; x1 y1; x2 y2];    
+else
+    endo_epi_rv_rvi.rvi = [x0 y0; x1 y1; x2 y2; x3 y3];
+end

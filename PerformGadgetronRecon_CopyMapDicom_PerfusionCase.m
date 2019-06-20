@@ -16,9 +16,9 @@ for k=rsN*2+1:N
     cases{k} = rest_cases{k-rsN*2};
 end
 
-mbv = MBVColorMap;
-mbf = PerfColorMap;
-ps = PSColorMap;
+mbv = MBVColorMap(0);
+mbf = PerfColorMap(0);
+ps = PSColorMap(0);
 
 for n=1:3
     mbv_interp(:,n) = interp(mbv(:,n), 2^16/256);

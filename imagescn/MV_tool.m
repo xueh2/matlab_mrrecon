@@ -892,9 +892,19 @@ if make_avi
 	try
         if avicreatemethod==1
             movie2avi(M, f, 'FPS', frame_rate, 'Compression', compression, 'Quality', Q);
+            % movefile(f,[f(1:end-3),'mpg']); % PK* change file extension to mpg to solve problem with powerpoint
             movefile(f,[f(1:end-3),'mpg']); % PK* change file extension to mpg to solve problem with powerpoint
         elseif avicreatemethod==2
-            vidObj = VideoWriter(f, 'Motion JPEG AVI'); % f is the filename
+%             vidObj = VideoWriter(f, 'Motion JPEG AVI'); % f is the filename
+%             vidObj.FrameRate = frame_rate;
+%             vidObj.Quality = Q;
+%             open(vidObj);
+%             for k=1:length(M)
+%                 writeVideo(vidObj,M(k));
+%             end
+%             close(vidObj);
+            
+            vidObj = VideoWriter(f, 'MPEG-4'); % f is the filename
             vidObj.FrameRate = frame_rate;
             vidObj.Quality = Q;
             open(vidObj);

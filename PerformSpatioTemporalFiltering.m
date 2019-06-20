@@ -32,19 +32,19 @@ for ii=1:N-1
     end
 end
 
-for ii2=N-1:-1:1
-    if(sqrt(D(ii2)/sum(D))<=thres_temporal)
-        break;
-    end
-end
+% for ii2=N-1:-1:1
+%     if(sqrt(D(ii2)/sum(D))<=thres_temporal)
+%         break;
+%     end
+% end
+% 
+% ii2 = N-1 - ii2;
+% 
+% ii = floor((ii+ii2)/2);
 
-ii2 = N-1 - ii2;
-
-ii = floor((ii+ii2)/2);
-
-if(ii>3*N/4)
-    ii = floor(N/2);
-end
+% if(ii>3*N/4)
+%     ii = floor(N/2);
+% end
 
 disp(['discard ' num2str(ii) ' modes along the temporal dimension ... ']);
 sigma2_noise = mean(D(1:ii)); % noise level

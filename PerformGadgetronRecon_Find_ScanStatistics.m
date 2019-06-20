@@ -9,7 +9,7 @@ if(nargin<3)
 end
 
 if(nargin<4)
-    date_end = '2019-01-01';
+    date_end = '2029-01-01';
 end
 
 % ------------------------------------------------------------
@@ -69,10 +69,13 @@ for d=1:numdirs
             
             finfo = dir(names{n});
             
-            if(finfo.bytes>16*1024*1024)
-                % disp(name);
-                files = [files; {name}];
-                configNames = [configNames; {configName}];
+            try
+                if(finfo.bytes>16*1024*1024)
+                    % disp(name);
+                    files = [files; {name}];
+                    configNames = [configNames; {configName}];
+                end
+            catch
             end
         end
     end

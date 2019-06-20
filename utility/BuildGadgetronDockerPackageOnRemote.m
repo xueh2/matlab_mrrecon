@@ -5,8 +5,13 @@ function timeUsed = BuildGadgetronDockerPackageOnRemote(host, res_dir, docker_im
 % remove_gtprep_xml = 0
 % strip_image = 0
 % chroot_size = 3.5*1024
-% timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_ubuntu1604_gtprep_stripped', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20180807', create_installers, remove_gtprep_xml, strip_image, chroot_size)
-% timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'gadgetron/ubuntu_1804_no_cuda', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20180810', create_installers, remove_gtprep_xml, strip_image, chroot_size)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_ubuntu1604_gtprep_stripped', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20190420', create_installers, remove_gtprep_xml, strip_image, chroot_size)
+%
+% create_installers = 1
+% remove_gtprep_xml = 0
+% strip_image = 0
+% chroot_size = 3*1024
+% timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'gadgetron/ubuntu_1804_no_cuda', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20190420', create_installers, remove_gtprep_xml, strip_image, chroot_size)
 
 if nargin < 1
     host = 'denmark'

@@ -1,5 +1,5 @@
 
-function [data, sector_c] = readGTPlusExportImageSeries_SectorContour(folderName, file_name, plot_flag)
+function [data, sector_c, endo, epi] = readGTPlusExportImageSeries_SectorContour(folderName, file_name, plot_flag)
 % [data, sector_c] = readGTPlusExportImageSeries_SectorContour(folderName, file_name)
 
 if(nargin<3)
@@ -35,6 +35,33 @@ for n=1:N
     end
 end
 
+endo = [];
+epi = [];
+N = numel(xmlContent);
+for n=1:N
+    if ( ~isempty(strfind(xmlContent(n).meta(1).name, 'ENDO')) )
+                
+        num_pt = numel(xmlContent(n).meta);
+        curr_epi_pt = [];
+        for pt=1:2:num_pt
+            curr_epi_pt = [curr_epi_pt; str2double(xmlContent(n).meta(pt).value) str2double(xmlContent(n).meta(pt+1).value)];
+        end
+        
+        endo = curr_epi_pt;
+    end
+    
+    if ( ~isempty(strfind(xmlContent(n).meta(1).name, 'EPI')) )
+                
+        num_pt = numel(xmlContent(n).meta);
+        curr_epi_pt = [];
+        for pt=1:2:num_pt
+            curr_epi_pt = [curr_epi_pt; str2double(xmlContent(n).meta(pt).value) str2double(xmlContent(n).meta(pt+1).value)];
+        end
+        
+        epi = curr_epi_pt;
+    end
+end
+
 if(plot_flag)
     figure; 
     imagescn(permute(data, [2 1]));
@@ -51,5 +78,13 @@ if(plot_flag)
             plot(sc(:,2), sc(:,1), 'r-', 'LineWidth', 2);
         end
     end
+    
+    if(~isempty(endo))
+        plot(endo(:,2)+1, endo(:,1)+1, 'r-', 'LineWidth', 2);
+    end
+    if(~isempty(epi))
+        plot(epi(:,2)+1, epi(:,1)+1, 'g-', 'LineWidth', 2);
+    end
+    
     hold off
 end

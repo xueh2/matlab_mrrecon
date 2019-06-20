@@ -56,6 +56,20 @@ elseif ( ~isempty(strfind(host, 'eastus.cloudapp.azure.com')) )
 elseif ( ~isempty(strfind(host, 'localhost')) )
     key = '/home/xueh2/.ssh/id_rsa';
     user = 'xueh2';
+elseif(strcmp(host, '137.187.135.157'))
+    if(isunix())
+        [~, result] = system('ifconfig');
+    else
+        [~, result] = system('ipconfig');
+    end
+    
+    if(~isempty(strfind(result, '137.187.135.157')))
+        key = '/home/boss/.ssh/id_rsa';
+        user = 'boss';
+    else
+        key = '/home/xueh2/.ssh/id_rsa';
+        user = 'xueh2';
+    end
 end
 
 ind = find(key=='\');

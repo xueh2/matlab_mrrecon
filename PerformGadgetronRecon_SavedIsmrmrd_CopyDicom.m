@@ -5,16 +5,17 @@ function [timeUsed, remoteFolder] = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom
 % timeUsed = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom('I:\ReconResults\KAROLINSKA', 'DB_LGE_MOCO_AVE_OnTheFly_41672_7432041_7432046_590_20160330-113443', 'barbados', '/tmp/gadgetron_data')
 
 [key, user] = sshKeyLookup(gt_host);
+is_remote_computer = IsRemoteComputer(gt_host);
 
 if(nargin<4)
-    if(strcmp(gt_host, 'localhost')==1)
+    if(~is_remote_computer)
         if(isunix()==0)
             remote_dicom_dir = 'd:/temp/gadgetron_data';
         else
             remote_dicom_dir = '/tmp/gadgetron_data';
         end
     else
-        remote_dicom_dir = '/tmp/gadgetron_data';
+        remote_dicom_dir = ['/home/' user '/gadgetron_ismrmrd_data'];
     end
 end
 
@@ -50,7 +51,18 @@ delete(fullfile(dstDir, '*.xml'));
 %% copy the dicom
 
 remoteFolder = data_name;
-if(strcmp(gt_host, 'localhost')==1)
+
+if(~isempty(strfind(data_name, 'Perfusion_AIFR3_2E_Lin_Cloud')))
+    remoteFolder = ['Perfusion_AIFR3_2E_Interleaved' data_name(29:end)];
+    disp(['data name is ' data_name ' --- dicom remote folder is ' remoteFolder]);
+end
+
+if(~isempty(strfind(data_name, 'Perfusion_AIFR3_2E_Interleaved')))
+    remoteFolder = ['Perfusion_AIFR3_2E_Interleaved' data_name(31:end)];
+    disp(['data name is ' data_name ' --- dicom remote folder is ' remoteFolder]);
+end
+
+if(~is_remote_computer)
     tic; copyfile(fullfile(remote_dicom_dir, remoteFolder, '*.dcm'),  dstDir); timeUsed = toc;    
 else
 %     if(isunix())

@@ -228,6 +228,20 @@ if(has_rest)
         end
     end
     
+    try
+        bulls_eye_rest = perf_load_Bulls_eye_debug_data(fullfile(restDir, 'DebugOutput'), 1, 0);
+        [h_fmap_seg, h_Gd_seg, h_mask_seg] = perf_plot_loaded_Bulls_eye_debug_data(bulls_eye_rest);
+
+        figName = fullfile(figDir, [resDir '_Rest_fmap_with_SectorContours' '.fig']);
+        saveas(h_fmap_seg, figName, 'fig');
+        figName = fullfile(figDir, [resDir '_Rest_Gd_with_SectorContours' '.fig']);
+        saveas(h_Gd_seg, figName, 'fig');
+        figName = fullfile(figDir, [resDir '_Rest_SectorMasks' '.fig']);
+        saveas(h_mask_seg, figName, 'fig');
+        save(fullfile(figDir, 'bulls_eye_rest'), 'bulls_eye_rest');
+    catch
+    end
+            
     figName = fullfile(figDir, [resDir '_Rest_Ori']);
     if(onlyReview)
         if(isFileExist([figName '.fig']))

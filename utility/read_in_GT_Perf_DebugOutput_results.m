@@ -143,20 +143,35 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     
     % load aif figures
     try
-        aif_plots = readGTPlusExportImageSeries_Squeeze(resDir, 120); 
-        aif_plots = squeeze(aif_plots);
+        [aif_plot_names, aif_plot_num] = findFILE(resDir, 'result*120.hdr');
+        
+%         aif_plots = readGTPlusExportImageSeries_Squeeze(resDir, 120); 
+%         aif_plots = squeeze(aif_plots);
+
+        aif_plots = [];
+        for aif_n=1:aif_plot_num
+            aif_plots(:,:,aif_n) = analyze75read(aif_plot_names{aif_n});
+        end
         aif_plots = permute(aif_plots, [2 1 3]);
     catch
         aif_plots = [];
     end
     
     % read in aif slice and image position
-    xmlContent = xml_load(fullfile(resDir, ['results_SLC0_CON0_PHS0_REP0_SET0_AVE0_1_1104.attrib']));
-    aif_slice_dir = getXMLField(xmlContent, 'slice_dir');
-    aif_read_dir = getXMLField(xmlContent, 'read_dir');
-    aif_phase_dir = getXMLField(xmlContent, 'phase_dir');
-    aif_PatientPosition = getXMLField(xmlContent, 'PatientPosition');
-    aif_patient_table_position = getXMLField(xmlContent, 'patient_table_position');
+    try
+        xmlContent = xml_load(fullfile(resDir, ['results_SLC0_CON0_PHS0_REP0_SET0_AVE0_1_101.attrib']));
+        aif_slice_dir = getXMLField(xmlContent, 'slice_dir');
+        aif_read_dir = getXMLField(xmlContent, 'read_dir');
+        aif_phase_dir = getXMLField(xmlContent, 'phase_dir');
+        aif_PatientPosition = getXMLField(xmlContent, 'PatientPosition');
+        aif_patient_table_position = getXMLField(xmlContent, 'patient_table_position');
+    catch
+        aif_slice_dir = [0 0 0];
+        aif_read_dir = [0 0 0];
+        aif_phase_dir = [0 0 0];
+        aif_PatientPosition = [0 0 0];
+        aif_patient_table_position = [0 0 0];
+    end
     
     try
 %         perf = load_array(resDir, 'CASignal_Perf_', slc);        
@@ -189,17 +204,30 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     PD = load_array(resDir, 'PD_', slc);   
     PD = flipdim(PD, 2);
 
-    for s=1:slc
-        [names, num] = findFILE('.', ['*_SLC' num2str(s-1) '*103.attrib']);
-        names{1}
-        xmlContent = xml_load(names{1});
-        slice_dir(s,:) = getXMLField(xmlContent, 'slice_dir');
-        read_dir(s,:) = getXMLField(xmlContent, 'read_dir');
-        phase_dir(s,:) = getXMLField(xmlContent, 'phase_dir');
-        PatientPosition(s,:) = getXMLField(xmlContent, 'PatientPosition');
-        patient_table_position(s,:) = getXMLField(xmlContent, 'patient_table_position');
+    try
+        for s=1:slc
+            [names, num] = findFILE(resDir, ['*_SLC' num2str(s-1) '*103.attrib']);
+            names{1}
+            xmlContent = xml_load(names{1});
+            slice_dir(s,:) = getXMLField(xmlContent, 'slice_dir');
+            read_dir(s,:) = getXMLField(xmlContent, 'read_dir');
+            phase_dir(s,:) = getXMLField(xmlContent, 'phase_dir');
+            PatientPosition(s,:) = getXMLField(xmlContent, 'PatientPosition');
+            patient_table_position(s,:) = getXMLField(xmlContent, 'patient_table_position');
+        end
+    catch
+        for s=1:slc
+            [names, num] = findFILE(resDir, ['*_SLC' num2str(s-1) '*' num2str(s) '03.attrib']);
+            names{1}
+            xmlContent = xml_load(names{1});
+            slice_dir(s,:) = getXMLField(xmlContent, 'slice_dir');
+            read_dir(s,:) = getXMLField(xmlContent, 'read_dir');
+            phase_dir(s,:) = getXMLField(xmlContent, 'phase_dir');
+            PatientPosition(s,:) = getXMLField(xmlContent, 'PatientPosition');
+            patient_table_position(s,:) = getXMLField(xmlContent, 'patient_table_position');
+        end
     end
-        
+    
     aif_scan_geometry_info = table(aif_slice_dir, aif_read_dir, aif_phase_dir, aif_PatientPosition, aif_patient_table_position);    
     scan_geometry_info = table(slice_dir, read_dir, phase_dir, PatientPosition, patient_table_position);
     
@@ -403,21 +431,48 @@ function v = load_array(resDir, name, slc)
     try
         for n=1:slc
             filename = [name num2str(n-1) '.hdr'];
-            v(:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
+            d = analyze75read(fullfile(resDir, 'DebugOutput', filename));            
+            if(n>1)
+                if(size(v,1)~=size(d,1))
+                    v(:,:,:,n) = permute(d, [2 1 3]);
+                else
+                    v(:,:,:,n) = d;
+                end
+            else
+                v(:,:,:,n) = d;
+            end
         end
     catch
         for n=1:slc
             filename = [name num2str(n-1) '_MAG.hdr'];
-            v(:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
+            d = analyze75read(fullfile(resDir, 'DebugOutput', filename));            
+            if(n>1)
+                if(size(v,1)~=size(d,1))
+                    v(:,:,:,n) = permute(d, [2 1 3]);
+                else
+                    v(:,:,:,n) = d;
+                end
+            else
+                v(:,:,:,n) = d;
+            end
         end
     end
 end
 
 function v = load_array_cov(resDir, name, slc)
     try
-        for n=1:slc
+        for n=1:3
             filename = [name num2str(n-1) '.hdr'];
-            v(:,:,:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
+            d = analyze75read(fullfile(resDir, 'DebugOutput', filename));            
+            if(n>1)
+                if(size(v,1)~=size(d,1))
+                    v(:,:,:,:,:,n) = permute(d, [2 1 3  4 5]);
+                else
+                    v(:,:,:,:,:,n) = d;
+                end
+            else
+                v(:,:,:,:,:,n) = d;
+            end
         end
     catch
         v = [];
@@ -428,12 +483,30 @@ function v = load_array2(resDir, name, slc, name_after_slc)
     try
         for n=1:slc
             filename = [name num2str(n-1) name_after_slc '.hdr'];
-            v(:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
+            d = analyze75read(fullfile(resDir, 'DebugOutput', filename));            
+            if(n>1)
+                if(size(v,1)~=size(d,1))
+                    v(:,:,:,n) = permute(d, [2 1 3]);
+                else
+                    v(:,:,:,n) = d;
+                end
+            else
+                v(:,:,:,n) = d;
+            end
         end
     catch
         for n=1:slc
             filename = [name num2str(n-1) name_after_slc '_MAG.hdr'];
-            v(:,:,:,n) = analyze75read(fullfile(resDir, 'DebugOutput', filename));
+            d = analyze75read(fullfile(resDir, 'DebugOutput', filename));            
+            if(n>1)
+                if(size(v,1)~=size(d,1))
+                    v(:,:,:,n) = permute(d, [2 1 3]);
+                else
+                    v(:,:,:,n) = d;
+                end
+            else
+                v(:,:,:,n) = d;
+            end
         end
     end
 end
@@ -475,7 +548,7 @@ function [CC_F_PS, CC_F_Vp, CC_F_Visf, CC_PS_Vp, CC_PS_Visf, CC_Vp_Visf] = compu
 
     RO = size(flow, 1);
     E1 = size(flow, 2);
-    SLC = size(flow, 3);
+    SLC = size(BTEX_cov, 5);
 
     CC_F_PS = zeros(RO, E1, SLC);
     CC_F_Vp = zeros(RO, E1, SLC);

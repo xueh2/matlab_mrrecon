@@ -215,7 +215,10 @@ end
 % set(fig_handle, 'PaperPosition', [0 0 FigureWidth FigureHeight]); % old
 set(fig_handle, 'PaperPosition', [1 1 FigureWidth+1 FigureHeight+1]);
 
-toolbox;
+is_visible = get(fig_handle, 'visible');
+if(strcmp(is_visible, 'on'))
+    toolbox;
+end
 colormap(gray)
 
 if(exist('roi_name') & ~isempty(roi_name))

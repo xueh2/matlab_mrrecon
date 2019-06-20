@@ -51,7 +51,7 @@ for slc=1:SLC
         rvi_x = rvi(slc, 1);
         rvi_y = rvi(slc, 2);
         hold on    
-        plot(rvi_y+contour_offset, rvi_x+contour_offset, 'm+', 'MarkerSize', 20);
+        plot(rvi_y+contour_offset, rvi_x+contour_offset, 'm+', 'MarkerSize', 30);
         hold off
     end 
 end

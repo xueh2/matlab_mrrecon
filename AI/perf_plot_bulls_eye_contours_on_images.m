@@ -7,7 +7,7 @@ function [h, h2] = perf_plot_bulls_eye_contours_on_images(Gd, bulls_eye, windowi
 
     S = size(Gd);
 
-    scale_factor = 16;
+    scale_factor = 20;
 
     if(S(3)>8)
         SLC = S(4);
@@ -28,7 +28,7 @@ function [h, h2] = perf_plot_bulls_eye_contours_on_images(Gd, bulls_eye, windowi
     contour_offset = 0;
     
     h_axes=flipud(findobj(h,'type','axes'));
-    for slc=1:SLC
+    for slc=1:3
 
         slc_plot = bulls_eye(slc).slice_index;
 
@@ -39,7 +39,7 @@ function [h, h2] = perf_plot_bulls_eye_contours_on_images(Gd, bulls_eye, windowi
     end
 
     h_axes=flipud(findobj(h2,'type','axes'));
-    for slc=1:SLC
+    for slc=1:3
 
         slc_plot = bulls_eye(slc).slice_index;
 
