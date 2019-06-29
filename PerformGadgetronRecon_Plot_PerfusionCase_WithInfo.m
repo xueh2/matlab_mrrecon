@@ -1,5 +1,5 @@
 
-function h_flow = PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(resDir, restDir, scannerID, patientID, studyID, study_dates, onlyReview, checkProcessed, baseDir)
+function h_flow = PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(resDir, restDir, scannerID, patientID, studyID, study_dates, study_time, onlyReview, checkProcessed, baseDir)
 % h_flow = PerformGadgetronRecon_Plot_PerfusionCase_WithInfo(restDir, scannerID, patientID, studyID, study_dates, onlyReview, baseDir)
 
 if(nargin < 7)
@@ -16,9 +16,9 @@ end
 
 h_flow = 0;
 
-resDir = [scannerID '_' patientID '_' studyID '_' study_dates];
+resDir = [scannerID '_' patientID '_' studyID '_' study_dates '_' study_time];
 
-figDir = fullfile(baseDir, study_dates, ['Perfusion_AIF_TwoEchoes_Interleaved_R2_' resDir '_Figure']);
+figDir = fullfile(baseDir, study_dates, ['Perfusion_AIFR3_2E_Interleaved_' resDir '_Figure']);
 
 if(checkProcessed & isFileExist(fullfile(figDir, 'rest.mat')))
     disp(['Already processed - ' restDir]);

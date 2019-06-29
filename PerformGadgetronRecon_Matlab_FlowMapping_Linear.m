@@ -1,8 +1,10 @@
 
 function PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, h5Name, resDir, roiDir, dataRole, HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star, res, res_Q_e, cutoff_mini_bolus)
 % PerformGadgetronRecon_Matllab_FlowMapping_Linear(dataDir, h5Name, resDir, roiDir, dataRole, HCT, reComputed, reComputed_OnlyGlobal, reComputed_withoutR2Star, res, res_Q_e)
-% PerformGadgetronRecon_Matlab_FlowMapping_Linear('I:\BARTS', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_42110_204543119_204543128_323_20160614-120954', 'I:\ReconResults\BARTS')
-% PerformGadgetronRecon_Matlab_FlowMapping_Linear('I:\KAROLINSKA', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_41672_2309137_2309147_949_20160825-093814', 'I:\ReconResults\KAROLINSKA')
+% PerformGadgetronRecon_Matlab_FlowMapping_Linear('T:\RawData\KAROLINSKA', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_41672_54147266_54147276_1037_20160602-122009', 'T:\ReconResults\KAROLINSKA_Real_HCT_20180404', [], 'stress')
+% PerformGadgetronRecon_Matlab_FlowMapping_Linear('T:\RawData\KAROLINSKA', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_41672_54147266_54147276_1037_20160602-122009', 'T:\ReconResults\KAROLINSKA_Real_HCT_20180404', [], 'rest')
+% PerformGadgetronRecon_Matlab_FlowMapping_Linear('T:\RawData\BARTS', 'Perfusion_AIFR3_2E_Interleaved_66016_484578511_484578520_332_20190515-152806', 'T:\ReconResults\Barts_new', [], 'stress')
+% PerformGadgetronRecon_Matlab_FlowMapping_Linear('T:\RawData\LEEDS', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_66097_8595292_8595297_96_20170223-104206', 'T:\ReconResults\Leeds_HCT_0.42', [], 'stress')
 
 if(nargin<6)
     HCT = 0.42;
