@@ -1,4 +1,4 @@
-function [rad_strain, circ_strain, sheer] = analyticalStrain(mask, dr_all, de_all)
+function [rad_strain, circ_strain, sheer] = analyticalStrain(mask, de_all, dr_all)
 
 imsz = size(dr_all);
 if (numel(imsz) == 2)
@@ -21,43 +21,32 @@ for i = 1:slices
     dr = dr_all(:,:,i);
     de = de_all(:,:,i);
     
-    X = Rmesh - centroidR;
-    Y = centroidE - Emesh;
+    Y = -(Rmesh - centroidR);
+    X = -(centroidE - Emesh);
 
-    [ddrde, ddrdr] = imgradientxy_cine(dr, 'central');
-    [ddede, ddedr] = imgradientxy_cine(-de, 'central');
+    [ddrdr, ddrde] = imgradientxy_cine(dr, 'central');
+    [ddedr, ddede] = imgradientxy_cine(-de, 'central');
 
-    F00 = 1 + ddrdr;
+    F00 = (1+ddrdr);
     F01 = ddrde;
     F10 = ddedr;
-    F11 = 1 + ddede;
-    
-    
-    
-%     figure
-%     imagescn([F00.*mask, F01.*mask; F10.*mask, F11.*mask])
+    F11 = (1+ddede);
     
     % 1/2 [F00 F10] [F00 F01]  - [1 0]
     %     [F01 F11] [F10 F11]    [0 1]
 
-    E00 = 1/2*F00.^2 + 1/2*F10.^2 - 1;
-    E01 = 1/2*F00.*F01 + 1/2*F10.*F11;
-    E10 = 1/2*F00.*F01 + 1/2*F10.*F11;
-    E11 = 1/2*F01.^2 + 1/2*F11.^2 - 1;
-
-%     figure
-%     imagescn([E00.*mask, E01.*mask; E10.*mask, E11.*mask])
-    
-    thetas = atan(Y./X) + pi*(X < 0) + pi*2*(X>=0).*(Y <0);
-%     figure
-%     imagescn(thetas)
-    sheer(:, :, i) = 2*(E11-E00).*sin(thetas).*cos(thetas) ...
-        + 2*E01.*(cos(thetas).^2 - sin(thetas).^2);
+    E00 = 1/2*(F00.^2 + F10.^2 - 1).*mask;
+    E01 = 1/2*(F00.*F01 + F10.*F11).*mask;
+    E10 = 1/2*(F00.*F01 + F10.*F11).*mask;
+    E11 = 1/2*(F01.^2 + F11.^2 - 1).*mask;
+ 
+    thetas = atan(Y./(X+1e-8)) + pi*(X < 0) + pi*2*(X>=0).*(Y <0);
     rad_strain(:, :, i) = E00.*cos(thetas).^2 + E11.*sin(thetas).^2 ...
         + 2*E01.*sin(thetas).*cos(thetas);
-    thetas = thetas + pi/2;
-    circ_strain(:, :, i) = E00.*cos(thetas).^2 + E11.*sin(thetas).^2 ...
-        + 2*E01.*sin(thetas).*cos(thetas);
-
+    circ_strain(:, :, i) = E00.*sin(thetas).^2 + E11.*cos(thetas).^2 ...
+        - 2*E01.*sin(thetas).*cos(thetas);
+    sheer(:, :, i) = (E11-E00).*sin(thetas).*cos(thetas) ...
+        + E01.*(cos(thetas).^2 - sin(thetas).^2);
+    
 end
 end

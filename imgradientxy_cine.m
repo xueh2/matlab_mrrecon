@@ -1,4 +1,4 @@
-function [de_cine, dr_cine] = imgradientxy_cine(cine, method)
+function [dr_cine, de_cine] = imgradientxy_cine(cine, method)
 
 cine_sz = size(cine);
 if (numel(cine_sz) == 2)
@@ -10,7 +10,7 @@ de_cine = zeros(cine_sz);
 dr_cine = zeros(cine_sz);
 
 for i = 1:slices
-    [de, dr] = imgradientxy(cine(:, :, i), method);
+    [dr, de] = imgradientxy(cine(:, :, i), method);
     de_cine(:, :, i) = -de;
     dr_cine(:, :, i) = dr;
 end
