@@ -10,20 +10,42 @@ if (numel(imsz) == 2)
 else
     slices = imsz(3);
 end
+
+if (numel(size(mask)) == 2)
+    mask_slices = 1;
+else
+    mask_slices = imsz(3);
+end
+
 radial_strain = zeros(imsz);
 circumfrential_strain = zeros(imsz);
 
-[Emesh, Rmesh] = meshgrid(1:imsz(2), 1:imsz(1));
-% find centroid of mask
-centroidE = sum(sum(Emesh(mask == 1)))/sum(sum(mask));
-centroidR = sum(sum(Rmesh(mask == 1)))/sum(sum(mask));
+centroidE = zeros(mask_slices, 1);
+centroidR = zeros(mask_slices, 1);
+for i = 1:mask_slices
+    [Emesh, Rmesh] = meshgrid(1:imsz(2), 1:imsz(1));
+    % find centroid of mask
+    if mask_slices == 1
+        centroidE(i) = sum(sum(Emesh(mask == 1)))/sum(sum(mask));
+        centroidR(i) = sum(sum(Rmesh(mask == 1)))/sum(sum(mask));
+    else
+        centroidE(i) = sum(sum(Emesh(mask(:, :, i) == 1)))/sum(sum(mask(:, :, i)));
+        centroidR(i) = sum(sum(Rmesh(mask(:, :, i) == 1)))/sum(sum(mask(:, :, i)));
+    end
+    centroid = [centroidR(i), centroidE(i)];
+end
+    
     
 for i = 1:slices
     dx = dx_all(:,:,i);
     dy = dy_all(:,:,i);
-    
-    X = Rmesh - centroidR;
-    Y = centroidE - Emesh;
+    if mask_slices == 1
+        X = Rmesh - centroidR;
+        Y = centroidE - Emesh;
+    else
+        X = Rmesh - centroidR(i);
+        Y = centroidE(i) - Emesh;
+    end
 
     % get radial thetas
     theta = atan(Y./(X+1e-8)) + pi*(X < 0) + pi*2*(X>=0).*(Y <0);
