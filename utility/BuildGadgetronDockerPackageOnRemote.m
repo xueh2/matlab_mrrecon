@@ -4,7 +4,7 @@ function timeUsed = BuildGadgetronDockerPackageOnRemote(host, res_dir, docker_im
 % create_installers = 1
 % remove_gtprep_xml = 0
 % strip_image = 0
-% chroot_size = 3.5*1024
+% chroot_size = round(3.75*1024)
 % timeUsed = BuildGadgetronDockerPackageOnRemote('grenada', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_ubuntu1604_gtprep_stripped', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20190420', create_installers, remove_gtprep_xml, strip_image, chroot_size)
 %
 % create_installers = 1
@@ -112,11 +112,13 @@ if(create_installers)
     if(remove_gtprep_xml)
         PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gt_scanner_setup\VE11\config');
         PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gt_scanner_setup\VE11C\config');    
+        PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gt_scanner_setup\VE11E\config');    
 
         command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_MARS_All_Versions.bat ' filename ' 3 17 0'];
     else
         delete('D:\gtuser\mrprogs\gt_scanner_setup\VE11\config\*.xml')
         delete('D:\gtuser\mrprogs\gt_scanner_setup\VE11C\config\*.xml')
+        delete('D:\gtuser\mrprogs\gt_scanner_setup\VE11E\config\*.xml')
         
         command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 3 17 0'];
     end

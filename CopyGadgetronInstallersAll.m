@@ -20,6 +20,8 @@ CopyGadgetronInstallers('D:\installer\VE11P', fullfile(dstDir, 'VE11P'), chroot_
 
 CopyGadgetronInstallers('D:\installer\NXVA11A', fullfile(dstDir, 'NXVA11A'), chroot_string);
 
+CopyGadgetronInstallers('D:\installer\VE11E', fullfile(dstDir, 'VE11E'), chroot_string);
+
 
 installFile = 'D:\Temp\install_chroot_image.sh';
 if(isFileExist(installFile))

@@ -23,7 +23,7 @@ command
 dos(command, '-echo');
   
 if(is_remote_computer)
-    gt_command = ['nohup /home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 8899 9988 137.187.135.157 ' ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];    
+    gt_command = ['/home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 8899 9988 137.187.135.157 ' ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];    
 else
     % gt_command = ['/home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 8899 9988 137.187.135.157 > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];
     % gt_command = ['nohup /home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 8899 9988 137.187.135.157 ' ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];    

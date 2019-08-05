@@ -449,6 +449,7 @@ for n=1:num
             mkdir(dstDir);
             disp(dstDir);
             if(isunix())
+                mkdir(fullfile(dstDir, 'DebugOutput'));
                 gt_command = ['cp -r ' fullfile(debugFolder, '*.*') ' ' dstDir '/DebugOutput'];
                 gt_command
                 dos(gt_command, '-echo');
@@ -467,7 +468,11 @@ for n=1:num
             if(isempty(ind))
                 ind = find(resDir=='/');
             end
-            dst_dir = ['/mnt/Lab-Kellman/ReconResults/' resDir(ind(end)+1:end) '/' study_dates '/' name '/DebugOutput'];            
+            dst_dir = ['/mnt/Lab-Kellman/ReconResults/' resDir(ind(end)+1:end) '/' study_dates '/' name '/DebugOutput'];
+            try
+                mkdir(dst_dir);
+            catch
+            end
             CopyGadgetronDebugOutputOnRemote(gt_host, debug_folder, dst_dir, 1)
             
             disp(['copy debug output : ' num2str(toc(ts))]);

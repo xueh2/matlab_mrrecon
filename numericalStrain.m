@@ -1,4 +1,9 @@
-function [radial_strain, circumfrential_strain] = numericalStrain(mask, dx_all, dy_all)
+function [radial_strain, circumfrential_strain] = numericalStrain(mask, dx_all, dy_all, step_size)
+
+if(nargin<4)
+    step_size = 0.5;
+end
+
 imsz = size(dx_all);
 if (numel(imsz) == 2)
     slices = 1;
@@ -24,13 +29,13 @@ for i = 1:slices
     theta = atan(Y./(X+1e-8)) + pi*(X < 0) + pi*2*(X>=0).*(Y <0);
 
     % get endpoints
-    X_in = Rmesh + 0.5*cos(theta);
-    X_out = Rmesh - 0.5*cos(theta);
-    Y_in = Emesh - 0.5*sin(theta);
-    Y_out = Emesh + 0.5*sin(theta);
+    X_in = Rmesh + step_size*cos(theta);
+    X_out = Rmesh - step_size*cos(theta);
+    Y_in = Emesh - step_size*sin(theta);
+    Y_out = Emesh + step_size*sin(theta);
 
     % get distances
-    distances = ones(imsz(1), imsz(2));
+    distances = 2*step_size*ones(imsz(1), imsz(2));
 
     % get interpolated points
     dx_in = interp2(dx, Y_in, X_in);
@@ -57,13 +62,13 @@ for i = 1:slices
     theta_rot = theta + pi/2;
 
     % get circ endpoints
-    X_in = Rmesh + 0.5*cos(theta_rot);
-    X_out = Rmesh - 0.5*cos(theta_rot);
-    Y_in = Emesh - 0.5*sin(theta_rot);
-    Y_out = Emesh + 0.5*sin(theta_rot);
+    X_in = Rmesh + step_size*cos(theta_rot);
+    X_out = Rmesh - step_size*cos(theta_rot);
+    Y_in = Emesh - step_size*sin(theta_rot);
+    Y_out = Emesh + step_size*sin(theta_rot);
 
     % get distances
-    distances = ones(imsz(1), imsz(2));
+%     distances = 2*step_size* ones(imsz(1), imsz(2));
 
     % get circ interpolated points
     dx_in = interp2(dx, Y_in, X_in);
@@ -86,5 +91,8 @@ for i = 1:slices
     % calculate circumfrential strain
     circumfrential_strain(:, :, i) = (comp_ab_circ - distances)./distances;
 end
+
+ind = find(isnan(radial_strain));
+radial_strain(ind) = 0;
 
 end

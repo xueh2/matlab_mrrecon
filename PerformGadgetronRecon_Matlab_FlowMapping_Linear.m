@@ -6,6 +6,9 @@ function PerformGadgetronRecon_Matlab_FlowMapping_Linear(dataDir, h5Name, resDir
 % PerformGadgetronRecon_Matlab_FlowMapping_Linear('T:\RawData\BARTS', 'Perfusion_AIFR3_2E_Interleaved_66016_484578511_484578520_332_20190515-152806', 'T:\ReconResults\Barts_new', [], 'stress')
 % PerformGadgetronRecon_Matlab_FlowMapping_Linear('T:\RawData\LEEDS', 'Perfusion_AIF_TwoEchoes_Interleaved_R2_66097_8595292_8595297_96_20170223-104206', 'T:\ReconResults\Leeds_HCT_0.42', [], 'stress')
 
+% PerformGadgetronRecon_Matlab_FlowMapping_Linear(fullfile(baseDir, 'RawData', 'LEEDS', 'Perfusion_AIFR3_2E_Interleaved_66097_27775548_27775556_224_20190529-094429'), 'fullfile(baseDir, 'ReconResults', 'LEEDS_ReRun'), [], 'stress')
+% PerformGadgetronRecon_Matlab_FlowMapping_Linear('T:\RawData\LEEDS', 'Perfusion_AIFR3_2E_Interleaved_66097_27775548_27775556_224_20190529-094429', 'T:\ReconResults\LEEDS_sending_PS_docker2', [], 'stress')
+
 if(nargin<6)
     HCT = 0.42;
 end
@@ -552,7 +555,7 @@ for slc=1:SLC
 %         Visf = [0.1:0.075:0.75001];
         
         Fp = [0.1:0.05:3.0001];
-        Vp = [0.035:0.005:0.08001];
+        Vp = [0.035:0.01:0.08001];
         PS = [0.4:0.1:2.401];
         % Visf = [0.15:0.025:0.65001];
         Visf = [0.1:0.02:0.5001];

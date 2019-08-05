@@ -23,6 +23,8 @@ if nargin<10
     UTDir = getenv('GTPLUS_UT_DIR')
 end
 
+OutputFormat = getenv('OutputFormat');
+
 num = size(UTCases, 1);
 
 for ii=1:num    
@@ -58,19 +60,21 @@ for ii=1:num
         delete(fullfile(folderDir, 'out*.h5'));
         delete(fullfile(folderDir, '*.xml'));
 
-        delete(fullfile(resDir, '*.nii'));
-        delete(fullfile(resDir, 'gadgetron_*.hdr'));
-        delete(fullfile(resDir, 'gadgetron_*.img'));
-        delete(fullfile(resDir, 'Generic*.hdr'));
-        delete(fullfile(resDir, 'Generic*.img'));
-        delete(fullfile(resDir, 'GTPrep*.hdr'));
-        delete(fullfile(resDir, 'GTPrep*.img'));
-        delete(fullfile(resDir, 'GT*.hdr'));
-        delete(fullfile(resDir, 'GT*.img'));
-        delete(fullfile(resDir, 'Cmr*.hdr'));
-        delete(fullfile(resDir, 'Cmr*.img'));
-        delete(fullfile(resDir, '*.attrib'));
-
+        if(strcmp(OutputFormat, 'hdr')==1)
+            delete(fullfile(resDir, '*.nii'));
+            delete(fullfile(resDir, 'gadgetron_*.hdr'));
+            delete(fullfile(resDir, 'gadgetron_*.img'));
+            delete(fullfile(resDir, 'Generic*.hdr'));
+            delete(fullfile(resDir, 'Generic*.img'));
+            delete(fullfile(resDir, 'GTPrep*.hdr'));
+            delete(fullfile(resDir, 'GTPrep*.img'));
+            delete(fullfile(resDir, 'GT*.hdr'));
+            delete(fullfile(resDir, 'GT*.img'));
+            delete(fullfile(resDir, 'Cmr*.hdr'));
+            delete(fullfile(resDir, 'Cmr*.img'));
+            delete(fullfile(resDir, '*.attrib'));
+        end
+        
         if(deleteh5)
             delete(fullfile(resDir, '*.xml'));
             delete(fullfile(resDir, '*.h5'));

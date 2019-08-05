@@ -189,6 +189,10 @@ for n=1:num
         if( wn<maxW & ~isempty(strfind(study_date, '2018')) )
             wn = wn + 2*maxW;
         end
+
+        if( wn<maxW & ~isempty(strfind(study_date, '2019')) )
+            wn = wn + 3*maxW;
+        end
         
         week_num = [week_num; wn];
         

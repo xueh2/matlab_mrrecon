@@ -325,6 +325,7 @@ function [bar_x, bar_y, bar_y_patients] = make_week_plot(week_record, week_recor
 mW = weeknum(datenum('20161231', 'yyyymmdd'));
 mW2 = weeknum(datenum('20171231', 'yyyymmdd'));
 mW3 = weeknum(datenum('20181231', 'yyyymmdd'));
+mW4 = weeknum(datenum('20191231', 'yyyymmdd'));
 
 bar_x = [];
 for kk=minW:maxW
