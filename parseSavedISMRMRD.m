@@ -99,7 +99,7 @@ elseif(~isempty(strfind(xmlString, 'FatWaterCine')))
 elseif(~isempty(strfind(xmlString, 'FatWater_MOCO_AVE_PSIR')))
     configName = 'GTPrep_2DT_FW_MOCO_AVE_PSIR_Diego_AVE.xml'; 
 elseif(~isempty(strfind(xmlString, 'FatWater_MOCO_AVE')))
-    configName = 'GTPrep_2DT_FW_MOCO_AVE_Diego.xml';     
+    configName = 'GTPrep_2DT_FW_MOCO_AVE_Diego_dstore.xml';     
 elseif(~isempty(strfind(xmlString, 'FatWater')))
     configName = 'GTPrep_2DT_FW_Diego.xml';         
 
