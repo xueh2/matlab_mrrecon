@@ -55,6 +55,7 @@ for ii=1:num
         isVD = strcmp(UTCases{ii, 3}, 'VD');
         isVD11 = strcmp(UTCases{ii, 3}, 'VD11');
         isAdjScan = strcmp(UTCases{ii, 3}, 'Adj');
+        isNX = strcmp(UTCases{ii, 3}, 'NX');
         
         delete(fullfile(folderDir, 'res*.h5'));
         delete(fullfile(folderDir, 'out*.h5'));
@@ -80,6 +81,6 @@ for ii=1:num
             delete(fullfile(resDir, '*.h5'));
         end
         
-        timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isAdjScan, configName, resDir, xslFile, startRemoteGT, h5Only, remoteXml, compressionBit);
+        timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isAdjScan, configName, resDir, xslFile, startRemoteGT, h5Only, remoteXml, compressionBit);
     end    
 end

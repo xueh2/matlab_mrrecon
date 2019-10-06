@@ -37,7 +37,7 @@ function [aif_scan_geometry_info, scan_geometry_info] = read_in_GT_Perf_DebugOut
         disp(['Total ' num2str(slc) ' is found ...']);
 
         % read in aif slice and image position
-        xmlContent = xml_load(fullfile(resDir, ['results_SLC0_CON0_PHS0_REP0_SET0_AVE0_1_1104.attrib']));
+        xmlContent = xml_load(fullfile(resDir, ['results_SLC0_CON0_PHS0_REP0_SET0_AVE0_1_101.attrib']));
         aif_slice_dir = getXMLField(xmlContent, 'slice_dir');
         aif_read_dir = getXMLField(xmlContent, 'read_dir');
         aif_phase_dir = getXMLField(xmlContent, 'phase_dir');

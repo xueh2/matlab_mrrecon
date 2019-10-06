@@ -71,6 +71,14 @@ if nargin < 12
     res_suffix = [];
 end
 
+if(strcmp(GT_HOST, 'gt1'))
+    GT_HOST = '137.187.134.169';
+end
+
+if(strcmp(GT_HOST, 'beast'))
+    GT_HOST = '137.187.135.157';
+end
+
 setenv('GT_HOST', GT_HOST);
 setenv('GT_PORT', GT_PORT);
 

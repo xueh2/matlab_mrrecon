@@ -1,4 +1,4 @@
-function im_warpped = PerformT1MOLLIPhaseSensitiveMoCo(TIs, oriTIs, im, header, isComplexImage)
+function [im_warpped, dx, dy] = PerformT1MOLLIPhaseSensitiveMoCo(TIs, oriTIs, im, header, isComplexImage)
 % if isComplexImage == 1, im is the complex image; otherwise, im is the PSIR image
 % im is in the order of oriTIs, not sorted TIs
 

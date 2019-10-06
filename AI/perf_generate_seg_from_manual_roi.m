@@ -2,6 +2,7 @@
 function S = perf_generate_seg_from_manual_roi(roi, contour_roi, fmap, fmap_resized, fmap_resized_training, startROI, slc, plotFlag, upsample_ratio)
 % contours are starting with index 1
 % allow an extra upsampling ratio
+% S = perf_generate_seg_from_manual_roi(roi, contour_roi, fmap, fmap_resized, fmap_resized_training, startROI, slc, plotFlag, upsample_ratio)
 
 S = struct('im', [], 'roi', [], ... 
         ...

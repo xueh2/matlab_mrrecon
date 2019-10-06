@@ -19,6 +19,7 @@ if isfield(hdr.userParameters,'userParameterBase64')
 else
     patientID = [];
     protocol = [];
+    ismrmrd_header = [];
     return    
 end
 

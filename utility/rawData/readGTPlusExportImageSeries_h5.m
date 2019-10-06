@@ -2,7 +2,7 @@
 function [data, header, acq_time, physio_time] = readGTPlusExportImageSeries_h5(folderName, seriesNum, withTime, numAsRep)
 % read in the gtplus create images
 % data = readGTPlusExportImageSeries_h5(folderName, seriesNum);
-% [data, acq_time, physio_time] = readGTPlusExportImageSeries_h5(folderName, seriesNum, withTime, numAsRep);
+% [data, header, acq_time, physio_time] = readGTPlusExportImageSeries_h5(folderName, seriesNum, withTime, numAsRep)
 
 if nargin < 3
     withTime = 0;

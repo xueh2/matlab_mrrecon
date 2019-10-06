@@ -5,6 +5,10 @@ function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmr
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData('I:\KAROLINSKA', 'xxxx', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % setenv('OutputFormat', 'h5')
 
+if(strcmp(gt_host, 'gt1'))
+    gt_host = '137.187.134.169';
+end
+
 GT_PORT = gtPortLookup(gt_host);
 
 setenv('GT_HOST', gt_host); 
@@ -464,11 +468,19 @@ for n=1:num
             debug_folder = ['/home/' user '/Debug/DebugOutput']
             ts = tic;
 
-            ind = find(resDir=='\');
-            if(isempty(ind))
+            try
                 ind = find(resDir=='/');
+                if(isempty(ind))
+                    ind = find(resDir=='/');
+                end
+                dst_dir = ['/mnt/Lab-Kellman/ReconResults/' resDir(ind(end)+1:end) '/' study_dates '/' name '/DebugOutput'];
+            catch
+                ind = find(resDir=='\');
+                if(isempty(ind))
+                    ind = find(resDir=='\');
+                end
+                dst_dir = ['/mnt/Lab-Kellman/ReconResults/' resDir(ind(end)+1:end) '/' study_dates '/' name '/DebugOutput'];
             end
-            dst_dir = ['/mnt/Lab-Kellman/ReconResults/' resDir(ind(end)+1:end) '/' study_dates '/' name '/DebugOutput'];
             try
                 mkdir(dst_dir);
             catch
@@ -479,47 +491,49 @@ for n=1:num
         end
     end
     
-    ts = tic;
-    try
-        [tDicom, remoteFolder] = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom(resDir, name, gt_host);
+    if(strcmp(gt_host, '137.187.134.169')==0)    
+        ts = tic;
+        try
+            [tDicom, remoteFolder] = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom(resDir, name, gt_host);
 
-%         [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
-%         dicomDir = fullfile(resDir, study_dates, [name '_dicom']);
-%         rmdir(dicomDir)
-        
-        if(isempty(strfind(name, 'Perfusion'))~=1)
-            missing_cases = PerformGadgetronRecon_CopyMapDicom_PerfusionCase([], {name}, resDir, []);
+    %         [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+    %         dicomDir = fullfile(resDir, study_dates, [name '_dicom']);
+    %         rmdir(dicomDir)
+
+            if(isempty(strfind(name, 'Perfusion'))~=1)
+                missing_cases = PerformGadgetronRecon_CopyMapDicom_PerfusionCase([], {name}, resDir, []);
+            end
+        catch
         end
-    catch
-    end
-    disp(['copy dicom output : ' num2str(toc(ts))]);
-    
-    ts = tic;
-    dstDir = fullfile(resDir, study_dates, name);   
-    if(~is_remote_computer && isunix()==0)
-        if(startRemoteGT)
-            command = ['taskkill /F /FI "IMAGENAME eq gadgetron.*"'];
-            dos(command)
+        disp(['copy dicom output : ' num2str(toc(ts))]);
 
-            command = ['taskkill /F /IM cmd.exe'];
-            dos(command)
+        ts = tic;
+        dstDir = fullfile(resDir, study_dates, name);   
+        if(~is_remote_computer && isunix()==0)
+            if(startRemoteGT)
+                command = ['taskkill /F /FI "IMAGENAME eq gadgetron.*"'];
+                dos(command)
+
+                command = ['taskkill /F /IM cmd.exe'];
+                dos(command)
+            end
+
+            copyfile(['D:\Temp\record_' GT_PORT '.txt'], [dstDir '\record_' gt_host '_' GT_PORT '.txt']);
+        else
+            if (~isempty(user) & startRemoteGT)
+                StopGadgetronOnRemote(gt_host, GT_PORT);
+                CopyGadgetronRecordOnRemote(gt_host, GT_PORT, [dstDir '/record_' gt_host '_' GT_PORT '.txt']);
+            end
         end
+        disp(['shutdown gadgetron : ' num2str(toc(ts))]);
 
-        copyfile(['D:\Temp\record_' GT_PORT '.txt'], [dstDir '\record_' gt_host '_' GT_PORT '.txt']);
-    else
-        if (~isempty(user) & startRemoteGT)
-            StopGadgetronOnRemote(gt_host, GT_PORT);
-            CopyGadgetronRecordOnRemote(gt_host, GT_PORT, [dstDir '/record_' gt_host '_' GT_PORT '.txt']);
-        end
-    end
-    disp(['shutdown gadgetron : ' num2str(toc(ts))]);
-
-%     if(sendDicom)
-%         dicomServer = 'barbados';
-%         dicomPort = 11112;
-%         command = ['D:\gtuser\gt_windows_setup\dcmtk-3.6.0\install_vc14\bin\storescu ' dicomServer '.nhlbi.nih.gov ' num2str(dicomPort) ' ' remoteFolder ' --scan-directories -aec DCM4CHEE --user admin --password admin'];
-%         tic; dos(command, '-echo'); toc
-%     end
+    %     if(sendDicom)
+    %         dicomServer = 'barbados';
+    %         dicomPort = 11112;
+    %         command = ['D:\gtuser\gt_windows_setup\dcmtk-3.6.0\install_vc14\bin\storescu ' dicomServer '.nhlbi.nih.gov ' num2str(dicomPort) ' ' remoteFolder ' --scan-directories -aec DCM4CHEE --user admin --password admin'];
+    %         tic; dos(command, '-echo'); toc
+    %     end
+    end    
     
     tUsed = [tUsed; {name, timeUsed, configName}];
 end

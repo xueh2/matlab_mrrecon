@@ -28,7 +28,11 @@ for d=1:numdirs
     disp(study_dir);
     [names, num] = findFILE(fullfile(dataDir, subdirs{d}), '*.h5');
     
-    tt = datenum(str2num(study_dir(1:4)), str2num(study_dir(5:6)), str2num(study_dir(7:8)));
+    try
+        tt = datenum(str2num(study_dir(1:4)), str2num(study_dir(5:6)), str2num(study_dir(7:8)));
+    catch
+        continue;
+    end
     
     if(~isnumeric(tt) | isempty(tt))
         continue;

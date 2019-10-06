@@ -1,5 +1,5 @@
-function timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit)
-% timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit)
+function timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit)
+% timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit)
 
 % siemens to hdf5
 
@@ -43,7 +43,12 @@ if(~h5Only)
     end
 end
 
-styleSheetUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl';
+if(isNX)
+    styleSheetUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_NX.xsl';
+else
+    styleSheetUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl';
+end
+
 if ( nargin >= 8 )
     styleSheetUsed = [ '%GADGETRON_DIR%\install\schema/' styleSheet];
 end
@@ -53,7 +58,11 @@ if( ~isempty(strfind(styleSheet, 'IsmrmrdParameterMap_Siemens_EPI_FLASHREF')) )
     flashRef = 1;
 end
 
-xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xml';
+if(isNX)
+    xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion_NX.xml';
+else
+    xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xml';
+end
 
 % if VD, run the dependent scan
 
@@ -87,7 +96,7 @@ end
 
 studyDate = datestr(date, 'yyyy-mm-dd');
 
-if ( isVD )
+if ( isVD | isNX )
     if ( isVD11 )
         if ( ~isFileExist(h5Name) || deleteh5 )
             delete(h5Name);
@@ -131,9 +140,15 @@ if ( isVD )
                 end
             end
 
+            if(isNX)
+                noise_xsl = 'IsmrmrdParameterMap_Siemens_NX.xsl';
+            else
+                noise_xsl = 'IsmrmrdParameterMap_Siemens.xsl';
+            end
+            
             [names, num] = findFILE(folderDir, '*AdjCoilSens*.dat');          
             for n=1:num
-                command = ['siemens_to_ismrmrd -f ' names{n} ' -o ' names{n} '_AdjCoilSens.h5 --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xml --user-stylesheet %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl -z 1 --studyDate ' studyDate]
+                command = ['siemens_to_ismrmrd -f ' names{n} ' -o ' names{n} '_AdjCoilSens.h5 --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xml --user-stylesheet %GADGETRON_DIR%\install\schema/' noise_xsl ' -z 1 --studyDate ' studyDate]
                 dos(command, '-echo');
                 
                 command = ['gadgetron_ismrmrd_client -f ' names{n} '_AdjCoilSens.h5 -c default_measurement_dependencies.xml -a ' GT_HOST ' -p ' GT_PORT]
@@ -143,7 +158,7 @@ if ( isVD )
             if(hasAdj)
                 if ( ~isFileExist('AdjCoilSens.h5') || deleteh5 )
                     delete('AdjCoilSens.h5');
-                    command = ['siemens_to_ismrmrd -f ' dataName ' -o AdjCoilSens.h5 --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xml --user-stylesheet %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl -z 1 --studyDate ' studyDate]
+                    command = ['siemens_to_ismrmrd -f ' dataName ' -o AdjCoilSens.h5 --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xml --user-stylesheet %GADGETRON_DIR%\install\schema/' noise_xsl ' -z 1 --studyDate ' studyDate]
                     dos(command, '-echo');
                 end
 

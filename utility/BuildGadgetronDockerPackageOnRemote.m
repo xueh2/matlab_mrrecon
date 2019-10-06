@@ -110,9 +110,9 @@ tic; dos(command, '-echo'); toc
 if(create_installers)
         
     if(remove_gtprep_xml)
-        PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gt_scanner_setup\VE11\config');
-        PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gt_scanner_setup\VE11C\config');    
-        PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gt_scanner_setup\VE11E\config');    
+        PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gadgetron_scanner_setup\VE11\config');
+        PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gadgetron_scanner_setup\VE11C\config');    
+        PerformGadgetronRecon_Encrypt_GtPrep_config('D:\gtuser\mrprogs\install\share\gadgetron\config', 'D:\gadgetron_scanner_setup\VE11E\config');    
 
         command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_MARS_All_Versions.bat ' filename ' 3 17 0'];
     else

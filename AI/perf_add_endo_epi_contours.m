@@ -11,7 +11,7 @@ function perf_add_endo_epi_contours(Gd, contourDir)
         SLC = size(Gd,4);
 
         if(SLC==3)
-            ah = load('T:\ReconResults\ML_Perf\template_roi2.mat');
+            ah = load('T:\RawData\MachinLearning_Labelled_data\Perf_SAX_SEG_Validation\template_roi.mat');
             ROI_info_table = ah.ROI_info_table;
         else
             ah = load('T:\ReconResults\ML_Perf\template_roi_4SAX.mat');
@@ -33,6 +33,16 @@ function perf_add_endo_epi_contours(Gd, contourDir)
         rv1 = analyze75read(fullfile(contourDir, 'endo_epi_rv_rvi_rv_1'));
         rv2 = analyze75read(fullfile(contourDir, 'endo_epi_rv_rvi_rv_2'));
 
+        step_size = 5;
+        
+        endo0 = endo0(1:step_size:end, :);
+        endo1 = endo1(1:step_size:end, :);
+        endo2 = endo2(1:step_size:end, :);
+        
+        epi0 = epi0(1:step_size:end, :);
+        epi1 = epi1(1:step_size:end, :);
+        epi2 = epi2(1:step_size:end, :);
+        
         rvi0 = analyze75read(fullfile(contourDir, 'prob_endo_epi_rv_rvi_0'));
         rvi1 = analyze75read(fullfile(contourDir, 'prob_endo_epi_rv_rvi_1'));
         rvi2 = analyze75read(fullfile(contourDir, 'prob_endo_epi_rv_rvi_2'));

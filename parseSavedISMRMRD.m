@@ -57,7 +57,8 @@ elseif(~isempty(strfind(xmlString, 'T2_Mapping')))
     configName = 'GTPrep_2DT_MOCO_AVE_T2_Mapping_dstore.xml';
     
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_TwoEchoes_Interleaved')))
-    configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_MBF_MBV_Mask_AI_N3Fil_CMR_View_OFFLINE.xml';
+    %configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_MBF_MBV_Mask_AI_N3Fil_CMR_View_OFFLINE.xml';
+    configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_MBF_MBV_Mask_AI_CMR_View_OFFLINE.xml';
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_2E_Lin_Cloud')))
     configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_OFFLINE_dstore.xml';
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_2E_NL_Cloud')))
@@ -74,7 +75,7 @@ elseif(~isempty(strfind(xmlString, 'Prospective_Cine_3D')))
     configName = 'GTPrep_3DT_RetroGated_Cine_istore.xml'; 
     
 elseif(~isempty(strfind(xmlString, 'Cmr_Binning_Cloud')))
-    configName = 'CMR_2DT_RTCine_KspaceBinning_Cloud.xml';         
+    configName = 'CMR_2DT_RTCine_KspaceBinning.xml';         
 elseif(~isempty(strfind(xmlString, 'Binning')))
     configName = 'CMR_2DT_RTCine_KspaceBinning.xml';     
     
@@ -86,7 +87,8 @@ elseif(~isempty(strfind(xmlString, 'Cine_NL')))
 elseif(~isempty(strfind(xmlString, 'Retro_NLin_Cine')))
     configName = 'GTPrep_2DT_RetroGated_Cine_SLEP_Gateway.xml';        
 elseif(~isempty(strfind(xmlString, 'Retro_Lin_Cine')))
-    configName = 'Generic_2DT_RetroGated_Cine_ECG_dstore.xml';  
+%     configName = 'Generic_2DT_RetroGated_Cine_ECG_dstore.xml';  
+    configName = 'GTPrep_2DT_RetroCine_AI.xml';  
     
 elseif(~isempty(strfind(xmlString, 'RT_Cine_LIN')))
 %     configName = 'Generic_RTCine_DeepGrappaOne.xml';            
@@ -102,5 +104,7 @@ elseif(~isempty(strfind(xmlString, 'FatWater_MOCO_AVE')))
     configName = 'GTPrep_2DT_FW_MOCO_AVE_Diego_dstore.xml';     
 elseif(~isempty(strfind(xmlString, 'FatWater')))
     configName = 'GTPrep_2DT_FW_Diego.xml';         
+elseif(~isempty(strfind(xmlString, 'MOLLI')))
+    configName = 'CMR_2DT_T1Mapping_MOLLI.xml';         
 
 end

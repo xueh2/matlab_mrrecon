@@ -1,8 +1,8 @@
 
-function [data, acq_time, physio_time, endo_pt, epi_pt] = readGTPlusExportImageSeries_hdr(folderName, seriesNum, withTime, numAsRep)
+function [data, header, acq_time, physio_time, endo_pt, epi_pt] = readGTPlusExportImageSeries_hdr(folderName, seriesNum, withTime, numAsRep)
 % read in the gtplus create images
 % data = readGTPlusExportImageSeries_hdr(folderName, seriesNum);
-% [data, acq_time, physio_time] = readGTPlusExportImageSeries_hdr(folderName, seriesNum, withTime, numAsRep);
+% [data, header, acq_time, physio_time] = readGTPlusExportImageSeries_hdr(folderName, seriesNum, withTime, numAsRep);
 
 if nargin < 3
     withTime = 0;
@@ -110,6 +110,8 @@ maxImageNum = 0;
 endo_pt = [];
 epi_pt = [];
 
+header = struct('PatientPosition', [0 0 0], 'FOV', [0 0 0], 'phase_dir', [0 0 0], 'read_dir', [0 0 0], 'slice_dir', [0 0 0]);
+
 hasImageSize = 0;
 for ii=1:num
     name = names{ii};
@@ -176,10 +178,19 @@ for ii=1:num
 
             endo = 0;
             epi = 0;
+            PatientPosition = 0;
+            FOV = 0;
+            phase_dir = 0;
+            read_dir = 0;
+            slice_dir = 0;
+            
 %             if(acq_time_index==0)
                 N = numel(xmlContent);
                 for n=1:N
                     if ( strcmp(xmlContent(n).meta(1).name, 'GT_acquisition_time_stamp') == 1 )
+                        acq_time_index = n;
+                    end
+                    if ( strcmp(xmlContent(n).meta(1).name, 'acquisition_time_stamp') == 1 )
                         acq_time_index = n;
                     end
                     
@@ -192,6 +203,21 @@ for ii=1:num
                     end
                     if ( strcmp(xmlContent(n).meta(1).name, 'EPI') == 1 )
                         epi = n;
+                    end
+                    if ( strcmp(xmlContent(n).meta(1).name, 'PatientPosition') == 1 )
+                        PatientPosition = n;
+                    end
+                    if ( strcmp(xmlContent(n).meta(1).name, 'FOV') == 1 )
+                        FOV = n;
+                    end
+                    if ( strcmp(xmlContent(n).meta(1).name, 'phase_dir') == 1 )
+                        phase_dir = n;
+                    end
+                    if ( strcmp(xmlContent(n).meta(1).name, 'read_dir') == 1 )
+                        read_dir = n;
+                    end
+                    if ( strcmp(xmlContent(n).meta(1).name, 'slice_dir') == 1 )
+                        slice_dir = n;
                     end
                     
                     if ( ~isempty(strfind(xmlContent(n).meta(1).name, 'GT_ROI')) )
@@ -224,6 +250,31 @@ for ii=1:num
             
             endo_pt = [endo_pt; {phs slc curr_endo_pt}];
             epi_pt = [epi_pt; {phs slc curr_epi_pt}];
+            
+            curr_header = struct('PatientPosition', [0 0 0], 'FOV', [0 0 0], 'phase_dir', [0 0 0], 'read_dir', [0 0 0], 'slice_dir', [0 0 0]);
+            
+            if(PatientPosition>0)
+                num_pt = numel(xmlContent(PatientPosition).meta);
+                curr_header.PatientPosition = [str2double(xmlContent(PatientPosition).meta(1).value) str2double(xmlContent(PatientPosition).meta(2).value) str2double(xmlContent(PatientPosition).meta(3).value)];
+            end
+            if(FOV>0)
+                num_pt = numel(xmlContent(FOV).meta);
+                curr_header.FOV = [str2double(xmlContent(FOV).meta(1).value) str2double(xmlContent(FOV).meta(2).value) str2double(xmlContent(FOV).meta(3).value)];
+            end
+            if(phase_dir>0)
+                num_pt = numel(xmlContent(phase_dir).meta);
+                curr_header.phase_dir = [str2double(xmlContent(phase_dir).meta(1).value) str2double(xmlContent(phase_dir).meta(2).value) str2double(xmlContent(phase_dir).meta(3).value)];
+            end
+            if(read_dir>0)
+                num_pt = numel(xmlContent(read_dir).meta);
+                curr_header.read_dir = [str2double(xmlContent(read_dir).meta(1).value) str2double(xmlContent(read_dir).meta(2).value) str2double(xmlContent(read_dir).meta(3).value)];
+            end
+            if(slice_dir>0)
+                num_pt = numel(xmlContent(slice_dir).meta);
+                curr_header.slice_dir = [str2double(xmlContent(slice_dir).meta(1).value) str2double(xmlContent(slice_dir).meta(2).value) str2double(xmlContent(slice_dir).meta(3).value)];
+            end
+            
+            header(phs+1, slc+1) = curr_header;
         end
         
         real_name = [filename];
