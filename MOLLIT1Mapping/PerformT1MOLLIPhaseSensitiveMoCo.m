@@ -67,7 +67,8 @@ end
 imMagWithSign = abs(im).*sign(imPSReal);
             
 %% perform the moco on the PS image
-if ( ~isFileExist('globalMoCoQuality.mat') )
+% if ( ~isFileExist('globalMoCoQuality.mat') )
+if (1)
     globalMoCoQuality = zeros(header.sizeZ, 1);
     for t=1:header.sizeZ        
         keyFrame = t-1;
@@ -85,6 +86,24 @@ if ( ~isFileExist('globalMoCoQuality.mat') )
         [moco, dx, dy, invDx, invDy] = Matlab_PerformTemporalMotionCorrection(double(imMagWithSign), header, keyFrame, strategy, inverse, initial, ...
             numOfPre, iters, sigma, neighbor, stepDiv, moreIterInv, algo, volumePreserving);
 
+%         keyFrame = t-1; 
+%         strategy = 'Progressive'; 
+%         dissimilarity = 'LocalCCR'; 
+%         level = 3; 
+%         max_iter_num_pyramid_level = [32 32 32]; 
+%         regularization_hilbert_strength = 12.0; 
+%         LocalCCR_sigmaArg = 2.0; 
+%         BidirectionalReg = 1; 
+%         dissimilarity_thres = 1e-6; 
+%         div_num = 3; 
+%         inverse_deform_enforce_iter = 10; 
+%         inverse_deform_enforce_weight = 0.5; 
+%         DivergenceFreeReg = 0; 
+%         DebugFolder = []; 
+%         verbose = 0; 
+%     
+%         [dx, dy, moco, invDx, invDy] = Matlab_gt_deformation_field_reg_2D_series(double(imMagWithSign), keyFrame, strategy, dissimilarity, level, max_iter_num_pyramid_level, regularization_hilbert_strength, LocalCCR_sigmaArg, BidirectionalReg, dissimilarity_thres, div_num, inverse_deform_enforce_iter, inverse_deform_enforce_weight, DivergenceFreeReg, DebugFolder, verbose); 
+        
         logJacAll = zeros(size(im));
         for f=1:header.sizeZ
             [meanNorm, maxNorm, meanLogJac, maxLogJac, logJac] = analyzeDeformationField2D(dx(:,:,f), dy(:,:,f), header);
@@ -123,6 +142,24 @@ volumePreserving = 0;
 [moco, dx, dy, invDx, invDy] = Matlab_PerformTemporalMotionCorrection(double(imMagWithSign), header, keyFrame, strategy, inverse, initial, ...
     numOfPre, iters, sigma, neighbor, stepDiv, moreIterInv, algo, volumePreserving);
 
+% keyFrame = bestKeyFrame-1; 
+% strategy = 'Progressive'; 
+% dissimilarity = 'LocalCCR'; 
+% level = 3; 
+% max_iter_num_pyramid_level = [32 32 32]; 
+% regularization_hilbert_strength = 24.0; 
+% LocalCCR_sigmaArg = 2.0; 
+% BidirectionalReg = 1; 
+% dissimilarity_thres = 1e-6; 
+% div_num = 3; 
+% inverse_deform_enforce_iter = 10; 
+% inverse_deform_enforce_weight = 0.5; 
+% DivergenceFreeReg = 0; 
+% DebugFolder = []; 
+% verbose = 0; 
+% 
+% [dx, dy, moco, invDx, invDy] = Matlab_gt_deformation_field_reg_2D_series(double(imMagWithSign), keyFrame, strategy, dissimilarity, level, max_iter_num_pyramid_level, regularization_hilbert_strength, LocalCCR_sigmaArg, BidirectionalReg, dissimilarity_thres, div_num, inverse_deform_enforce_iter, inverse_deform_enforce_weight, DivergenceFreeReg, DebugFolder, verbose); 
+% 
 meanNormAll = zeros(header.sizeZ,1);
 maxNormAll = zeros(header.sizeZ,1);
 aveLogJacAll = zeros(header.sizeZ,1);

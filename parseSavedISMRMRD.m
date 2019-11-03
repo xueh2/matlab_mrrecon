@@ -88,7 +88,7 @@ elseif(~isempty(strfind(xmlString, 'Retro_NLin_Cine')))
     configName = 'GTPrep_2DT_RetroGated_Cine_SLEP_Gateway.xml';        
 elseif(~isempty(strfind(xmlString, 'Retro_Lin_Cine')))
 %     configName = 'Generic_2DT_RetroGated_Cine_ECG_dstore.xml';  
-    configName = 'GTPrep_2DT_RetroCine_AI.xml';  
+    configName = 'GTPrep_2DT_RetroCine_AI_offline.xml';  
     
 elseif(~isempty(strfind(xmlString, 'RT_Cine_LIN')))
 %     configName = 'Generic_RTCine_DeepGrappaOne.xml';            

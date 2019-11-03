@@ -69,7 +69,7 @@ if(nargin<10)
 end
 
 if(nargin<11)
-    copy_debug_output = 0;
+    copy_debug_output = 1;
 end
 
 if(nargin<12)
@@ -101,7 +101,7 @@ xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.
 if(cleanRemote)
     [key, user] = sshKeyLookup(gt_host);
     gt_command = ['rm -rf /tmp/gadgetron_data/*'];
-    command = ['ssh ' user '@' gt_host ' "' gt_command '"'];
+    command = ['ssh -o StrictHostKeyChecking=no -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"'];
     command
     dos(command, '-echo');    
 end

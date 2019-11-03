@@ -15,7 +15,7 @@ is_remote_computer = IsRemoteComputer(host);
 
 gt_command = ['rm -rf /home/' user '/Debug/record_' num2str(port) '.txt'];
 if(is_remote_computer)
-    command = ['ssh -o StrictHostKeyChecking=no ' user '@' host ' "' gt_command '"'];
+    command = ['ssh -o StrictHostKeyChecking=no -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"'];
 else
     command = gt_command;
 end
@@ -31,7 +31,7 @@ else
 end
 
 if(is_remote_computer)
-    command = ['ssh -o StrictHostKeyChecking=no ' user '@' host ' "' gt_command '"'];
+    command = ['ssh -o StrictHostKeyChecking=no -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"'];
 else
     command = gt_command;
 end

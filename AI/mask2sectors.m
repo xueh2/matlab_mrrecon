@@ -99,6 +99,9 @@ function [sectors, sector_contours, sector_endo_contours, sector_epi_contours] =
     hold on
     for n = 1:num_sectors
         cc = sector_contours{n};
+        if(isempty(cc))
+            continue;
+        end
         plot(cc(:,1), cc(:,2), '-');
         text(mean(cc(:,1)), mean(cc(:,2)), [num2str(n) ')'], 'FontSize', 18, 'Color', [1 0 0]);
     end
@@ -142,14 +145,17 @@ function [sectors, sector_contours, sector_endo_contours, sector_epi_contours] =
     [res, sector_endo_contours, sector_epi_contours] = SplitEndoEpiContourForAHAModel(fil_endo, fil_epi, lv_center, rv_center, rvi, num_sectors, RO, E1, plot_flag);
     
     figure;imagescn(sectors+rv_mask+rvi_mask);
-    hold on
-    for n = 1:num_sectors
-        cc = sector_endo_contours{n};
-        plot(cc(:,1), cc(:,2), 'b--');
-%         text(mean(cc(:,1)), mean(cc(:,2)), [num2str(n) ')'], 'FontSize', 18, 'Color', [1 0 0]);
-        cc = sector_epi_contours{n};
-        plot(cc(:,1), cc(:,2), 'r--');
-        text(mean(cc(:,1)), mean(cc(:,2)), [num2str(n) ')'], 'FontSize', 18, 'Color', [1 0 0]);
+    hold on    
+    try
+        for n = 1:num_sectors
+            cc = sector_endo_contours{n};
+            plot(cc(:,1), cc(:,2), 'b--');
+    %         text(mean(cc(:,1)), mean(cc(:,2)), [num2str(n) ')'], 'FontSize', 18, 'Color', [1 0 0]);
+            cc = sector_epi_contours{n};
+            plot(cc(:,1), cc(:,2), 'r--');
+            text(mean(cc(:,1)), mean(cc(:,2)), [num2str(n) ')'], 'FontSize', 18, 'Color', [1 0 0]);
+        end
+    catch
     end
 end
 

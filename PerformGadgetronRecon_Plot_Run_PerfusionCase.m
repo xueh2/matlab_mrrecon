@@ -26,6 +26,10 @@ if(nargin < 13)
     delete_old_res = 1;
 end
 
+if(strcmp(host, 'beast'))
+    host = '137.187.135.157';
+end
+
 startN = 1
 endN = size(perf_cases, 1)
 for ii=startN:endN

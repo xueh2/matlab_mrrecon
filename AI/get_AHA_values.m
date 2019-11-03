@@ -36,6 +36,9 @@ for ii=1:3
     for s=1:num_sectors 
                
         ind = find(bulls_eye(ii).sectors(:)==s);
+        if(numel(ind)==0)
+            continue;
+        end
         pts = d(ind(:));        
         pts = apply_max_min(pts, max_d, min_d);
         
@@ -65,9 +68,12 @@ for ii=1:3
     
     % 32 segments
     for s=1:num_sectors 
-        
+               
         pts = get_endo_epi_pts(d, bulls_eye(ii).endo_contours{s}, max_d, min_d);
-                
+        if(isempty(pts))
+            continue;
+        end
+        
         if(ii==1)
             basal(s).m_endo = mean(pts);
             basal(s).median_endo = median(pts);
@@ -136,7 +142,10 @@ end
 
 function pts = get_endo_epi_pts(d, endo, max_d, min_d)
     BW=roipoly(d, endo(:,1), endo(:,2));
-    ind=find(BW >0);        
+    ind=find(BW >0);
+    if(isempty(ind))
+        pts = [];
+    end
     pts = d(ind(:));        
     pts = apply_max_min(pts, max_d, min_d);
 end

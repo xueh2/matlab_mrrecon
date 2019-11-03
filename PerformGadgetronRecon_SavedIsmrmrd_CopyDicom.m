@@ -75,7 +75,7 @@ else
     tic; dos(command, '-echo'); timeUsed = toc;
     
     gt_command = ['rm -rf ' remote_dicom_dir '/' remoteFolder];
-    command = ['ssh ' user '@' gt_host ' "' gt_command '"']
+    command = ['ssh -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
     dos(command, '-echo');
 end
 

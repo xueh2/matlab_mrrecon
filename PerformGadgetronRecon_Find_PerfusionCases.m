@@ -55,8 +55,11 @@ for d=1:numdirs
         [pathstr, name, ext] = fileparts(names{n});
 
         % find scanner ID, patient ID, study ID, measurement ID, study date and time
-        [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
-
+        try
+            [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+        catch
+            continue;
+        end
 %         if( str2num(measurementID) > 10000 )
 %             continue;
 %         end
@@ -122,7 +125,7 @@ for n=1:num
         if(isempty(strfind(name, 'Perfusion'))~=1)
             isPerf = 1;
             try
-                if(finfo.bytes<200*1024*1024)
+                if(finfo.bytes<100*1024*1024)
                     disp([num2str(num_small_file) ' - file size too small - ' num2str(n) ' - ' name ' - ' num2str(finfo.bytes/1024/1024) 'Mb']);
                     num_small_file = num_small_file + 1;
                     continue;

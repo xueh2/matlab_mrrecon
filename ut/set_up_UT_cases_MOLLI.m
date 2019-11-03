@@ -6,6 +6,7 @@ UTCases = {
      
     
     'molli',                          '20100330_10h33m11s_5562',                                  'VD', 'CMR_2DT_T1Mapping_MOLLI.xml', 'res',       'ref',   'IsmrmrdParameterMap_Siemens_T1Mapping_MOLLI.xsl'   ; ...    
+    'molli',                          '20100330_10h33m11s_5562',                                  'VD', 'GTPrep_2DT_MOLLI_Offline.xml', 'res',       'ref',   'IsmrmrdParameterMap_Siemens_T1Mapping_MOLLI.xsl'   ; ...    
    };
 
 N = size(UTCases, 1);

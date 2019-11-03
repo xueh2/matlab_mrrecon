@@ -4,7 +4,7 @@ function [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRe
 % PerformGadgetronRecon_Plot_PerfusionCase_StressRest('I:\ReconResults\BARTS', stressCase, restCase, onlyReview)
 
     if(nargin < 4)
-        flow_windowing = [0 6];
+        flow_windowing = [0 8];
     end
 
     if(nargin < 5)

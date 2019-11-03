@@ -18,7 +18,7 @@ tic;
 % mkdir(fullfile(dst_folder, 'DebugOutput'));
 
 gt_command = ['mkdir -p ' dst_folder];
-command = ['ssh ' user '@' host ' "' gt_command '"'];
+command = ['ssh -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"'];
 command
 dos(command, '-echo');
     
@@ -37,7 +37,7 @@ dos(command, '-echo');
 %     command
     
     gt_command = ['cp -r ' debug_folder '/* ' dst_folder];
-    command = ['ssh ' user '@' host ' "' gt_command '"'];
+    command = ['ssh -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"'];
     command
     tic; dos(command, '-echo'); copy_duration = toc;
 
@@ -84,7 +84,7 @@ disp(['Copy debug output ' num2str(copy_duration)]);
     
 if(deleteRemote)
     gt_command = ['rm -rf ' debug_folder '/*.*'];
-    command = ['ssh ' user '@' host ' "' gt_command '"'];
+    command = ['ssh -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"'];
     command
     dos(command, '-echo');    
 end

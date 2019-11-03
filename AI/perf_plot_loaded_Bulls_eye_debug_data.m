@@ -48,15 +48,28 @@ function plot_sectors(res, h_axes, permute_data)
         hold on    
         for k=1:numel(sectors)
             C = res.sectors_contours(:,:,sectors(k));
-            lineW = 2;
+            lineW = 3;
             colorC = 'r';
-            if(k==1 | k==2)
-                lineW = 4;
+%             if(k==1 | k==2)
+%                 lineW = 4;
+%                 colorC = 'y';
+%                 if(k==2)
+%                     colorC = 'g';
+%                 end
+%             end
+                            
+            % LAD
+            if(sectors(k)==1 | sectors(k)==2 | sectors(k)==7 | sectors(k)==8 | sectors(k)==13  | sectors(k)==14)
+                lineW = 3;
                 colorC = 'y';
-                if(k==2)
-                    colorC = 'g';
-                end
             end
+
+            % RCA
+            if(sectors(k)==3 | sectors(k)==4 | sectors(k)==9 | sectors(k)==10 | sectors(k)==15)
+                lineW = 3;
+                colorC = 'g';
+            end
+                        
             if(permute_data)
                 plot(C(:,1), C(:,2), colorC, 'LineWidth', lineW);    
             else

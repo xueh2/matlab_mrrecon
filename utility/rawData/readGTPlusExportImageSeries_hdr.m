@@ -1,8 +1,8 @@
 
-function [data, header, acq_time, physio_time, endo_pt, epi_pt] = readGTPlusExportImageSeries_hdr(folderName, seriesNum, withTime, numAsRep)
+function [data, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries_hdr(folderName, seriesNum, withTime, numAsRep)
 % read in the gtplus create images
 % data = readGTPlusExportImageSeries_hdr(folderName, seriesNum);
-% [data, header, acq_time, physio_time] = readGTPlusExportImageSeries_hdr(folderName, seriesNum, withTime, numAsRep);
+% [data, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries_hdr(folderName, seriesNum, withTime, numAsRep);
 
 if nargin < 3
     withTime = 0;
@@ -158,6 +158,8 @@ data = zeros([RO E1 maxSLC+1 maxE2+1 maxCON+1 maxPHS+1 maxREP+1 maxSET+1 maxAVE+
 acq_time = zeros([maxSLC+1 maxE2+1 maxCON+1 maxPHS+1 maxREP+1 maxSET+1 maxAVE+1 maxRUN+1]);
 physio_time = zeros([maxSLC+1 maxE2+1 maxCON+1 maxPHS+1 maxREP+1 maxSET+1 maxAVE+1 maxRUN+1]);
 
+user_int = zeros([maxSLC+1 maxE2+1 maxCON+1 maxPHS+1 maxREP+1 maxSET+1 maxAVE+1 maxRUN+1 8]);
+
 acq_time_index = 0;
 physio_time_index = 0;
 
@@ -210,6 +212,9 @@ for ii=1:num
                     if ( strcmp(xmlContent(n).meta(1).name, 'FOV') == 1 )
                         FOV = n;
                     end
+                    if ( strcmp(xmlContent(n).meta(1).name, 'recon_FOV') == 1 )
+                        FOV = n;
+                    end
                     if ( strcmp(xmlContent(n).meta(1).name, 'phase_dir') == 1 )
                         phase_dir = n;
                     end
@@ -222,6 +227,13 @@ for ii=1:num
                     
                     if ( ~isempty(strfind(xmlContent(n).meta(1).name, 'GT_ROI')) )
                         sector_no = str2double(xmlContent(n).meta(1).name(end));                        
+                    end
+                    
+                    for kk=0:7
+                        user_int_str = ['user_int_' num2str(kk)];
+                        if ( strcmp(xmlContent(n).meta(1).name, user_int_str) == 1 )
+                            user_int(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1, kk+1) = str2double(xmlContent(n).meta.value);  
+                        end
                     end
                 end
 %             end

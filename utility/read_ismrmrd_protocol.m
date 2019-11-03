@@ -73,6 +73,7 @@ MeasYaps = header;
 lf = find(double(MeasYaps)==10); % find positions of line feeds
 lf = [0,lf];
 
+clear header
 for line=1:length(lf)-1
     tline = MeasYaps(lf(line)+1:lf(line+1)-1);
     if ~ischar(tline); return; end

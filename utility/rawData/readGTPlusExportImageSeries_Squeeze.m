@@ -1,9 +1,9 @@
 
-function [data, header, acq_time, physio_time, endo_pt, epi_pt] = readGTPlusExportImageSeries_Squeeze(folderName, seriesNum, withTime, numAsRep)
+function [data, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries_Squeeze(folderName, seriesNum, withTime, numAsRep)
 % read in the gtplus create images
 % Usage:
 % data = readGTPlusExportImageSeries_Squeeze(folderName, seriesNum)
-% [data, header, acq_time, physio_time, endo_pt, epi_pt] = readGTPlusExportImageSeries_Squeeze(folderName, seriesNum, withTime, numAsRep)
+% [data, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries_Squeeze(folderName, seriesNum, withTime, numAsRep)
 
 if(nargin==1)
     seriesNum = folderName;
@@ -18,7 +18,7 @@ if(nargin<4)
     numAsRep = 0;
 end
 
-[data, header, acq_time, physio_time, endo_pt, epi_pt] = readGTPlusExportImageSeries(folderName, seriesNum, withTime, numAsRep);
+[data, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries(folderName, seriesNum, withTime, numAsRep);
 size(data)
 data = squeeze(data);
 data = double(data);

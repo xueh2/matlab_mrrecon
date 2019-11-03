@@ -6,7 +6,7 @@ function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmr
 % setenv('OutputFormat', 'h5')
 
 if(strcmp(gt_host, 'gt1'))
-    gt_host = '137.187.134.169';
+    gt_host = '137.187.135.97';
 end
 
 GT_PORT = gtPortLookup(gt_host);
@@ -254,7 +254,7 @@ for n=1:num
 %     isPerf = 0;
     if(isempty(strfind(name, 'Perfusion'))~=1)
 %         isPerf = 1;
-        if(finfo.bytes<200*1024*1024)
+        if(finfo.bytes<100*1024*1024)
             disp(['File size too small - ' num2str(n) ' - ' name]);
 %             cd(dataDir)
             ignored = [ignored; {n, name, finfo.bytes/1024}];

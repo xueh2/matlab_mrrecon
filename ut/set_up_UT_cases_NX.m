@@ -12,6 +12,10 @@ UTCases = {
     
     'NXVA11A',         'meas_MID00031_FID30684_PSIR_MOCO_8_avg_9_slice_GT',         'NX',   'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly.xml',                          'moco_ave_res_fil',            'moco_ave_ref',   'IsmrmrdParameterMap_Siemens_NX.xsl'   ; ...
 
+    'NormalOrien/BARTS_Perfusion_20191011',         'meas_MID00314_FID259832_SSFP_Test_Perf_MBF_AI',         'NX',   'GTPrep_2DT_Perf_AIFR3_2E_Lin_Mapping_MBF_MBV_Mask_CMR_View_OFFLINE.xml',                          'moco_ave_res_fil',            'moco_ave_ref',   'IsmrmrdParameterMap_Siemens_Perfusion_NX.xsl'   ; ...
+    
+    'NXVA11A',         'Perfusion_AIFR3_2E_Interleaved_175749_00002607024.2607061_00002607024.2607061_322_20191022-125558',         'NX',   'GTPrep_2DT_Perf_AIFR3_2E_Lin_Mapping_MBF_MBV_Mask_CMR_View_OFFLINE.xml',                          'res',            'ref',   'IsmrmrdParameterMap_Siemens_Perfusion_NX.xsl'   ; ...
+    
     };
 
 N = size(UTCases, 1);

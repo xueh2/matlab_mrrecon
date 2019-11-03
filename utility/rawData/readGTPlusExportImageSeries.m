@@ -1,5 +1,5 @@
 
-function [data, header, acq_time, physio_time, endo_pt, epi_pt] = readGTPlusExportImageSeries(folderName, seriesNum, withTime, numAsRep)
+function [data, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries(folderName, seriesNum, withTime, numAsRep)
 % read in the gtplus create images
 % data = readGTPlusExportImageSeries(folderName, seriesNum);
 % [data, header, acq_time, physio_time, endo_pt, epi_pt] = readGTPlusExportImageSeries(folderName, seriesNum, withTime, numAsRep)
@@ -21,7 +21,7 @@ if(num==0)
     [data, header, acq_time, physio_time] = readGTPlusExportImageSeries_h5(folderName, seriesNum, withTime, numAsRep);
 else
     header = [];
-    [data, header, acq_time, physio_time, endo_pt, epi_pt] = readGTPlusExportImageSeries_hdr(folderName, seriesNum, withTime, numAsRep);
+    [data, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries_hdr(folderName, seriesNum, withTime, numAsRep);
 end
 
 
