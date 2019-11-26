@@ -19,10 +19,10 @@ if(nargin<4)
 end
 
 [data, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries(folderName, seriesNum, withTime, numAsRep);
-size(data)
+% size(data)
 data = squeeze(data);
 data = double(data);
-size(data)
+% size(data)
 
 if(nargout>2)
     acq_time = squeeze(acq_time);

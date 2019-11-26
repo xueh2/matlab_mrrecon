@@ -72,7 +72,7 @@ if nargin < 12
 end
 
 if(strcmp(GT_HOST, 'gt1'))
-    GT_HOST = '137.187.134.169';
+    GT_HOST = '137.187.135.97';
 end
 
 if(strcmp(GT_HOST, 'beast'))

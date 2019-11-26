@@ -66,7 +66,7 @@ if(~is_remote_computer)
     tic; copyfile(fullfile(remote_dicom_dir, remoteFolder, '*.dcm'),  dstDir); timeUsed = toc;    
 else
 %     if(isunix())
-        command = ['scp -q ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm ' dstDir];
+        command = ['scp -o ConnectTimeout=10 -q ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm ' dstDir];
 %     else        
 %         command = ['pscp -i ' key '.ppk ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
 %     end
@@ -75,7 +75,7 @@ else
     tic; dos(command, '-echo'); timeUsed = toc;
     
     gt_command = ['rm -rf ' remote_dicom_dir '/' remoteFolder];
-    command = ['ssh -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
+    command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
     dos(command, '-echo');
 end
 

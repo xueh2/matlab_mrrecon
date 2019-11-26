@@ -35,17 +35,20 @@ xmlString = name2(1:ind(end-3)-1);
 configName = [];
 if(~isempty(strfind(xmlString, 'ISMRMRD_Noise_dependency')))
     configName = 'default_measurement_dependencies.xml';
-    
+        
+elseif(~isempty(strfind(xmlString, 'LGE_MOCO_AVE')) & isempty(strfind(xmlString, 'DB_LGE_MOCO_AVE')))
+    configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_dstore.xml';
+    %configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
+
 elseif(~isempty(strfind(xmlString, 'DB_LGE_MOCO_AVE_OnTheFly')))
     configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_dstore.xml';
     configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
     
-elseif(~isempty(strfind(xmlString, 'LGE_MOCO_AVE')))
-    configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_dstore.xml';
-    %configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
-    
 elseif(~isempty(strfind(xmlString, 'T2W')))
     configName = 'GTPrep_2DT_T2W_MOCO_AVE_OnTheFly_istore.xml';
+    
+elseif(~isempty(strfind(xmlString, 'MOLLI')))
+    configName = 'CMR_2DT_T1Mapping_MOLLI.xml';
     
 elseif(~isempty(strfind(xmlString, 'T2Star_Mapping')))
     configName = 'GTPrep_2DT_T2Star_Mapping_dstore.xml';    
@@ -75,9 +78,9 @@ elseif(~isempty(strfind(xmlString, 'Prospective_Cine_3D')))
     configName = 'GTPrep_3DT_RetroGated_Cine_istore.xml'; 
     
 elseif(~isempty(strfind(xmlString, 'Cmr_Binning_Cloud')))
-    configName = 'CMR_2DT_RTCine_KspaceBinning.xml';         
+    configName = 'CMR_2DT_Binning_CMR_View_AI.xml';         
 elseif(~isempty(strfind(xmlString, 'Binning')))
-    configName = 'CMR_2DT_RTCine_KspaceBinning.xml';     
+    configName = 'CMR_2DT_Binning_CMR_View_AI.xml';     
     
 elseif(~isempty(strfind(xmlString, 'Cmr_Cine_NL_Cloud')))
     configName = 'Generic_Cartesian_NonLinear_Spirit_RealTimeCine_Cloud.xml';         
@@ -88,11 +91,11 @@ elseif(~isempty(strfind(xmlString, 'Retro_NLin_Cine')))
     configName = 'GTPrep_2DT_RetroGated_Cine_SLEP_Gateway.xml';        
 elseif(~isempty(strfind(xmlString, 'Retro_Lin_Cine')))
 %     configName = 'Generic_2DT_RetroGated_Cine_ECG_dstore.xml';  
-    configName = 'GTPrep_2DT_RetroCine_AI_offline.xml';  
+    configName = 'GTPrep_2DT_RetroCine_CMR_View.xml';  
     
 elseif(~isempty(strfind(xmlString, 'RT_Cine_LIN')))
 %     configName = 'Generic_RTCine_DeepGrappaOne.xml';            
-    configName = 'Generic_RTCine_PInterp_Fil_dstore.xml'; 
+    configName = 'Generic_RTCine_PInterp_Fil_ECG_CMR_View_AI_dstore.xml'; 
     
 elseif(~isempty(strfind(xmlString, 'FatWater_Nav3D')))    
     configName = 'GTPrep_3DT_FatWater_Diego.xml'; 

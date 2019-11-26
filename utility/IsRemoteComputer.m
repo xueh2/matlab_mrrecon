@@ -3,7 +3,7 @@ function is_remote_computer = IsRemoteComputer(host)
 % is_remote_computer = IsRemoteComputer(host)
 
 if(isunix())
-    [~, result] = system('ifconfig');
+    [~, result] = system('/sbin/ifconfig');
 else
     [~, result] = system('ipconfig');
 end 

@@ -1,7 +1,7 @@
 
 function [files, tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, ... 
-    cleanRemote, checkProcessed, sendDicom, startRemoteGT, copy_debug_output, configNamePreset, gt_port_used)
-% [files, tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, copy_debug_output, configNamePreset, gt_port_used)
+    cleanRemote, checkProcessed, sendDicom, startRemoteGT, copy_debug_output, copy_dicom_output, configNamePreset, gt_port_used)
+% [files, tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, copy_debug_output, copy_dicom_output, configNamePreset, gt_port_used)
 % setenv('OutputFormat', 'h5')
 
 GT_PORT = gtPortLookup(gt_host);
@@ -42,9 +42,9 @@ GT_PORT = gtPortLookup(gt_host);
 %     GT_PORT = '9008';
 % end
 % 
-% if(strcmp(gt_host, 'grenada'))
-%     GT_PORT = '9008';
-% end
+if(strcmp(gt_host, 'gt1'))
+    gt_host = '137.187.135.97';
+end
 
 setenv('GT_HOST', gt_host); 
 
@@ -73,10 +73,14 @@ if(nargin<11)
 end
 
 if(nargin<12)
-    configNamePreset = [];
+    copy_dicom_output = 1;
 end
 
 if(nargin<13)
+    configNamePreset = [];
+end
+
+if(nargin<14)
     gt_port_used = GT_PORT;
 end
 
@@ -101,7 +105,7 @@ xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.
 if(cleanRemote)
     [key, user] = sshKeyLookup(gt_host);
     gt_command = ['rm -rf /tmp/gadgetron_data/*'];
-    command = ['ssh -o StrictHostKeyChecking=no -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"'];
+    command = ['ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"'];
     command
     dos(command, '-echo');    
 end
@@ -211,5 +215,5 @@ ignored = [];
 % end
 
 % [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, styleSheet);
-[tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, [], GT_PORT, copy_debug_output);
+[tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, [], GT_PORT, copy_debug_output, copy_dicom_output);
 

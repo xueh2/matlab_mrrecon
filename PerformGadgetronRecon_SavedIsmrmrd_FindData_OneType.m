@@ -1,9 +1,14 @@
 
-function files = PerformGadgetronRecon_SavedIsmrmrd_FindData_OneType(dataDir, scan_type, start_date, end_date)
+function [files, files_record] = PerformGadgetronRecon_SavedIsmrmrd_FindData_OneType(dataDir, scan_type, start_date, end_date, protocols)
 % files = PerformGadgetronRecon_SavedIsmrmrd_FindData_OneType(dataDir, scan_type, start_date, end_date)
 % files = PerformGadgetronRecon_SavedIsmrmrd_FindData_OneType('I:\BARTS', {'LGE'}, '2016-01-01', '2017-01-01')
 % setenv('OutputFormat', 'h5')
 
+if(nargin<5)
+    protocols = [];
+end
+
+files_record = [];
 % ------------------------------------------------------------
 
 % find data
@@ -29,6 +34,8 @@ for d=1:numdirs
         continue;
     end
     
+    disp(['search ' subdirs{d}]);
+    
     [names, num] = findFILE(fullfile(dataDir, subdirs{d}), '*.h5');
     for n=1:num
 
@@ -36,7 +43,7 @@ for d=1:numdirs
 
         processed = 0;
         for kk=1:numel(scan_type)
-            if( ~isempty(strfind(name, scan_type{kk})) )
+            if( ~isempty(strfind(lower(name), lower(scan_type{kk}))) )
                 processed = 1;
                 break;
             end
@@ -65,3 +72,59 @@ end
 % sort the file by scan date
 [study_dates, ind] = sort(study_dates);
 files = files(ind);
+
+if(~isempty(protocols))
+
+    file_names = [];
+    study_dates = [];
+    study_times = [];
+    patientIDs = [];
+    studyIDs = [];
+    scannerIDs = [];
+    prots = [];
+    headers = [];
+    measurementIDs = [];
+    
+    % check protocols
+    for ii=1:numel(files)                
+        
+        name = files{ii};
+        [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+        
+        h5name = fullfile(dataDir, study_date, [name '.h5']);
+        
+        try
+            dset = ismrmrd.Dataset(h5name, 'dataset');        
+            hdr = ismrmrd.xml.deserialize(dset.readxml);
+            prot = hdr.measurementInformation.protocolName;
+            dset.close();
+        catch
+            continue;
+        end
+        
+        disp(['data ' num2str(ii) ' out of ' num2str(numel(files)) ' --- ' name ' - ' prot]);
+        
+        found_flag = 0;
+        for kk=1:numel(protocols)            
+            if(~isempty(strfind(lower(prot), lower(protocols{kk}))))
+                found_flag = 1;
+                break;
+            end            
+        end
+        
+        if(found_flag)
+            file_names = [file_names; {name}];
+            study_dates = [study_dates; study_date];
+            study_times = [study_times; study_time];
+            prots = [prots; {prot}];
+            headers = [headers; hdr];
+            patientIDs = [patientIDs; {patientID}];
+            studyIDs = [studyIDs; {studyID}];
+            scannerIDs = [scannerIDs; {scannerID}];
+            measurementIDs = [measurementIDs; str2double(measurementID)];
+        end
+    end
+    
+    files_record = table(file_names, prots, patientIDs, studyIDs, study_dates, study_times, measurementIDs, scannerIDs, headers);
+    
+end

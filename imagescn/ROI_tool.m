@@ -673,7 +673,7 @@ if Current_ROI_index > 64 % changed by PK*20061020
 end;
 
 % colors: red, blue, green, yellow, magenta, cyan, white 
-colororder = repmat('rbgymcw',1,4);
+colororder = repmat('rbgymcw',1,8);
 
 if apply_all % create ROI in all images
     % flipud to create ROI in reverse order... so that the current ROI index 
@@ -1740,7 +1740,7 @@ ifig = data_holder{6};
 i_current_ROI = data_holder{5};
 h_current_axes = data_holder{4};
 
-colororder = repmat('rbgymcw',1,4);
+colororder = repmat('rbgymcw',1,8);
 
 % disable the other figures, if they exist
 if ~isempty(fig2), 
@@ -1943,7 +1943,7 @@ function Edit_ROI_Finish(Mode);
 handlesDraw = guidata(findobj('Tag', 'ROI_Draw_figure'));
 apply_spline = get(handlesDraw.Spline_checkbox,'Value');
 pts = handlesDraw.Points;
-colororder = repmat('rbgymcw',1,4);
+colororder = repmat('rbgymcw',1,8);
 data_holder = get(findobj('Tag', 'ROI_Title_text'), 'UserData');
 
 % if isempty(h_all_axes)
@@ -3464,7 +3464,7 @@ function ROI_table = Insert_Other_Coordinates(ROI_table);
 %global DB; if DB disp(['ROI_Tool: ', Get_Current_Function]); end;
 
 debug = 0;
-colororder = repmat('rbgymcw',1,4);
+colororder = repmat('rbgymcw',1,8);
 
 if isfield(ROI_table, 'Other_coordinates')
     old_Table = ROI_table;

@@ -151,9 +151,15 @@ for n=1:num
                 end
 
                 dset.close();
+                                
             catch
                 disp(['failed to read data set : ' dataName])
                 failed_cases = [failed_cases; {dataName}];
+                continue;
+            end
+            
+            if(header.encoding(1).encodingLimits.repetition.maximum<24)
+                disp(['Number of perf rep is ' num2str(header.encoding(1).encodingLimits.repetition.maximum+1)]);
                 continue;
             end
             

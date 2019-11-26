@@ -21,7 +21,7 @@ else
     if(~is_remote_computer)
         command = gt_command;
     else
-        command = ['ssh -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"']
+        command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"']
     end
     dos(command, '-echo');
 end

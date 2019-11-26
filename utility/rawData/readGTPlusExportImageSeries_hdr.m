@@ -110,7 +110,7 @@ maxImageNum = 0;
 endo_pt = [];
 epi_pt = [];
 
-header = struct('PatientPosition', [0 0 0], 'FOV', [0 0 0], 'phase_dir', [0 0 0], 'read_dir', [0 0 0], 'slice_dir', [0 0 0]);
+header = struct('PatientPosition', [0 0 0], 'FOV', [0 0 0], 'phase_dir', [0 0 0], 'read_dir', [0 0 0], 'slice_dir', [0 0 0], 'window_center', -1, 'window_width', -1, 'TI', 0, 'slice_location', -1);
 
 hasImageSize = 0;
 for ii=1:num
@@ -185,6 +185,9 @@ for ii=1:num
             phase_dir = 0;
             read_dir = 0;
             slice_dir = 0;
+            window_center = -1;
+            window_width = -1;
+            TI = -1;
             
 %             if(acq_time_index==0)
                 N = numel(xmlContent);
@@ -212,9 +215,9 @@ for ii=1:num
                     if ( strcmp(xmlContent(n).meta(1).name, 'FOV') == 1 )
                         FOV = n;
                     end
-                    if ( strcmp(xmlContent(n).meta(1).name, 'recon_FOV') == 1 )
-                        FOV = n;
-                    end
+%                     if ( strcmp(xmlContent(n).meta(1).name, 'recon_FOV') == 1 )
+%                         FOV = n;
+%                     end
                     if ( strcmp(xmlContent(n).meta(1).name, 'phase_dir') == 1 )
                         phase_dir = n;
                     end
@@ -232,8 +235,21 @@ for ii=1:num
                     for kk=0:7
                         user_int_str = ['user_int_' num2str(kk)];
                         if ( strcmp(xmlContent(n).meta(1).name, user_int_str) == 1 )
-                            user_int(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1, kk+1) = str2double(xmlContent(n).meta.value);  
+                            try
+                                user_int(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1, kk+1) = str2double(xmlContent(n).meta.value);  
+                            catch
+                            end
                         end
+                    end
+                    
+                    if ( strcmp(xmlContent(n).meta(1).name, 'GADGETRON_WindowCenter') == 1 )
+                        window_center = str2double(xmlContent(n).meta.value);
+                    end
+                    if ( strcmp(xmlContent(n).meta(1).name, 'GADGETRON_WindowWidth') == 1 )
+                        window_width = str2double(xmlContent(n).meta.value);
+                    end
+                    if ( strcmp(xmlContent(n).meta(1).name, 'GADGETRON_TI') == 1 )
+                        TI = str2double(xmlContent(n).meta.value);
                     end
                 end
 %             end
@@ -263,7 +279,7 @@ for ii=1:num
             endo_pt = [endo_pt; {phs slc curr_endo_pt}];
             epi_pt = [epi_pt; {phs slc curr_epi_pt}];
             
-            curr_header = struct('PatientPosition', [0 0 0], 'FOV', [0 0 0], 'phase_dir', [0 0 0], 'read_dir', [0 0 0], 'slice_dir', [0 0 0]);
+            curr_header = struct('PatientPosition', [0 0 0], 'FOV', [0 0 0], 'phase_dir', [0 0 0], 'read_dir', [0 0 0], 'slice_dir', [0 0 0], 'window_center', -1, 'window_width', -1, 'TI', 0, 'slice_location', -1);
             
             if(PatientPosition>0)
                 num_pt = numel(xmlContent(PatientPosition).meta);
@@ -284,9 +300,22 @@ for ii=1:num
             if(slice_dir>0)
                 num_pt = numel(xmlContent(slice_dir).meta);
                 curr_header.slice_dir = [str2double(xmlContent(slice_dir).meta(1).value) str2double(xmlContent(slice_dir).meta(2).value) str2double(xmlContent(slice_dir).meta(3).value)];
+                
+                if(PatientPosition>0)
+                    curr_header.slice_location = dot(curr_header.PatientPosition, curr_header.slice_dir);
+                end
+            end
+            if(window_center>0)
+                curr_header.window_center = window_center;
+            end
+            if(window_width>0)
+                curr_header.window_width = window_width;
+            end
+            if(TI>0)
+                curr_header.TI = TI;
             end
             
-            header(phs+1, slc+1) = curr_header;
+            header(slc+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = curr_header;
         end
         
         real_name = [filename];

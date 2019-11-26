@@ -1,12 +1,15 @@
 
 function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, ... 
-    checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port, copy_debug_output)
+    checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData('I:\KAROLINSKA', 'xxxx', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % setenv('OutputFormat', 'h5')
 
 if(strcmp(gt_host, 'gt1'))
     gt_host = '137.187.135.97';
+end
+if(strcmp(gt_host, 'beast'))
+    gt_host = '137.187.135.157';
 end
 
 GT_PORT = gtPortLookup(gt_host);
@@ -49,6 +52,10 @@ end
 
 if(nargin<11)
     copy_debug_output = 0;
+end
+
+if(nargin<11)
+    copy_dicom_output = 0;
 end
 
 setenv('GT_PORT', gt_port);
@@ -261,10 +268,14 @@ for n=1:num
             continue;
         end
     else
-        if(finfo.bytes<10*1024*1024)
-            disp(['File size too small - ' num2str(n) ' - ' name]);
-%             cd(dataDir)
-            ignored = [ignored; {n, name, finfo.bytes/1024}];
+        try
+            if(finfo.bytes<10*1024*1024)
+                disp(['File size too small - ' num2str(n) ' - ' name]);
+    %             cd(dataDir)
+                ignored = [ignored; {n, name, finfo.bytes/1024}];
+                continue;
+            end
+        catch
             continue;
         end
     end
@@ -280,6 +291,7 @@ for n=1:num
             if (~isempty(user) & startRemoteGT)
                 StopGadgetronOnRemote(gt_host, GT_PORT);                
                 StartGadgetronOnRemote(gt_host, GT_PORT);
+                %% 
             end
         end
         disp(['Start remote gadgetron : ' num2str(toc(tstart))]);
@@ -348,7 +360,7 @@ for n=1:num
                     end
                     
                     command = ['gadgetron_ismrmrd_client -f ' h5Name ' -c default_measurement_dependencies.xml -a ' gt_host ' -p ' GT_PORT]
-                    dos(command, '-echo');
+%                     dos(command, '-echo');
 
                     noise_processed = [noise_processed; {h5Name}];
                     noise_id_processed = [noise_id_processed; {noise_mear_id}];
@@ -491,7 +503,7 @@ for n=1:num
         end
     end
     
-    if(strcmp(gt_host, '137.187.134.169')==0)    
+    if(copy_dicom_output)    
         ts = tic;
         try
             [tDicom, remoteFolder] = PerformGadgetronRecon_SavedIsmrmrd_CopyDicom(resDir, name, gt_host);
