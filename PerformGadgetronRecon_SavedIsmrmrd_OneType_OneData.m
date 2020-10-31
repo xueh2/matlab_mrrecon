@@ -6,7 +6,7 @@ function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmr
 % setenv('OutputFormat', 'h5')
 
 if(strcmp(gt_host, 'gt1'))
-    gt_host = '137.187.135.97';
+    gt_host = '137.187.135.169';
 end
 if(strcmp(gt_host, 'beast'))
     gt_host = '137.187.135.157';
@@ -49,13 +49,16 @@ end
 if(nargin<10)
     gt_port = GT_PORT;
 end
+if(isempty(gt_port))
+    gt_port = GT_PORT;
+end
 
 if(nargin<11)
     copy_debug_output = 0;
 end
 
-if(nargin<11)
-    copy_dicom_output = 0;
+if(nargin<12)
+    copy_dicom_output = 1;
 end
 
 setenv('GT_PORT', gt_port);
@@ -93,11 +96,15 @@ for n=1:num
         isPerf = 1;
     end
     
-    if(copy_debug_output)
-        isPerf = 1;
-    end
+%     if(copy_debug_output)
+%         isPerf = 1;
+%     end
        
     [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+    
+%     if(str2num(measurementID)>300000)
+%         continue;
+%     end
     
     dataName = fullfile(dataDir, study_dates, [name '.h5']);
 
@@ -114,6 +121,10 @@ for n=1:num
         end
     end
 
+    if(iscell(configName))
+        configName = configName{1};
+    end
+    
     disp(['Processing ' num2str(n) ' out of ' num2str(num) ' cases : ' name ' - ' configName]);
     disp(['========================================================================================']);
     
@@ -459,7 +470,7 @@ for n=1:num
     end
     tic; dos(command); timeUsed = toc;
            
-    if(isPerf)
+    if(isPerf | copy_debug_output)
         if(~is_remote_computer)
             ts = tic;
             mkdir(dstDir);
@@ -546,6 +557,8 @@ for n=1:num
     %         tic; dos(command, '-echo'); toc
     %     end
     end    
+    
+    disp(['result folder is ' dstDir]);
     
     tUsed = [tUsed; {name, timeUsed, configName}];
 end

@@ -1,6 +1,6 @@
 
-function PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT, delete_old_res)
-% PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT, delete_old_res)
+function PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT, delete_old_res, gt_port)
+% PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT, delete_old_res, gt_port)
 
 if(nargin < 8)
     flow_windowing = [0 8];
@@ -26,9 +26,19 @@ if(nargin < 13)
     delete_old_res = 1;
 end
 
+if(nargin < 14)
+    gt_port = [];
+end
+
 if(strcmp(host, 'beast'))
     host = '137.187.135.157';
 end
+
+if(strcmp(host, 'gt1'))
+    host = '137.187.135.169';
+end
+
+noise_dat_processed = [];
 
 startN = 1
 endN = size(perf_cases, 1)
@@ -47,15 +57,15 @@ for ii=startN:endN
                 has_rest = 0;
             end
             
-            if(h_flow_stress==0 | ~ishandle(h_flow_stress))
+            if(h_flow_stress==0 | ~ishandle(h_flow_stress) | h_flow_rest==0 | ~ishandle(h_flow_rest))
                 disp(['--> Processing ... ']);
                 
                 if(~has_stress)
-                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
+                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
                 end
 
                 if(~has_rest)
-                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
+                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
                 end
 %                 PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2:3), host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
 
@@ -64,16 +74,17 @@ for ii=startN:endN
         else
             has_stress = 0;
             has_rest = 0;
+            noise_dat_processed = [];
             
             if(~has_stress)
-                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
+                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
             end
 
             if(~has_rest)
-                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml});
+                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
             end
 
-            [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, perf_cases{ii, 2}, perf_cases{ii, 3}, flow_windowing, only_reviewing, 0);
+            %[h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, perf_cases{ii, 2}, perf_cases{ii, 3}, flow_windowing, only_reviewing, 0);
         end
     end
     
@@ -84,11 +95,11 @@ for ii=startN:endN
         end
         
         if(has_stress<0)
-            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml});
+            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
         end
 
         if(has_rest<0)
-            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml});
+            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
         end
     end
     
@@ -117,18 +128,18 @@ for ii=startN:endN
             try
                 h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
                 if(h_flow_rest==0)
-                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
+                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
 
                     PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
                 end
             catch
                 disp(['--> Processing ... ']);
-                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
+                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
 
                 PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
             end
         else
-            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
+            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
 
 %             PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
         end

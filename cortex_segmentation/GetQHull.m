@@ -1,0 +1,48 @@
+
+function [surface_area_CH, volume_CH] = GetQHull(pts)
+% compute the convex hull
+% pts is in the world coordinate (mm)
+% surface_area_CH ( in mm2), volume_CH ( in ml, that is cm3)
+
+X = pts(:,2:4);
+numPts = size(X, 1);
+
+C = convhulln(X);
+
+num = size(C,1);
+surface_area_CH = 0;
+
+volume_CH = 0;
+
+% the middle point
+d = zeros(1,3);
+d(1) = sum(X(:, 1))/numPts;
+d(2) = sum(X(:, 2))/numPts;
+d(3) = sum(X(:, 3))/numPts;
+
+for i=1:num
+    
+    p1 = C(i,1);
+    v1 = pts(p1,2:4);
+        
+    p2 = C(i,2);
+    v2 = pts(p2,2:4);
+    
+    p3 = C(i,3);
+    v3 = pts(p3,2:4);
+
+    l1 = norm(v1-v2);
+    l2 = norm(v2-v3);
+    l3 = norm(v1-v3);
+
+    Heron = (l1+l2+l3)/2;
+    surface_area_CH = surface_area_CH + sqrt(Heron*(Heron-l1)*(Heron-l2)*(Heron-l3));
+    
+    % volume
+    volume_CH = volume_CH + abs(dot(d-v1, cross(d-v2, d-v3)))/6;
+end
+
+% mm3 to cm3
+volume_CH = volume_CH/1000;
+
+return;

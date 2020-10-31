@@ -1,0 +1,22 @@
+
+function  D_pts = UseScalarField2D_BSpline(pts_Image, Coeff_Dx, Coeff_Dy, SliceIndex)
+% use the deformation
+% SliceIndex starts from 0
+% pts_Image 
+num = size(pts_Image, 1);
+D_pts = zeros(num, 2);
+
+if ( isempty(Coeff) )
+    return
+else
+    for kk=1:num
+        x = pts_Image(kk, 1);
+        y = pts_Image(kk, 2);
+        z = SliceIndex;
+        
+        D_pts(kk, 1) = x + EvaluateSpline2(Coeff_Dx, 3, x, y, z);
+        D_pts(kk, 2) = y + EvaluateSpline2(Coeff_Dy, 3, x, y, z);
+    end
+end
+
+return

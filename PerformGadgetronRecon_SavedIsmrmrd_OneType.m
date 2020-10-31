@@ -1,6 +1,6 @@
 
 function [files, tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, ... 
-    cleanRemote, checkProcessed, sendDicom, startRemoteGT, copy_debug_output, copy_dicom_output, configNamePreset, gt_port_used)
+    cleanRemote, checkProcessed, delete_old_res, startRemoteGT, copy_debug_output, copy_dicom_output, configNamePreset, gt_port_used)
 % [files, tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType(dataDir, scan_type, start_date, end_date, gt_host, resDir, cleanRemote, checkProcessed, sendDicom, startRemoteGT, copy_debug_output, copy_dicom_output, configNamePreset, gt_port_used)
 % setenv('OutputFormat', 'h5')
 
@@ -61,7 +61,7 @@ if(nargin<8)
 end
 
 if(nargin<9)
-    sendDicom = 0;
+    delete_old_res = 0;
 end
 
 if(nargin<10)
@@ -215,5 +215,5 @@ ignored = [];
 % end
 
 % [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, styleSheet);
-[tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, configNames, [], GT_PORT, copy_debug_output, copy_dicom_output);
-
+[tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, ... 
+    checkProcessed, delete_old_res, startRemoteGT, configNames, [], GT_PORT, copy_debug_output, copy_dicom_output);

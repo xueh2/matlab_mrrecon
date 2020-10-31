@@ -45,19 +45,19 @@ else
     fmap_resized_training_norm = Matlab_gt_CMR_normal_orientation(flipdim(flipdim(fmap_resized_training, 1), 2), aif_scan_geometry_info.aif_slice_dir, aif_scan_geometry_info.aif_read_dir, aif_scan_geometry_info.aif_phase_dir);    
 end
 
-fSD = readNPY(fullfile(trainingCaseDir, 'fSD.npy'));
-fSD_resized = readNPY(fullfile(trainingCaseDir, 'fSD_resized.npy'));
-fSD_resized_training = readNPY(fullfile(trainingCaseDir, 'fSD_resized_training.npy'));
-
-if(in_CMR_View)
-    fSD_norm = permute(fSD, [2 1 3]);
-    fSD_resized_norm = permute(fSD_resized, [2 1 3]);
-    fSD_resized_training_norm = permute(fSD_resized_training, [2 1 3]);
-else
-    fSD_norm = Matlab_gt_CMR_normal_orientation(flipdim(flipdim(fSD, 1), 2), aif_scan_geometry_info.aif_slice_dir, aif_scan_geometry_info.aif_read_dir, aif_scan_geometry_info.aif_phase_dir);    
-    fSD_resized_norm = Matlab_gt_CMR_normal_orientation(flipdim(flipdim(fSD_resized, 1), 2), aif_scan_geometry_info.aif_slice_dir, aif_scan_geometry_info.aif_read_dir, aif_scan_geometry_info.aif_phase_dir);    
-    fSD_resized_training_norm = Matlab_gt_CMR_normal_orientation(flipdim(flipdim(fSD_resized_training, 1), 2), aif_scan_geometry_info.aif_slice_dir, aif_scan_geometry_info.aif_read_dir, aif_scan_geometry_info.aif_phase_dir);    
-end
+% fSD = readNPY(fullfile(trainingCaseDir, 'fSD.npy'));
+% fSD_resized = readNPY(fullfile(trainingCaseDir, 'fSD_resized.npy'));
+% fSD_resized_training = readNPY(fullfile(trainingCaseDir, 'fSD_resized_training.npy'));
+% 
+% if(in_CMR_View)
+%     fSD_norm = permute(fSD, [2 1 3]);
+%     fSD_resized_norm = permute(fSD_resized, [2 1 3]);
+%     fSD_resized_training_norm = permute(fSD_resized_training, [2 1 3]);
+% else
+%     fSD_norm = Matlab_gt_CMR_normal_orientation(flipdim(flipdim(fSD, 1), 2), aif_scan_geometry_info.aif_slice_dir, aif_scan_geometry_info.aif_read_dir, aif_scan_geometry_info.aif_phase_dir);    
+%     fSD_resized_norm = Matlab_gt_CMR_normal_orientation(flipdim(flipdim(fSD_resized, 1), 2), aif_scan_geometry_info.aif_slice_dir, aif_scan_geometry_info.aif_read_dir, aif_scan_geometry_info.aif_phase_dir);    
+%     fSD_resized_training_norm = Matlab_gt_CMR_normal_orientation(flipdim(flipdim(fSD_resized_training, 1), 2), aif_scan_geometry_info.aif_slice_dir, aif_scan_geometry_info.aif_read_dir, aif_scan_geometry_info.aif_phase_dir);    
+% end
 
 PS_map = readNPY(fullfile(trainingCaseDir, 'PS_map.npy'));
 PS_map_resized = readNPY(fullfile(trainingCaseDir, 'PS_map_resized.npy'));
@@ -163,10 +163,10 @@ writeNPY(vb_map_resized_training_norm, fullfile(trainingCaseDir, 'vb_map_resized
 writeNPY(visf_map_norm, fullfile(trainingCaseDir, 'visf_map_norm.npy'));
 writeNPY(visf_map_resized_norm, fullfile(trainingCaseDir, 'visf_map_resized_norm.npy'));
 writeNPY(visf_map_resized_training_norm, fullfile(trainingCaseDir, 'visf_map_resized_training_norm.npy'));
-
-writeNPY(fSD_norm, fullfile(trainingCaseDir, 'fSD_norm.npy'));
-writeNPY(fSD_resized_norm, fullfile(trainingCaseDir, 'fSD_resized_norm.npy'));
-writeNPY(fSD_resized_training_norm, fullfile(trainingCaseDir, 'fSD_resized_training_norm.npy'));
+% 
+% writeNPY(fSD_norm, fullfile(trainingCaseDir, 'fSD_norm.npy'));
+% writeNPY(fSD_resized_norm, fullfile(trainingCaseDir, 'fSD_resized_norm.npy'));
+% writeNPY(fSD_resized_training_norm, fullfile(trainingCaseDir, 'fSD_resized_training_norm.npy'));
 
 writeNPY(Tc_map_norm, fullfile(trainingCaseDir, 'Tc_map_norm.npy'));
 writeNPY(Tc_map_resized_norm, fullfile(trainingCaseDir, 'Tc_map_resized_norm.npy'));

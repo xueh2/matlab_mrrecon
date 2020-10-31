@@ -1,0 +1,6 @@
+
+function suspected_volume = EstimateSuspectedVoxels(post_csf, post_wm, post_gm, post_outlier, Low_Thres)
+% if no one class predominates the segmentation, the voxel is labelled as
+% suspected one.
+
+suspected_volume = zeros(size(), 'uint');

@@ -1,0 +1,33 @@
+
+function [selected_x, selected_label] = SelectSamples(x_I, x_label, post, minimalP, typeofselection, maxN)
+% select samples for the kernel density estimation
+
+x_post = post(x_label(:));
+
+if ( strcmp(typeofselection, 'probability') == 1 )
+    
+    index = find(x_post>=minimalP);
+    while ( length(index)>maxN )
+        minimalP = minimalP + 0.02;
+        index = find(x_post>=minimalP);
+    end
+    
+    selected_x = x_I(index(:));
+    selected_label = x_I(index(:));
+    
+end
+
+if ( strcmp(typeofselection, 'uniform') == 1 )
+    
+    
+    
+    index = find(x_post>=minimalP);
+    while ( length(index)>maxN )
+        minimalP = minimalP + 0.02;
+        index = find(x_post>=minimalP);
+    end
+
+    selected_x = x_I(index(:));
+    selected_label = x_I(index(:));
+    
+end

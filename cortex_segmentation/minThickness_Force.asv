@@ -1,0 +1,21 @@
+
+function [ yOut, schemeDataOut ] = minThickness_Force(t, yIn, schemeDataIn)
+% schemeDataIn.data0
+% schemeDataIn.minThickness
+% schemeDataIn.maxThickness
+% schemeDataIn.data0
+% schemeDataIn.voxelsize
+
+disp(['current time is ' num2str(t)]);
+disp(['minThickness Force ...']);
+
+schemeDataOut = schemeDataIn;
+
+minThickness = schemeDataIn.minThickness;
+minThickness = schemeDataIn.minThickness;
+
+
+thicknessSpeed = ComputeThicknessSpeed(Internal_SDF, External_SDF, minThickness, maxThickness, voxelsize)
+
+
+return;

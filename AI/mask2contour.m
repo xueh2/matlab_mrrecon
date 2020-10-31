@@ -9,7 +9,11 @@ function C = mask2contour(sectors, s, new_len, n_components)
     end
     
     t = zeros(size(sectors));
-    ind = find(sectors(:)<=s+0.5 & sectors(:)>=s-0.5);
+    if(numel(s)==1)
+        ind = find(sectors(:)<=s+0.5 & sectors(:)>=s-0.5);
+    else
+        ind = find(sectors(:)<=s(2) & sectors(:)>=s(1));
+    end
     t(ind(:)) = 1;
 
     % P = mask2poly(t,'Exact','CW');

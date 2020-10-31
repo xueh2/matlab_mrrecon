@@ -1,0 +1,159 @@
+
+function local_SegResults = LocalSegmentation_Kmeans_EM_3classes_SVM(imagedata, header, ...
+    brainmask, global_SegResult, SplittedBrain, partsNumber, saveflag, tissuelabels_seg, ...
+    post_gm, post_wm1, post_wm2, svmparameters, LabelPVs_Image)
+
+% 5 classes: use all data, csf, gm, wm1, wm2, outlier
+% perform the local segmentation to refine the results
+
+% use the svm classifier to refine the output
+% the post_csf, post_gm, post_wm1, post_wm2, post_outlier are unit32 array with the 1.0 being 2048
+
+% allocate memory
+local_SegResults = cell(partsNumber, 1);
+for i = 1:partsNumber
+    local_SegResults{i} = zeros(size(imagedata), 'uint8');
+end
+
+numberTissues = length(tissuelabels_seg);
+% parts_mask = zeros(size(imagedata), 'uint8');
+
+% parameters
+
+maxN = svmparameters.maxN;
+foldnum = svmparameters.foldnum;
+C_low = svmparameters.C_low;
+C_high = svmparameters.C_high;
+C_step = svmparameters.C_step;
+gamma_low = svmparameters.gamma_low;
+gamma_high = svmparameters.gamma_high;
+gamma_step = svmparameters.gamma_step;
+
+fine_range = svmparameters.fine_range;
+fine_step = svmparameters.fine_step;
+finesearch_flag = svmparameters.finesearch_flag;
+amplifier = svmparameters.amplifier;
+
+% perform segmentation for each parts
+for pn = 1:partsNumber
+
+    disp(['Segmenting ' num2str(pn) ' part ...']);
+    parts_mask = zeros(size(imagedata), 'uint8');
+    % get image data as a feature vector
+    for k = 1:numberTissues
+        tissueLabel = tissuelabels_seg(k);
+        parts_mask(find( (global_SegResult==tissueLabel) & (SplittedBrain==pn) & (LabelPVs_Image==0)) ) = 1;
+    end
+    if ( saveflag )
+        filename = ['LocalSeg_SVM/' 'imagedataPart_SVM_part' num2str(pn) '.hdr'];
+        parts_data = imagedata;
+        parts_data(find(parts_mask==0)) = 0;
+        SaveAnalyze(uint32(parts_data), header, filename, 'Grey' );
+    end
+    % intialize the SVM
+    % select training data
+    disp(['select training data ...']);
+
+    [x, indexes] = kmean_init(imagedata, header, parts_mask);
+%     [post_csf_X, indexes] = kmean_init(post_csf, header, parts_mask);
+    [post_gm_X, indexes] = kmean_init(post_gm, header, parts_mask);
+    [post_wm1_X, indexes] = kmean_init(post_wm1, header, parts_mask);
+    [post_wm2_X, indexes] = kmean_init(post_wm2, header, parts_mask);
+%     [post_outlier_X, indexes] = kmean_init(post_outlier, header, parts_mask);
+    
+    post = [zeros(size(post_gm_X)) post_gm_X post_wm1_X post_wm2_X zeros(size(post_gm_X))];
+    
+    clear post_csf_X post_gm_X post_wm1_X post_wm2_X post_outlier_X
+    
+    label = zeros(size(x));
+    [ndata, ndim] = size(indexes);
+    for i = 1:ndata
+        tempLabel = find(post(i,:) == max(post(i,:)));
+        label(i) = tempLabel(1);
+    end
+
+    Thres = 0.99*2048;
+    index = find(max(post, [], 2)>=Thres);
+
+    TrainingData = x(index);
+    TrainingLabel = label(index);
+    N = size(TrainingData, 1);
+    
+    step = floor(N/maxN);
+
+    Tdata = TrainingData(1:step:end, :);
+    Tlabel = TrainingLabel(1:step:end, :);
+
+    if ( isempty(svmparameters) == 1 )
+        foldnum = 5
+        C_low = -5;
+        C_high = 15;
+        C_step = 2;
+        gamma_low = -15;
+        gamma_high = 3;
+        gamma_step = 2;
+
+        fine_range = 2;
+        fine_step = 0.25;
+        finesearch_flag = 1;
+        amplifier = 2;
+    end
+
+    disp(['grid search ...']);
+    
+%     [goodC, goodGamma] = GridSearch_C_gamma(Tlabel, Tdata, foldnum,...
+%         C_low, C_high, C_step, ...
+%         gamma_low, gamma_high, gamma_step, ...
+%         finesearch_flag, fine_range, fine_step);
+
+%     goodC = 1;
+%     goodGamma = 2;
+%     libsvm_options = ['-c ' num2str(2^goodC) ' -g ' num2str(2^goodGamma)]
+    libsvm_options =['-c 0.0078125 -g 7.6294e-006']
+    % ====================================================== %
+
+    maxN = amplifier*maxN;
+    step = floor(N/maxN);
+
+    Tdata = TrainingData(1:step:end, :);
+    Tlabel = TrainingLabel(1:step:end, :);
+
+    disp(['train ...']);
+    model = svmtrain_Version2p82(Tlabel, Tdata, libsvm_options);
+    
+    disp(['classifying ...']);
+    [predicted_label, accuracy, prob_estimates] = svmpredict_Version2p82(label, x, model);
+
+    % restore results
+    [ndata, ndim] = size(indexes);
+    for tt = 1:ndata
+        label = predicted_label(tt);
+%         if ( label == 1 ) % csf
+%             local_SegResults{pn}(indexes(tt, 1), indexes(tt, 2), indexes(tt, 3)) = tissuelabels_seg(1);
+%         end
+        
+        if ( label == 2 ) % cortex
+            local_SegResults{pn}(indexes(tt, 1), indexes(tt, 2), indexes(tt, 3)) = tissuelabels_seg(1);
+        end
+        
+        if ( label == 3 ) % wm1
+            local_SegResults{pn}(indexes(tt, 1), indexes(tt, 2), indexes(tt, 3)) = tissuelabels_seg(2);
+        end
+            
+        if ( label == 4 ) % wm2
+            local_SegResults{pn}(indexes(tt, 1), indexes(tt, 2), indexes(tt, 3)) = tissuelabels_seg(3);
+        end
+    
+%         if ( label == 5 ) % outlier
+%             local_SegResults{pn}(indexes(tt, 1), indexes(tt, 2), indexes(tt, 3)) = tissuelabels_seg(5);
+%         end
+    end
+    
+    if ( saveflag )
+        filename = ['LocalSeg_SVM/' 'localSegResult_SVM_part' num2str(pn) '.hdr'];
+        SaveAnalyze(uint32(local_SegResults{pn}), header, filename, 'Grey' );
+    end
+
+end
+
+return

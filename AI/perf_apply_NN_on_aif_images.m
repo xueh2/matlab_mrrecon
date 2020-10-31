@@ -1,5 +1,5 @@
 
-function [lv, rv, probs, lv_3C, rv_3C, probs_3C] = perf_apply_NN_on_aif_images(trainingDataDir, lv_model, lv_rv_model, rE1, contourDir)
+function [lv, rv, probs, lv_3C, rv_3C, probs_3C] = perf_apply_NN_on_aif_images(trainingDataDir, lv_model, lv_rv_model, rE1, rN, contourDir)
 
 if(nargin<6)
     contourDir = trainingDataDir;
@@ -13,17 +13,21 @@ lv_3C = [];
 rv_3C = [];
 probs_3C = [];
 
-try
-    tic
-    aif = readNPY(fullfile(trainingDataDir, 'aif_scc.npy'));
-    size(aif)
-    toc
-catch
-    tic
-    aif = readNPY(fullfile(trainingDataDir, 'aif.npy'));
-    size(aif)
-    toc
-end
+% try
+%     aif = readNPY(fullfile(trainingDataDir, 'aif_scc_resized_by2.npy'));
+% catch
+    try
+        tic
+        aif = readNPY(fullfile(trainingDataDir, 'aif_scc.npy'));
+        size(aif)
+        toc
+    catch
+        tic
+        aif = readNPY(fullfile(trainingDataDir, 'aif.npy'));
+        size(aif)
+        toc
+    end
+% end
 
 RO = size(aif,1);
 E1 = size(aif,2);
@@ -49,7 +53,7 @@ if(size(aif, 2)==128 | size(aif, 2)==64)
 end
 
 % rE1 = 48;
-rN = 64;
+% rN = 96;
 
 if(N>rN)
     aif = aif(:,:,1:rN);
@@ -85,6 +89,7 @@ if(~isempty(lv_model))
         ' --prob ' fullfile(contourDir, 'prob') ...
         ' --lv ' fullfile(contourDir, 'LV_Mask') ... 
         ' --thres 0.5' ...
+        ' --N ' num2str(rN) ...
         ' -t lv --model_file ' lv_model ];
     command
     dos(command); 
@@ -116,6 +121,7 @@ if(~isempty(lv_rv_model))
         ' --rv ' fullfile(contourDir, 'RV_Mask_3C') ... 
         ' --thres 0.5' ...
         ' --rv_thres 0.5' ...
+        ' --N ' num2str(rN) ...
         ' -t lv_rv --model_file ' lv_rv_model ];
     command
     dos(command);    

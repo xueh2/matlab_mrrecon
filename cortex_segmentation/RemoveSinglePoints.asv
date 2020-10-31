@@ -1,0 +1,15 @@
+
+function suspected_volume = RemoveSinglePoints(suspected_volume)
+% remove single points (outlier ... ?)
+
+[l,num] = bwlabel(suspected_volume, 8);
+volumes=zeros(num,1);
+
+total = xsize*ysize;
+for k=1:total
+    if (l(k)>0)
+        volumes(l(k))=volumes(l(k))+1;
+    end
+end
+[largest,index]=max(volumes);
+largestComponent(find(l==index))=1;

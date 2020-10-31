@@ -1,0 +1,25 @@
+
+function [dice, FP, FN] = ComputeDSC_2D_FP_FN(slice1, slice2)
+% compute the DSC value
+
+% FP, false positive: the percentage of pixels which are labelled in slice2
+% and not labelled in slice1
+
+% FN, false negative: the percentage of pixels which are labelled in slice1
+% and not labelled in slice2
+
+% dice
+num1 = length(find(slice1>0));
+num2 = length(find(slice2>0));
+
+pp = slice1 & slice2;
+
+corrNum = length(find(pp>0));
+
+dice = 2*corrNum / (num1+num2);
+
+% FP
+num = length(find( (slice2>0) & (slice1<=0) ));
+FP = 2*num / 
+
+% FN

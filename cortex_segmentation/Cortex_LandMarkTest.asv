@@ -1,0 +1,18 @@
+
+function dists = Cortex_LandMarkTest(pts_file, surfaceVTKfile, levelsetFun, OriginalImageFile, OutputSDF_File)
+
+disp(' generating surfaces ... ' );
+[data, header] = LoadAnalyze(levelsetFun);
+mcubes2VTKFile(data, header, surfaceVTKfile, 0, [1 1 1], [0 0]);
+
+if ( isempty(dir(OutputSDF_File)) 
+accuracy = 'high';
+tMax_ReIntialize = 100;
+errorMax = 0.05;
+
+[SDF, header] = SignedDistranceTransform(levelsetFun, OutputSDF_File, accuracy, tMax_ReIntialize, errorMax);
+
+dists = LandmarkDst_Cortex(pts_World, surfaceVTKfile, levelsetFun, OriginalImageFile);
+
+[pts_World, numCell, cells] = VTKFile2PointCell(pts_file); 
+dists = LandmarkDst_Cortex_SDF(pts_World(:, 2:4), OutputSDF_File);

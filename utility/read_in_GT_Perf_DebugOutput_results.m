@@ -8,7 +8,8 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     BTEX_flow_SD_all, BTEX_PS_SD_all, BTEX_Visf_SD_all, BTEX_Vp_SD_all, BTEX_cov_all, ...
     flow_SD, PS_SD, Vp_SD, Visf_SD, BTEX_cov, ... 
     CC_F_PS, CC_F_Vp, CC_F_Visf, CC_PS_Vp, CC_PS_Visf, CC_Vp_Visf, ... 
-    BTEX_Tc_all, Fermi_Delay, aif_scan_geometry_info, scan_geometry_info] = read_in_GT_Perf_DebugOutput_results(resDir, only_aif)
+    BTEX_Tc_all, Fermi_Delay, aif_scan_geometry_info, scan_geometry_info, ...
+    aif_lut, aif_lut_gd, perf_lut, perf_lut_gd] = read_in_GT_Perf_DebugOutput_results(resDir, only_aif)
 
 % read in Gadgetron perfusion debug output results
 % [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_time, perf_acq_time, dst_acq_time, ... 
@@ -66,6 +67,9 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     CC_F_PS=[];CC_F_Vp=[];CC_F_Visf=[];CC_PS_Vp=[];CC_PS_Visf=[];CC_Vp_Visf=[];... 
     BTEX_Tc_all=[];Fermi_Delay=[];
 
+    perf_lut = [];
+    perf_lut_gd = [];
+
     slc = 0;   
     for n=1:8
         
@@ -76,7 +80,13 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
         slc = slc + 1;
     end
     
-    disp(['Total ' num2str(slc) ' is found ...']);
+%     disp(['Total ' num2str(slc) ' is found ...']);
+    
+    perf_lut = analyze75read(fullfile(resDir, 'DebugOutput', 'Perf_T1_Correction_LUT_Valid'));
+    perf_lut_gd = analyze75read(fullfile(resDir, 'DebugOutput', 'Perf_T1_Correction_Gd_Valid'));
+
+    aif_lut = analyze75read(fullfile(resDir, 'DebugOutput', 'aif_cin_LUT_Valid'));
+    aif_lut_gd = analyze75read(fullfile(resDir, 'DebugOutput', 'aif_cin_Gd_Valid'));
     
     aif_acq_time = analyze75read(fullfile(resDir, 'DebugOutput', 'AIF_AcqTimes_0'));   
     perf_acq_time = load_array(resDir, 'Perf_AcqTimes_', slc);
@@ -85,7 +95,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     try
         r1 = analyze75read(fullfile(resDir, 'DebugOutput', 'aif_moco.hdr'));
         r2 = analyze75read(fullfile(resDir, 'DebugOutput', 'aif_moco_second_echo.hdr'));
-        aif_moco = flipdim(cat(4, r1, r2), 2);
+        aif_moco = permute(cat(4, r1, r2), [2 1 3 4]);
     catch
         aif_moco = [];
     end
@@ -112,9 +122,9 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
         aif_mask = analyze75read(fullfile(resDir, 'DebugOutput', 'aif_LV_mask_for_TwoEcho_T2StartCorrection_0.hdr'));
         aif_mask_final = analyze75read(fullfile(resDir, 'DebugOutput', 'AifLVMask_after_Picking.hdr'));
 
-        aif_mask = flipdim(aif_mask, 2);
-        aif_mask_final = flipdim(aif_mask_final, 2);
-        aif_PD = flipdim(aif_PD, 2);
+        aif_mask = permute(aif_mask, [2 1 3 4]);
+        aif_mask_final = permute(aif_mask_final, [2 1 3 4]);
+        aif_PD = permute(aif_PD, [2 1 3 4]);
 
         try
             aif_LV_mask_plot = analyze75read(fullfile(resDir, 'DebugOutput', 'aif_LV_mask_plot_.hdr'));
@@ -152,7 +162,6 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
         for aif_n=1:aif_plot_num
             aif_plots(:,:,aif_n) = analyze75read(aif_plot_names{aif_n});
         end
-        aif_plots = permute(aif_plots, [2 1 3]);
     catch
         aif_plots = [];
     end
@@ -176,13 +185,11 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     try
 %         perf = load_array(resDir, 'CASignal_Perf_', slc);        
         perf = load_array2(resDir, 'PerfFlowMapping_Job_', slc, '_perf_moco_upsampled');        
-        perf = permute(perf, [1 2 4 3]);
-        perf = flipdim(perf, 2);
+        perf = permute(perf, [2 1 3 4]);
     catch
         try
             perf = load_array(resDir, 'CASignal_Perf_', slc);
-            perf = permute(perf, [1 2 4 3]);
-            perf = flipdim(perf, 2);
+            perf = permute(perf, [2 1 3 4]);
         catch
             try
                 perf = readGTPlusExportImageSeries_Squeeze(resDir, 108);
@@ -193,22 +200,22 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     end
     
     ori = load_array(resDir, 'perf_', slc);   
-    ori = flipdim(ori, 2);
+    ori = permute(ori, [2 1 3 4]);
 
     moco = load_array(resDir, 'input_for_SRNorm_', slc);   
-    moco = flipdim(moco, 2);
+    moco = permute(moco, [2 1 3 4]);
     
     moco_norm = load_array(resDir, 'SRNorm_', slc);   
-    moco_norm = flipdim(moco_norm, 2);
+    moco_norm = permute(moco_norm, [2 1 3 4]);
 
     PD = load_array(resDir, 'PD_', slc);   
-    PD = flipdim(PD, 2);
+    PD = permute(PD, [2 1 3 4]);
 
     try
         for s=1:slc
             [names, num] = findFILE(resDir, ['*_SLC' num2str(s-1) '*103.attrib']);
-            names{1}
-            xmlContent = xml_load(names{1});
+%             names{1}
+            xmlContent = gt_xml_load(names{1});
             slice_dir(s,:) = getXMLField(xmlContent, 'slice_dir');
             read_dir(s,:) = getXMLField(xmlContent, 'read_dir');
             phase_dir(s,:) = getXMLField(xmlContent, 'phase_dir');
@@ -216,31 +223,39 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
             patient_table_position(s,:) = getXMLField(xmlContent, 'patient_table_position');
         end
     catch
-        for s=1:slc
-            [names, num] = findFILE(resDir, ['*_SLC' num2str(s-1) '*' num2str(s) '03.attrib']);
-            names{1}
-            xmlContent = xml_load(names{1});
-            slice_dir(s,:) = getXMLField(xmlContent, 'slice_dir');
-            read_dir(s,:) = getXMLField(xmlContent, 'read_dir');
-            phase_dir(s,:) = getXMLField(xmlContent, 'phase_dir');
-            PatientPosition(s,:) = getXMLField(xmlContent, 'PatientPosition');
-            patient_table_position(s,:) = getXMLField(xmlContent, 'patient_table_position');
+        try
+            for s=1:slc
+                [names, num] = findFILE(resDir, ['*_SLC' num2str(s-1) '*' num2str(s) '100.attrib']);
+%                 names{1}
+                xmlContent = gt_xml_load(names{1});
+                slice_dir(s,:) = getXMLField(xmlContent, 'slice_dir');
+                read_dir(s,:) = getXMLField(xmlContent, 'read_dir');
+                phase_dir(s,:) = getXMLField(xmlContent, 'phase_dir');
+                PatientPosition(s,:) = getXMLField(xmlContent, 'PatientPosition');
+                patient_table_position(s,:) = getXMLField(xmlContent, 'patient_table_position');
+            end
+        catch
         end
     end
     
-    aif_scan_geometry_info = table(aif_slice_dir, aif_read_dir, aif_phase_dir, aif_PatientPosition, aif_patient_table_position);    
-    scan_geometry_info = table(slice_dir, read_dir, phase_dir, PatientPosition, patient_table_position);
+    try
+        aif_scan_geometry_info = table(aif_slice_dir, aif_read_dir, aif_phase_dir, aif_PatientPosition, aif_patient_table_position);    
+        scan_geometry_info = table(slice_dir, read_dir, phase_dir, PatientPosition, patient_table_position);
+    catch
+        aif_scan_geometry_info = table(aif_slice_dir, aif_read_dir, aif_phase_dir, aif_PatientPosition, aif_patient_table_position);    
+        scan_geometry_info = table(slice_dir, read_dir, phase_dir, PatientPosition, patient_table_position);
+    end
     
     try
         input_for_filter = load_array(resDir, 'input_spatiotemporal_filter__row', slc);   
-        input_for_filter = flipdim(input_for_filter, 2);
+        input_for_filter = permute(input_for_filter, [2 1 3 4]);
     catch
         input_for_filter = [];
     end
     
     try
         filtered = load_array(resDir, 'output_spatiotemporal_filter__row', slc);   
-        filtered = flipdim(filtered, 2);
+        filtered = permute(filtered, [2 1 3 4]);
     catch
         filtered = [];
     end
@@ -248,14 +263,14 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     try
         flow = load_array(resDir, 'flow_maps_after_hole_filling_', slc);
         flow = squeeze(flow(:,:,end,:));
-        flow = flipdim(flow, 2);
+        flow = permute(flow, [2 1 3 4]);
     catch
         flow = [];
     end
 
     try
         Ki = load_array(resDir, 'Ki_maps_after_hole_filling_', slc);        
-        Ki = flipdim(Ki, 2);
+        Ki = permute(Ki, [2 1 3 4]);
     catch
         Ki = [];
     end
@@ -263,7 +278,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     try
         PS = load_array(resDir, 'PS_maps_after_hole_filling_', slc);
         PS = squeeze(PS(:,:,end,:));
-        PS = flipdim(PS, 2);
+        PS = permute(PS, [2 1 3 4]);
     catch
         PS = [];
     end
@@ -271,7 +286,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     try
         Vp = load_array(resDir, 'blood_volume_maps_after_hole_filling_', slc);
         Vp = squeeze(Vp(:,:,end,:));
-        Vp = flipdim(Vp, 2);
+        Vp = permute(Vp, [2 1 3 4]);
     catch
         Vp = [];
     end
@@ -279,7 +294,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     try
         Visf = load_array(resDir, 'interstitial_volume_maps_', slc);
         Visf = squeeze(Visf(:,:,end,:));
-        Visf = flipdim(Visf, 2);
+        Visf = permute(Visf, [2 1 3 4]);
     catch
         Visf = [];
     end
@@ -287,14 +302,14 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     try
         E = load_array(resDir, 'E_maps_', slc);
         E = squeeze(E(:,:,end,:));
-        E = flipdim(E, 2);
+        E = permute(E, [2 1 3 4]);
     catch
         E = [];
     end
 
     try
         SDMap = load_array(resDir, 'BTEX_SD_maps_', slc);
-        SDMap = flipdim(SDMap, 2);
+        SDMap = permute(SDMap, [2 1 3 4]);
     catch
         SDMap = [];
     end
@@ -302,7 +317,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     try
         Delay = load_array(resDir, 'BTEX_res_', slc);
         Delay = squeeze(Delay(:,:,end,:));
-        Delay = flipdim(Delay, 2);
+        Delay = permute(Delay, [2 1 3 4]);
     catch
         Delay = [];
     end
@@ -310,49 +325,49 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     try
         Fermi_Delay = load_array(resDir, 'Fermi_res_', slc);
         Fermi_Delay = squeeze(Fermi_Delay(:,:,end,:));
-        Fermi_Delay = flipdim(Fermi_Delay, 2);
+        Fermi_Delay = permute(Fermi_Delay, [2 1 3 4]);
     catch
         Fermi_Delay = [];
     end
     
     try
         BTEX_Flow_all = load_array(resDir, 'BTEX_Flow_all_', slc);
-        BTEX_Flow_all = flipdim(BTEX_Flow_all, 2);
+        BTEX_Flow_all = permute(BTEX_Flow_all, [2 1 3 4]);
     catch
         BTEX_Flow_all = [];
     end
 
     try
         BTEX_PS_all = load_array(resDir, 'BTEX_PS_all_', slc);
-        BTEX_PS_all = flipdim(BTEX_PS_all, 2);
+        BTEX_PS_all = permute(BTEX_PS_all, [2 1 3 4]);
     catch
         BTEX_PS_all = [];
     end
 
     try
         BTEX_Visf_all = load_array(resDir, 'BTEX_Visf_all_', slc);
-        BTEX_Visf_all = flipdim(BTEX_Visf_all, 2);
+        BTEX_Visf_all = permute(BTEX_Visf_all, [2 1 3 4]);
     catch
         BTEX_Visf_all = [];
     end
 
     try
         BTEX_Vp_all = load_array(resDir, 'BTEX_Vp_all_', slc);
-        BTEX_Vp_all = flipdim(BTEX_Vp_all, 2);
+        BTEX_Vp_all = permute(BTEX_Vp_all, [2 1 3 4]);
     catch
         BTEX_Vp_all = [];
     end
 
     try
         BTEX_cost_all = load_array(resDir, 'BTEX_cost_all_', slc);
-        BTEX_cost_all = flipdim(BTEX_cost_all, 2);
+        BTEX_cost_all = permute(BTEX_cost_all, [2 1 3 4]);
     catch
         BTEX_cost_all = [];
     end
 
     try
         BTEX_flow_SD_all = load_array(resDir, 'BTEX_flow_SD_all_', slc);
-        BTEX_flow_SD_all = flipdim(BTEX_flow_SD_all, 2);
+        BTEX_flow_SD_all = permute(BTEX_flow_SD_all, [2 1 3 4]);
         
         flow_SD = get_delay_values(BTEX_flow_SD_all, Delay);
     catch
@@ -361,7 +376,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     
     try
         BTEX_PS_SD_all = load_array(resDir, 'BTEX_PS_SD_all_', slc);
-        BTEX_PS_SD_all = flipdim(BTEX_PS_SD_all, 2);
+        BTEX_PS_SD_all = permute(BTEX_PS_SD_all, [2 1 3 4]);
         
         PS_SD = get_delay_values(BTEX_PS_SD_all, Delay);
     catch
@@ -370,7 +385,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     
     try
         BTEX_Visf_SD_all = load_array(resDir, 'BTEX_Visf_SD_all_', slc);
-        BTEX_Visf_SD_all = flipdim(BTEX_Visf_SD_all, 2);
+        BTEX_Visf_SD_all = permute(BTEX_Visf_SD_all, [2 1 3 4]);
         
         Visf_SD = get_delay_values(BTEX_Visf_SD_all, Delay);
     catch
@@ -379,7 +394,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     
     try
         BTEX_Vp_SD_all = load_array(resDir, 'BTEX_Vp_SD_all_', slc);
-        BTEX_Vp_SD_all = flipdim(BTEX_Vp_SD_all, 2);
+        BTEX_Vp_SD_all = permute(BTEX_Vp_SD_all, [2 1 3 4]);
         
         Vp_SD = get_delay_values(BTEX_Vp_SD_all, Delay);
     catch
@@ -388,7 +403,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     
     try
         BTEX_cov_all = load_array_cov(resDir, 'BTEX_cov_all_', slc);
-        BTEX_cov_all = flipdim(BTEX_cov_all, 4);
+        BTEX_cov_all = permute(BTEX_cov_all, 4);
         
         BTEX_cov = get_delay_values_cov(BTEX_cov_all, Delay);
         
@@ -407,7 +422,7 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     
     try
         RO = size(BTEX_Flow_all, 1);
-        E1 = size(BTEX_Flow_all, 2);
+        E1 = size(BTEX_Flow_all, [2 1 3 4]);
         
         BTEX_Tc_all = zeros(RO, E1, slc);
         
@@ -592,12 +607,24 @@ function [CC_F_PS, CC_F_Vp, CC_F_Visf, CC_PS_Vp, CC_PS_Visf, CC_Vp_Visf] = compu
     end
 end
 
+% function v = getXMLField(xmlContent, vname)
+% 
+%     for ii=1:numel(xmlContent)        
+%         if(strcmp(xmlContent(ii).meta(1).name, vname)==1)            
+%             for j=1:numel(xmlContent(ii).meta)
+%                 v(j) = str2double(xmlContent(ii).meta(j).value);
+%             end            
+%         end        
+%     end
+% end
+
 function v = getXMLField(xmlContent, vname)
 
-    for ii=1:numel(xmlContent)        
-        if(strcmp(xmlContent(ii).meta(1).name, vname)==1)            
-            for j=1:numel(xmlContent(ii).meta)
-                v(j) = str2double(xmlContent(ii).meta(j).value);
+    C = xmlContent.ismrmrdMeta.meta;
+    for ii=1:numel(C)        
+        if(strcmp(C{ii}.name.Text, vname)==1)            
+            for j=1:numel(C{ii}.value)
+                v(j) = str2double(C{ii}.value{j}.Text);
             end            
         end        
     end

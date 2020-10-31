@@ -1,0 +1,105 @@
+
+function [ yOut, schemeDataOut ] = GetInter(t, yIn, schemeDataIn)
+% schemeDataIn.LastData
+% schemeDataIn.LastY
+% schemeDataIn.B
+% schemeData.connectivityObject
+% schemeData.connectivityBackground
+
+disp(['current time is ' num2str(t)]);
+disp(['checking topology 2D ... ']);
+
+% yOut phi at next time point
+% yIn phi_temp
+yOut = yIn;
+schemeDataOut = schemeDataIn;
+
+B = schemeDataIn.B; % B will be improved at every iteration
+LastData = schemeDataIn.LastData;
+tempData = reshape(yIn, schemeDataIn.shape);
+NextData = zeros(size(tempData));
+connectivityObject = schemeDataIn.connectivityObject;
+connectivityBackground = schemeDataIn.connectivityBackground;
+
+tempSign = -sign(tempData);
+index = find(tempSign==0);
+if ( isempty(index) == 0 )
+    tempSign(index) = 1;
+end
+
+LastSign = -sign(LastData);
+index = find(LastSign==0);
+if ( isempty(index) == 0 )
+    LastSign(index) = 1;
+end
+
+% find all voxels that the signs have not been changed
+% B keeps unchanged
+index = find(tempSign==LastSign);
+NextData(index) = tempData(index);
+
+% for every voxel whose sign has changed,
+index2 = find(tempSign~=LastSign);
+num = length(index2);
+if ( num == 0 )
+    yOut = NextData(:);
+    schemeDataOut.LastData = NextData;
+    schemeDataOut.LastY = yOut;
+    schemeDataOut.B = B;
+    return;
+end
+    
+% [T_object, T_backgournd] = ComputeTopologicalNumber2D(index2, B, connectivityObject, connectivityBackground);
+
+global ntimes
+
+map = gray(256);
+simplePoints = zeros(size(B), 'uint8');
+simplePoints(find(B==1)) = 80;
+filename = ['./simplePoints2D/B_' num2str(ntimes) '.bmp'];
+imwrite(simplePoints, map, filename, 'bmp');
+
+simplePoints = zeros(size(B), 'uint8');
+simplePoints(find(B==1)) = 80;
+
+value = 0;
+for tt = 1:num
+    [i, j] = ind2sub(schemeDataOut.shape, index2(tt));
+    
+    [T_object, T_backgournd] = ComputeTopologicalNumber2D_singlePoint(i, j, B, connectivityObject, connectivityBackground);
+    
+    if ( (T_object==1) & (T_backgournd==1) )
+        % simple point, the phi can be updated
+        NextData(i, j) = tempData(i, j);
+        B(i, j) = mod(B(i, j)+1, 2);
+        simplePoints(i, j) = 158;
+    else
+        value = value+1;
+        % non-simple point, the sign of phi can NOT be inverted
+        if ( LastData(i, j) <= 0 )
+            NextData(i, j) = -10^12 * eps;
+%             NextData(i, j) = LastData(i, j);
+        else
+            NextData(i, j) = 10^12 * eps;
+%             NextData(i, j) = LastData(i, j);
+        end
+        simplePoints(i, j) = 255;
+    end
+end
+disp(['non-simple points value = ' num2str(value)]);
+
+yOut = NextData(:);
+schemeDataOut.LastData = NextData;
+schemeDataOut.LastY = yOut;
+schemeDataOut.B = B;
+
+schemeDataOut = processTopology(schemeDataOut);
+
+map = gray(256);
+map(256, :) = [1 0 0];
+map(159, :) = [0 1 0];
+filename = ['./simplePoints2D/simplePoints_' num2str(ntimes) '.bmp'];
+imwrite(simplePoints, map, filename, 'bmp');
+
+ntimes = ntimes+1;
+return;

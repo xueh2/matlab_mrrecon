@@ -1,0 +1,15 @@
+
+
+% create vtk surfaces from the binary image
+
+inputfile = '.hdr';
+outputfile = 'J:\more_neonates_images_LS\new_subjects2\preterm\3T306\Result\wm_seg_4classes.vtk';
+
+[data, header] = LoadAnalyze(inputfile, 'Grey');
+
+data(find(data>0)) = 1;
+threshold = 0.5;
+shrink = [1 1 1];
+smooth = [0.1 20];
+
+mcubes2VTKFile(single(data), header, outputfile, threshold, shrink, smooth);

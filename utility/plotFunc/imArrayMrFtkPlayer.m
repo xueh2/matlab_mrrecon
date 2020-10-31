@@ -1,4 +1,4 @@
-function imArrayMrFtkPlayer(im, header, delay_length, endo_pt, epi_pt)
+function xyAxes = imArrayMrFtkPlayer(im, header, delay_length, endo_pt, epi_pt, landmark_pt)
 % The function displays any animated GIF's in a figure window
 %
 % Demo : gifplayer; %plays the animated crystal.gif file
@@ -31,10 +31,29 @@ elseif nargin <2
     delay_length = 0.2;%frame will be updated after 0.2 sec
 end
 
+if nargin<4
+    endo_pt = [];
+end
+if nargin<5
+    epi_pt = [];
+end
+if nargin<6
+    landmark_pt = [];
+end
 
 %[handles.im,map] = imread(gif_image,'frames','all'); %read all frames of an gif image
 s = size(im);
-[xyAxes, xyImageHandle, endo_handle, epi_handle] = plotMrFtkImage(im(:,:,1), header, -1, 1, endo_pt{1,2}, epi_pt{1,2});
+
+if(~isempty(landmark_pt))
+    [xyAxes, xyImageHandle, endo_handle, epi_handle, landmark_handle] = plotMrFtkImage(im(:,:,1), header, -1, 1, [], [], landmark_pt(:,:,1));
+else
+    if(isempty(endo_pt))
+        [xyAxes, xyImageHandle, endo_handle, epi_handle, landmark_handle] = plotMrFtkImage(im(:,:,1), header, -1, 1);
+    else
+        [xyAxes, xyImageHandle, endo_handle, epi_handle, landmark_handle] = plotMrFtkImage(im(:,:,1), header, -1, 1, endo_pt{1,2}, epi_pt{1,2});
+    end
+end
+
 handles.im = im;
 handles.len = size(im, 3);
 handles.h1 = xyAxes;
@@ -43,6 +62,8 @@ handles.endo = endo_handle;
 handles.epi = epi_handle;
 handles.endo_pt = endo_pt;
 handles.epi_pt = epi_pt;
+handles.landmark = landmark_handle;
+handles.landmark_pt = landmark_pt;
 handles.count = 1;% intialise counter to update the next frame
 set(handles.h1,'UserData',handles.count);%store the value of the counter in the image handles Userdata
 handles.tmr = timer('TimerFcn', {@TmrFcn,handles},'BusyMode','Queue',...
@@ -82,6 +103,11 @@ end
 if(ishandle(handles.epi))
     pt = handles.epi_pt{handles.count, 2};
     set(handles.epi, 'XData', pt(:,1), 'YData', pt(:,2));
+end
+
+if(ishandle(handles.landmark))
+    pt = handles.landmark_pt(:,:,handles.count);
+    set(handles.landmark, 'XData', pt(:,1), 'YData', pt(:,2));
 end
 
 % setappdata(0,'count',count);%update the counter

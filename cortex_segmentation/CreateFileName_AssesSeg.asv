@@ -1,0 +1,30 @@
+function [Global_dsc_resultfile, Global_PVs_dsc_resultfile, Global_Local_PVs_dsc_resultfile] = ...
+    CreateFileName_AssesSeg(home, Labeled_slices{i, :}, classnumber)
+% create file name
+
+% Global_dsc
+GMM_PVs_flag = 0;
+
+if (classnumber==1)
+    Four_classes_flag = 0;
+    Five_classes_flag = 1;
+end
+if (classnumber==2)
+    Four_classes_flag = 1;
+    Five_classes_flag = 0;
+end
+            
+            Global_flag = 1; 
+            Local_flag = 0;
+
+            Atlas_flag_Global = 0;
+            Atlas_flag_Local = 0;
+
+            Kmeans_flag_Global = 1;
+            Kmeans_flag_Local = 1;
+            
+            MRF_flag_Global = 1;
+            MRF_flag_Local = 1;
+            
+%             GMM_PVs_flag = 1;
+            Save_flag = 1;

@@ -1,20 +1,25 @@
 
-function [mag, header] = plotImageArray(im, voxelsize, centre, width, delayTime, plotFlag)
+function [mag, header, xyAxes] = plotImageArray(im, voxelsize, landmarks, centre, width, delayTime, plotFlag)
+% [mag, header, xyAxes] = plotImageArray(im, voxelsize, landmarks, centre, width, delayTime, plotFlag)
 
 if ( nargin < 2 )
     voxelsize = [1 1 1];
 end
 
-if ( nargin < 4 )
+if ( nargin < 3 )
+    landmarks = [];
+end
+
+if ( nargin < 5 )
     centre = 1024;
     width = 1024;
 end
 
-if ( nargin < 5 )
+if ( nargin < 6 )
    delayTime = 0.1;
 end
 
-if ( nargin < 6 )
+if ( nargin < 7 )
    plotFlag = 1;
 end
 
@@ -36,7 +41,7 @@ if ( length(s) == 3 )
 
     if ( plotFlag )
         magWindowed = normalizeWindowSetting(mag, centre, width);        
-        imArrayMrFtkPlayer(magWindowed, header,delayTime);
+        xyAxes = imArrayMrFtkPlayer(magWindowed, header,delayTime, [], [], landmarks);
     end
 end
 

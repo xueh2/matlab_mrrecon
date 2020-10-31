@@ -1,5 +1,5 @@
-function timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit)
-% timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit)
+function timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isNX20, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit, paraXml)
+% timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isNX20, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit, paraXml)
 
 % siemens to hdf5
 
@@ -19,9 +19,14 @@ OutputFormat = getenv('OutputFormat')
 
 if(startRemoteGT)
     if((strcmp(GT_HOST, 'localhost')==1))
-        cd('D:\gtuser\gt_scanner_setup_scripts')
-        command = ['gadgetron -p ' GT_PORT ' > D:\Temp\record_' GT_PORT '.txt']
-        dos([command ' &'])
+        if(isunix())
+            command = ['gadgetron -p ' GT_PORT ' > ~/record_' GT_PORT '.txt']
+            dos([command ' &'])
+        else            
+            cd('D:/gtuser/gt_scanner_setup_scripts')
+            command = ['gadgetron -p ' GT_PORT ' > D:/Temp/record_' GT_PORT '.txt']
+            dos([command ' &'])
+        end
     else
         [key, user] = sshKeyLookup(GT_HOST);
         if (~isempty(user) & startRemoteGT)
@@ -43,14 +48,24 @@ if(~h5Only)
     end
 end
 
-if(isNX)
-    styleSheetUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_NX.xsl';
+if(isunix())
+    schema_dir = [GTHome '/schema/'];
 else
-    styleSheetUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl';
+    schema_dir = '%GADGETRON_DIR%/install/schema';
+end
+
+if(isNX20)
+    styleSheetUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_NX.xsl'];
+end
+
+if(isNX)
+    styleSheetUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_NX.xsl'];
+else
+    styleSheetUsed = [schema_dir '/IsmrmrdParameterMap_Siemens.xsl'];
 end
 
 if ( nargin >= 8 )
-    styleSheetUsed = [ '%GADGETRON_DIR%\install\schema/' styleSheet];
+    styleSheetUsed = [schema_dir '/' styleSheet];
 end
 
 flashRef = 0;
@@ -58,11 +73,22 @@ if( ~isempty(strfind(styleSheet, 'IsmrmrdParameterMap_Siemens_EPI_FLASHREF')) )
     flashRef = 1;
 end
 
-if(isNX)
-    xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion_NX.xml';
+if(isNX20)
+    xmlUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_NX20A.xml'];
+elseif(isNX)
+    xmlUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_Perfusion_NX.xml'];
 else
-    xmlUsed = '%GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_Perfusion.xml';
+    xmlUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_Perfusion.xml'];
 end
+
+if(~isempty(paraXml))
+    if(nargin>=16)
+        xmlUsed = [schema_dir '/' paraXml];
+    end
+end
+
+% dependency_xml = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml';
+dependency_xml = 'default_measurement_dependencies.xml';
 
 % if VD, run the dependent scan
 
@@ -96,7 +122,7 @@ end
 
 studyDate = datestr(date, 'yyyy-mm-dd');
 
-if ( isVD | isNX )
+if ( isVD | isNX | isNX20 )
     if ( isVD11 )
         if ( ~isFileExist(h5Name) || deleteh5 )
             delete(h5Name);
@@ -119,7 +145,7 @@ if ( isVD | isNX )
                 [names, num] = findFILE(folderDir, '*noise*.h5');   
             end
             for n=1:num
-                command = ['gadgetron_ismrmrd_client -f ' names{n} ' -c default_measurement_dependencies.xml -a ' GT_HOST ' -p ' GT_PORT]
+                command = ['gadgetron_ismrmrd_client -f ' names{n} ' -c ' dependency_xml ' -a ' GT_HOST ' -p ' GT_PORT]
                 dos(command, '-echo');
             end            
             
@@ -140,7 +166,7 @@ if ( isVD | isNX )
                 end
             end
 
-            if(isNX)
+            if(isNX || isNX20)
                 noise_xsl = 'IsmrmrdParameterMap_Siemens_NX.xsl';
             else
                 noise_xsl = 'IsmrmrdParameterMap_Siemens.xsl';
@@ -148,22 +174,36 @@ if ( isVD | isNX )
             
             [names, num] = findFILE(folderDir, '*AdjCoilSens*.dat');          
             for n=1:num
-                command = ['siemens_to_ismrmrd -f ' names{n} ' -o ' names{n} '_AdjCoilSens.h5 --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xml --user-stylesheet %GADGETRON_DIR%\install\schema/' noise_xsl ' -z 1 --studyDate ' studyDate]
+                command = ['siemens_to_ismrmrd -f ' names{n} ' -o ' names{n} '_AdjCoilSens.h5 --user-map ' schema_dir '/IsmrmrdParameterMap_Siemens.xml --user-stylesheet ' schema_dir '/' noise_xsl ' -z 1 --studyDate ' studyDate]
                 dos(command, '-echo');
                 
-                command = ['gadgetron_ismrmrd_client -f ' names{n} '_AdjCoilSens.h5 -c default_measurement_dependencies.xml -a ' GT_HOST ' -p ' GT_PORT]
+                command = ['gadgetron_ismrmrd_client -f ' names{n} '_AdjCoilSens.h5 -c ' dependency_xml ' -a ' GT_HOST ' -p ' GT_PORT]
                 dos(command, '-echo');
             end            
-                       
+            
+            has_only_one_scan = 0;
+            delete('config_buffer*.*');
+            delete('*.xml');
+            command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 -X -H --studyDate ' studyDate]
+            dos(command, '-echo');
+            if(~exist('config_buffer.xprot'))
+                has_only_one_scan = 1;
+                disp(['This data has only one scan !!! ']);
+                hasAdj = 0;
+            end
+            
             if(hasAdj)
-                if ( ~isFileExist('AdjCoilSens.h5') || deleteh5 )
-                    delete('AdjCoilSens.h5');
-                    command = ['siemens_to_ismrmrd -f ' dataName ' -o AdjCoilSens.h5 --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xml --user-stylesheet %GADGETRON_DIR%\install\schema/' noise_xsl ' -z 1 --studyDate ' studyDate]
+                if(~has_only_one_scan)
+                    if ( ~isFileExist('AdjCoilSens.h5') || deleteh5 )
+                        delete('AdjCoilSens.h5');
+                        delete('*.*');
+                        command = ['siemens_to_ismrmrd -f ' dataName ' -o AdjCoilSens.h5 --user-map ' schema_dir '/IsmrmrdParameterMap_Siemens.xml --user-stylesheet ' schema_dir '/' noise_xsl ' -z 1 --studyDate ' studyDate]
+                        dos(command, '-echo');
+                    end
+
+                    command = ['gadgetron_ismrmrd_client -f AdjCoilSens.h5 -c ' dependency_xml ' -a ' GT_HOST ' -p ' GT_PORT]
                     dos(command, '-echo');
                 end
-
-                command = ['gadgetron_ismrmrd_client -f AdjCoilSens.h5 -c default_measurement_dependencies.xml -a %GT_HOST% -p %GT_PORT% ']
-                dos(command, '-echo');
             end
 
             if ( ~isFileExist(h5Name) || deleteh5 )
@@ -218,21 +258,21 @@ if ( isVD | isNX )
     end
 else  
     if(isAdjScan)
-        command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xml --user-stylesheet %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl -z 1 -X -H --studyDate ' studyDate]
+        command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map ' schema_dir '/IsmrmrdParameterMap_Siemens.xml --user-stylesheet ' schema_dir '/IsmrmrdParameterMap_Siemens.xsl -z 1 -X -H --studyDate ' studyDate]
         dos(command);
             
-        command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xml --user-stylesheet %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens.xsl -z 1 -X --studyDate ' studyDate]
+        command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map ' schema_dir '/IsmrmrdParameterMap_Siemens.xml --user-stylesheet ' schema_dir '/IsmrmrdParameterMap_Siemens.xsl -z 1 -X --studyDate ' studyDate]
         dos(command);
             
-        command = ['gadgetron_ismrmrd_client -f ' h5Name ' -c default_measurement_dependencies.xml -a %GT_HOST% -p %GT_PORT% ']
+        command = ['gadgetron_ismrmrd_client -f ' h5Name ' -c ' dependency_xml ' -a ' GT_HOST ' -p ' GT_PORT]
         tic; dos(command); timeUsed = toc;
     else
         if ( ~isFileExist(h5Name) || deleteh5 )
             delete(h5Name);
-            command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_VB17.xml --user-stylesheet ' styleSheetUsed ' -z 1 -X -H --studyDate ' studyDate]
+            command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map ' schema_dir '/IsmrmrdParameterMap_Siemens_VB17.xml --user-stylesheet ' styleSheetUsed ' -z 1 -X -H --studyDate ' studyDate]
             dos(command);
 
-            command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map %GADGETRON_DIR%\install\schema/IsmrmrdParameterMap_Siemens_VB17.xml --user-stylesheet ' styleSheetUsed ' -z 1 --studyDate ' studyDate]
+            command = ['siemens_to_ismrmrd -f ' dataName ' -o ' h5Name ' --user-map ' schema_dir '/IsmrmrdParameterMap_Siemens_VB17.xml --user-stylesheet ' styleSheetUsed ' -z 1 --studyDate ' studyDate]
             dos(command);
         end
 
@@ -244,19 +284,23 @@ end
 
 if(strcmp(GT_HOST, 'localhost')==1)
     if(startRemoteGT)
-        command = ['taskkill /F /FI "IMAGENAME eq gadgetron.*"'];
-        dos(command)
+        if(isunix())
+            StopGadgetronOnRemote(GT_HOST, GT_PORT);
+        else
+            command = ['taskkill /F /FI "IMAGENAME eq gadgetron.*"'];
+            dos(command)
+        end
     end
     
     try
-        copyfile(['D:\Temp\record_' GT_PORT '.txt'], [resDir '\record_' GT_HOST '_' GT_PORT '.txt']);
+        copyfile(['D:/Temp/record_' GT_PORT '.txt'], [resDir '/record_' GT_HOST '_' GT_PORT '.txt']);
     catch
     end
 else
     [key, user] = sshKeyLookup(GT_HOST);
     if (~isempty(user) & startRemoteGT)
         StopGadgetronOnRemote(GT_HOST, GT_PORT);
-        CopyGadgetronRecordOnRemote(GT_HOST, GT_PORT, [resDir '\record_' GT_HOST '_' GT_PORT '.txt']);
+        CopyGadgetronRecordOnRemote(GT_HOST, GT_PORT, [resDir '/record_' GT_HOST '_' GT_PORT '.txt']);
     end
 end
 

@@ -1,0 +1,78 @@
+
+function [ yOut, schemeDataOut ] = CheckTopology(t, yIn, schemeDataIn)
+% schemeDataIn.LastData
+% schemeDataIn.LastY
+% schemeDataIn.B
+% schemeData.connectivityObject
+% schemeData.connectivityBackground
+
+disp(['current time is ' num2str(t)]);
+disp(['checking topology ... ']);
+
+% yOut phi at next time point
+% yIn phi_temp
+yOut = yIn;
+schemeDataOut = schemeDataIn;
+
+B = schemeDataIn.B; % B will be improved at every iteration
+LastData = schemeDataIn.LastData;
+tempData = reshape(yIn, schemeDataIn.shape);
+NextData = zeros(size(tempData));
+connectivityObject = schemeDataIn.connectivityObject;
+connectivityBackground = schemeDataIn.connectivityBackground;
+
+tempSign = sign(tempData);
+index = find(tempSign==0);
+if ( isempty(index) == 0 )
+    tempSign(index) = 1;
+end
+
+LastSign = sign(LastData);
+index = find(LastSign==0);
+if ( isempty(index) == 0 )
+    LastSign(index) = 1;
+end
+
+% find all voxels that the signs have not been changed
+% B keeps unchanged
+index = find(tempSign==LastSign);
+NextData(index) = tempData(index);
+
+% for every voxel whose sign has changed,
+index2 = find(tempSign~=LastSign);
+num = length(index2);
+if ( num == 0 )
+    yOut = NextData(:);
+    schemeDataOut.LastData = NextData;
+    schemeDataOut.LastY = yOut;
+    schemeDataOut.B = B;
+    return;
+end
+    
+[T_object, T_backgournd] = ComputeTopologicalNumber(index2, B, connectivityObject, connectivityBackground);
+
+value = 0;
+for tt = 1:num
+    [i, j, k] = ind2sub(schemeDataOut.shape, index2(tt));
+        
+    if ( (T_object(tt)==1) & (T_backgournd(tt)==1) )
+        % simple point, the phi can be updated
+        NextData(i, j, k) = tempData(i, j, k);
+        B(i, j, k) = mod(B(i, j, k)+1, 2);
+    else
+        value = value+1;
+        % non-simple point, the sign of phi can NOT be inverted
+        if ( LastData(i, j, k) <= 0 )
+            NextData(i, j, k) = -10^10 * eps;
+        else
+            NextData(i, j, k) = 10^10 * eps;
+        end
+    end
+end
+
+yOut = NextData(:);
+schemeDataOut.LastData = NextData;
+schemeDataOut.LastY = yOut;
+schemeDataOut.B = B;
+
+return;

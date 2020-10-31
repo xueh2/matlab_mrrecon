@@ -1,0 +1,6 @@
+
+function links = BuildLinks(pts, numCells, cells)
+% build the links as the vtkPolyData
+% links is a struct array with the size of numOfPoints * 1
+% every element is a struct with two fields: ptID(scalar), cellIDs(N*1)
+% cellIDs store the cells using 

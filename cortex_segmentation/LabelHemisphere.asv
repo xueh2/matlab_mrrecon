@@ -1,0 +1,43 @@
+
+
+function LabelHemsphere = LabelHemisphere(data, header)
+% the left hemisphere is label as 1 and the right as 2;
+
+zsize = header.zsize;
+
+LabelHemsphere = zeros(size(data), 'uint8');
+meanR = [0 0];
+for k = 1:zsize
+   
+    slice = data(:,:,k);
+    slicelabel = zeros(size(slice), 'uint8');
+    bwareaopen(bwOriginal,50);
+    [l,num] = bwlabel(slice, 8);
+    
+    if ( num<2 )
+        continue;
+    end
+    
+    if ( num == 2 )
+        
+        
+        
+        for tt = 1:num
+            [row, col] = ind2sub(size(slice), find(l==tt));
+            meanCol(tt) = mean(col);
+        end
+        
+        if ( meanCol(1)<meanCol(2) )
+            slicelabel(find(l==1)) = 1;
+            slicelabel(find(l==2)) = 2;
+        else
+            slicelabel(find(l==1)) = 2;
+            slicelabel(find(l==2)) = 1;
+        end
+        LabelHemsphere(:,:,k) = slicelabel;
+        continue;
+    end
+    
+    % perform a complex search
+%     slicelabel = FindCuttingPlane_2D(slice, theta, transi);
+end

@@ -1,5 +1,6 @@
 
 function dataScaled = normalizeWindowSetting(data, centre, width)
+% dataScaled = normalizeWindowSetting(data, centre, width)
 
 data = single(data);
 

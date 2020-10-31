@@ -37,12 +37,13 @@ function [aif_scan_geometry_info, scan_geometry_info] = read_in_GT_Perf_DebugOut
         disp(['Total ' num2str(slc) ' is found ...']);
 
         % read in aif slice and image position
-        xmlContent = xml_load(fullfile(resDir, ['results_SLC0_CON0_PHS0_REP0_SET0_AVE0_1_101.attrib']));
-        aif_slice_dir = getXMLField(xmlContent, 'slice_dir');
-        aif_read_dir = getXMLField(xmlContent, 'read_dir');
-        aif_phase_dir = getXMLField(xmlContent, 'phase_dir');
-        aif_PatientPosition = getXMLField(xmlContent, 'PatientPosition');
-        aif_patient_table_position = getXMLField(xmlContent, 'patient_table_position');    
+        xmlContent = gt_xml_load(fullfile(resDir, ['results_SLC0_CON0_PHS0_REP0_SET0_AVE0_1_101.attrib']));
+        attrib = gt_parse_image_attrib(xmlContent);
+        aif_slice_dir = attrib.slice_dir;
+        aif_read_dir = attrib.read_dir;
+        aif_phase_dir = attrib.phase_dir;
+        aif_PatientPosition = attrib.PatientPosition;
+        aif_patient_table_position = attrib.patient_table_position;
 
         for s=1:slc
             if(MS_mode==0)
@@ -51,12 +52,13 @@ function [aif_scan_geometry_info, scan_geometry_info] = read_in_GT_Perf_DebugOut
                 [names, num] = findFILE(resDir, ['*_SLC' num2str(s-1) '*' num2str(s) '03.attrib']);
             end
             names{1}
-            xmlContent = xml_load(names{1});
-            slice_dir(s,:) = getXMLField(xmlContent, 'slice_dir');
-            read_dir(s,:) = getXMLField(xmlContent, 'read_dir');
-            phase_dir(s,:) = getXMLField(xmlContent, 'phase_dir');
-            PatientPosition(s,:) = getXMLField(xmlContent, 'PatientPosition');
-            patient_table_position(s,:) = getXMLField(xmlContent, 'patient_table_position');
+            xmlContent = gt_xml_load(names{1});
+            attrib = gt_parse_image_attrib(xmlContent);
+            slice_dir(s,:) = attrib.slice_dir;
+            read_dir(s,:) = attrib.read_dir;
+            phase_dir(s,:) = attrib.phase_dir;
+            PatientPosition(s,:) = attrib.PatientPosition;
+            patient_table_position(s,:) = attrib.patient_table_position;
         end
 
         aif_scan_geometry_info = table(aif_slice_dir, aif_read_dir, aif_phase_dir, aif_PatientPosition, aif_patient_table_position);    

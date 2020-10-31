@@ -1,0 +1,29 @@
+
+function [surface_points, num] = GetSurfacePoints(data, level)
+% get the surface points using linear interpolation
+
+[ysize, xsize, zsize] = size(data);
+
+surface_points = zeros(floor(xsize*ysize*zsize/2), 3);
+num = 0;
+
+data = data - level;
+index = find(data==0);
+if ( isempty(index) == 0 )
+    data(index) = -1e-4;
+end
+
+% for x direction
+for k=1:zsize
+    for j=1:yize
+        for i=1:xsize-1
+            
+            % for points
+            p1 = [i j];
+            v1 = daat(j, i);
+            L1 = v1>level;
+ 
+            
+        end
+    end
+end

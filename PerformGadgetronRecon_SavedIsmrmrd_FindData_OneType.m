@@ -54,8 +54,11 @@ for d=1:numdirs
         end
 
         % find scanner ID, patient ID, study ID, measurement ID, study date and time
-        [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
-
+        try
+            [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+        catch
+            disp(name);
+        end
 %         if( str2num(measurementID) > 10000 )
 %             continue;
 %         end
@@ -89,7 +92,12 @@ if(~isempty(protocols))
     for ii=1:numel(files)                
         
         name = files{ii};
-        [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+        try
+            [configName, scannerID, patientID, studyID, measurementID, study_date, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+        catch
+            disp(['---> ' name]);
+            continue;
+        end
         
         h5name = fullfile(dataDir, study_date, [name '.h5']);
         
@@ -117,7 +125,7 @@ if(~isempty(protocols))
             study_dates = [study_dates; study_date];
             study_times = [study_times; study_time];
             prots = [prots; {prot}];
-            headers = [headers; hdr];
+            headers = [headers; {hdr}];
             patientIDs = [patientIDs; {patientID}];
             studyIDs = [studyIDs; {studyID}];
             scannerIDs = [scannerIDs; {scannerID}];
@@ -125,6 +133,8 @@ if(~isempty(protocols))
         end
     end
     
-    files_record = table(file_names, prots, patientIDs, studyIDs, study_dates, study_times, measurementIDs, scannerIDs, headers);
+    if(numel(file_names)>1)
+        files_record = table(file_names, prots, patientIDs, studyIDs, study_dates, study_times, measurementIDs, scannerIDs, headers);
+    end
     
 end

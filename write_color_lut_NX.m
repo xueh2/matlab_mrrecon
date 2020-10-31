@@ -1,13 +1,18 @@
 function write_color_lut_NX(filename, map, num_entries);
 % function write_color_lut_NX(filename, map);
 
+n_lut = size(map, 1);
+
 if(nargin<3)
     num_entries = 4096;
 end
 
 % interpolate to 4096 slots
+% p = map;
+% map = interp1(0:255, p, 0:(255/(num_entries-1)):255, 'PCHIP');
+
 p = map;
-map = interp1(0:255, p, 0:(255/(num_entries-1)):255, 'PCHIP');
+map = interp1(0:n_lut-1, p, 0:((n_lut-1)/(num_entries-1)):n_lut-1, 'pchip');
 
 % scale make map between 0-255
 map = 65535*map/max(map(:));

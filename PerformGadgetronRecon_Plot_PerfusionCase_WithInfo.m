@@ -50,11 +50,17 @@ end
 % scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time
 
 if(~onlyReview)
-    if(has_rest)        
-        if(exist(figDir)==7)
-            rmdir(figDir, 's');
+    if(has_rest)      
+        try
+            if(exist(figDir)==7)
+                rmdir(figDir, 's');
+            end
+        catch
         end
-        mkdir(figDir);
+        try
+            mkdir(figDir);
+        catch
+        end
         
         if(has_rest)
             % save(fullfile(figDir, 'rest.mat'), 'perf', 'ori', 'moco', 'moco_norm', 'aif_im', 'aif_moco', 'aif', 'aif_baseline_corrected', 'aif_cin', 'aif_cin_Gd', 'aif_cin_Gd_without_R2Star', 'aif_cin_Gd_baseline_corrected', 'aif_cin_all_echo0_signal', 'aif_cin_all_echo1_signal', 'aif_cin_all_echo0_signal_after_R2StarCorrection', 'aif_cin_all_echo0_OverPD_after_R2StarCorrection', 'aif_cin_all_R2Star', 'aif_cin_all_R2Star_SLEP', 'aif_PD', 'aif_mask', 'aif_mask_final', 'flow', 'Ki', 'PS', 'Vp', 'Visf', 'E', 'SDMap', 'Delay');
@@ -239,6 +245,66 @@ if(has_rest)
         figName = fullfile(figDir, [resDir '_Rest_SectorMasks' '.fig']);
         saveas(h_mask_seg, figName, 'fig');
         save(fullfile(figDir, 'bulls_eye_rest'), 'bulls_eye_rest');
+    catch
+    end
+            
+    try
+        Bullseye_plot_final = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_plot_final'));
+        figName = [ resDir '_Rest_Bullseye_plot_final'];
+        h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+        imagescn(permute(Bullseye_plot_final, [2, 1]), [0 800], [], scalingFactor); PerfColorMap;
+        saveas(h, fullfile(figDir, figName), 'fig');
+
+        try
+            Bullseye_plot_final_32 = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_plot_final_32'));
+            figName = [ resDir '_Rest_Bullseye_plot_final_32'];
+            h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+            imagescn(permute(Bullseye_plot_final_32, [2, 1]), [0 800], [], scalingFactor); PerfColorMap;
+            saveas(h, fullfile(figDir, figName), 'fig');
+        catch
+        end
+
+        Bullseye_report_plot = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_report_plot'));
+        figName = [ resDir '_Rest_Bullseye_report_plot'];
+        h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+        imagescn(permute(Bullseye_report_plot, [2, 1]), [0 220], [], scalingFactor);
+        saveas(h, fullfile(figDir, figName), 'fig');
+
+        Bullseye_burden_report_plot = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_burden_report_plot'));
+        figName = [ resDir '_Rest_Bullseye_burden_report_plot'];
+        h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+        imagescn(permute(Bullseye_burden_report_plot, [2, 1]), [0 220], [], scalingFactor);
+        saveas(h, fullfile(figDir, figName), 'fig');
+
+        try
+            Bullseye_bs_report_plot = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_bs_report_plot'));
+            figName = [ resDir '_Rest_Bullseye_bs_report_plot'];
+            h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+            imagescn(permute(Bullseye_bs_report_plot, [2, 1]), [0 220], [], scalingFactor);
+            saveas(h, fullfile(figDir, figName), 'fig');
+
+            Bullseye_bs_report_32_plot = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_bs_report_32_plot'));
+            figName = [ resDir '_Rest_Bullseye_bs_report_32_plot'];
+            h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+            imagescn(permute(Bullseye_bs_report_32_plot, [2, 1]), [0 220], [], scalingFactor);
+            saveas(h, fullfile(figDir, figName), 'fig');
+        catch
+        end  
+
+        try
+            Bullseye_plot_MPR = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_plot_MPR'));
+            figName = [ resDir '_Rest_Bullseye_plot_MPR'];
+            h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+            imagescn(permute(Bullseye_plot_MPR, [2, 1]), [0 400], [], scalingFactor); PerfMPRMap;
+            saveas(h, fullfile(figDir, figName), 'fig');
+
+            Bullseye_plot_MPR_32 = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_plot_MPR_32'));
+            figName = [ resDir '_Rest_Bullseye_plot_MPR_32'];
+            h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+            imagescn(permute(Bullseye_plot_MPR_32, [2, 1]), [0 400], [], scalingFactor); PerfMPRMap;
+            saveas(h, fullfile(figDir, figName), 'fig');
+        catch
+        end
     catch
     end
             

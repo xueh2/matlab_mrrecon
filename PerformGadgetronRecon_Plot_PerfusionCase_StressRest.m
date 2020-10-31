@@ -25,6 +25,9 @@ function [h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRe
     if strfind(study_dates_stress,'201');
         restDir = fullfile(resDir, study_dates_rest, restCase)
         stressDir = fullfile(resDir, study_dates_stress, stressCase)
+    elseif strfind(study_dates_stress,'202');
+        restDir = fullfile(resDir, study_dates_rest, restCase)
+        stressDir = fullfile(resDir, study_dates_stress, stressCase)
     else
         restDir = fullfile(resDir, [], restCase)
         stressDir = fullfile(resDir, [], stressCase)        

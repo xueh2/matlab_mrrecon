@@ -7,7 +7,7 @@ if(nargin<1)
 end
 
 sites = {'BARTS'; 'ROYALFREE'; 'KCL'; 'LEEDS'; 'LUND'; 'KAROLINSKA'; 'CHENIESMEWS'; 'CAMPINAS'; 'GEISINGER'; 'CATHLAB'; 'CNMC'};
-scanner_id = { [41837, 42110, 66016]; 42363; 42170; 66097; 42034; [41672, 46184]; 141303; 53531; 42311; 41624; 41548};
+scanner_id = { [41837, 42110, 66016]; 42363; 42170; 66097; 42034; [41672, 46184]; [141303, 166032]; 53531; 42311; 41624; 41548};
 
 scanner_list =  table(sites, scanner_id);
 

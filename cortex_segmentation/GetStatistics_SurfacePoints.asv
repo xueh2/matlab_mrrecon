@@ -1,0 +1,25 @@
+
+function [mean_S, std_S, values] = GetStatistics_SurfacePoints(points, scalarfield)
+
+% B-Spline interpolation
+num = size(points, 1);
+scalarfield = single(scalarfield);
+coefficient = col2row( ComputeCoefficients(scalarfield) );
+values = zeros(num, 1);
+
+for i = 1:num
+    x = points(i, 1);
+    y = points(i, 2);
+    z = surface_points(i, 3);
+    values(i) = EvaluateSpline2(coefficient, 3, x, y, z);
+end
+
+minThickness = minThickness/voxelsize; % mm --> voxel
+index = find(surface_points_values>=minThickness);
+
+points = surface_points(index(:), :);
+values = surface_points_values(index(:));
+mean_S = mean(values);
+std_S = std(values);
+
+return;

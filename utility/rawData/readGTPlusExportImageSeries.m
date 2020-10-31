@@ -16,6 +16,7 @@ end
 
 endo_pt = [];
 epi_pt = [];
+user_int = [];
 
 if(num==0)
     [data, header, acq_time, physio_time] = readGTPlusExportImageSeries_h5(folderName, seriesNum, withTime, numAsRep);

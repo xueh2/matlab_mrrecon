@@ -1,5 +1,5 @@
 
-function [xyAxes, xyImageHandle, endo_handle, epi_handle] = plotMrFtkImage(im, header, h, showAxis, endo_pt, epi_pt)
+function [xyAxes, xyImageHandle, endo_handle, epi_handle, landmark_handle] = plotMrFtkImage(im, header, h, showAxis, endo_pt, epi_pt, landmark_pt)
 
 if(nargin<5)
     endo_pt = [];
@@ -9,8 +9,13 @@ if(nargin<6)
     epi_pt = [];
 end
 
+if(nargin<7)
+    landmark_pt = [];
+end
+
 endo_handle = -1;
 epi_handle = -1;
+landmark_handle = -1;
 
 xlim3D(1) = header.spacingX*-0.5;
 xlim3D(2) = header.spacingX*(header.sizeX-0.5);
@@ -63,6 +68,10 @@ end
 
 if(~isempty(epi_pt))
     epi_handle = plot(xyAxes, epi_pt(:,1), epi_pt(:,2), 'g');
+end
+
+if(~isempty(landmark_pt))
+    landmark_handle = plot(xyAxes, landmark_pt(:,1), landmark_pt(:,2), 'r+', 'MarkerSize', 14);
 end
 
 hold off

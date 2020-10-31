@@ -32,8 +32,10 @@ date_suffix = datestr(date, 'yyyymmdd');
 
 for ii=startCase:endCase
 
+    disp(['=====================================================================================']);
+    
     testInfo = UTCases(ii, :);
-    folderDir = fullfile(UTDir, UTCases{ii, 1}, UTCases{ii, 2})
+    folderDir = fullfile(UTDir, UTCases{ii, 1}, UTCases{ii, 2});
     
     if(~isFileExist(folderDir))
         folderDir = fullfile(UTDir, UTCases{ii, 1});
@@ -48,12 +50,62 @@ for ii=startCase:endCase
     folderDir(ind) = '/';
     
     for k=1:num
-        disp(['=====================================================']);
-        disp(folderDir)
+        disp(['-------------------']);
         
         ind = find(names{k}=='\');
         fname = names{k};
         fname(ind) = '/';
-        dos(['fciv.exe -md5 ' fname], '-echo');
+        % dos(['fciv.exe -md5 ' fname], '-echo');
+        if(isunix())
+            [status, outputs] = system(['md5sum ' fname]);
+        else
+            [status, outputs] = system(['fciv.exe -md5 ' fname]);
+        end
+        print_json_record(outputs, fname);
     end
+    
+    disp(['******************']);
+    
+    if(exist(dataName))
+        if(isunix())
+            [status, outputs] = system(['md5sum ' dataName]);
+        else
+            [status, outputs] = system(['fciv.exe -md5 ' dataName]);
+        end
+        print_json_record(outputs, dataName);
+    else
+        if(isunix())
+            [status, outputs] = system(['md5sum ' fullfile(folderDir, [UTCases{ii, 2} '.h5'])]);
+        else
+            [status, outputs] = system(['fciv.exe -md5 ' fullfile(folderDir, [UTCases{ii, 2} '.h5'])]);
+        end
+        print_json_record(outputs, fullfile(folderDir, [UTCases{ii, 2} '.h5']));
+    end
+    
+    
+end
+
+end
+
+function print_json_record(outputs, fname)
+    ind = strfind(outputs, '//');
+    if(isempty(ind))
+        ind = strfind(outputs, '/');
+        a = outputs(1:ind(1)-1);
+        ind2 = strfind(a, ' ');
+        sha1 = a(1:ind2(1)-1);
+    else
+        a = outputs(ind(end)+3:end);
+        ind2 = strfind(a, ' ');
+        sha1 = a(1:ind2(1)-1);
+    end
+    ind3 = strfind(fname, 'gtprep/');
+    if(isempty(ind3))
+        ind3 = strfind(fname, 'gtprep\');
+    end
+    fname_str = fname(ind3:end);
+    disp(['{']);
+    disp(['    "file":"' fname_str '",']);
+    disp(['    "md5":"' sha1 '"']);
+    disp(['}']);
 end

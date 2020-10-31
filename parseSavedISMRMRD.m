@@ -1,5 +1,5 @@
 function [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name)
-% [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD('LGE_MOCO_AVE_OnTheFly_41672_7432022_7432027_319_20160329-185042')
+% [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name)
 
 len = length(name);
 ind = strfind(name, '_');
@@ -36,16 +36,21 @@ configName = [];
 if(~isempty(strfind(xmlString, 'ISMRMRD_Noise_dependency')))
     configName = 'default_measurement_dependencies.xml';
         
+elseif(~isempty(strfind(xmlString, 'T1SR_Mapping_SASHA_HC_T1T2')))
+    configName = 'SASHA-HC_grappa_moco_AVE_AI_CMR_View_PSIR_dstore_OFFLINE.xml';
+    
 elseif(~isempty(strfind(xmlString, 'LGE_MOCO_AVE')) & isempty(strfind(xmlString, 'DB_LGE_MOCO_AVE')))
     configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_dstore.xml';
-    %configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
+    configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_CMR_View_dstore_Offline.xml';
 
 elseif(~isempty(strfind(xmlString, 'DB_LGE_MOCO_AVE_OnTheFly')))
     configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_dstore.xml';
     configName = 'GTPrep_2DT_DB_LGE_MOCO_AVE_OnTheFly_MoreOutputs_dstore.xml';
+    configName = 'GTPrep_2DT_LGE_MOCO_AVE_OnTheFly_CMR_View_dstore_Offline.xml';
     
 elseif(~isempty(strfind(xmlString, 'T2W')))
-    configName = 'GTPrep_2DT_T2W_MOCO_AVE_OnTheFly_istore.xml';
+    %configName = 'GTPrep_2DT_T2W_MOCO_AVE_OnTheFly_istore.xml';
+    configName = 'GTPrep_2DT_T2W_MOCO_AVE_OnTheFly_12bit.xml';
     
 elseif(~isempty(strfind(xmlString, 'MOLLI')))
     configName = 'CMR_2DT_T1Mapping_MOLLI.xml';
@@ -59,8 +64,8 @@ elseif(~isempty(strfind(xmlString, 'T1SR_Mapping')))
 elseif(~isempty(strfind(xmlString, 'T2_Mapping')))
     configName = 'GTPrep_2DT_MOCO_AVE_T2_Mapping_dstore.xml';
     
-elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_TwoEchoes_Interleaved')))
-    %configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_MBF_MBV_Mask_AI_N3Fil_CMR_View_OFFLINE.xml';
+elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_TwoEchoes')))
+    %configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_MBF_MBV_Mask_AI_N3Net_CMR_View_OFFLINE.xml';
     configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_MBF_MBV_Mask_AI_CMR_View_OFFLINE.xml';
 elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_2E_Lin_Cloud')))
     configName = 'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_OFFLINE_dstore.xml';
@@ -68,7 +73,7 @@ elseif(~isempty(strfind(xmlString, 'Perfusion_AIF_2E_NL_Cloud')))
     configName = 'GTPrep_2DT_Perf_AIF_2E_NL_Mapping_MBF_MBV_Mask_Gateway.xml';
  elseif(~isempty(strfind(xmlString, 'Perfusion_AIFR3_2E')))
     configName = 'GTPrep_2DT_Perf_AIFR3_2E_Lin_Mapping_MBF_MBV_Mask_AI_CMR_View_OFFLINE.xml';
-   
+    %configName = 'GTPrep_2DT_Perf_AIFR3_2E_Lin_Mapping_MBF_MBV_Mask_FFDNet_AI_CMR_View_OFFLINE.xml';
 elseif(~isempty(strfind(xmlString, 'Retro_Flow')))
     configName = 'GTPrep_2DT_RetroGated_Flow.xml';    
 elseif(~isempty(strfind(xmlString, 'Retro_NLin_Flow')))
@@ -91,11 +96,13 @@ elseif(~isempty(strfind(xmlString, 'Retro_NLin_Cine')))
     configName = 'GTPrep_2DT_RetroGated_Cine_SLEP_Gateway.xml';        
 elseif(~isempty(strfind(xmlString, 'Retro_Lin_Cine')))
 %     configName = 'Generic_2DT_RetroGated_Cine_ECG_dstore.xml';  
-    configName = 'GTPrep_2DT_RetroCine_CMR_View.xml';  
+    configName = 'GTPrep_2DT_RetroCine_CMR_View_AI_analysis.xml';  
     
 elseif(~isempty(strfind(xmlString, 'RT_Cine_LIN')))
 %     configName = 'Generic_RTCine_DeepGrappaOne.xml';            
-    configName = 'Generic_RTCine_PInterp_Fil_ECG_CMR_View_AI_dstore.xml'; 
+    %configName = 'Generic_RTCine_PInterp_Fil_ECG_CMR_View_AI_dstore.xml'; 
+    configName = 'Generic_RTCine_PInterp_N3Fil_ECG_dstore.xml'; 
+    
     
 elseif(~isempty(strfind(xmlString, 'FatWater_Nav3D')))    
     configName = 'GTPrep_3DT_FatWater_Diego.xml'; 
@@ -111,3 +118,4 @@ elseif(~isempty(strfind(xmlString, 'MOLLI')))
     configName = 'CMR_2DT_T1Mapping_MOLLI.xml';         
 
 end
+

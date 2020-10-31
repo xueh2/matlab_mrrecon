@@ -1,8 +1,6 @@
 function UTCases = set_up_UT_cases_Cloud;
 % run the gt recon
 
-set_UT_Dir('D')
-
 % sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
 UTCases = { 'cloud',                  'meas_MID00832_FID37686_PK_realtime_tfi_9slice_tpat5_724',          'VD',   'GTPrep_2DT_RTCine_L1SPIRIT_SLEP_PhysioInterp_DualLayer_Gateway.xml',  'slep_cloud_res', 'slep_cloud_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...          
             % 160 * 120, R5

@@ -1,0 +1,11 @@
+
+function dsc = computeDSC(seg_result, cortexlabel, ...
+            transverseLabel, labeled_trans, sagittalLabel, labeled_sag, ...
+            coronaryLabel, labeled_cor, header)
+        
+% compute the Dice Similarity Measure
+
+segLabel = false(size(seg_result));
+segLabel(find(seg_result==cortexlabel)) = 1;
+
+num = length(

@@ -1,0 +1,8 @@
+
+function centres = ClusteringSuspectedPoints(suspected_volume, classnumber, trynumber, initialCentres )
+% use the kmeans clustering to get clustering centres
+
+autoIntial = true;
+if ( isempty(initialCentres) == 0 )
+    autoIntial = false;
+    if ( classnumber

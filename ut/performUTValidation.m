@@ -1,5 +1,5 @@
 
-function timeUsed = performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix)
+function timeUsed = performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix, paraXml);
 %% compare the unit test results with ground truth
 % performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix)
 % performUTValidation(UTCases, UTCollectRef, GT_HOST, GT_PORT, caseNum)
@@ -10,6 +10,7 @@ function timeUsed = performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST
 % performUTValidation(set_up_UT_cases_Cine, 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0)
 % performUTValidation(set_up_UT_cases_Perfusion, 0, 0, '137.187.135.157', '9008', 63, 63, 0, 0, 0)
 % performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix)
+% performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix, paraXml)
 
 GTHome = getenv('GADGETRON_HOME')
 % addpath(fullfile(GTHome, 'bin'));
@@ -71,8 +72,12 @@ if nargin < 12
     res_suffix = [];
 end
 
+if nargin < 13
+    paraXml = [];
+end
+
 if(strcmp(GT_HOST, 'gt1'))
-    GT_HOST = '137.187.135.97';
+    GT_HOST = '137.187.135.169';
 end
 
 if(strcmp(GT_HOST, 'beast'))
@@ -109,6 +114,10 @@ for ii=startCase:endCase
         folderDir = fullfile(UTDir, UTCases{ii, 1})
     end
     
+    if(~isFileExist(folderDir))
+        folderDir = fullfile(UTCases{ii, 1}, UTCases{ii, 2})
+    end
+    
     dataName = fullfile(folderDir, [UTCases{ii, 2} '.dat']);
     h5Name = fullfile(folderDir, [UTCases{ii, 2} res_suffix '.h5']);
     resDir = fullfile(folderDir, [UTCases{ii, 5} res_suffix]);
@@ -123,7 +132,7 @@ for ii=startCase:endCase
         h5Only = 1;
     end
     
-    t = run_gt_recon_case(UTCases{ii, 2}, UTCases{ii, 4}, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit); % winopen(folderDir)
+    t = run_gt_recon_case(UTCases{ii, 2}, UTCases{ii, 4}, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml); % winopen(folderDir)
 
     if(isAdj) 
         continue; 
@@ -149,7 +158,11 @@ for ii=startCase:endCase
     end
     
     if ( endCase==startCase )
-        winopen(resDir);
+        if(isunix())
+            disp(resDir);
+        else
+            winopen(resDir);
+        end
     end
 end
 

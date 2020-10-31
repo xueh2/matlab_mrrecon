@@ -21,14 +21,16 @@ else
 end
 command
 dos(command, '-echo');
-  
+
+
 if(is_remote_computer)
     gt_command = ['/home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 8899 9988 137.187.135.157 ' ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];    
 else
     % gt_command = ['/home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 8899 9988 137.187.135.157 > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];
     % gt_command = ['nohup /home/' user '/gt_scanner_setup_scripts/StartGadgetron ' num2str(port) ' 8899 9988 137.187.135.157 ' ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];    
-    gt_command = ['gadgetron -p ' num2str(port) ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];    
+    gt_command = ['gadgetron -p ' num2str(port) ' > /home/' user '/Debug/record_' num2str(port) '.txt 2>&1 < /dev/null &'];        
 end
+
 
 if(is_remote_computer)
     command = ['ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"'];
@@ -36,6 +38,16 @@ else
     command = gt_command;
 end
 command
-dos(command, '-echo');
 
+if(isunix())
+    [status,result] = system(command);
+    ind = 0;
+    while (status~=0 | ind<2)
+        pause(1.0);
+        [status,result] = system(command);
+        ind = ind+1;
+    end
+else
+    dos(command, '-echo');
+end
 timeUsed = toc;

@@ -1,0 +1,371 @@
+
+% parameters
+
+% NumofLevels <-- the level nums of iterations
+% maximal_inflation_factor [0 1]
+% NumberOfIterations = 5; <-- the inflation iteration between two checking
+% RelaxationFactor = 0.5; < lemda in inflation
+% ThresRatio = 0.01; <-- the threshold to stop
+% numofSurfaceNonRigid
+
+% targetImageName
+% Internal_Target_Name
+% 
+% sourceImageName
+% Internal_Source_Name
+
+% CortexRegistationDir
+
+cd(FourLobes_MappingDir);
+
+if ( isempty(dir('central_sulcus.vtk'))==0 )
+    %return;
+end
+
+locator = 2;
+iterations = 250;
+epsilon = 0.005;
+symmetric = [];
+
+if ( exist('Prefix') == 0 )
+    Prefix = '';
+end
+
+if ( exist('numofSurfaceNonRigid') == 0 )
+    numofSurfaceNonRigid = 4;
+end
+
+% -------------------------------------------------------------------------
+surfacefile_Target = Internal_Target_Name;
+vtkfile_Target = 'internal_target.vtk';
+vtkfile_Target_inflated = 'internal_target_inflated.vtk';
+image_Target = targetImageName;
+
+surfacefile_Source = Internal_Source_Name;
+vtkfile_Source = 'internal_source.vtk';
+vtkfile_Source_inflated = 'internal_source_inflated.vtk';
+image_Source = sourceImageName;
+
+spacing = 20;
+
+threshold = 0;
+shrink = [1 1 1];
+smooth = [0.1 20];
+
+datacolor = [1 1 1];
+opacity = 1;
+
+rreg_name = 'image_rigid.dof';
+areg_name = 'image_affine.dof';
+
+% -------------------------------------------------------------------------
+
+filename = surfacefile_Target;
+
+if ( isempty(dir(Internal_Cortex_VTK_Target_Name))==0 )
+    copyfile(Internal_Cortex_VTK_Target_Name, vtkfile_Target);
+end
+
+if ( isempty(dir(vtkfile_Target))==1 )
+    [data, header] = LoadAnalyze(filename, 'Real');
+    mcubes2VTKFile(data, header, vtkfile_Target, threshold, shrink, smooth);
+end
+
+[ICI_Target, ECI_Target, GLN_Target, MLN_Target, newMeanC, newGaussC] = Compute_SecondOrderStatistics_OutlierRemoval(vtkfile_Target);
+
+%------------------------------------------------------------------------
+filename = surfacefile_Source;
+
+if ( isempty(dir(vtkfile_Source))==1 )
+    [data, header] = LoadAnalyze(filename, 'Real');
+    mcubes2VTKFile(data, header, vtkfile_Source, threshold, shrink, smooth);
+end
+[ICI_Source, ECI_Source, GLN_Source, MLN_Source, newMeanC, newGaussC] = Compute_SecondOrderStatistics_OutlierRemoval(vtkfile_Source);
+
+% RenderVTKFile(vtkfile_Source, [0 0], datacolor, opacity);
+% target_stats
+lower_stats = [min(ICI_Target, ICI_Source) min(ECI_Target, ECI_Source) min(GLN_Target, GLN_Source) min(MLN_Target, MLN_Source)];
+lower_stats(3) = -1;
+
+% use the surface with distance cut as the source
+Internal_Source_VTK_DistanceCut_Name
+vtkfile_Source_Cut = 'vtkfile_Source_Cut.vtk';
+vtkfile_Source_Cut_inflated = 'vtkfile_Source_Cut_inflated.vtk';
+copyfile(Internal_Source_VTK_DistanceCut_Name, vtkfile_Source_Cut);
+
+%------------------------------------------------------------------------
+% image registration
+target = image_Target;
+source = image_Source;
+
+% all subject directories
+rreg_parameterfile = fullfile(home, 'parameters.rreg');
+areg_parameterfile = fullfile(home, 'parameters.areg');
+
+if ( isempty(dir(rreg_name))==1 )
+    RigidRegistrationRun2(target, source, rreg_name, rreg_parameterfile);
+end
+
+if ( isempty(dir(areg_name))==1 )
+    AffineRegistrationRun2(target, source, areg_name, areg_parameterfile, rreg_name);
+end
+%------------------------------------------------------------------------
+ind = find(lower_stats==-1);
+num = length(ind);
+
+if ( NumofLevels > 1 )
+    increment = (1-maximal_inflation_factor) / (NumofLevels-1);
+else
+    increment = 0;
+end
+current_inflation_factor = maximal_inflation_factor;
+
+dofinName = areg_name;
+
+sareg_name = 'affine.dof';
+
+dofnames = cell(6);
+
+for kk=1:NumofLevels
+
+    current_inflation_factor = maximal_inflation_factor + (kk-1)*increment;
+    dst_stats = current_inflation_factor*lower_stats;
+    dst_stats(find(lower_stats==-1)) = -1;
+    
+    Input = vtkfile_Target;
+    Output1 = ['Level' num2str(kk) '_' vtkfile_Target_inflated];
+    if ( isempty(dir(Output1)) )
+        PerformInflation(Input, Output1, NumberOfIterations, RelaxationFactor, ThresRatio, dst_stats, MaxofIterations);
+    end
+    
+    Input = vtkfile_Source;
+    Output2 = ['Level' num2str(kk) '_' vtkfile_Source_inflated];
+    if ( isempty(dir(Output2)) )
+        PerformInflation(Input, Output2, NumberOfIterations, RelaxationFactor, ThresRatio, dst_stats, MaxofIterations);
+    end 
+%     dofnames = cell(numofSurfaceNonRigid);
+    dofnames{1} = ['Level' num2str(kk) '_nonrigid_20mm.dof'];
+    dofnames{2} = ['Level' num2str(kk) '_nonrigid_10mm.dof'];
+    dofnames{3} = ['Level' num2str(kk) '_nonrigid_5mm.dof'];
+    dofnames{4} = ['Level' num2str(kk) '_nonrigid_2.5mm.dof'];
+    dofnames{5} = ['Level' num2str(kk) '_nonrigid_1.25mm.dof'];
+    dofnames{6} = ['Level' num2str(kk) '_nonrigid_0.625mm.dof'];
+         
+    target = Output1;
+    source = Output2;
+   
+    if ( kk == 1 )
+        
+        dofin = areg_name;
+        SurfaceAffineRegistrationRun(target, source, sareg_name, dofin, locator, iterations, 0, epsilon, symmetric);
+
+        output = 'target_afterAffine.vtk';
+        SurfaceTransformationRun(target, output, sareg_name);
+        
+        target = output;
+        SurfaceNonRigidRegistrationRun2(target, source, dofnames, numofSurfaceNonRigid,...
+            [], locator, iterations, spacing, epsilon, symmetric);        
+    else
+        
+        SurfaceNonRigidRegistrationRun2(target, source, dofnames, numofSurfaceNonRigid,...
+            dofinName, locator, iterations, spacing, epsilon, symmetric);
+    end
+    
+    for tt = 1:numofSurfaceNonRigid
+        output = ['Level' num2str(kk) '_afterNonRigid_' num2str(tt) '.vtk'];
+        SurfaceTransformationRun(target, output, dofnames{tt});
+    end
+
+    dofinName = dofnames{numofSurfaceNonRigid};
+end
+%------------------------------------------------------------------------
+target_transformed = output;
+[pts_TargetTransformed, numofCells, cells_TargetTransformed] = VTKFile2PointCell(target_transformed);
+
+% --------------------------------
+load(Frontal_ptIDs_VTK_Target_Name);
+% [pts_Frontal, numofCells_Frontal, cells_Frontal] = VTKFile2PointCell(Frontal_Cortex_VTK_Target_Name);
+pts_Frontal_TargetTransformed = GetSpecificPts(pts_TargetTransformed, ptIDs);
+filename = 'frontal_target_inflated.vtk';
+if ( isempty(dir(filename)) )
+    RefineCells_vtk(pts_Frontal_TargetTransformed, numofCells, cells_TargetTransformed, filename);
+    PolyConnectivity_vtk(filename, filename);
+end
+% --------------------------------
+load(Parietal_ptIDs_VTK_Target_Name);
+% [pts_Parietal, numofCells_Parietal, cells_Parietal] = VTKFile2PointCell(Parietal_Cortex_VTK_Target_Name);
+pts_Parietal_TargetTransformed = GetSpecificPts(pts_TargetTransformed, ptIDs);
+filename = 'parietal_target_inflated.vtk';
+if ( isempty(dir(filename)) )
+    RefineCells_vtk(pts_Parietal_TargetTransformed, numofCells, cells_TargetTransformed, filename);
+    PolyConnectivity_vtk(filename, filename);
+end
+% --------------------------------
+load(Occipital_ptIDs_VTK_Target_Name);
+% [pts_Occipital, numofCells_Occipital, cells_Occipital] = VTKFile2PointCell(Occipital_Cortex_VTK_Target_Name);
+pts_Occipital_TargetTransformed = GetSpecificPts(pts_TargetTransformed, ptIDs);
+filename = 'occipital_target_inflated.vtk';
+if ( isempty(dir(filename)) )
+    RefineCells_vtk(pts_Occipital_TargetTransformed, numofCells, cells_TargetTransformed, filename);
+    PolyConnectivity_vtk(filename, filename);
+end
+% --------------------------------
+load(Temporal_ptIDs_VTK_Target_Name);
+% [pts_Temporal, numofCells_Temporal, cells_Temporal] = VTKFile2PointCell(Temporal_Cortex_VTK_Target_Name);
+pts_Temporal_TargetTransformed = GetSpecificPts(pts_TargetTransformed, ptIDs);
+filename = 'temporal_target_inflated.vtk';
+if ( isempty(dir(filename)) )
+    RefineCells_vtk(pts_Temporal_TargetTransformed, numofCells, cells_TargetTransformed, filename);
+    PolyConnectivity_vtk(filename, filename);
+end
+% --------------------------------
+
+load(CentralSulcus_ptIDs_VTK_Target_Name);
+% [pts_Frontal, numofCells_Frontal, cells_Frontal] = VTKFile2PointCell(Frontal_Cortex_VTK_Target_Name);
+pts_CentralSulcus_TargetTransformed = GetSpecificPts(pts_TargetTransformed, ptIDs);
+filename = 'CentralSulcus_target_inflated.vtk';
+if ( isempty(dir(filename)) )
+    RefineCells_vtk(pts_CentralSulcus_TargetTransformed, numofCells, cells_TargetTransformed, filename);
+    PolyConnectivity_vtk(filename, filename);
+end
+% --------------------------------
+
+% masking the inflated source surface
+filename_frontal = 'frontal_lobe.vtk';
+filename_parietal = 'parietal_lobe.vtk';
+filename_occipital = 'occipital_lobe.vtk';
+filename_temporal = 'temporal_lobe.vtk';
+filename_centralsulcus = 'central_sulcus.vtk';
+
+[pts_Source, numofCells_Source, cells_Source] = VTKFile2PointCell(vtkfile_Source);
+[pts_Source_Cut, numofCells_Source_Cut, cells_Source_Cut] = VTKFile2PointCell(vtkfile_Source_Cut);
+
+% for kk=1:NumofLevels
+% 
+%     current_inflation_factor = maximal_inflation_factor + (kk-1)*increment;
+%     dst_stats = current_inflation_factor*lower_stats;
+%     dst_stats(find(lower_stats==-1)) = -1;
+%     
+%     Input = vtkfile_Source_Cut;
+%     Output2 = ['Level' num2str(kk) '_' vtkfile_Source_Cut_inflated];
+%     if ( isempty(dir(Output2)) )
+%         PerformInflation(Input, Output2, NumberOfIterations, RelaxationFactor, ThresRatio, dst_stats, MaxofIterations);
+%     end 
+% end
+
+Source_inflated = ['Level' num2str(NumofLevels) '_' vtkfile_Source_inflated];
+[pts_Source_inflated, numofCells, cells_Source_inflated] = VTKFile2PointCell(Source_inflated);
+
+% frontal lobe
+% if ( isempty(dir(filename_frontal)) )
+    filename = 'frontal_target_inflated.vtk';
+    [pts_Frontal, numofCells_Frontal, cells_Frontal] = VTKFile2PointCell(filename);
+
+    [minDist, nearestPoints] = GetNearestPoints_VTK(pts_Source_inflated(:,2:4), pts_Frontal(:,2:4));
+    index = find(minDist<=Thres_MaskingDistance);
+
+    pts_temp = pts_Source(index(:), :);
+    RefineCells_vtk(pts_temp, numofCells_Source, cells_Source, filename_frontal);
+    PolyConnectivity_vtk(filename_frontal, filename_frontal);
+    
+    % refine the source cut
+    [pts_Frontal, numofCells_Frontal, cells_Frontal] = VTKFile2PointCell(filename_frontal);
+    [minDist, nearestPoints] = GetNearestPoints_VTK(pts_Source_Cut(:,2:4), pts_Frontal(:,2:4));
+    index = find(minDist<=Thres_MaskingDistance);
+    
+    pts_temp = pts_Source_Cut(index(:), :);
+    RefineCells_vtk(pts_temp, numofCells_Source_Cut, cells_Source_Cut, filename_frontal);
+    PolyConnectivity_vtk(filename_frontal, filename_frontal);
+    % refine end
+    
+    copyfile(filename_frontal, ['../' cortex_reconstruction '/' filename_frontal]);
+% end
+% parietal lobe
+% if ( isempty(dir(filename_parietal)) )
+
+    filename = 'parietal_target_inflated.vtk';
+    [pts_Parietal, numofCells_Parietal, cells_Parietal] = VTKFile2PointCell(filename);
+
+    [minDist, nearestPoints] = GetNearestPoints_VTK(pts_Source_inflated(:,2:4), pts_Parietal(:,2:4));
+    index = find(minDist<=Thres_MaskingDistance);
+
+    pts_temp = pts_Source(index(:), :);
+    filename_parietal = 'parietal_lobe.vtk';
+    RefineCells_vtk(pts_temp, numofCells_Source, cells_Source, filename_parietal);
+    PolyConnectivity_vtk(filename_parietal, filename_parietal);
+    
+    % refine the source cut
+    [pts, numofCells, cells] = VTKFile2PointCell(filename_parietal);
+    [minDist, nearestPoints] = GetNearestPoints_VTK(pts_Source_Cut(:,2:4), pts(:,2:4));
+    index = find(minDist<=Thres_MaskingDistance);
+    
+    pts_temp = pts_Source_Cut(index(:), :);
+    RefineCells_vtk(pts_temp, numofCells_Source_Cut, cells_Source_Cut, filename_parietal);
+    PolyConnectivity_vtk(filename_parietal, filename_parietal);
+    % refine end
+    
+    copyfile(filename_parietal, ['../' cortex_reconstruction '/' filename_parietal]);
+% end
+% occipital lobe
+% if ( isempty(dir(filename_occipital)) )
+    filename = 'occipital_target_inflated.vtk';
+    [pts, numofCells, cells] = VTKFile2PointCell(filename);
+
+    [minDist, nearestPoints] = GetNearestPoints_VTK(pts_Source_inflated(:,2:4), pts(:,2:4));
+    index = find(minDist<=Thres_MaskingDistance);
+
+    pts_temp = pts_Source(index(:), :);
+    RefineCells_vtk(pts_temp, numofCells_Source, cells_Source, filename_occipital);
+    PolyConnectivity_vtk(filename_occipital, filename_occipital);
+    
+    % refine the source cut
+    [pts, numofCells, cells] = VTKFile2PointCell(filename_occipital);
+    [minDist, nearestPoints] = GetNearestPoints_VTK(pts_Source_Cut(:,2:4), pts(:,2:4));
+    index = find(minDist<=Thres_MaskingDistance);
+    
+    pts_temp = pts_Source_Cut(index(:), :);
+    RefineCells_vtk(pts_temp, numofCells_Source_Cut, cells_Source_Cut, filename_occipital);
+    PolyConnectivity_vtk(filename_occipital, filename_occipital);
+    % refine end
+    
+    copyfile(filename_occipital, ['../' cortex_reconstruction '/' filename_occipital]);
+% end
+% temporal lobe
+% if ( isempty(dir(filename_temporal)) )
+    filename = 'temporal_target_inflated.vtk';
+    [pts, numofCells, cells] = VTKFile2PointCell(filename);
+
+    [minDist, nearestPoints] = GetNearestPoints_VTK(pts_Source_inflated(:,2:4), pts(:,2:4));
+    index = find(minDist<=Thres_MaskingDistance);
+
+    pts_temp = pts_Source(index(:), :);
+    RefineCells_vtk(pts_temp, numofCells_Source, cells_Source, filename_temporal);
+    PolyConnectivity_vtk(filename_temporal, filename_temporal);
+    
+     % refine the source cut
+    [pts, numofCells, cells] = VTKFile2PointCell(filename_temporal);
+    [minDist, nearestPoints] = GetNearestPoints_VTK(pts_Source_Cut(:,2:4), pts(:,2:4));
+    index = find(minDist<=Thres_MaskingDistance);
+    
+    pts_temp = pts_Source_Cut(index(:), :);
+    RefineCells_vtk(pts_temp, numofCells_Source_Cut, cells_Source_Cut, filename_temporal);
+    PolyConnectivity_vtk(filename_temporal, filename_temporal);
+    % refine end
+    
+    copyfile(filename_temporal, ['../' cortex_reconstruction '/' filename_temporal]);
+% end
+
+% Central sulcus
+if ( isempty(dir(filename_centralsulcus)) )
+    filename = 'CentralSulcus_target_inflated.vtk';
+    [pts_CentralSulcus, numofCells_CentralSulcus, cells_CentralSulcus] = VTKFile2PointCell(filename);
+
+    [minDist, nearestPoints] = GetNearestPoints_VTK(pts_Source_inflated(:,2:4), pts_CentralSulcus(:,2:4));
+    index = find(minDist<=Thres_MaskingDistance2);
+
+    pts_temp = pts_Source(index(:), :);
+    RefineCells_vtk(pts_temp, numofCells_Source, cells_Source, filename_centralsulcus);
+    PolyConnectivity_vtk(filename_centralsulcus, filename_centralsulcus);
+    copyfile(filename_centralsulcus, ['../' cortex_reconstruction '/' filename_centralsulcus]);
+end
+%------------------------------------------------------------------------

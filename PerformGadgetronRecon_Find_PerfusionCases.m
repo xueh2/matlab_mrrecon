@@ -144,8 +144,12 @@ for n=1:num
 
                 measurementID = header.measurementInformation.measurementID;
                 if(isfield(header, 'subjectInformation'))
-                    sha1 = header.subjectInformation.patientID;
-                    sha1
+                    if(isfield(header.subjectInformation, 'patientID'))
+                        sha1 = header.subjectInformation.patientID;
+                        sha1
+                    else
+                        sha1 = 0;
+                    end
                 else
                     sha1 = 0;
                 end

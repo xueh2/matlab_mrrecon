@@ -1,0 +1,21 @@
+
+function [ yOut, schemeDataOut ] = maskFlag_OutInSide(t, yIn, schemeDataIn)
+% schemeDataIn.data0
+% schemeDataIn.flag_Outside
+% schemeDataIn.flag_Inside
+disp(['current time is ' num2str(t)]);
+if ( schemeDataIn.flag_outside )
+    yOut = min(yIn, schemeDataIn.y0);
+end
+
+if ( schemeDataIn.flag_inside )
+    yOut = max(yIn, schemeDataIn.y0);
+end
+
+if ( ~schemeDataIn.flag_inside & ~schemeDataIn.flag_side )
+    yOut = max(yIn, schemeDataIn.y0);
+end
+
+schemeDataOut = schemeDataIn;
+
+return;

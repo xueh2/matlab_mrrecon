@@ -59,7 +59,7 @@ if(strcmp(gt_host, '137.187.135.157'))
     end
 end
 
-if(strcmp(gt_host, 'gt1') | strcmp(gt_host, '137.187.134.169'))
+if(strcmp(gt_host, 'gt1') | strcmp(gt_host, '137.187.135.169'))
     GT_PORT = '9008';
 end
 

@@ -110,7 +110,7 @@ maxImageNum = 0;
 endo_pt = [];
 epi_pt = [];
 
-header = struct('PatientPosition', [0 0 0], 'FOV', [0 0 0], 'phase_dir', [0 0 0], 'read_dir', [0 0 0], 'slice_dir', [0 0 0], 'window_center', -1, 'window_width', -1, 'TI', 0, 'slice_location', -1);
+header = struct('PatientPosition', [0 0 0], 'FOV', [0 0 0], 'phase_dir', [0 0 0], 'read_dir', [0 0 0], 'slice_dir', [0 0 0], 'window_center', -1, 'window_width', -1, 'TI', 0, 'TE', 0, 'TS', 0, 'slice_location', -1);
 
 hasImageSize = 0;
 for ii=1:num
@@ -176,130 +176,165 @@ for ii=1:num
     if ( series == seriesNum )
 
         if(withTime)
-            xmlContent = xml_load(fullfile(pathstr, [filename '.attrib']));
-
+            % xmlContent = xml_load(fullfile(pathstr, [filename '.attrib']));
+            xmlContent = gt_xml_load(fullfile(pathstr, [filename '.attrib']));
+            
             endo = 0;
             epi = 0;
             PatientPosition = 0;
             FOV = 0;
+            recon_FOV = 0;
             phase_dir = 0;
             read_dir = 0;
             slice_dir = 0;
             window_center = -1;
             window_width = -1;
             TI = -1;
+            TE = -1;
+            TS = -1;
             
+            xmlContent = xmlContent.ismrmrdMeta.meta;
+            
+%             for ii=1:numel(C)        
+%                 if(strcmp(C{ii}.name.Text, vname)==1)            
+%                     for j=1:numel(C{ii}.value)
+%                         v(j) = str2double(C{ii}.value{j}.Text);
+%                     end            
+%                 end        
+%             end
+    
 %             if(acq_time_index==0)
                 N = numel(xmlContent);
                 for n=1:N
-                    if ( strcmp(xmlContent(n).meta(1).name, 'GT_acquisition_time_stamp') == 1 )
+                    if ( strcmp(xmlContent{n}.name.Text, 'GT_acquisition_time_stamp') == 1 )
                         acq_time_index = n;
                     end
-                    if ( strcmp(xmlContent(n).meta(1).name, 'acquisition_time_stamp') == 1 )
+                    if ( strcmp(xmlContent{n}.name.Text, 'acquisition_time_stamp') == 1 )
                         acq_time_index = n;
                     end
                     
-                    if ( strcmp(xmlContent(n).meta(1).name, 'GT_physiology_time_stamp') == 1 )
+                    if ( strcmp(xmlContent{n}.name.Text, 'GT_physiology_time_stamp') == 1 )
                         physio_time_index = n;
                     end
                     
-                    if ( strcmp(xmlContent(n).meta(1).name, 'ENDO') == 1 )
+                    if ( strcmp(xmlContent{n}.name.Text, 'ENDO') == 1 )
                         endo = n;
                     end
-                    if ( strcmp(xmlContent(n).meta(1).name, 'EPI') == 1 )
+                    if ( strcmp(xmlContent{n}.name.Text, 'EPI') == 1 )
                         epi = n;
                     end
-                    if ( strcmp(xmlContent(n).meta(1).name, 'PatientPosition') == 1 )
+                    if ( strcmp(xmlContent{n}.name.Text, 'PatientPosition') == 1 )
                         PatientPosition = n;
                     end
-                    if ( strcmp(xmlContent(n).meta(1).name, 'FOV') == 1 )
+                    if ( strcmp(xmlContent{n}.name.Text, 'FOV') == 1 )
                         FOV = n;
                     end
-%                     if ( strcmp(xmlContent(n).meta(1).name, 'recon_FOV') == 1 )
-%                         FOV = n;
-%                     end
-                    if ( strcmp(xmlContent(n).meta(1).name, 'phase_dir') == 1 )
+                    if ( strcmp(xmlContent{n}.name.Text, 'recon_FOV') == 1 )
+                        recon_FOV = n;
+                    end
+                    if ( strcmp(xmlContent{n}.name.Text, 'phase_dir') == 1 )
                         phase_dir = n;
                     end
-                    if ( strcmp(xmlContent(n).meta(1).name, 'read_dir') == 1 )
+                    if ( strcmp(xmlContent{n}.name.Text, 'read_dir') == 1 )
                         read_dir = n;
                     end
-                    if ( strcmp(xmlContent(n).meta(1).name, 'slice_dir') == 1 )
+                    if ( strcmp(xmlContent{n}.name.Text, 'slice_dir') == 1 )
                         slice_dir = n;
                     end
-                    
-                    if ( ~isempty(strfind(xmlContent(n).meta(1).name, 'GT_ROI')) )
-                        sector_no = str2double(xmlContent(n).meta(1).name(end));                        
-                    end
-                    
+                   
                     for kk=0:7
                         user_int_str = ['user_int_' num2str(kk)];
-                        if ( strcmp(xmlContent(n).meta(1).name, user_int_str) == 1 )
+                        if ( strcmp(xmlContent{n}.name.Text, user_int_str) == 1 )
                             try
-                                user_int(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1, kk+1) = str2double(xmlContent(n).meta.value);  
+                                user_int(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1, kk+1) = str2double(xmlContent{n}.value{1}.Text);  
                             catch
                             end
                         end
                     end
                     
-                    if ( strcmp(xmlContent(n).meta(1).name, 'GADGETRON_WindowCenter') == 1 )
-                        window_center = str2double(xmlContent(n).meta.value);
+                    if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_WindowCenter') == 1 )
+                        if(numel(xmlContent{n}.value)>1)
+                            window_center = str2double(xmlContent{n}.value{1}.Text);
+                        else
+                            window_center = str2double(xmlContent{n}.value.Text);
+                        end
                     end
-                    if ( strcmp(xmlContent(n).meta(1).name, 'GADGETRON_WindowWidth') == 1 )
-                        window_width = str2double(xmlContent(n).meta.value);
+                    if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_WindowWidth') == 1 )
+                        if(numel(xmlContent{n}.value)>1)
+                            window_width = str2double(xmlContent{n}.value{1}.Text);
+                        else
+                            window_width = str2double(xmlContent{n}.value.Text);
+                        end
                     end
-                    if ( strcmp(xmlContent(n).meta(1).name, 'GADGETRON_TI') == 1 )
-                        TI = str2double(xmlContent(n).meta.value);
+                    if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_TI') == 1 )
+                        if(numel(xmlContent{n}.value)>1)
+                            TI = str2double(xmlContent{n}.value{1}.Text);
+                        else
+                            TI = str2double(xmlContent{n}.value.Text);
+                        end
+                    end
+                    if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_TE') == 1 )
+                        if(numel(xmlContent{n}.value)>1)
+                            TE = str2double(xmlContent{n}.value{1}.Text);
+                        else
+                            TE = str2double(xmlContent{n}.value.Text);
+                        end
+                    end
+                    if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_TS') == 1 )
+                        if(numel(xmlContent{n}.value)>1)
+                            TS = str2double(xmlContent{n}.value{1}.Text);
+                        else
+                            TS = str2double(xmlContent{n}.value.Text);
+                        end
                     end
                 end
 %             end
             
             try
-                acq_time(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = str2double(xmlContent(acq_time_index).meta.value);          
-                physio_time(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = str2double(xmlContent(physio_time_index).meta.value);
+                acq_time(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = str2double(xmlContent{acq_time_index}.value{1}.Text);          
+                physio_time(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = str2double(xmlContent{physio_time_index}.value{1}.Text);
             catch
             end
             
             curr_endo_pt = [];
             if(endo>0)
-                num_pt = numel(xmlContent(endo).meta);
+                num_pt = numel(xmlContent{endo}.value);
                 for n=1:2:num_pt
-                    curr_endo_pt = [curr_endo_pt; str2double(xmlContent(endo).meta(n).value) str2double(xmlContent(endo).meta(n+1).value)];
+                    curr_endo_pt = [curr_endo_pt; str2double(xmlContent{endo}.value{n}.Text) str2double(xmlContent{endo}.value{n+1}.Text)];
                 end
             end
             
             curr_epi_pt = [];
             if(epi>0)
-                num_pt = numel(xmlContent(epi).meta);
+                num_pt = numel(xmlContent{epi}.value);
                 for n=1:2:num_pt
-                    curr_epi_pt = [curr_epi_pt; str2double(xmlContent(epi).meta(n).value) str2double(xmlContent(epi).meta(n+1).value)];
+                    curr_epi_pt = [curr_epi_pt; str2double(xmlContent{epi}.value{n}.Text) str2double(xmlContent{epi}.value{n+1}.Text)];
                 end
             end
             
             endo_pt = [endo_pt; {phs slc curr_endo_pt}];
             epi_pt = [epi_pt; {phs slc curr_epi_pt}];
             
-            curr_header = struct('PatientPosition', [0 0 0], 'FOV', [0 0 0], 'phase_dir', [0 0 0], 'read_dir', [0 0 0], 'slice_dir', [0 0 0], 'window_center', -1, 'window_width', -1, 'TI', 0, 'slice_location', -1);
+            curr_header = struct('PatientPosition', [0 0 0], 'FOV', [0 0 0], 'phase_dir', [0 0 0], 'read_dir', [0 0 0], 'slice_dir', [0 0 0], 'window_center', -1, 'window_width', -1, 'TI', 0, 'TE', 0, 'TS', 0, 'slice_location', -1);
+            
+            if(FOV==0)
+                FOV=recon_FOV;
+            end
             
             if(PatientPosition>0)
-                num_pt = numel(xmlContent(PatientPosition).meta);
-                curr_header.PatientPosition = [str2double(xmlContent(PatientPosition).meta(1).value) str2double(xmlContent(PatientPosition).meta(2).value) str2double(xmlContent(PatientPosition).meta(3).value)];
+                curr_header.PatientPosition = [str2double(xmlContent{PatientPosition}.value{1}.Text) str2double(xmlContent{PatientPosition}.value{2}.Text) str2double(xmlContent{PatientPosition}.value{3}.Text)];
             end
             if(FOV>0)
-                num_pt = numel(xmlContent(FOV).meta);
-                curr_header.FOV = [str2double(xmlContent(FOV).meta(1).value) str2double(xmlContent(FOV).meta(2).value) str2double(xmlContent(FOV).meta(3).value)];
+                curr_header.FOV = [str2double(xmlContent{FOV}.value{1}.Text) str2double(xmlContent{FOV}.value{2}.Text) str2double(xmlContent{FOV}.value{3}.Text)];
             end
             if(phase_dir>0)
-                num_pt = numel(xmlContent(phase_dir).meta);
-                curr_header.phase_dir = [str2double(xmlContent(phase_dir).meta(1).value) str2double(xmlContent(phase_dir).meta(2).value) str2double(xmlContent(phase_dir).meta(3).value)];
+                curr_header.phase_dir = [str2double(xmlContent{phase_dir}.value{1}.Text) str2double(xmlContent{phase_dir}.value{2}.Text) str2double(xmlContent{phase_dir}.value{3}.Text)];
             end
             if(read_dir>0)
-                num_pt = numel(xmlContent(read_dir).meta);
-                curr_header.read_dir = [str2double(xmlContent(read_dir).meta(1).value) str2double(xmlContent(read_dir).meta(2).value) str2double(xmlContent(read_dir).meta(3).value)];
+                curr_header.read_dir = [str2double(xmlContent{read_dir}.value{1}.Text) str2double(xmlContent{read_dir}.value{2}.Text) str2double(xmlContent{read_dir}.value{3}.Text)];
             end
             if(slice_dir>0)
-                num_pt = numel(xmlContent(slice_dir).meta);
-                curr_header.slice_dir = [str2double(xmlContent(slice_dir).meta(1).value) str2double(xmlContent(slice_dir).meta(2).value) str2double(xmlContent(slice_dir).meta(3).value)];
+                curr_header.slice_dir = [str2double(xmlContent{slice_dir}.value{1}.Text) str2double(xmlContent{slice_dir}.value{2}.Text) str2double(xmlContent{slice_dir}.value{3}.Text)];
                 
                 if(PatientPosition>0)
                     curr_header.slice_location = dot(curr_header.PatientPosition, curr_header.slice_dir);
@@ -313,6 +348,12 @@ for ii=1:num
             end
             if(TI>0)
                 curr_header.TI = TI;
+            end
+            if(TE>0)
+                curr_header.TE = TE;
+            end
+            if(TS>0)
+                curr_header.TS = TS;
             end
             
             header(slc+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = curr_header;
@@ -365,4 +406,18 @@ if(~isempty(epi_pt))
         epi_pt_sorted{n, 3} = epi_pt{ind_order(n), 3};
     end
     epi_pt = epi_pt_sorted;
+end
+
+end
+
+function v = getXMLField(xmlContent, vname)
+
+    C = xmlContent.ismrmrdMeta.meta;
+    for ii=1:numel(C)        
+        if(strcmp(C{ii}.name.Text, vname)==1)            
+            for j=1:numel(C{ii}.value)
+                v(j) = str2double(C{ii}.value{j}.Text);
+            end            
+        end        
+    end
 end

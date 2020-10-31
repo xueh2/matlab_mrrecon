@@ -32,50 +32,89 @@ end
 
 function plot_sectors(res, h_axes, permute_data)
     SLC = numel(h_axes);
-    for slc=1:SLC
-        axes(h_axes(slc))
+    
+    if(SLC>3)
+        for slc=1:SLC
+            axes(h_axes(slc))
+            
+            
+            hold on    
+            for k=1:size(res.sectors_contours, 4)
+                C = res.sectors_contours(:,:,slc,k);
+                
+                if(isempty(find(C>0)))
+                    continue;
+                end
+                
+                lineW = 2;
+                colorC = 'r';
+                
+                % LAD
+                if(k==1 | k==2)
+                    lineW = 2;
+                    colorC = 'y';
+                end
 
-        if(slc==1)
-            sectors = [1:6];
-        end
-        if(slc==2)
-            sectors = [7:12];
-        end
-        if(slc==3)
-            sectors = [13:16];
-        end
+                % RCA
+                if(k==3 | k==4)
+                    lineW = 2;
+                    colorC = 'g';
+                end
 
-        hold on    
-        for k=1:numel(sectors)
-            C = res.sectors_contours(:,:,sectors(k));
-            lineW = 3;
-            colorC = 'r';
-%             if(k==1 | k==2)
-%                 lineW = 4;
-%                 colorC = 'y';
-%                 if(k==2)
-%                     colorC = 'g';
-%                 end
-%             end
-                            
-            % LAD
-            if(sectors(k)==1 | sectors(k)==2 | sectors(k)==7 | sectors(k)==8 | sectors(k)==13  | sectors(k)==14)
-                lineW = 3;
-                colorC = 'y';
+                if(permute_data)
+                    plot(C(:,1), C(:,2), colorC, 'LineWidth', lineW);    
+                else
+                    plot(C(:,2), C(:,1), colorC, 'LineWidth', lineW);    
+                end
+            end
+            hold off
+        end
+    else
+        for slc=1:SLC
+            axes(h_axes(slc))
+
+            if(slc==1)
+                sectors = [1:6];
+            end
+            if(slc==2)
+                sectors = [7:12];
+            end
+            if(slc==3)
+                sectors = [13:16];
             end
 
-            % RCA
-            if(sectors(k)==3 | sectors(k)==4 | sectors(k)==9 | sectors(k)==10 | sectors(k)==15)
-                lineW = 3;
-                colorC = 'g';
+            hold on    
+            for k=1:numel(sectors)
+                C = res.sectors_contours(:,:,sectors(k));
+                lineW = 2;
+                colorC = 'r';
+    %             if(k==1 | k==2)
+    %                 lineW = 4;
+    %                 colorC = 'y';
+    %                 if(k==2)
+    %                     colorC = 'g';
+    %                 end
+    %             end
+
+                % LAD
+                if(sectors(k)==1 | sectors(k)==2 | sectors(k)==7 | sectors(k)==8 | sectors(k)==13  | sectors(k)==14)
+                    lineW = 2;
+                    colorC = 'y';
+                end
+
+                % RCA
+                if(sectors(k)==3 | sectors(k)==4 | sectors(k)==9 | sectors(k)==10 | sectors(k)==15)
+                    lineW = 2;
+                    colorC = 'g';
+                end
+
+                if(permute_data)
+                    plot(C(:,1), C(:,2), colorC, 'LineWidth', lineW);    
+                else
+                    plot(C(:,2), C(:,1), colorC, 'LineWidth', lineW);    
+                end
             end
-                        
-            if(permute_data)
-                plot(C(:,1), C(:,2), colorC, 'LineWidth', lineW);    
-            else
-                plot(C(:,2), C(:,1), colorC, 'LineWidth', lineW);    
-            end
+            hold off
         end
-        hold off
     end
 end

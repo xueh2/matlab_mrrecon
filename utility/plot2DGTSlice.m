@@ -5,9 +5,20 @@ function h = plot2DGTSlice(data, header, currentAxes, previousHandle)
 RO = size(data, 1);
 E1 = size(data, 2);
 
+try
+    header.field_of_view(1);
+catch
+    header.field_of_view = header.FOV;
+    header.position = header.PatientPosition;
+end
+
 ps_ro = header.field_of_view(1)/RO
 ps_e1 = header.field_of_view(2)/E1
 ps_z = header.field_of_view(3)/size(data, 3)
+
+% tt = header.read_dir;
+% header.read_dir = header.phase_dir;
+% header.phase_dir = tt;
 
 % point 1
 p1 = [0 0 0];

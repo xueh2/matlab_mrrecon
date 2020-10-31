@@ -1,0 +1,163 @@
+
+function PointPropagation_DeformField(filename, dx_file, dy_file, LandMarksfile, pointStep, sizeRatio, slicenumflag, pts_Property, aviName)
+% visualize the deformation field
+
+if ( isempty(dir(aviName))==0 )
+    disp(['Already exsiting: ' aviName]);
+    return;
+end
+
+% ---------------------------------------------------------------
+% read images and set the parameters properly
+
+[data, header] = LoadAnalyze(filename, 'Grey');
+
+minD = min(data(:));
+maxD = max(data(:));
+
+if ( maxD > 255 )
+    data = NormalizeImage(double(data)) .* 255;
+end
+
+[Dx, header] = LoadAnalyze(dx_file, 'Real');
+[Dy, header] = LoadAnalyze(dy_file, 'Real');
+
+[H, W, Num] = size(data);
+% ---------------------------------------------------------------
+% LandMarks
+pt_size = pts_Property.pt_size;
+pt_lineColor = pts_Property.pt_lineColor;
+pt_lineWidth = pts_Property.pt_lineWidth;
+
+pt_color = pts_Property.color;
+pt_symbol = pts_Property.symbol;
+
+target_pt_color = pts_Property.target_color;
+target_pt_symbol = pts_Property.target_symbol;
+
+[pts, numCell, cells] = VTKFile2PointCell(LandMarksfile);    
+pts_Image = world2image_DITK2(double(pts(:,2:4)), header);
+ 
+NumofPts = size(pts, 1);
+ 
+pts_Deformed = UseDeformation(pts_Image, Dx, Dy, header);
+%     pts_Image = pts_Image .* sizeRatio;
+%     pts_Image(:, 2) = H - pts_Image(:, 2);
+    
+% ---------------------------------------------------------------
+% set the grid points
+GridPtSize = pts_Property.GridPtSize;
+GridLineColor = pts_Property.GridLineColor;
+GridLineWidth = pts_Property.GridLineWidth;
+
+GridColor = pts_Property.GridColor;
+GridPtSymbol = pts_Property.GridPtSymbol;
+
+targetGridColor = pts_Property.targetGridColor;
+targetGridPtSymbol = pts_Property.targetGridPtSymbol;
+
+
+xPointNum = floor( (W-pointStep)/pointStep);
+yPointNum = floor( (H-pointStep)/pointStep);
+
+gridPts = zeros(xPointNum*yPointNum, 3);
+
+index = 1;
+for j=1:yPointNum        
+    y = floor(pointStep/2) + (j-1)*pointStep -1;
+    for i=1:xPointNum
+        x = floor(pointStep/2) + (i-1)*pointStep -1;
+        
+        gridPts(index, 1) = x;
+        gridPts(index, 2) = y;
+        index = index + 1;
+    end
+end
+gridPts_Deformed = UseDeformation(gridPts, Dx, Dy, header);
+
+% ---------------------------------------------------------------
+% size Ratio
+C = imresize(data(:, :, 1), sizeRatio, 'bicubic');
+
+[newH, newW] = size(C);
+
+pts_Image = pts_Image .* sizeRatio;
+pts_Image(:, 2) = newH - pts_Image(:, 2);
+
+pts_Deformed = pts_Deformed .* sizeRatio;
+pts_Deformed(:, 2) = newH - pts_Deformed(:, 2);
+
+gridPts = gridPts .* sizeRatio;
+gridPts(:, 2) = newH - gridPts(:, 2);
+
+gridPts_Deformed = gridPts_Deformed .* sizeRatio;
+gridPts_Deformed(:, 2) = newH - gridPts_Deformed(:, 2);
+
+% ---------------------------------------------------------------
+
+f = figure;
+for kk=1:header.zsize
+    
+    kk
+    slice = data(:, :, kk);
+
+    slice = imresize(slice, sizeRatio, 'bicubic');
+    slice = flipdim(slice,1);
+    
+    % render the contour and slice
+    if ( slicenumflag )
+        slicenum = kk;
+    else
+        slicenum = 0;
+    end
+    
+    current_pts_Deformed = pts_Deformed(:, :, kk);
+    f = RenderDeformationLines(slice, pts_Image(:,1:2), current_pts_Deformed, pt_lineWidth, pt_lineColor, pt_size, ...
+        pt_color,  pt_symbol, target_pt_color,  target_pt_symbol, ...
+        slicenum, f);
+ 
+    current_gridPts_Deformed = gridPts_Deformed(:, :, kk);
+    f = RenderDeformationLines_Only(slice, gridPts(:, 1:2), current_gridPts_Deformed, GridLineWidth, GridLineColor, GridPtSize, ...
+        GridColor,  GridPtSymbol, targetGridColor,  targetGridPtSymbol, ...
+        slicenum, f);
+    
+    %M(kk) = im2frame(uint8(slice), gray(256));
+    h = get(f, 'CurrentAxes');
+    M(kk) = getframe(h);
+    
+    cla(h);
+%     close(f);
+end    
+
+movie2avi(M, aviName, 'Compression', 'None', 'fps', 8);
+close(f);
+
+function  pts_Deformed = UseDeformation(pts_Image, Dx, Dy, header)
+% use the deformation
+
+num = size(pts_Image, 1);
+
+numSlice = header.zsize;
+
+pts_Deformed = zeros(num, 2, numSlice); % px, py, numofslice
+
+Dx_2D = Dx(:, :, 1);
+Dy_2D = Dy(:, :, 1);
+
+for kk=1:numSlice
+    % for every slice
+    Dx_2D = Dx(:, :, kk);
+    Dy_2D = Dy(:, :, kk);
+    
+    for tt=1:num
+        % for every point
+        x = pts_Image(tt, 1);
+        y = pts_Image(tt, 2);
+        
+        local_dx = interp2(Dx_2D, x+1, y+1, 'linear');
+        local_dy = interp2(Dy_2D, x+1, y+1, 'linear');
+    
+        pts_Deformed(tt, 1, kk) = x + local_dx;
+        pts_Deformed(tt, 2, kk) = y + local_dy;
+    end
+end

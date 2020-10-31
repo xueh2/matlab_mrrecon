@@ -1,0 +1,90 @@
+
+function [ yOut, schemeDataOut ] = CheckTopology2D(t, yIn, schemeDataIn)
+% schemeDataIn.LastData
+% schemeDataIn.LastY
+% schemeDataIn.B
+% schemeData.connectivityObject
+% schemeData.connectivityBackground
+
+disp(['current time is ' num2str(t)]);
+disp(['checking topology 2D ... ']);
+
+% yOut phi at next time point
+% yIn phi_temp
+yOut = yIn;
+schemeDataOut = schemeDataIn;
+
+B = schemeDataIn.B; % B will be improved at every iteration
+LastData = schemeDataIn.LastData;
+tempData = reshape(yIn, schemeDataIn.shape);
+NextData = zeros(size(tempData));
+connectivityObject = schemeDataIn.connectivityObject;
+connectivityBackground = schemeDataIn.connectivityBackground;
+
+tempSign = sign(tempData);
+index = find(tempSign==0);
+if ( isempty(index) == 0 )
+    tempSign(index) = 1;
+end
+
+LastSign = sign(LastData);
+index = find(LastSign==0);
+if ( isempty(index) == 0 )
+    LastSign(index) = 1;
+end
+
+% find all voxels that the signs have not been changed
+% B keeps unchanged
+index = find(tempSign==LastSign);
+NextData(index) = tempData(index);
+
+% for every voxel whose sign has changed,
+index2 = find(tempSign~=LastSign);
+num = length(index2);
+if ( num == 0 )
+    yOut = NextData(:);
+    schemeDataOut.LastData = NextData;
+    schemeDataOut.LastY = yOut;
+    schemeDataOut.B = B;
+    return;
+end
+    
+[T_object, T_backgournd] = ComputeTopologicalNumber2D(index2, B, connectivityObject, connectivityBackground);
+
+global ntimes
+simplePoints = zeros(size(B), 'uint8');
+simplePoints(find(B==1)) = 80;
+
+value = 0;
+for tt = 1:num
+    [i, j] = ind2sub(schemeDataOut.shape, index2(tt));
+        
+    if ( (T_object(tt)==1) & (T_backgournd(tt)==1) )
+        % simple point, the phi can be updated
+        NextData(i, j) = tempData(i, j);
+        B(i, j) = mod(B(i, j)+1, 2);
+        simplePoints(i, j) = 158;
+    else
+        value = value+1;
+        % non-simple point, the sign of phi can NOT be inverted
+        if ( LastData(i, j) <= 0 )
+            NextData(i, j) = -10^10 * eps;
+        else
+            NextData(i, j) = 10^10 * eps;
+        end
+        simplePoints(i, j) = 255;
+    end
+end
+disp(['non-simple points value = ' num2str(value)]);
+
+yOut = NextData(:);
+schemeDataOut.LastData = NextData;
+schemeDataOut.LastY = yOut;
+schemeDataOut.B = B;
+
+map = gray(256);
+map(256, :) = [];
+filename = ['./simplePoints/simplePoints_' num2str(ntimes) '.bmp'];
+imwrite(simplePoints, map, filename, 'bmp');
+ntimes = ntimes+1;
+return;

@@ -1,0 +1,5 @@
+
+function thicknessSpeed = ComputeThicknessSpeed(data0, data, minThickness, maxThickness)
+% compute the thickness speed
+% F = exp(minThickness-TH)-1; if <TH<=minThickness
+% F = 0; otherwise

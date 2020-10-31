@@ -1,0 +1,145 @@
+
+% get Overall_Statistics
+
+% deepgray, GM_Global_4, GM_Global_PVs_4, GM_Global_Local_PVs_4, GM_Global_5, GM_Global_PVs_5, GM_Global_Local_PVs_5, ...
+% WM_Global_4, WM_Global_PVs_4, WM_Global_Local_PVs_4, WM_Global_5, WM_Global_PVs_5, WM_Global_Local_PVs_5
+Overall_Statistics = zeros(num, 13);
+
+% brain volume
+volume_Statistics = zeros(num, 12);
+
+% False positive and false negative for 4 classes and for 5 classes
+FP_FN_Statistics_GM = zeros(num, 4);
+
+% BSE (mean, std, max), distPercentages(>1 voxel, >2 voxel) for 4 classes and 5 classes
+BSE_Statistics_GM = zeros(num, 10);
+
+% False positive and false negative for 4 classes and for 5 classes
+FP_FN_Statistics_WM = zeros(num, 4);
+
+% BSE (mean, std, max), distPercentages(>1 voxel, >2 voxel) for 4 classes and 5 classes
+BSE_Statistics_WM = zeros(num, 10);
+
+for i = 1:num
+    home = [Upperhome '\' Labeled_slices{i,1} '\'];
+    
+    cd(home)
+    disp(home);
+    disp('=====================================================');
+    
+    s = load('assess_Seg_deepgray/deepgray_dsc.mat');
+    Overall_Statistics(i, 1) = s.deepgray_dsc;
+    % ============================ %
+    s = load('assess_Seg_gm/Global_dsc_4classes.mat');
+    Overall_Statistics(i, 2) = s.Global_dsc_4classes;
+    volume_Statistics(i, 1) = s.tissueVolume;
+    
+    s = load('assess_Seg_gm/Global_PVs_dsc_4classes.mat');
+    Overall_Statistics(i, 3) = s.Global_PVs_dsc_4classes;
+    volume_Statistics(i, 2) = s.tissueVolume;
+
+    s = load('assess_Seg_gm/Global_Local_PVs_dsc_4classes.mat');
+    Overall_Statistics(i, 4) = s.Global_Local_PVs_dsc_4classes;
+    volume_Statistics(i, 3) = s.tissueVolume;
+        
+    BSE_Statistics_GM(i, 1) = s.Global_Local_PVs_BSE_4classes(1);
+    BSE_Statistics_GM(i, 2) = s.Global_Local_PVs_BSE_4classes(2);
+    BSE_Statistics_GM(i, 3) = s.Global_Local_PVs_BSE_4classes(3);
+    BSE_Statistics_GM(i, 4) = s.Global_Local_PVs_distPercentages_4classes(1);
+    BSE_Statistics_GM(i, 5) = s.Global_Local_PVs_distPercentages_4classes(2);
+    
+%     s = load('assess_Seg_gm/Global_Local_PVs_dsc_4classes_FP_FN.mat');
+    
+    FP_FN_Statistics_GM(i, 1) = s.Global_Local_PVs_FP_4classes;
+    FP_FN_Statistics_GM(i, 2) = s.Global_Local_PVs_FN_4classes;
+
+    % ----------------------
+    
+    s = load('assess_Seg_gm/Global_dsc_5classes.mat');
+    Overall_Statistics(i, 5) = s.Global_dsc_5classes;
+    volume_Statistics(i, 4) = s.tissueVolume;
+    
+    s = load('assess_Seg_gm/Global_PVs_dsc_5classes.mat');
+    Overall_Statistics(i, 6) = s.Global_PVs_dsc_5classes;
+    volume_Statistics(i, 5) = s.tissueVolume;
+    
+    s = load('assess_Seg_gm/Global_Local_PVs_dsc_5classes.mat');
+    Overall_Statistics(i, 7) = s.Global_Local_PVs_dsc_5classes;
+    volume_Statistics(i, 6) = s.tissueVolume;
+    
+    % ----------------------
+%     FP_FN_Statistics_GM(i, 3) = s.Global_Local_PVs_FP_5classes;
+%     FP_FN_Statistics_GM(i, 4) = s.Global_Local_PVs_FN_5classes;
+    
+    BSE_Statistics_GM(i, 6) = s.Global_Local_PVs_BSE_5classes(1);
+    BSE_Statistics_GM(i, 7) = s.Global_Local_PVs_BSE_5classes(2);
+    BSE_Statistics_GM(i, 8) = s.Global_Local_PVs_BSE_5classes(3);
+    BSE_Statistics_GM(i, 9) = s.Global_Local_PVs_distPercentages_5classes(1);
+    BSE_Statistics_GM(i, 10) = s.Global_Local_PVs_distPercentages_5classes(2);
+    
+%     s = load('assess_Seg_gm/Global_Local_PVs_dsc_5classes_FP_FN.mat');
+    
+    FP_FN_Statistics_GM(i, 3) = s.Global_Local_PVs_FP_5classes;
+    FP_FN_Statistics_GM(i, 4) = s.Global_Local_PVs_FN_5classes;
+
+    % ----------------------
+    
+    % ============================ %
+    s = load('assess_Seg_wm/Global_dsc_4classes.mat');
+    Overall_Statistics(i, 8) = s.Global_dsc_4classes;
+    volume_Statistics(i, 7) = s.tissueVolume;
+    
+    s = load('assess_Seg_wm/Global_PVs_dsc_4classes.mat');
+    Overall_Statistics(i, 9) = s.Global_PVs_dsc_4classes;
+    volume_Statistics(i, 8) = s.tissueVolume;
+    
+    s = load('assess_Seg_wm/Global_Local_PVs_dsc_4classes.mat');
+    Overall_Statistics(i, 10) = s.Global_Local_PVs_dsc_4classes;
+    volume_Statistics(i, 9) = s.tissueVolume;
+    
+    % ----------------------
+%     FP_FN_Statistics_WM(i, 1) = s.Global_Local_PVs_FP_4classes;
+%     FP_FN_Statistics_WM(i, 2) = s.Global_Local_PVs_FN_4classes;
+    
+    BSE_Statistics_WM(i, 1) = s.Global_Local_PVs_BSE_4classes(1);
+    BSE_Statistics_WM(i, 2) = s.Global_Local_PVs_BSE_4classes(2);
+    BSE_Statistics_WM(i, 3) = s.Global_Local_PVs_BSE_4classes(3);
+    BSE_Statistics_WM(i, 4) = s.Global_Local_PVs_distPercentages_4classes(1);
+    BSE_Statistics_WM(i, 5) = s.Global_Local_PVs_distPercentages_4classes(2);
+    
+%     s = load('assess_Seg_wm/Global_Local_PVs_dsc_4classes_FP_FN.mat');
+    
+    FP_FN_Statistics_WM(i, 1) = s.Global_Local_PVs_FP_4classes;
+    FP_FN_Statistics_WM(i, 2) = s.Global_Local_PVs_FN_4classes;
+
+    % ----------------------
+    
+    s = load('assess_Seg_wm/Global_dsc_5classes.mat');
+    Overall_Statistics(i, 11) = s.Global_dsc_5classes;
+    volume_Statistics(i, 10) = s.tissueVolume;
+    
+    s = load('assess_Seg_wm/Global_PVs_dsc_5classes.mat');
+    Overall_Statistics(i, 12) = s.Global_PVs_dsc_5classes;
+    volume_Statistics(i, 11) = s.tissueVolume;
+    
+    s = load('assess_Seg_wm/Global_Local_PVs_dsc_5classes.mat');
+    Overall_Statistics(i, 13) = s.Global_Local_PVs_dsc_5classes;
+    volume_Statistics(i, 12) = s.tissueVolume;    
+    
+    % ----------------------
+%     FP_FN_Statistics_WM(i, 3) = s.Global_Local_PVs_FP_5classes;
+%     FP_FN_Statistics_WM(i, 4) = s.Global_Local_PVs_FN_5classes;
+    
+    BSE_Statistics_WM(i, 6) = s.Global_Local_PVs_BSE_5classes(1);
+    BSE_Statistics_WM(i, 7) = s.Global_Local_PVs_BSE_5classes(2);
+    BSE_Statistics_WM(i, 8) = s.Global_Local_PVs_BSE_5classes(3);
+    BSE_Statistics_WM(i, 9) = s.Global_Local_PVs_distPercentages_5classes(1);
+    BSE_Statistics_WM(i, 10) = s.Global_Local_PVs_distPercentages_5classes(2);
+    
+%     s = load('assess_Seg_wm/Global_Local_PVs_dsc_5classes_FP_FN.mat');
+    
+    FP_FN_Statistics_WM(i, 3) = s.Global_Local_PVs_FP_5classes;
+    FP_FN_Statistics_WM(i, 4) = s.Global_Local_PVs_FN_5classes;
+
+    % ----------------------
+end

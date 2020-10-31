@@ -1,0 +1,10 @@
+
+function  [Dx, Dy, Dz] = ComputeDisplacement(target_FullName, dofnames, InverseFlag)
+% compute the displacement of every voxel under a DITK transformation
+
+Dx = []'
+
+if ( isempty(dir()) )
+    disp();
+    return
+end

@@ -1,0 +1,11 @@
+
+function [post_csf, post_wm, post_gm, post_outlier] = GetPostImage_4classes(mix, header, post)
+% transform posterior as image file
+
+xsize = header.xsize;
+xsize = header.xsize;
+
+post_csf = zeros(
+post_wm
+post_gm
+post_outlier

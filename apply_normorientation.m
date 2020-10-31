@@ -34,38 +34,40 @@ end
 RO = size(I, 1);
 E1 = size(I, 2);
 
-if(Rotate90==1) % counter clockwise 90 degree
-    
-    [p1, p2, p3, p4] = gt_2_world(gt_h_norm, RO, E1);
-    gt_h_norm = world_2_gt(p2, p3, p4, p1, gt_h_norm);
-    
-%     read_dir = gt_h_norm.read_dir;
-%     phase_dir = gt_h_norm.phase_dir;
-    fov = gt_h_norm.FOV;
-%     
-%     gt_h_norm.read_dir = phase_dir;
-%     gt_h_norm.phase_dir = -read_dir;
-    gt_h_norm.FOV(1) = fov(2);
-    gt_h_norm.FOV(2) = fov(1);
-end
+if(~isempty(gt_h_norm))
+    if(Rotate90==1) % counter clockwise 90 degree
 
-if(Rotate90==-1) % clockwise 90 degree
-%     read_dir = gt_h_norm.read_dir;
-%     phase_dir = gt_h_norm.phase_dir;
-    fov = gt_h_norm.FOV;
-%     
-%     gt_h_norm.read_dir = -phase_dir;
-%     gt_h_norm.phase_dir = read_dir;
-    gt_h_norm.FOV(1) = fov(2);
-    gt_h_norm.FOV(2) = fov(1);
+        [p1, p2, p3, p4] = gt_2_world(gt_h_norm, RO, E1);
+        gt_h_norm = world_2_gt(p2, p3, p4, p1, gt_h_norm);
 
-    [p1, p2, p3, p4] = gt_2_world(gt_h_norm, RO, E1);
-    gt_h_norm = world_2_gt(p4, p1, p2, p3, gt_h_norm);
-end
+    %     read_dir = gt_h_norm.read_dir;
+    %     phase_dir = gt_h_norm.phase_dir;
+        fov = gt_h_norm.FOV;
+    %     
+    %     gt_h_norm.read_dir = phase_dir;
+    %     gt_h_norm.phase_dir = -read_dir;
+        gt_h_norm.FOV(1) = fov(2);
+        gt_h_norm.FOV(2) = fov(1);
+    end
 
-if(Rotate90==2) % counter clockwise 180 degree    
-    [p1, p2, p3, p4] = gt_2_world(gt_h_norm, RO, E1);
-    gt_h_norm = world_2_gt(p3, p4, p1, p2, gt_h_norm);    
+    if(Rotate90==-1) % clockwise 90 degree
+    %     read_dir = gt_h_norm.read_dir;
+    %     phase_dir = gt_h_norm.phase_dir;
+        fov = gt_h_norm.FOV;
+    %     
+    %     gt_h_norm.read_dir = -phase_dir;
+    %     gt_h_norm.phase_dir = read_dir;
+        gt_h_norm.FOV(1) = fov(2);
+        gt_h_norm.FOV(2) = fov(1);
+
+        [p1, p2, p3, p4] = gt_2_world(gt_h_norm, RO, E1);
+        gt_h_norm = world_2_gt(p4, p1, p2, p3, gt_h_norm);
+    end
+
+    if(Rotate90==2) % counter clockwise 180 degree    
+        [p1, p2, p3, p4] = gt_2_world(gt_h_norm, RO, E1);
+        gt_h_norm = world_2_gt(p3, p4, p1, p2, gt_h_norm);    
+    end
 end
 
 RO = size(tmp, 1);
@@ -79,24 +81,26 @@ switch Flip
         tmp=tmp(:,end:-1:1,:);
 end
 
-if(Flip==1)
-%     read_dir = gt_h_norm.read_dir;
-%     phase_dir = gt_h_norm.phase_dir;
-%     
-%     gt_h_norm.phase_dir = -phase_dir;
-    
-    [p1, p2, p3, p4] = gt_2_world(gt_h_norm, RO, E1);
-    gt_h_norm = world_2_gt(p4, p3, p2, p1, gt_h_norm);
-end
+if(~isempty(gt_h_norm))
+    if(Flip==1)
+    %     read_dir = gt_h_norm.read_dir;
+    %     phase_dir = gt_h_norm.phase_dir;
+    %     
+    %     gt_h_norm.phase_dir = -phase_dir;
 
-if(Flip==2)
-%     read_dir = gt_h_norm.read_dir;
-%     phase_dir = gt_h_norm.phase_dir;
-%     
-%     gt_h_norm.read_dir = -read_dir;
-    
-    [p1, p2, p3, p4] = gt_2_world(gt_h_norm, RO, E1);
-    gt_h_norm = world_2_gt(p2, p1, p4, p3, gt_h_norm);
+        [p1, p2, p3, p4] = gt_2_world(gt_h_norm, RO, E1);
+        gt_h_norm = world_2_gt(p4, p3, p2, p1, gt_h_norm);
+    end
+
+    if(Flip==2)
+    %     read_dir = gt_h_norm.read_dir;
+    %     phase_dir = gt_h_norm.phase_dir;
+    %     
+    %     gt_h_norm.read_dir = -read_dir;
+
+        [p1, p2, p3, p4] = gt_2_world(gt_h_norm, RO, E1);
+        gt_h_norm = world_2_gt(p2, p1, p4, p3, gt_h_norm);
+    end
 end
 
 I = reshape(tmp,[size(tmp,1) size(tmp,2) Isize(3:end)]);

@@ -1,0 +1,30 @@
+
+function centres = ClusteringSuspectedPoints_Intensity(imagedata, suspected_volume, classnumber, trynumber, initialCentres, step )
+% use the kmeans clustering to get clustering centres
+
+autoIntial = true;
+if ( (isempty(initialCentres) == 0) & (size(initialCentres, 1)==classnumber) & (size(initialCentres, 3)==trynumber) )
+    autoIntial = false;
+end
+
+index = find(suspected_volume==1);
+[row, col, depth] = ind2sub(size(suspected_volume), index(1:step:end));
+ndata = length(row);
+x = zeros(ndata, 4);
+x(:, 1:3) = [col row depth];% x, y, z
+x(:, 4) = imagedata(index(1:step:end));% x, y, z
+
+% for i = 1:ndata
+%     x(i, 4) = imagedata(row(i), col(i), depth(i));
+% end
+clear index row col depth
+
+if ( autoIntial )
+    [IDX,C,sumd,D] = kmeans(x, classnumber, 'distance', 'sqEuclidean', 'display', 'iter', 'replicates', trynumber, 'Maxiter', 200, 'EmptyAction', 'drop');
+else
+    [IDX,C,sumd,D] = kmeans(x, classnumber, 'start', initialCentres, 'distance', 'sqEuclidean', 'display', 'iter', 'Maxiter', 200, 'EmptyAction', 'drop');
+end
+
+centres = C(:, 1:3);
+
+return

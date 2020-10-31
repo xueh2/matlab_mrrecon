@@ -153,6 +153,7 @@ function h = plot_ED_ES(Cine, endoC, epiC, ED, phs_name, scale_factor, linewidth
             endo = endoC{slc, ED};
             if(~isempty(endo))
                 endo = [endo; endo(1,:)] + 1;
+%                 endo = [endo; endo(1,:)];
                 hold on    
                 plot(endo(:,1), endo(:,2), 'r', 'LineWidth', linewidth);
                 hold off
@@ -163,6 +164,7 @@ function h = plot_ED_ES(Cine, endoC, epiC, ED, phs_name, scale_factor, linewidth
             epi = epiC{slc, ED};
             if(~isempty(epi))
                 epi = [epi; epi(1,:)] + 1;
+%                 epi = [epi; epi(1,:)];
                 hold on    
                 plot(epi(:,1), epi(:,2), 'g', 'LineWidth', linewidth);
                 hold off

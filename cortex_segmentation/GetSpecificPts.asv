@@ -1,0 +1,12 @@
+
+function pts_Specific = GetSpecificPts(points, pt_IDs)
+% points: 4*N
+% pt_IDs : IDs
+% pts_Specific: the 4*M points with the id in pt_IDs
+
+m = length(pt_IDs);
+pts_Specific = zeros(m, 4);
+pts_Specific(:,1) = pt_IDs;
+
+for i=1:m
+end

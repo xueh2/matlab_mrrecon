@@ -1,0 +1,8 @@
+
+function local_SegResults = LocalSegmentation_Kmeans_EM(imagedata, header, ...
+    brainmask, global_SegResult, SplittedBrain, partsNumber, tissuelabels_seg)
+% perform the local segmentation to refine the results
+
+% allocate memory
+
+local_SegResults = cell();

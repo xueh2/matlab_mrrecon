@@ -1,5 +1,5 @@
 
-function S = cine_generate_seg_from_manual_roi(Cine, roi, phs, plotFlag, im_roi)
+function [S, h] = cine_generate_seg_from_manual_roi(Cine, roi, phs, plotFlag, im_roi, scale_factor)
 % contours are starting with index 1
 % allow an extra upsampling ratio
 
@@ -13,6 +13,10 @@ if(nargin<5)
     ro_e = -1;
     e1_s = -1;
     e1_e = -1;
+end
+
+if(nargin<6)
+    scale_factor = 1;
 end
 
 S = struct('im', [], 'roi', [], ... 
@@ -58,6 +62,9 @@ SLC = size(Cine, 4);
 
 endo_mask = zeros(RO, E1, SLC);
 epi_mask = endo_mask;
+rvi_mask = endo_mask;
+
+h = -1;
 
 for slc = 1:SLC
     
@@ -68,10 +75,14 @@ for slc = 1:SLC
     
     endoC = endo_epi_C{1};
     epiC = endo_epi_C{2};
+    rviC = endo_epi_C{3};
     
     if(~isempty(endoC))
         pt_x = endoC.ROI_x_original;
         pt_y = endoC.ROI_y_original;
+        
+        pt_x = scale_factor * (pt_x-1) + 1;
+        pt_y = scale_factor * (pt_y-1) + 1;
         
         endo_mask(:,:,slc) = single(roipoly(im, pt_x, pt_y));
     end
@@ -80,20 +91,61 @@ for slc = 1:SLC
         pt_x = epiC.ROI_x_original;
         pt_y = epiC.ROI_y_original;
         
+        pt_x = scale_factor * (pt_x-1) + 1;
+        pt_y = scale_factor * (pt_y-1) + 1;
+        
         epi_mask(:,:,slc) = single(roipoly(im, pt_x, pt_y));
     end
     
-    if(plotFlag)
-        plot_mask(im, endo_mask(:,:,slc), epi_mask(:,:,slc), [], []);
+    if(~isempty(rviC))
+        pt_x = rviC.ROI_x_coordinates;
+        pt_y = rviC.ROI_y_coordinates;
+        
+        pt_x = mean(pt_x);
+        pt_y = mean(pt_y);
+        
+        pt_x = scale_factor * (pt_x-1) + 1;
+        pt_y = scale_factor * (pt_y-1) + 1;
+        
+        %rvi_mask(:,:,slc) = single(roipoly(im, pt_x, pt_y));
+        [X, Y] = meshgrid(round(pt_x)-2:round(pt_x)+2, round(pt_y)-2:round(pt_y)+2);
+        rvi_mask(Y, X, slc) = 1;
     end
+    
+%     if(plotFlag)
+%         h(slc) = plot_mask(im, endo_mask(:,:,slc), epi_mask(:,:,slc), [], rvi_mask(:,:,slc));
+%     end
 end
 
 S.endo_mask = endo_mask;
 S.epi_mask = epi_mask;
+S.rvi_mask = rvi_mask;
+
+if(plotFlag)
+    h = plot_mask_all(S.im, S.endo_mask, S.epi_mask, S.rv_mask, S.rvi_mask, 12)
+end
 
 end
 
-function plot_mask(fmap, endo_mask, epi_mask, rv_mask, rvi_mask)
+function h = plot_mask_all(cine, endo_mask, epi_mask, rv_mask, rvi_mask, scale_factor)
+
+    SLC = size(cine, 3);
+    
+    h = figure;
+    imagescn(cine, [1.1*min(cine(:)) 0.7*max(cine(:))], [3 ceil(SLC/3)], scale_factor);
+    h_axes=flipud(findobj(h,'type','axes'));
+
+    for slc=1:SLC    
+        if(isempty(rv_mask))
+            plot_mask(h_axes(slc), endo_mask(:,:,slc), epi_mask(:,:,slc), [], rvi_mask(:,:,slc));
+        else
+            plot_mask(h_axes(slc), endo_mask(:,:,slc), epi_mask(:,:,slc), rv_mask(:,:,slc), rvi_mask(:,:,slc));
+        end
+    end    
+end
+
+function plot_mask(ha, endo_mask, epi_mask, rv_mask, rvi_mask)
+    axes(ha);
     [endo_s, endo_e] = CCMS_Contour(endo_mask, 0.5, 4, 0);
     [epi_s, epi_e] = CCMS_Contour(epi_mask, 0.5, 4, 0);
 
@@ -104,7 +156,7 @@ function plot_mask(fmap, endo_mask, epi_mask, rv_mask, rvi_mask)
         [rvi_s, rvi_e] = CCMS_Contour(rvi_mask, 0.5, 4, 0);
     end
     
-    figure;imagescn(fmap);
+%     h = figure;imagescn(fmap);
     hold on
     for tt=1:size(endo_s,1)-1
         line([endo_s(tt,1) endo_e(tt,1)],[endo_s(tt,2) endo_e(tt,2)], ...
@@ -132,17 +184,43 @@ end
 
 function endo_epi_C = find_rois(roi, slc)
 
-    num_rois = size(roi, 1);
-    
     endoC = [];
     epiC = [];
-        
+    rviC = [];
+
+    if(isempty(roi))
+        endo_epi_C = {endoC, epiC, rviC};
+        return
+    end
+    
+    num_rois = size(roi, 1);
+       
     roi_ind = [];
     for ii=1:num_rois
         roiC = roi(ii, slc);
         if(roiC.ROI_Exists == 1)
             roi_ind = [roi_ind; ii];
         end
+    end
+    
+    if(numel(roi_ind)==3)
+        
+        num_pts = [roi(roi_ind(1), slc).ROI_pixels, roi(roi_ind(2), slc).ROI_pixels, roi(roi_ind(3), slc).ROI_pixels];
+        [pts, sorted_ind] = sort(num_pts);
+        
+        rviC = roi(roi_ind(sorted_ind(1)), slc);
+        endoC = roi(roi_ind(sorted_ind(2)), slc);
+        epiC = roi(roi_ind(sorted_ind(3)), slc);
+        
+%         if(roi(roi_ind(1), slc).ROI_pixels>roi(roi_ind(2), slc).ROI_pixels)
+%             endoC = roi(roi_ind(2), slc);
+%             epiC = roi(roi_ind(1), slc);
+%         else
+%             endoC = roi(roi_ind(1), slc);
+%             epiC = roi(roi_ind(2), slc);
+%         end   
+%         
+%         rviC = roi(roi_ind(3), slc);
     end
     
     if(numel(roi_ind)==2)
@@ -161,5 +239,5 @@ function endo_epi_C = find_rois(roi, slc)
         epiC = roi(roi_ind(1), slc);
     end
     
-    endo_epi_C = {endoC, epiC};
+    endo_epi_C = {endoC, epiC, rviC};
 end

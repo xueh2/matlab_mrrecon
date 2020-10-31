@@ -1,0 +1,4 @@
+
+function schemeData = processTopology(schemeData)
+% fill the B according to the schemeData.LastData
+% more initialization operatin

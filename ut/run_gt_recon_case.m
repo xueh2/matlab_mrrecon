@@ -1,6 +1,6 @@
-function timeUsed = run_gt_recon_case(dataName, configName, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, UTDir)
+function timeUsed = run_gt_recon_case(dataName, configName, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml, UTDir)
 % run the gt recon for a case
-% timeUsed = run_gt_recon_case(dataName, configName, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, UTDir)
+% timeUsed = run_gt_recon_case(dataName, configName, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml, UTDir)
 
 if nargin<6
     res_suffix = [];
@@ -18,8 +18,11 @@ if nargin<9
     compressionBit = 0;
 end
 
-
 if nargin<10
+    paraXml = [];
+end
+
+if nargin<11
     UTDir = getenv('GTPLUS_UT_DIR')
 end
 
@@ -36,6 +39,10 @@ for ii=1:num
             folderDir = fullfile(UTDir, UTCases{ii, 1})
         end
     
+        if(~isFileExist(folderDir))
+            folderDir = fullfile( UTCases{ii, 1}, UTCases{ii,2 });
+        end
+        
         dataName = fullfile(folderDir, [UTCases{ii, 2} '.dat']);
         
         if(~isempty(res_suffix))
@@ -56,6 +63,7 @@ for ii=1:num
         isVD11 = strcmp(UTCases{ii, 3}, 'VD11');
         isAdjScan = strcmp(UTCases{ii, 3}, 'Adj');
         isNX = strcmp(UTCases{ii, 3}, 'NX');
+        isNX20 = strcmp(UTCases{ii, 3}, 'NX20');
         
         delete(fullfile(folderDir, 'res*.h5'));
         delete(fullfile(folderDir, 'out*.h5'));
@@ -81,6 +89,6 @@ for ii=1:num
             delete(fullfile(resDir, '*.h5'));
         end
         
-        timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isAdjScan, configName, resDir, xslFile, startRemoteGT, h5Only, remoteXml, compressionBit);
+        timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isNX20, isAdjScan, configName, resDir, xslFile, startRemoteGT, h5Only, remoteXml, compressionBit, paraXml);
     end    
 end

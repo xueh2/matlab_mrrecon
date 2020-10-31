@@ -62,7 +62,8 @@ scalingFactor = 10;
                 BTEX_flow_SD_all_rest, BTEX_PS_SD_all_rest, BTEX_Visf_SD_all_rest, BTEX_Vp_SD_all_rest, BTEX_cov_all_rest, ...
                 flow_SD_rest, PS_SD_rest, Vp_SD_rest, Visf_SD_rest, BTEX_cov_rest, ...
                 CC_F_PS_rest, CC_F_Vp_rest, CC_F_Visf_rest, CC_PS_Vp_rest, CC_PS_Visf_rest, CC_Vp_Visf_rest, ... 
-                BTEX_Tc_all_rest, Fermi_Delay_rest, aif_scan_geometry_info_rest, scan_geometry_info_rest] = read_in_GT_Perf_DebugOutput_results(restDir);
+                BTEX_Tc_all_rest, Fermi_Delay_rest, aif_scan_geometry_info_rest, scan_geometry_info_rest, ...
+                aif_lut_rest, aif_lut_gd_rest, perf_lut_rest, perf_lut_gd_rest] = read_in_GT_Perf_DebugOutput_results(restDir);
 
             disp(['Load rest - ' num2str(toc)]);
             has_rest = 1;
@@ -86,7 +87,8 @@ scalingFactor = 10;
                 BTEX_flow_SD_all_stress, BTEX_PS_SD_all_stress, BTEX_Visf_SD_all_stress, BTEX_Vp_SD_all_stress, BTEX_cov_all_stress, ...
                 flow_SD_stress, PS_SD_stress, Vp_SD_stress, Visf_SD_stress, BTEX_cov_stress, ...
                 CC_F_PS_stress, CC_F_Vp_stress, CC_F_Visf_stress, CC_PS_Vp_stress, CC_PS_Visf_stress, CC_Vp_Visf_stress, ... 
-                BTEX_Tc_all_stress, Fermi_Delay_stress, aif_scan_geometry_info_stress, scan_geometry_info_stress] = read_in_GT_Perf_DebugOutput_results(stressDir);
+                BTEX_Tc_all_stress, Fermi_Delay_stress, aif_scan_geometry_info_stress, scan_geometry_info_stress, ...
+                aif_lut_stress, aif_lut_gd_stress, perf_lut_stress, perf_lut_gd_stress] = read_in_GT_Perf_DebugOutput_results(stressDir);
 
             disp(['Load stress - ' num2str(toc)]);
             
@@ -130,7 +132,8 @@ scalingFactor = 10;
                     'BTEX_flow_SD_all_rest', 'BTEX_PS_SD_all_rest', 'BTEX_Visf_SD_all_rest', 'BTEX_Vp_SD_all_rest', 'BTEX_cov_all_rest', ...
                     'flow_SD_rest', 'PS_SD_rest', 'Vp_SD_rest', 'Visf_SD_rest', 'BTEX_cov_rest', ...
                     'CC_F_PS_rest', 'CC_F_Vp_rest', 'CC_F_Visf_rest', 'CC_PS_Vp_rest', 'CC_PS_Visf_rest', 'CC_Vp_Visf_rest', ... 
-                    'BTEX_Tc_all_rest', 'Fermi_Delay_rest', 'aif_scan_geometry_info_rest', 'scan_geometry_info_rest');
+                    'BTEX_Tc_all_rest', 'Fermi_Delay_rest', 'aif_scan_geometry_info_rest', 'scan_geometry_info_rest', ...
+                    'aif_lut_rest', 'aif_lut_gd_rest', 'perf_lut_rest', 'perf_lut_gd_rest');
                 
                 disp(['Save rest - ' num2str(toc)]);
             end
@@ -148,7 +151,8 @@ scalingFactor = 10;
                     'BTEX_flow_SD_all_stress', 'BTEX_PS_SD_all_stress', 'BTEX_Visf_SD_all_stress', 'BTEX_Vp_SD_all_stress', 'BTEX_cov_all_stress', ...
                     'flow_SD_stress', 'PS_SD_stress', 'Vp_SD_stress', 'Visf_SD_stress', 'BTEX_cov_stress', ...
                     'CC_F_PS_stress', 'CC_F_Vp_stress', 'CC_F_Visf_stress', 'CC_PS_Vp_stress', 'CC_PS_Visf_stress', 'CC_Vp_Visf_stress', ... 
-                    'BTEX_Tc_all_stress', 'Fermi_Delay_stress', 'aif_scan_geometry_info_stress', 'scan_geometry_info_stress');
+                    'BTEX_Tc_all_stress', 'Fermi_Delay_stress', 'aif_scan_geometry_info_stress', 'scan_geometry_info_stress', ...
+                    'aif_lut_stress', 'aif_lut_gd_stress', 'perf_lut_stress', 'perf_lut_gd_stress');
                 
                 disp(['Save stress - ' num2str(toc)]);
             end
@@ -192,6 +196,7 @@ scalingFactor = 10;
     %     saveas(h, fullfile(figDir, [resDir '_AIF_FIG']), 'fig')
     
         slc = size(Ki_rest, 4);
+        SLC = slc;
         m = size(Ki_rest, 3);
 
         different_image_size = 0;
@@ -453,36 +458,48 @@ scalingFactor = 10;
             
         %% ------------------------------------------------    
         if(~different_image_size)    
-            figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_PS' '.fig']);
-            if(onlyReview & isFileExist(figName))
-                openfig(figName);
-            else
-                h = figure('visible', 'off', 'Name',[ resDir '_PDE PS'],'NumberTitle','off'); imagescn(cat(3, PS_stress(:,:,:,end), PS_rest(:,:,:,end)), [0 2], [2 slc], scalingFactor); PSColorMap;
-                saveas(h, figName, 'fig');
+            try
+                figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_PS' '.fig']);
+                if(onlyReview & isFileExist(figName))
+                    openfig(figName);
+                else
+                    h = figure('visible', 'off', 'Name',[ resDir '_PDE PS'],'NumberTitle','off'); imagescn(cat(3, PS_stress(:,:,:,end), PS_rest(:,:,:,end)), [0 2], [2 slc], scalingFactor); PSColorMap;
+                    saveas(h, figName, 'fig');
+                end
+            catch
             end
-
-            figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_E' '.fig']);
-            if(onlyReview & isFileExist(figName))
-                openfig(figName);
-            else
-                h = figure('visible', 'off', 'Name',[ resDir '_PDE E'],'NumberTitle','off');; imagescn(cat(3, E_stress(:,:,:,end), E_rest(:,:,:,end)), [0 2], [2 slc], scalingFactor); PerfColorMap;
-                saveas(h, figName, 'fig');
+            
+            try
+                figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_E' '.fig']);
+                if(onlyReview & isFileExist(figName))
+                    openfig(figName);
+                else
+                    h = figure('visible', 'off', 'Name',[ resDir '_PDE E'],'NumberTitle','off');; imagescn(cat(3, E_stress(:,:,:,end), E_rest(:,:,:,end)), [0 2], [2 slc], scalingFactor); PerfColorMap;
+                    saveas(h, figName, 'fig');
+                end
+            catch
             end
-
-            figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_Vb' '.fig']);
-            if(onlyReview & isFileExist(figName))
-                openfig(figName);
-            else
-                h = figure('visible', 'off', 'Name',[ resDir '_PDE Vb'],'NumberTitle','off');; imagescn(cat(3, Vp_stress(:,:,:,end), Vp_rest(:,:,:,end)), [0 20], [2 slc], scalingFactor); MBVColorMap;
-                saveas(h, figName, 'fig');
+            
+            try
+                figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_Vb' '.fig']);
+                if(onlyReview & isFileExist(figName))
+                    openfig(figName);
+                else
+                    h = figure('visible', 'off', 'Name',[ resDir '_PDE Vb'],'NumberTitle','off');; imagescn(cat(3, Vp_stress(:,:,:,end), Vp_rest(:,:,:,end)), [0 20], [2 slc], scalingFactor); MBVColorMap;
+                    saveas(h, figName, 'fig');
+                end
+            catch
             end
-
-            figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_Tc' '.fig']);
-            if(onlyReview & isFileExist(figName))
-                openfig(figName);
-            else
-                h = figure('visible', 'off', 'Name',[ resDir '_PDE Tc'],'NumberTitle','off');; imagescn(cat(3, BTEX_Tc_all_stress, BTEX_Tc_all_rest), [0 10], [2 slc], scalingFactor); PerfColorMap;
-                saveas(h, figName, 'fig');
+            
+            try
+                figName = fullfile(figDir, [resDir '_Stress_Rest_PDE_Tc' '.fig']);
+                if(onlyReview & isFileExist(figName))
+                    openfig(figName);
+                else
+                    h = figure('visible', 'off', 'Name',[ resDir '_PDE Tc'],'NumberTitle','off');; imagescn(cat(3, BTEX_Tc_all_stress, BTEX_Tc_all_rest), [0 10], [2 slc], scalingFactor); PerfColorMap;
+                    saveas(h, figName, 'fig');
+                end
+            catch
             end
             
             try
@@ -530,17 +547,17 @@ scalingFactor = 10;
             end
             
             try                  
-                for slc=1:SLC
-                    h = figure('visible', 'off', 'Name',[ resDir '_PDE Flow to PS/Vp/Visf correlation coefficients' '_SLC' num2str(slc)],'NumberTitle','off'); imagescn(cat(3, CC_F_PS_stress(:,:,slc), CC_F_Vp_stress(:,:,slc), CC_F_Visf_stress(:,:,slc)), [-1 1], [1 3], scalingFactor); PerfColorMap;
+                for ss=1:SLC
+                    h = figure('visible', 'off', 'Name',[ resDir '_PDE Flow to PS/Vp/Visf correlation coefficients' '_SLC' num2str(ss)],'NumberTitle','off'); imagescn(cat(3, CC_F_PS_stress(:,:,slc), CC_F_Vp_stress(:,:,slc), CC_F_Visf_stress(:,:,slc)), [-1 1], [1 3], scalingFactor); PerfColorMap;
                     saveas(h, figName, 'fig');
 
-                    h = figure('visible', 'off', 'Name',[ resDir '_PDE PS to Flow/Vp/Visf correlation coefficients' '_SLC' num2str(slc)],'NumberTitle','off'); imagescn(cat(3, CC_F_PS_stress(:,:,slc), CC_PS_Vp_stress(:,:,slc), CC_PS_Visf_stress(:,:,slc)), [-1 1], [1 3], scalingFactor); PerfColorMap;
+                    h = figure('visible', 'off', 'Name',[ resDir '_PDE PS to Flow/Vp/Visf correlation coefficients' '_SLC' num2str(ss)],'NumberTitle','off'); imagescn(cat(3, CC_F_PS_stress(:,:,slc), CC_PS_Vp_stress(:,:,slc), CC_PS_Visf_stress(:,:,slc)), [-1 1], [1 3], scalingFactor); PerfColorMap;
                     saveas(h, figName, 'fig');
 
-                    h = figure('visible', 'off', 'Name',[ resDir '_PDE Vp to Flow/PS/Visf correlation coefficients' '_SLC' num2str(slc)],'NumberTitle','off'); imagescn(cat(3, CC_F_Vp_stress(:,:,slc), CC_PS_Vp_stress(:,:,slc), CC_Vp_Visf_stress(:,:,slc)), [-1 1], [1 3], scalingFactor); PerfColorMap;
+                    h = figure('visible', 'off', 'Name',[ resDir '_PDE Vp to Flow/PS/Visf correlation coefficients' '_SLC' num2str(ss)],'NumberTitle','off'); imagescn(cat(3, CC_F_Vp_stress(:,:,slc), CC_PS_Vp_stress(:,:,slc), CC_Vp_Visf_stress(:,:,slc)), [-1 1], [1 3], scalingFactor); PerfColorMap;
                     saveas(h, figName, 'fig');
 
-                    h = figure('visible', 'off', 'Name',[ resDir '_PDE Visf to Flow/PS/Vp correlation coefficients' '_SLC' num2str(slc)],'NumberTitle','off'); imagescn(cat(3, CC_F_Visf_stress(:,:,slc), CC_PS_Visf_stress(:,:,slc), CC_Vp_Visf_stress(:,:,slc)), [-1 1], [1 3], scalingFactor); PerfColorMap;
+                    h = figure('visible', 'off', 'Name',[ resDir '_PDE Visf to Flow/PS/Vp correlation coefficients' '_SLC' num2str(ss)],'NumberTitle','off'); imagescn(cat(3, CC_F_Visf_stress(:,:,slc), CC_PS_Visf_stress(:,:,slc), CC_Vp_Visf_stress(:,:,slc)), [-1 1], [1 3], scalingFactor); PerfColorMap;
                     saveas(h, figName, 'fig');
                 end
             catch
@@ -579,6 +596,51 @@ scalingFactor = 10;
             end
             
             try
+                Bullseye_plot_final = analyze75read(fullfile(stressDir, 'DebugOutput', 'Bullseye_plot_final'));
+                figName = [ resDir '_Stress_Bullseye_plot_final'];
+                h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                imagescn(permute(Bullseye_plot_final, [2, 1]), [0 800], [], scalingFactor); PerfColorMap;
+                saveas(h, fullfile(figDir, figName), 'fig');
+                
+                try
+                    Bullseye_plot_final_32 = analyze75read(fullfile(stressDir, 'DebugOutput', 'Bullseye_plot_final_32'));
+                    figName = [ resDir '_Stress_Bullseye_plot_final_32'];
+                    h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                    imagescn(permute(Bullseye_plot_final_32, [2, 1]), [0 800], [], scalingFactor); PerfColorMap;
+                    saveas(h, fullfile(figDir, figName), 'fig');
+                catch
+                end
+                
+                Bullseye_report_plot = analyze75read(fullfile(stressDir, 'DebugOutput', 'Bullseye_report_plot'));
+                figName = [ resDir '_Stress_Bullseye_report_plot'];
+                h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                imagescn(permute(Bullseye_report_plot, [2, 1]), [0 220], [], scalingFactor);
+                saveas(h, fullfile(figDir, figName), 'fig');
+                
+                Bullseye_burden_report_plot = analyze75read(fullfile(stressDir, 'DebugOutput', 'Bullseye_burden_report_plot'));
+                figName = [ resDir '_Stress_Bullseye_burden_report_plot'];
+                h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                imagescn(permute(Bullseye_burden_report_plot, [2, 1]), [0 220], [], scalingFactor);
+                saveas(h, fullfile(figDir, figName), 'fig');
+               
+                try
+                    Bullseye_bs_report_plot = analyze75read(fullfile(stressDir, 'DebugOutput', 'Bullseye_bs_report_plot'));
+                    figName = [ resDir '_Stress_Bullseye_bs_report_plot'];
+                    h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                    imagescn(permute(Bullseye_bs_report_plot, [2, 1]), [0 220], [], scalingFactor);
+                    saveas(h, fullfile(figDir, figName), 'fig');
+
+                    Bullseye_bs_report_32_plot = analyze75read(fullfile(stressDir, 'DebugOutput', 'Bullseye_bs_report_32_plot'));
+                    figName = [ resDir '_Stress_Bullseye_bs_report_32_plot'];
+                    h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                    imagescn(permute(Bullseye_bs_report_32_plot, [2, 1]), [0 220], [], scalingFactor);
+                    saveas(h, fullfile(figDir, figName), 'fig');
+                catch
+                end                
+            catch
+            end
+            
+            try
                 bulls_eye_rest = perf_load_Bulls_eye_debug_data(fullfile(restDir, 'DebugOutput'), 1, 0);
                 [h_fmap_seg, h_Gd_seg, h_mask_seg] = perf_plot_loaded_Bulls_eye_debug_data(bulls_eye_rest);
                 
@@ -589,6 +651,66 @@ scalingFactor = 10;
                 figName = fullfile(figDir, [resDir '_Rest_SectorMasks' '.fig']);
                 saveas(h_mask_seg, figName, 'fig');
                 save(fullfile(figDir, 'bulls_eye_rest'), 'bulls_eye_rest');
+            catch
+            end
+            
+            try
+                Bullseye_plot_final = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_plot_final'));
+                figName = [ resDir '_Rest_Bullseye_plot_final'];
+                h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                imagescn(permute(Bullseye_plot_final, [2, 1]), [0 800], [], scalingFactor); PerfColorMap;
+                saveas(h, fullfile(figDir, figName), 'fig');
+                
+                try
+                    Bullseye_plot_final_32 = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_plot_final_32'));
+                    figName = [ resDir '_Rest_Bullseye_plot_final_32'];
+                    h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                    imagescn(permute(Bullseye_plot_final_32, [2, 1]), [0 800], [], scalingFactor); PerfColorMap;
+                    saveas(h, fullfile(figDir, figName), 'fig');
+                catch
+                end
+                
+                Bullseye_report_plot = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_report_plot'));
+                figName = [ resDir '_Rest_Bullseye_report_plot'];
+                h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                imagescn(permute(Bullseye_report_plot, [2, 1]), [0 220], [], scalingFactor);
+                saveas(h, fullfile(figDir, figName), 'fig');
+                
+                Bullseye_burden_report_plot = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_burden_report_plot'));
+                figName = [ resDir '_Rest_Bullseye_burden_report_plot'];
+                h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                imagescn(permute(Bullseye_burden_report_plot, [2, 1]), [0 220], [], scalingFactor);
+                saveas(h, fullfile(figDir, figName), 'fig');
+               
+                try
+                    Bullseye_bs_report_plot = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_bs_report_plot'));
+                    figName = [ resDir '_Rest_Bullseye_bs_report_plot'];
+                    h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                    imagescn(permute(Bullseye_bs_report_plot, [2, 1]), [0 220], [], scalingFactor);
+                    saveas(h, fullfile(figDir, figName), 'fig');
+
+                    Bullseye_bs_report_32_plot = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_bs_report_32_plot'));
+                    figName = [ resDir '_Rest_Bullseye_bs_report_32_plot'];
+                    h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                    imagescn(permute(Bullseye_bs_report_32_plot, [2, 1]), [0 220], [], scalingFactor);
+                    saveas(h, fullfile(figDir, figName), 'fig');
+                catch
+                end  
+                
+                try
+                    Bullseye_plot_MPR = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_plot_MPR'));
+                    figName = [ resDir '_Rest_Bullseye_plot_MPR'];
+                    h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                    imagescn(permute(Bullseye_plot_MPR, [2, 1]), [0 400], [], scalingFactor); PerfMPRMap;
+                    saveas(h, fullfile(figDir, figName), 'fig');
+
+                    Bullseye_plot_MPR_32 = analyze75read(fullfile(restDir, 'DebugOutput', 'Bullseye_plot_MPR_32'));
+                    figName = [ resDir '_Rest_Bullseye_plot_MPR_32'];
+                    h = figure('visible', 'off', 'Name', figName,'NumberTitle','off');
+                    imagescn(permute(Bullseye_plot_MPR_32, [2, 1]), [0 400], [], scalingFactor); PerfMPRMap;
+                    saveas(h, fullfile(figDir, figName), 'fig');
+                catch
+                end
             catch
             end
             
