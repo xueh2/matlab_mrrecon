@@ -38,6 +38,10 @@ if(strcmp(host, 'gt1'))
     host = '137.187.135.169';
 end
 
+if(strcmp(host, 'gt2'))
+    host = '137.187.135.238';
+end
+
 noise_dat_processed = [];
 
 startN = 1
