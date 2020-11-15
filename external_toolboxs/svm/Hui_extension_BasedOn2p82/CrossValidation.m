@@ -1,0 +1,56 @@
+
+function accuracyNum = CrossValidation(label, data, foldnum, libsvm_options)
+% the meanings of input parameters are consisteny with the svmtrain_Version2p82
+
+disp('cross validation ... ');
+
+if ( foldnum <= 1 )
+    foldnum = 2;
+end
+
+N = size(label, 1);
+rLabel = zeros(size(label));
+
+%Cross-Validation
+nC=floor(N/foldnum);
+cross = foldnum;
+for k=1:cross
+    
+    header = 1;
+    ender = N;
+    
+    switch k
+    case 1
+        Vd_data = data(1:nC,:);
+        Vd_label = label(1:nC,:);
+        header = 1;
+        ender = nC;
+                        
+        Tr_data = data(nC+1:N,:);
+        Tr_label = label(nC+1:N,:);
+
+    case cross
+        Vd_data = data((cross-1)*nC+1:N,:);
+        Vd_label = label((cross-1)*nC+1:N,:);
+        header = (cross-1)*nC+1;
+        ender = N;
+                                
+        Tr_data = data(1:(cross-1)*nC,:);
+        Tr_label = label(1:(cross-1)*nC,:);
+    otherwise
+        Vd_data = data((k-1)*nC+1:k*nC,:);
+        Vd_label = label((k-1)*nC+1:k*nC,:);
+        header = (k-1)*nC+1;
+        ender = k*nC;
+                                
+        Tr_data = [data(1:(k-1)*nC,:);data(k*nC+1:N,:)];
+        Tr_label = [label(1:(k-1)*nC,:); label(k*nC+1:N,:)];
+    end
+
+    model = svmtrain_Version2p82(Tr_label, Tr_data, 'libsvm_options');
+    [predicted_label, accuracy, prob_estimates] = svmpredict_Version2p82(Vd_label, Vd_data, model);
+    rLabel(header:ender,:) = predicted_label;
+end
+
+accuracyNum = length(find(rLabel==label));
+return

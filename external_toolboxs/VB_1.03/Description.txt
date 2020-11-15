@@ -1,0 +1,33 @@
+Display of scalar 3-D datasets through static and animated slices (the latter can be saved as movies), contour slices, and iso-surfaces.
+
+
+
+This is release 1.03 of the Volume Browser, a simplified version of the 3-D volume viewer "V3D" written by Robert Barsch and available from the Matlab File Exchange, File ID 2255.
+
+If you already have a version of the Volume Browser you can find its release number by clicking the "Need help?" menu and selecting "About". If the release number is lower then this release is newer.
+
+The Volume Browser displays scalar 3-D datasets, essentially functions of three variables, by means of static and animated slices (the latter can be saved as movies), contour slices, and iso-surfaces.
+
+The main differences between this release and V3D are:
+
+Most of the menu buttons have been replaced by those in Matlab's standard menu bar.
+
+The GUIs are in English and have been adapted to R14.
+
+The function has the standard help section with examples.
+
+The GUI itself has a "Need help?" menu button.
+
+The volume to be viewed must be the first argument of the function (no input from a file).
+
+The axis annotation (labels) of the volume plotted can be specified.
+
+The z-axis can be up or down (for geophysics).
+
+The axis aspect ratio can be "equal" or "normal" (in Matlab parlance).
+
+Figures have a time stamp in the lower right corner and, optionally, a user-selected label in the lower left corner.
+
+A number of minor modifications (such as: make the handles of GUI's and main window "invisible", "re-use" GUI windows, add/change defaults, request confirmation before closing of the main window, delete all open figures when the main window is closed) have been made to fit the way I prefer a GUI like this one to work.
+
+I also removed button "Faecher" the intended functionality of which I could not guess and for which there was no call-back function, changed some of the defaults (length of pause during animation, initial slice), and added some error trapping.

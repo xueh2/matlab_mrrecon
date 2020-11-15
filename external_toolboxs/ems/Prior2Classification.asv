@@ -1,0 +1,13 @@
+
+function mix = Prior2Classification(mix)
+% transform the prior to classification
+% for the 5 class
+
+% prior: csf, cortex, wm1, wm2, outlier
+% classification: wm1, wm2, cortex, csf, outlier
+
+ndata = size(mix.indexes, 1);
+
+for i = 1:ndata
+    classification(
+end

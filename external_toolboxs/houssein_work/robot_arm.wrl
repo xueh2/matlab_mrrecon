@@ -1,0 +1,196 @@
+#VRML V2.0 utf8
+
+#Created with V-Realm Builder v2.0
+#Integrated Data Systems Inc.
+#www.ids-net.com
+
+
+DEF finger_2 Transform {
+	translation	-0.00304991 0.673873 -0.0300699
+	children [ 
+	    Shape {
+		    appearance	Appearance {
+			    material	Material {
+				    ambientIntensity	0.2
+				    diffuseColor	0.4 0.4 0.4
+			    }
+
+		    }
+
+		    geometry	Box {
+			    size	0.02 0.06 0.02
+		    }
+
+	    }
+
+	    Transform {
+		    translation	0.00143211 0.0198641 -1.49128e-007
+		    rotation	1 0 0  1.5708
+		    scale	1 1 1
+		    children Shape {
+			    appearance	Appearance {
+				    material	Material {
+					    diffuseColor	0.4 0.4 0.4
+				    }
+
+			    }
+
+			    geometry	Cylinder {
+				    height	0.02
+				    radius	0.015
+			    }
+
+		    }
+	    }
+	]
+}
+DEF finger_1 Transform {
+	translation	-0.00314571 0.672321 0.0283288
+	children [ 
+	    Shape {
+		    appearance	Appearance {
+			    material	Material {
+				    diffuseColor	0.4 0.4 0.4
+			    }
+
+		    }
+
+		    geometry	Box {
+			    size	0.02 0.06 0.02
+		    }
+
+	    }
+
+	    Transform {
+		    translation	-0.0002 0.0208 0
+		    rotation	1 0 0  1.5708
+		    children Shape {
+			    appearance	Appearance {
+				    material	Material {
+					    diffuseColor	0.4 0.4 0.4
+				    }
+
+			    }
+
+			    geometry	Cylinder {
+				    height	0.02
+				    radius	0.015
+			    }
+
+		    }
+	    }
+	]
+}
+DEF wrist Transform {
+	translation	-0.00110024 0.544955 -8.1956e-007
+	children [ 
+	    Shape {
+		    appearance	Appearance {
+			    material	Material {
+				    diffuseColor	0.84 0.0497533 0.0988988
+			    }
+
+		    }
+
+		    geometry	Box {
+			    size	0.04 0.2 0.04
+		    }
+
+	    }
+
+	    Shape {
+		    geometry	NULL
+	    }
+
+	    Transform {
+		    translation	0 0.09 -0.0003
+		    rotation	0 1 0  1.5708
+		    scale	1.2 1 0.6
+		    children Shape {
+			    appearance	Appearance {
+				    material	Material {
+					    diffuseColor	1 0.176398 0.0983379
+				    }
+
+			    }
+
+			    geometry	Cylinder {
+				    height	0.02
+				    radius	0.04
+			    }
+
+		    }
+	    }
+	]
+}
+DEF forearm Transform {
+	translation	0.000115158 0.344859 3.44589e-007
+	children Shape {
+		appearance	Appearance {
+			material	Material {
+				diffuseColor	0.98 0.159025 0.924212
+			}
+
+		}
+
+		geometry	Box {
+			size	0.06 0.34 0.044
+		}
+
+	}
+}
+DEF custom_Viewpoint Viewpoint {
+	fieldOfView	0.1
+	orientation	-0.943928 0.273082 0.185543  0.0630344
+	position	0 0.8 9.9764
+	description	"custom_view"
+}
+DEF arm Transform {
+	translation	0 0.12 0
+	children Shape {
+		appearance	Appearance {
+			material	Material {
+				ambientIntensity	0
+				diffuseColor	0.179377 0.784408 0.8
+				shininess	1
+			}
+
+		}
+
+		geometry	Box {
+			size	0.1 0.2 0.1
+		}
+
+	}
+}
+Background {
+	groundAngle	[ 0.9, 1.5, 1.57 ]
+	groundColor	[ 0 0.8 0,
+			  0.174249 0.82 0.187362,
+			  0.467223 0.82 0.445801,
+			  0.621997 0.67 0.600279 ]
+	skyAngle	[ 0.1, 1.2, 1.57 ]
+	skyColor	[ 0.76238 0.8 0.1427,
+			  0.277798 0.219779 0.7,
+			  0.222549 0.390234 0.7,
+			  0.60094 0.662637 0.69 ]
+}
+DEF base Transform {
+	translation	0 0 0
+	children Shape {
+		appearance	Appearance {
+			material	Material {
+				ambientIntensity	0.2
+				diffuseColor	0.00250208 0.015182 1
+				specularColor	1 1 1
+			}
+
+		}
+
+		geometry	Cylinder {
+			height	0.04
+			radius	0.1
+		}
+
+	}
+}
