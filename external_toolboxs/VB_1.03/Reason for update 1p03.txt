@@ -1,0 +1,3 @@
+Reason for update to Version 1.03
+
+Bug fixes and the additional option to specify the location of the light source.

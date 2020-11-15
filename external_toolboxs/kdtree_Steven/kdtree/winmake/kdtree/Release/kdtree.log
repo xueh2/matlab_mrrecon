@@ -1,0 +1,33 @@
+﻿Build started 7/13/2011 5:26:57 PM.
+     1>Project "C:\home\vessel_utilities\external_toolboxs\kdtree_Steven\kdtree\winmake\kdtree\kdtree.vcxproj" on node 2 (build target(s)).
+     1>Build:
+         nmake /f kdtree.mk all
+         
+         Microsoft (R) Program Maintenance Utility Version 10.00.30319.01
+         Copyright (C) Microsoft Corporation.  All rights reserved.
+         
+         Microsoft (R) Incremental Linker Version 10.00.30319.01
+         Copyright (C) Microsoft Corporation.  All rights reserved.
+         
+            Creating library Release/kdtree.lib and object Release/kdtree.exp
+         kdtree_closestpoint.cpp
+         Microsoft (R) Incremental Linker Version 10.00.30319.01
+         Copyright (C) Microsoft Corporation.  All rights reserved.
+         
+            Creating library Release/kdtree_closestpoint.lib and object Release/kdtree_closestpoint.exp
+         kdtree_range.cpp
+     1>./../../src/\kdtree_range.cpp(28): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         Microsoft (R) Incremental Linker Version 10.00.30319.01
+         Copyright (C) Microsoft Corporation.  All rights reserved.
+         
+            Creating library Release/kdtree_range.lib and object Release/kdtree_range.exp
+         Release\kdtree.mexw64
+         Release\kdtree_closestpoint.mexw64
+         Release\kdtree_range.mexw64
+                 3 file(s) copied.
+         Files Built Successfully
+     1>Done Building Project "C:\home\vessel_utilities\external_toolboxs\kdtree_Steven\kdtree\winmake\kdtree\kdtree.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.35
