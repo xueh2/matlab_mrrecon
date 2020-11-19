@@ -8,6 +8,9 @@ function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmr
 if(strcmp(gt_host, 'gt1'))
     gt_host = '137.187.135.169';
 end
+if(strcmp(gt_host, 'gt2'))
+    gt_host = '137.187.135.238';
+end
 if(strcmp(gt_host, 'beast'))
     gt_host = '137.187.135.157';
 end

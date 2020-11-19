@@ -71,7 +71,7 @@ elseif(strcmp(host, '137.187.135.157'))
         key = '/home/xueh2/.ssh/id_rsa';
         user = 'xueh2';
     end
-elseif ( ~isempty(strfind(host, '137.187.134.169')) | ~isempty(strfind(host, 'gt1')) )
+elseif ( ~isempty(strfind(host, '137.187.134.169')) | ~isempty(strfind(host, 'gt1')) | ~isempty(strfind(host, 'gt2') ) )
     key = '/home/xueh2/.ssh/id_rsa';
     user = 'xueh2';    
 end
