@@ -17,14 +17,21 @@ for n = 1:size(files_all,1)
     
     if(exist(case_dir))        
     
-        disp(['--> process ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' files_all{n}]);
+        disp(['--> process ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' fname]);
         
-        if(exist(fullfile(pic_dir, [files_all{n} '.jpg'])))
+        if(exist(fullfile(pic_dir, [fname '.jpg'])))
             continue;
         end
         
         if(exist(fullfile(dst_dir, 'im.npy')))
-            im = readNPY(fullfile(dst_dir, 'im.npy'));
+            if(exist(fullfile(dst_dir, 'im_real.npy')))
+                im_real = readNPY(fullfile(dst_dir, 'im_real.npy'));
+                im_imag = readNPY(fullfile(dst_dir, 'im_imag.npy'));
+                im = complex(im_real, im_imag);
+                im = abs(im);
+            else
+                im = readNPY(fullfile(dst_dir, 'im.npy'));
+            end
             gfactor = readNPY(fullfile(dst_dir, 'gfactor.npy'));
         else
             try
@@ -38,9 +45,16 @@ for n = 1:size(files_all,1)
 
             mkdir(dst_dir);
 
-            writeNPY(single(im), fullfile(dst_dir, 'im.npy'));
+            if(isreal(im))
+                writeNPY(single(im), fullfile(dst_dir, 'im.npy'));
+            else
+                writeNPY(single(real(im)), fullfile(dst_dir, 'im_real.npy'));
+                writeNPY(single(imag(im)), fullfile(dst_dir, 'im_imag.npy'));
+            end
             writeNPY(single(gfactor), fullfile(dst_dir, 'gfactor.npy'));
             save(fullfile(dst_dir, 'headers.mat'), 'im_header', 'gmap_header');
+            
+            im = abs(im);
         end
         
         im = uint8(255 * im / (0.5*max(im(:))) );
