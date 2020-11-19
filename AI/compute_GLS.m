@@ -1,4 +1,10 @@
-function [GLS, MAPSE, LV_Lengh_PT1, LV_Lengh_PT2, L] = compute_GLS(pts, ES_as_first_phase)
+function [GLS, MAPSE, lMAPSE, LV_Lengh_PT1, LV_Lengh_PT2, L] = compute_GLS(pts, ES_as_first_phase)
+% [GLS, MAPSE, lMAPSE, LV_Lengh_PT1, LV_Lengh_PT2, L] = compute_GLS(pts)
+% pts: [3, 2, PHS]
+
+    if(nargin<2)
+        ES_as_first_phase = 0;
+    end
 
     if(~isempty(find(pts<2)))
         GLS = -1;
@@ -6,6 +12,7 @@ function [GLS, MAPSE, LV_Lengh_PT1, LV_Lengh_PT2, L] = compute_GLS(pts, ES_as_fi
         LV_Lengh_PT1 = -1;
         LV_Lengh_PT2 = -1;
         L = -1;
+        lMAPSE = -1;
         return
     end
 
@@ -41,5 +48,11 @@ function [GLS, MAPSE, LV_Lengh_PT1, LV_Lengh_PT2, L] = compute_GLS(pts, ES_as_fi
     ptc_ED = (ptc(:,1) + ptc(:,end)) / 2;
     for j = 1:N        
         MAPSE(j) = norm([ptc(1,j), ptc(2,j)] - [ptc_ED(1,1), ptc_ED(2,1)]);
+    end
+    
+    lMAPSE = zeros(N, 1);
+    ptl_ED = squeeze((pts(2, :,1) + pts(2, :, end)) / 2);
+    for j = 1:N        
+        lMAPSE(j) = norm([pts(2,1,j), pts(2,2,j)] - [ptl_ED(1), ptl_ED(2)]);
     end
 end

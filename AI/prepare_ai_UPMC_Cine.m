@@ -64,7 +64,10 @@ function prepare_ai_UPMC_Cine(dataDir, aiDir, pt_ids, files_record_picked, case_
 %         if(numel(case_3ch)>0)
 %             study_date = case_3ch.study_dates(end,:);
 %         end
-        
+
+%         pt_id = str2num(pt_id);
+%         pt_id = sprintf('%04d', pt_id);
+
         case_prefix = [pt_id]
         dst_dir = fullfile(aiDir, pt_id);
 
@@ -121,7 +124,15 @@ function process_one_view_all(dataDir, dst_dir, case_4ch, check_processed, pt_id
             gt_4ch = squeeze(gt_4ch);
             if(size(gt_4ch, 4)>1)
                 SLC = size(gt_4ch, 4);
-                gt_4ch = gt_4ch(:,:,:, round(SLC/2));
+                figure; imagescn(gt_4ch, [], [1 SLC], [], 3);
+                reply = input('Which slice to pick :','s');
+                if isempty(reply)
+                    slc = round(SLC/2);
+                else
+                    slc = str2num(reply);
+                end
+                gt_4ch = gt_4ch(:,:,:, slc);
+                closeall
             end
 
             process_one_view([pt_id '_' case_prefix], dst_dir, fullfile(pic_dir, view_str), fullfile(pic_dir, [view_str '_numpy']), [view_str '_' sname], gt_4ch, gt_4ch_ps, dst_pixel_spacing, NN_RO, NN_E1, use_moco, regularization_hilbert_strength, phases, plot_flag, visible_status);

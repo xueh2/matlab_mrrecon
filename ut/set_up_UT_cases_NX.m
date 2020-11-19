@@ -18,6 +18,8 @@ UTCases = {
     
     'D:\data\test\XA20',         'meas_MID00032_FID00510_SSFP_BEAT_epi_DS_AIF',         'NX',   'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_MBF_MBV_Mask_AI_CMR_View_OFFLINE.xml',                          'res',            'ref',   'IsmrmrdParameterMap_Siemens_Perfusion_NX20A.xsl'   ; ...
     
+    'perfusion/VIDA_datfiles',         'meas_MID00111_FID25648_FLASH_BEAT_epi_DS_AIF_prueba',         'NX20',   'GTPrep_2DT_Perf_AIF_2E_Lin_Mapping_MBF_MBV_Mask_AI_CMR_View_OFFLINE.xml',                          'res',            'ref',   'IsmrmrdParameterMap_Siemens_Perfusion_NX20A.xsl'   ; ...
+    
     };
 
 N = size(UTCases, 1);

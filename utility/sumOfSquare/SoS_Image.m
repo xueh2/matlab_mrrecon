@@ -1,6 +1,7 @@
 
 % Sum of Square image reconstruction
 function Img = SoS_Image(im)
+% im: [RO, E1, CHA]
 
 s = size(im);
 

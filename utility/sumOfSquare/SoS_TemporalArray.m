@@ -1,6 +1,7 @@
 
 function Img = SoS_TemporalArray(K_space, c)
 % Sum of Square image reconstruction
+% K_psace: [RO E1 CHA N]
 
 s = size(K_space);
 ImgArray = zeros( s(1), s(2), s(4) );
