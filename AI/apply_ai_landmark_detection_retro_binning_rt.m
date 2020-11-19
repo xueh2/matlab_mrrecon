@@ -1,5 +1,5 @@
-function apply_ai_landmark_detection_retro_binning_rt(resDir, aiDir, pt_ids, files_record_picked, case_4chs, case_2chs, case_3chs, case_saxs, batch_size, lax_model, sax_model, three_D_model, script_name, RO, E1, checkprocessed, suffix)
-% apply_ai_landmark_detection_retro_binning_rt(resDir, aiDir, pt_ids, files_record_picked, case_4chs, case_2chs, case_3chs, case_saxs, batch_size, lax_model, sax_model, three_D_model, script_name, RO, E1, checkprocessed, suffix)
+function apply_ai_landmark_detection_retro_binning_rt(resDir, aiDir, pt_ids, files_record_picked, case_4chs, case_2chs, case_3chs, case_saxs, batch_size, lax_model, sax_model, three_D_model, script_name, RO, E1, RO_3D, E1_3D, checkprocessed, suffix)
+% apply_ai_landmark_detection_retro_binning_rt(resDir, aiDir, pt_ids, files_record_picked, case_4chs, case_2chs, case_3chs, case_saxs, batch_size, lax_model, sax_model, three_D_model, script_name, RO, E1, RO_3D, E1_3D, checkprocessed, suffix)
 
 if(isunix())
     ext = '.sh';
@@ -31,7 +31,7 @@ for pt=1:numel(pt_ids)
     
     closeall
     
-    pt_id = pt_ids{pt};
+    pt_id = pt_ids{pt};       
     
     if(isnumeric(pt_id))
         disp([num2str(pt) ' out of ' num2str(numel(pt_ids)) ' - ' num2str(pt_id)]);
@@ -45,9 +45,9 @@ for pt=1:numel(pt_ids)
         case_3ch = case_3chs{pt};
         case_sax = case_saxs{pt};
     else
-        case_4ch = PerformGadgetronRecon_SavedIsmrmrd_search_patient(files_record_picked, pt_id, '4ch');
-        case_2ch = PerformGadgetronRecon_SavedIsmrmrd_search_patient(files_record_picked, pt_id, '2ch');
-        case_3ch = PerformGadgetronRecon_SavedIsmrmrd_search_patient(files_record_picked, pt_id, '3ch');
+        case_4ch = PerformGadgetronRecon_SavedIsmrmrd_search_patient(files_record_picked, pt_id, {'4ch', 'ch4'});
+        case_2ch = PerformGadgetronRecon_SavedIsmrmrd_search_patient(files_record_picked, pt_id, {'2ch', 'ch2'});
+        case_3ch = PerformGadgetronRecon_SavedIsmrmrd_search_patient(files_record_picked, pt_id, {'3ch', 'ch3'});
     end
         
     try
@@ -112,7 +112,7 @@ for pt=1:numel(pt_ids)
                 ' --output ' fullfile(contourDir, ['CH4_AI_pts_3D' '_' sname '_' suffix '.npy']) ...
                 ' --prob ' fullfile(contourDir, ['CH4_AI_probs_3D' '_' sname '_' suffix '.npy']) ...
                 ' --im_used ' fullfile(contourDir, ['CH4_AI_im_used_3D' '_' sname '_' suffix '.npy']) ...
-                ' --model_3D ' three_D_model ' --lax 1 --use_3D 1 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO) ' --E1 ' num2str(E1) ];
+                ' --model_3D ' three_D_model ' --lax 1 --use_3D 1 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO_3D) ' --E1 ' num2str(E1_3D) ];
 
             if(~checkprocessed || ~exist(fullfile(contourDir, ['CH4_AI_pts' '_' sname '_' suffix '.npy'])))
                 ch4_command
@@ -144,7 +144,7 @@ for pt=1:numel(pt_ids)
                 ' --output ' fullfile(contourDir, ['CH3_AI_pts_3D' '_' sname '_' suffix '.npy']) ...
                 ' --prob ' fullfile(contourDir, ['CH3_AI_probs_3D' '_' sname '_' suffix '.npy']) ...
                 ' --im_used ' fullfile(contourDir, ['CH3_AI_im_used_3D' '_' sname '_' suffix '.npy']) ...
-                ' --model_3D ' three_D_model ' --lax 1 --use_3D 1 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO) ' --E1 ' num2str(E1) ];    
+                ' --model_3D ' three_D_model ' --lax 1 --use_3D 1 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO_3D) ' --E1 ' num2str(E1_3D) ];    
 
             if(~checkprocessed || ~exist(fullfile(contourDir, ['CH3_AI_pts' '_' sname '_' suffix '.npy'])))
                 ch3_command
@@ -176,7 +176,7 @@ for pt=1:numel(pt_ids)
                 ' --output ' fullfile(contourDir, ['CH2_AI_pts_3D' '_' sname '_' suffix '.npy']) ... 
                 ' --prob ' fullfile(contourDir, ['CH2_AI_probs_3D' '_' sname '_' suffix '.npy']) ...
                 ' --im_used ' fullfile(contourDir, ['CH2_AI_im_used_3D' '_' sname '_' suffix '.npy']) ...
-                ' --model_3D ' three_D_model ' --lax 1 --use_3D 1 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO) ' --E1 ' num2str(E1) ];
+                ' --model_3D ' three_D_model ' --lax 1 --use_3D 1 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO_3D) ' --E1 ' num2str(E1_3D) ];
 
             if(~checkprocessed || ~exist(fullfile(contourDir, ['CH2_AI_pts' '_' sname '_' suffix '.npy'])))
                 ch2_command

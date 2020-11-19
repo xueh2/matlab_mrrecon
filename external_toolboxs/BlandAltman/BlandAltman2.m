@@ -57,10 +57,10 @@ function [means,diffs,meanDiff,CR,linFit] = BlandAltman2(var1, var2, flag, symbo
             plot(means,100*diffs/means,symbol, 'MarkerSize', markersize)
             hold on
             if flag > 1
-                plot([0  1.1* max(means)], [CR_percentage(1) CR_percentage(1)],'k--', 'LineWidth', 2.0, 'Color', 'r'); %%%plot the upper CR
-                plot([0  1.1* max(means)], [CR_percentage(2) CR_percentage(2)],'k--', 'LineWidth', 2.0, 'Color', 'r'); %%%plot the upper CR
-                plot([0  1.1* max(means)], [0 0],'k-', 'LineWidth', 1.0); %%%plot the upper CR
-                plot([0  1.1* max(means)], (CR_percentage(1)+CR_percentage(2))/2*[1 1],'k:', 'LineWidth', 2.0, 'Color', 'b'); %%%plot the upper CR                     
+                plot([0  2* max(means)], [CR_percentage(1) CR_percentage(1)],'k--', 'LineWidth', 2.0, 'Color', 'r'); %%%plot the upper CR
+                plot([0  2* max(means)], [CR_percentage(2) CR_percentage(2)],'k--', 'LineWidth', 2.0, 'Color', 'r'); %%%plot the upper CR
+                plot([0  2* max(means)], [0 0],'k-', 'LineWidth', 1.0); %%%plot the upper CR
+                plot([0  2* max(means)], (CR_percentage(1)+CR_percentage(2))/2*[1 1],'k:', 'LineWidth', 2.0, 'Color', 'b'); %%%plot the upper CR                     
                 set(gca, 'FontSize', 16);
                 set(gca, 'LineWidth', 1.0);
             end
@@ -69,10 +69,10 @@ function [means,diffs,meanDiff,CR,linFit] = BlandAltman2(var1, var2, flag, symbo
             plot(means,diffs,symbol, 'MarkerSize', markersize)
             hold on
             if flag > 1
-                plot([0  1.1* max(means)], [CR(1) CR(1)],'k--', 'LineWidth', 2.0, 'Color', 'r'); %%%plot the upper CR
-                plot([0  1.1* max(means)], [CR(2) CR(2)],'k--', 'LineWidth', 2.0, 'Color', 'r'); %%%plot the upper CR
-                plot([0  1.1* max(means)], [0 0],'k-', 'LineWidth', 1.0); %%%plot the upper CR
-                plot([0  1.1* max(means)], (CR(1)+CR(2))/2*[1 1],'k:', 'LineWidth', 2.0, 'Color', 'b'); %%%plot the upper CR                     
+                plot([0  2* max(means)], [CR(1) CR(1)],'k--', 'LineWidth', 2.0, 'Color', 'r'); %%%plot the upper CR
+                plot([0  2* max(means)], [CR(2) CR(2)],'k--', 'LineWidth', 2.0, 'Color', 'r'); %%%plot the upper CR
+                plot([0  2* max(means)], [0 0],'k-', 'LineWidth', 1.0); %%%plot the upper CR
+                plot([0  2* max(means)], (CR(1)+CR(2))/2*[1 1],'k:', 'LineWidth', 2.0, 'Color', 'b'); %%%plot the upper CR                     
                 set(gca, 'FontSize', 16);
                 set(gca, 'LineWidth', 1.0);
             end

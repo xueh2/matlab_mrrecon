@@ -14,7 +14,7 @@ title(desp)
 xlabel('mean')
 ylabel('diff')
 
-disp(desp)
+disp(['---> ' desp])
 disp(['mean diff : ' num2str(mean(v1(ind) - v2(ind))) ' +/- ' num2str(std(v1(ind) - v2(ind)))])
 disp(['r2 = ' num2str(r2)]);
 disp(['p = ' num2str(p_test)]);
@@ -27,6 +27,11 @@ SD = sqrt(sum((a-b).^2)/(2*numel(a)));
 M = mean([a; b]);
 CV = 100 * SD/M;
 disp(['CV = ' num2str(CV)]);
+
+alpha     = 0.05;
+CCC = f_CCC([a(:) b(:)],alpha);
+disp(['Lin corrleation coefficient = ' num2str(CCC{1}.est)]);
+disp(['Lin corrleation coefficient, CI = ' num2str(CCC{1}.confInterval)]);
 
 if(is_intra)
     % one way ANOVA
@@ -44,4 +49,8 @@ if(is_intra)
    
     disp(['number of samples = ' num2str(nout)]);
     disp(['MDC_90 = ' num2str(MDC_90)]);
+else
+    M = [a b];
+    [r, LB, UB, F, df1, df2, p] = ICC(M, '1-k', 0.90, 0.05);
+    disp(['ICC = ' num2str(r)]);
 end
