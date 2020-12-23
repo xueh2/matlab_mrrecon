@@ -1,7 +1,7 @@
 
 function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, ... 
     checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output)
-% [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed)
+% [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData('I:\KAROLINSKA', 'xxxx', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % setenv('OutputFormat', 'h5')
 
@@ -216,11 +216,20 @@ for n=1:num
                 if(~isFileExist(dicomFolder))
                     goodStatus = 0;
                     if(isFileExist(hdrFolder))
-                        try
-                        [dcmfiles, numdcm] = findFILE(dstDir, '*.img');
-                        catch
-                            numdcm = 0;
+                        if(strcmp(output_format, 'hdr'))
+                            try
+                                [dcmfiles, numdcm] = findFILE(dstDir, '*.img');
+                            catch
+                                numdcm = 0;
+                            end
+                        else
+                            try
+                                [dcmfiles, numdcm] = findFILE(dstDir, 'ref*.h5');
+                            catch
+                                numdcm = 0;
+                            end
                         end
+                        
                         if(numdcm==0)
                             goodStatus = 0;
                         else
@@ -473,7 +482,7 @@ for n=1:num
     end
     tic; dos(command); timeUsed = toc;
            
-    if(isPerf | copy_debug_output)
+    if(copy_debug_output)
         if(~is_remote_computer)
             ts = tic;
             mkdir(dstDir);
@@ -544,7 +553,9 @@ for n=1:num
                 dos(command)
             end
 
-            copyfile(['D:\Temp\record_' GT_PORT '.txt'], [dstDir '\record_' gt_host '_' GT_PORT '.txt']);
+            if(startRemoteGT)
+                copyfile(['D:\Temp\record_' GT_PORT '.txt'], [dstDir '\record_' gt_host '_' GT_PORT '.txt']);
+            end
         else
             if (~isempty(user) & startRemoteGT)
                 StopGadgetronOnRemote(gt_host, GT_PORT);
