@@ -47,7 +47,12 @@ for n = 1:size(files_all,1)
             
             mkdir(dst_dir);
 
-            writeNPY(single(im), fullfile(dst_dir, 'im.npy'));
+            if(isreal(im))
+                writeNPY(single(im), fullfile(dst_dir, 'im.npy'));
+            else
+                writeNPY(single(real(im)), fullfile(dst_dir, 'im_real.npy'));
+                writeNPY(single(imag(im)), fullfile(dst_dir, 'im_imag.npy'));
+            end
             writeNPY(single(gfactor), fullfile(dst_dir, 'gfactor.npy'));
             save(fullfile(dst_dir, 'headers.mat'), 'im_header', 'gmap_header');
             
