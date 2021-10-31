@@ -1,5 +1,6 @@
 
 function [starting_points, ending_points] = CCMS_Contour(I, level, connectivity, displayflag, contourColor, contourWidth)
+% [starting_points, ending_points] = CCMS_Contour(I, level, connectivity, displayflag, contourColor, contourWidth)
 % according to the connectivity consistency to determine the contours for a 2D data
 % starting_points, ending_points store the starting and ending coordinates for every short lines
 % the coordinates: x from left to right (column), y from top to bottom (row), leftup point is (1,1)

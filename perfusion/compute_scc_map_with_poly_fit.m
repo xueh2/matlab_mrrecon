@@ -77,9 +77,9 @@ function [scc_map_final, scc_map, polyfit_output] = compute_scc_map_with_poly_fi
                 if(scc_map(ro,e1)>scc_map_final(ro,e1))
                     scc_map_final(ro,e1) = scc_map(ro,e1);                    
                 end
-                if(scc_map_final(ro,e1)<0.5*mean_scc_level)
-                    scc_map_final(ro,e1) = mean_scc_level;                    
-                end
+%                 if(scc_map_final(ro,e1)<0.5*mean_scc_level)
+%                     scc_map_final(ro,e1) = mean_scc_level;                    
+%                 end
             end
         end
     end

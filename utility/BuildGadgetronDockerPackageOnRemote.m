@@ -4,8 +4,13 @@ function timeUsed = BuildGadgetronDockerPackageOnRemote(host, res_dir, docker_im
 % create_installers = 1
 % remove_gtprep_xml = 0
 % strip_image = 0
-% chroot_size = round(3.85*1024)
-% timeUsed = BuildGadgetronDockerPackageOnRemote('bermuda', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_ubuntu1804_mkl_gtprep_gtbabylon_stripped', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20200528', create_installers, remove_gtprep_xml, strip_image, chroot_size)
+% chroot_size = 3998
+% timeUsed = BuildGadgetronDockerPackageOnRemote('gt1', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_ubuntu1804_mkl_gtprep_gtbabylon_stripped', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20210129', create_installers, remove_gtprep_xml, strip_image, chroot_size)
+% timeUsed = BuildGadgetronDockerPackageOnRemote('gt1', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_ubuntu1804_gtprep4px_mkl_stripped', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20210423_gt4px', create_installers, remove_gtprep_xml, strip_image, chroot_size)
+% chroot_size = 7200
+% timeUsed = BuildGadgetronDockerPackageOnRemote('gt1', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_ubuntu2004_gtprep4px_mkl_stripped', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20210514_gt4px_ubuntu2004', create_installers, remove_gtprep_xml, strip_image, chroot_size)
+% create_installers = 0
+% timeUsed = BuildGadgetronDockerPackageOnRemote('gt1', '/home/GADGETRON', 'gadgetronnhlbi/gadgetron_wip_ubuntu1804_stripped', '\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20210128_wip', create_installers, remove_gtprep_xml, strip_image, chroot_size)
 
 if nargin < 1
     host = 'denmark'
@@ -26,6 +31,14 @@ end
 
 if nargin < 8
     chroot_size = 4.0*1024;
+end
+
+if(strcmp(host, 'gt1'))
+    host = '137.187.135.169';
+end
+
+if(isempty(getenv('GADGETRON_SCRIPTS_FOLDER')))
+    error('isempty(getenv(GADGETRON_SCRIPTS_FOLDER)) ...');
 end
 
 tic;
@@ -114,7 +127,7 @@ if(create_installers)
         delete('D:\gtuser\mrprogs\gt_scanner_setup\VE11C\config\*.xml')
         delete('D:\gtuser\mrprogs\gt_scanner_setup\VE11E\config\*.xml')
         
-        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 3 17 0'];
+        command = [getenv('GADGETRON_SCRIPTS_FOLDER') '\compile_gadgetron_package_Sites_All_Versions.bat ' filename ' 4 1 0'];
     end
        
     command
@@ -122,7 +135,7 @@ if(create_installers)
     
     disp(['target_dir = ' target_dir]);
     disp(['filename = ' filename]);
-    CopyGadgetronInstallersAll(target_dir, filename, '3.17.0');
+    CopyGadgetronInstallersAll(target_dir, filename, '4.1.0');
 end
 
 timeUsed = toc;

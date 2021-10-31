@@ -14,6 +14,10 @@ if(nargin<4)
         else
             remote_dicom_dir = '/tmp/gadgetron_data';
         end
+        if ~isempty(strfind(getenv('USER'),'kellmanp'))
+            remote_dicom_dir = ['/home/' user '/gadgetron_ismrmrd_data'];   
+        end
+        
     else
         remote_dicom_dir = ['/home/' user '/gadgetron_ismrmrd_data'];
     end
@@ -28,7 +32,7 @@ catch
 end
 
 dstDir = fullfile(resDir, study_dates, [data_name '_dicom']);
-mkdir(dstDir);
+if ~exist(dstDir); mkdir(dstDir); end
 % cd(dstDir)
 
 delete(fullfile(dstDir, 'res*.h5'));
@@ -62,21 +66,68 @@ if(~isempty(strfind(data_name, 'Perfusion_AIFR3_2E_Interleaved')))
     disp(['data name is ' data_name ' --- dicom remote folder is ' remoteFolder]);
 end
 
-if(~is_remote_computer)
-    tic; copyfile(fullfile(remote_dicom_dir, remoteFolder, '*.dcm'),  dstDir); timeUsed = toc;    
+if(~isempty(strfind(data_name, 'Perfusion_AIF_TwoEchoes')))
+    remoteFolder = ['Perfusion_AIF_2E_Interleaved' data_name(39:end)];
+    disp(['data name is ' data_name ' --- dicom remote folder is ' remoteFolder]);
+end
+
+if(~is_remote_computer)    
+    tic; copyfile(fullfile(remote_dicom_dir, remoteFolder, '*.dcm'),  dstDir); timeUsed = toc;
+    %disp(['copy to ' dstDir ' took ' num2str(timeUsed) ' seconds ... ']);
+    disp(['////////////////////////////////////////////////////////////////'])
+    disp(['  Time to copy dicoms to Results: ', num2str(timeUsed)])
+    disp(['////////////////////////////////////////////////////////////////'])    
+    % fast method for deleting directory with large number of files
+    if ~exist('~/Debug/emptydir'); mkdir('~/Debug/emptydir'); end
+    dicomFolder = fullfile(remote_dicom_dir, remoteFolder);
+    command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' dicomFolder,'/'];     
+    tic;
+    dos(command, '-echo');   
+    command = ['rmdir ' dicomFolder];    
+    dos(command, '-echo');
+    timeUsed = toc;
+    disp(['////////////////////////////////////////////////////////////////'])
+    disp(['  Time to delete dicoms on gadgetron computer: ', num2str(timeUsed)])
+    disp(['////////////////////////////////////////////////////////////////'])
 else
+    
+    tic;
+    % try to TAR folder and then xfer
+    gt_command = ['tar -cf ',remote_dicom_dir, '/tmptarfile ' remote_dicom_dir '/' remoteFolder,'/*'];
+    command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
+    dos(command, '-echo');
+    % scp tar file
+    command = ['scp -o ConnectTimeout=10 -q ' user '@' gt_host ':' remote_dicom_dir '/tmptarfile ', dstDir];
+    dos(command, '-echo');
+    % untar
+    command = ['tar -xf ', dstDir,'/tmptarfile -C ',dstDir, ' --strip-components=4'];
+    dos(command, '-echo');
+    command = ['rm ', dstDir,'/tmptarfile'];
+    dos(command, '-echo');
+    timeUsed = toc;
+    disp(['time used to xfer using tar: ', num2str(timeUsed)])
+    
 %     if(isunix())
-        command = ['scp -o ConnectTimeout=10 -q ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm ' dstDir];
+        %command = ['scp -o ConnectTimeout=10 -q ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm ' dstDir];
 %     else        
 %         command = ['pscp -i ' key '.ppk ' user '@' gt_host ':' remote_dicom_dir '/' remoteFolder '/*.dcm .'];
 %     end
     
-    command
-    tic; dos(command, '-echo'); timeUsed = toc;
+    %command
+    %tic; dos(command, '-echo'); timeUsed = toc;
     
-    gt_command = ['rm -rf ' remote_dicom_dir '/' remoteFolder];
+    %gt_command = ['sudo rm -rf ' remote_dicom_dir '/' remoteFolder,'/*'];
+    
+    % fast method for deleting directory with large number of files
+    gt_command = ['sudo mkdir emptydir'];
     command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
     dos(command, '-echo');
+    gt_command = ['sudo rsync -a --delete emptydir/ ' remote_dicom_dir '/' remoteFolder,'/'];
+    command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
+    dos(command, '-echo')
+    gt_command = ['sudo rmdir ' remote_dicom_dir '/' remoteFolder,'/'];
+    command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
+    dos(command, '-echo')
 end
 
 dstDir

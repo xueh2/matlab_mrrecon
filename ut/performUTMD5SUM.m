@@ -59,7 +59,8 @@ for ii=startCase:endCase
         if(isunix())
             [status, outputs] = system(['md5sum ' fname]);
         else
-            [status, outputs] = system(['fciv.exe -md5 ' fname]);
+            %[status, outputs] = system(['fciv.exe -md5 ' fname]);
+            [status, outputs] = system(['D:\software\md5sums.exe -u ' fname]);
         end
         print_json_record(outputs, fname);
     end
@@ -70,14 +71,16 @@ for ii=startCase:endCase
         if(isunix())
             [status, outputs] = system(['md5sum ' dataName]);
         else
-            [status, outputs] = system(['fciv.exe -md5 ' dataName]);
+            %[status, outputs] = system(['fciv.exe -md5 ' dataName]);
+            [status, outputs] = system(['D:\software\md5sums.exe -u ' dataName]);
         end
         print_json_record(outputs, dataName);
     else
         if(isunix())
             [status, outputs] = system(['md5sum ' fullfile(folderDir, [UTCases{ii, 2} '.h5'])]);
         else
-            [status, outputs] = system(['fciv.exe -md5 ' fullfile(folderDir, [UTCases{ii, 2} '.h5'])]);
+            %[status, outputs] = system(['fciv.exe -md5 ' fullfile(folderDir, [UTCases{ii, 2} '.h5'])]);
+            [status, outputs] = system(['D:\software\md5sums.exe -u ' fullfile(folderDir, [UTCases{ii, 2} '.h5'])]);
         end
         print_json_record(outputs, fullfile(folderDir, [UTCases{ii, 2} '.h5']));
     end
@@ -90,10 +93,17 @@ end
 function print_json_record(outputs, fname)
     ind = strfind(outputs, '//');
     if(isempty(ind))
-        ind = strfind(outputs, '/');
-        a = outputs(1:ind(1)-1);
-        ind2 = strfind(a, ' ');
-        sha1 = a(1:ind2(1)-1);
+        ind = strfind(outputs, '*');
+        if(isempty(ind))
+            ind = strfind(outputs, '/mnt');
+            a = outputs(ind(end):end);
+            ind2 = strfind(outputs, ' ');
+            sha1 = outputs(1:ind2(1)-1);
+        else
+            a = outputs(1:ind(1)-1);
+            ind2 = strfind(a, ' ');
+            sha1 = a(1:ind2(1)-1);
+        end
     else
         a = outputs(ind(end)+3:end);
         ind2 = strfind(a, ' ');
@@ -104,6 +114,8 @@ function print_json_record(outputs, fname)
         ind3 = strfind(fname, 'gtprep\');
     end
     fname_str = fname(ind3:end);
+    ind = strfind(fname_str, '\');
+    fname_str(ind) = '/';
     disp(['{']);
     disp(['    "file":"' fname_str '",']);
     disp(['    "md5":"' sha1 '"']);

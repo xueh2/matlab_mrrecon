@@ -11,6 +11,10 @@ end
 
 if(strcmp(gt_host, 'localhost'))
     GT_PORT = '9002';
+    if ~isempty(strfind(getenv('USER'),'kellmanp'))
+        GT_PORT = '9010';    
+    end
+    
 end
 
 if(strcmp(gt_host, 'denmark'))
@@ -57,6 +61,12 @@ if(strcmp(gt_host, '137.187.135.157'))
     else
         GT_PORT = '9008';
     end
+    
+    if ~isempty(strfind(getenv('USER'),'kellmanp'))
+        GT_PORT = '9010';    
+    end
+    
+    
 end
 
 if(strcmp(gt_host, 'gt1') | strcmp(gt_host, 'gt2') | strcmp(gt_host, '137.187.135.169'))

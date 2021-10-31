@@ -36,6 +36,13 @@ function [record_4CH, record_3CH, record_2CH] = compare_Barts_Cine_GLS_results(r
     LV_length_PT2_3CH_3D = [];
     LV_length_PT2_2CH_3D = [];
     
+    pts_4CH = [];
+    pts_3CH = [];
+    pts_2CH = [];
+    pts_4CH_3D = [];
+    pts_3CH_3D = [];
+    pts_2CH_3D = [];
+    
     for pt=1:numel(pt_ids)
 
         closeall
@@ -137,7 +144,8 @@ function [record_4CH, record_3CH, record_2CH] = compare_Barts_Cine_GLS_results(r
             end
             
             LV_length_PT1_4CH = [LV_length_PT1_4CH; {LV_Lengh_PT1}];
-            LV_length_PT2_4CH = [LV_length_PT2_4CH; {LV_Lengh_PT2}];            
+            LV_length_PT2_4CH = [LV_length_PT2_4CH; {LV_Lengh_PT2}];   
+            pts_4CH = [pts_4CH; {pts}];
             
             pts_file = fullfile(contourDir, ['CH4_AI_pts_3D' '_' sname '_' suffix '.npy']);
             if(exist(pts_file))
@@ -154,6 +162,7 @@ function [record_4CH, record_3CH, record_2CH] = compare_Barts_Cine_GLS_results(r
             
             LV_length_PT1_4CH_3D = [LV_length_PT1_4CH_3D; {LV_Lengh_PT1}];
             LV_length_PT2_4CH_3D = [LV_length_PT2_4CH_3D; {LV_Lengh_PT2}];            
+            pts_4CH_3D = [pts_4CH_3D; {pts}];
         end
         
         for d=1:size(case_3ch,1)
@@ -181,6 +190,7 @@ function [record_4CH, record_3CH, record_2CH] = compare_Barts_Cine_GLS_results(r
             
             LV_length_PT1_3CH = [LV_length_PT1_3CH; {LV_Lengh_PT1}];
             LV_length_PT2_3CH = [LV_length_PT2_3CH; {LV_Lengh_PT2}];
+            pts_3CH = [pts_3CH; {pts}];
             
             pts_file = fullfile(contourDir, ['CH3_AI_pts_3D' '_' sname '_' suffix '.npy']);
             if(exist(pts_file))
@@ -197,6 +207,7 @@ function [record_4CH, record_3CH, record_2CH] = compare_Barts_Cine_GLS_results(r
             
             LV_length_PT1_3CH_3D = [LV_length_PT1_3CH_3D; {LV_Lengh_PT1}];
             LV_length_PT2_3CH_3D = [LV_length_PT2_3CH_3D; {LV_Lengh_PT2}];
+            pts_3CH_3D = [pts_3CH_3D; {pts}];
         end
         
         for d=1:size(case_2ch,1)
@@ -227,6 +238,8 @@ function [record_4CH, record_3CH, record_2CH] = compare_Barts_Cine_GLS_results(r
             LV_length_PT1_2CH = [LV_length_PT1_2CH; {LV_Lengh_PT1}];
             LV_length_PT2_2CH = [LV_length_PT2_2CH; {LV_Lengh_PT2}];
             
+            pts_2CH = [pts_2CH; {pts}];
+            
             pts_file = fullfile(contourDir, ['CH2_AI_pts_3D' '_' sname '_' suffix '.npy']);
             if(exist(pts_file))
                 pts = readNPY(pts_file);                
@@ -244,12 +257,14 @@ function [record_4CH, record_3CH, record_2CH] = compare_Barts_Cine_GLS_results(r
             
             LV_length_PT1_2CH_3D = [LV_length_PT1_2CH_3D; {LV_Lengh_PT1}];
             LV_length_PT2_2CH_3D = [LV_length_PT2_2CH_3D; {LV_Lengh_PT2}];
+            
+            pts_2CH_3D = [pts_2CH_3D; {pts}];
         end        
     end
     
-    record_4CH = table(pt_ids_4CH, snames_4CH, GLS_4CH, GLS_4CH_3D, MAPSE_4CH, MAPSE_4CH_3D, LV_length_PT1_4CH, LV_length_PT2_4CH, LV_length_PT1_4CH_3D, LV_length_PT2_4CH_3D);
-    record_3CH = table(pt_ids_3CH, snames_3CH, GLS_3CH, GLS_3CH_3D, MAPSE_3CH, MAPSE_3CH_3D, LV_length_PT1_3CH, LV_length_PT2_3CH, LV_length_PT1_3CH_3D, LV_length_PT2_3CH_3D);
-    record_2CH = table(pt_ids_2CH, snames_2CH, GLS_2CH, GLS_2CH_3D, MAPSE_2CH, MAPSE_2CH_3D, LV_length_PT1_2CH, LV_length_PT2_2CH, LV_length_PT1_2CH_3D, LV_length_PT2_2CH_3D);
+    record_4CH = table(pt_ids_4CH, snames_4CH, GLS_4CH, GLS_4CH_3D, MAPSE_4CH, MAPSE_4CH_3D, LV_length_PT1_4CH, LV_length_PT2_4CH, LV_length_PT1_4CH_3D, LV_length_PT2_4CH_3D, pts_4CH, pts_4CH_3D);
+    record_3CH = table(pt_ids_3CH, snames_3CH, GLS_3CH, GLS_3CH_3D, MAPSE_3CH, MAPSE_3CH_3D, LV_length_PT1_3CH, LV_length_PT2_3CH, LV_length_PT1_3CH_3D, LV_length_PT2_3CH_3D, pts_3CH, pts_3CH_3D);
+    record_2CH = table(pt_ids_2CH, snames_2CH, GLS_2CH, GLS_2CH_3D, MAPSE_2CH, MAPSE_2CH_3D, LV_length_PT1_2CH, LV_length_PT2_2CH, LV_length_PT1_2CH_3D, LV_length_PT2_2CH_3D, pts_2CH, pts_2CH_3D);
 end
 
 % function [GLS, MAPSE, LV_Lengh_PT1, LV_Lengh_PT2] = compute_GLS(pts, ES_as_first_phase)

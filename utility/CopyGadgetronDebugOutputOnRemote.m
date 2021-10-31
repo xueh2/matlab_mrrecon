@@ -35,11 +35,40 @@ dos(command, '-echo');
 %     mkdir(fullfile(dst_folder, 'DebugOutput'));
 %     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/* ' dst_folder '/DebugOutput/'];
 %     command
-    
+ if 1
+    tic;
+    gt_host = host;
+    % try to TAR folder and then xfer
+    gt_command = ['tar -cf debugtarfile ' ,debug_folder,'/*'];
+    command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
+    dos(command, '-echo');
+    % scp tar file
+    command = ['scp -o ConnectTimeout=10 -q ' user '@' gt_host ':debugtarfile ', dst_folder];
+    dos(command, '-echo');
+    % copy file (cp) to mounted drive
+    %gt_command = ['cp debugtarfile ' dst_folder];
+    %command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
+    %dos(command, '-echo');   
+    % untar
+    command = ['tar -xf ', dst_folder,'/debugtarfile -C ',dst_folder, ' --strip-components=4'];
+    dos(command, '-echo');
+    command = ['rm ', dst_folder,'/debugtarfile'];
+    dos(command, '-echo');
+    timeUsed = toc;
+    disp(['time used to xfer debug data using tar: ', num2str(timeUsed)])
+end
+
+
+
+
+
+if 0
     gt_command = ['cp -r ' debug_folder '/* ' dst_folder];
     command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"'];
     command
     tic; dos(command, '-echo'); copy_duration = toc;
+end
+
 
 %     command = ['scp -q -o StrictHostKeyChecking=no ' user '@' host ':' debug_folder '/incomingKSpace_REAL* ' dst_folder '/DebugOutput/'];
 %     tic; dos(command, '-echo'); copy_duration = toc;
@@ -71,7 +100,7 @@ dos(command, '-echo');
 
 % command
 % tic; dos(command, '-echo'); copy_duration = toc;
-disp(['Copy debug output ' num2str(copy_duration)]);
+%disp(['Copy debug output ' num2str(copy_duration)]);
 
 % command = ['pscp -r -i ' key '.ppk ' user '@' host ':' '/home/' user '/Debug/DebugOutput.tar.gz ' dst_folder];
 % command
@@ -83,10 +112,18 @@ disp(['Copy debug output ' num2str(copy_duration)]);
 % dos(command, '-echo');
     
 if(deleteRemote)
-    gt_command = ['rm -rf ' debug_folder '/*.*'];
-    command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"'];
-    command
-    dos(command, '-echo');    
+    %gt_command = ['sudo rm -rf ' debug_folder '/*.*'];
+    %command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' host ' "' gt_command '"'];
+    %command
+    %dos(command, '-echo');  
+    
+    % fast method for deleting directory with large number of files
+    gt_command = ['sudo mkdir emptydir'];
+    command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
+    dos(command, '-echo');
+    gt_command = ['sudo rsync -a --delete emptydir/ ' debug_folder,'/'];
+    command = ['ssh -o ConnectTimeout=10 -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"']
+    dos(command, '-echo')      
 end
 
 % command = ['7z.exe e ' fullfile(dst_folder, 'DebugOutput.tar.gz') ];

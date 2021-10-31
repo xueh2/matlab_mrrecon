@@ -9,7 +9,7 @@ if(nargin<3)
 end
 
 if(nargin<4)
-    date_end = '2020-01-01';
+    date_end = '2022-01-01';
 end
 
 if(nargin<5)

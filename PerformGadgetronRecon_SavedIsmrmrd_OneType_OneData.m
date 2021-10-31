@@ -1,7 +1,7 @@
 
 function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, ... 
-    checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output)
-% [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output)
+    checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder)
+% [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, filename, gt_host, resDir, checkProcessed, delete_old_res, startRemoteGT, configName_preset, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder)
 % [tUsed, ignored] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData('I:\KAROLINSKA', 'xxxx', 'localhost', 'I:\ReconResults\KAROLINSKA')
 % setenv('OutputFormat', 'h5')
 
@@ -62,6 +62,10 @@ end
 
 if(nargin<12)
     copy_dicom_output = 1;
+end
+
+if(nargin<13)
+    pre_set_debug_folder = [];
 end
 
 setenv('GT_PORT', gt_port);
@@ -235,34 +239,44 @@ for n=1:num
                         else
                             goodStatus = 1;
                         end
+                        
+                        if(copy_dicom_output)
+                            goodStatus = 0;
+                        end
                     end
                 else
-                    try
+                    if(strcmp(output_format, 'hdr'))
                         [dcmfiles, numdcm] = findFILE(dstDir, '*.img');
-                    catch
-                        numdcm = 0;
+                    else
+                        [dcmfiles, numdcm] = findFILE(dstDir, 'ref*.h5');
                     end
                     if(numdcm==0)
                         goodStatus = 0;
                     else
                         goodStatus = 1;
                     end
+                    if(copy_dicom_output)
+                        [dcmfiles, numdcm] = findFILE(dicomFolder, '*.dcm');
+                        if(numdcm==0) 
+                            goodStatus = 0;
+                        end
+                    end
                 end
             else
-%                 dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
-%                 if(~isFileExist(dicomFolder))
-%                     goodStatus = 0;
-%                 else
-%                     if(max(aif_cin_Gd_baseline_corrected(:))<1.2)
-%                         [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image*.dcm');
-%                     else
-%                         [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image_MOCO_Flow_Map_SLC0*.dcm');
-%                     end
-%                     
-%                     if(numdcm==0)
-%                         goodStatus = 0;
-%                     end
-%                 end
+                dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
+                if(~isFileExist(dicomFolder))
+                    goodStatus = 0;
+                else
+                    if(max(aif_cin_Gd_baseline_corrected(:))<1.2)
+                        [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image*.dcm');
+                    else
+                        [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image_MOCO_Flow_Map_SLC0*.dcm');
+                    end
+                    
+                    if(numdcm==0)
+                        goodStatus = 0;
+                    end
+                end
             end
             disp(['Load dcm to check : ' num2str(toc)]);
             
@@ -320,8 +334,8 @@ for n=1:num
         disp(['Start remote gadgetron : ' num2str(toc(tstart))]);
     end
     
-    mkdir(dstDir);
     
+    if ~exist(dstDir); mkdir(dstDir); end    
     ts = tic;
     noise_mear_id = findNoiseDependencyMeasurementID_SavedIsmrmrd(dataName);
     disp(['find noise dependency id : ' num2str(toc(ts))]);
@@ -398,31 +412,56 @@ for n=1:num
     cd(dstDir)
 
     if(delete_old_res)
-        disp(['delete dstDir : starts ... ']);
-        ts = tic;
-        delete(fullfile(dstDir, 'res*.h5'));
-        delete(fullfile(dstDir, 'out*.h5'));
-        delete(fullfile(dstDir, 'ref*.h5'));
-        delete(fullfile(dstDir, '*.xml'));
+        if ~exist('~/Debug/emptydir'); mkdir('~/Debug/emptydir'); end
+        disp('delete DebugOutput folder before processing:')
+        command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' dstDir,'/DebugOutput/'];     
+        dos(command, '-echo');   
+        command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' dstDir,'/'];     
+        %dos(command, '-echo');   
+        tic; dos(command, '-echo'); timeUsed = toc;
+        disp(['////////////////////////////////////////////////////////////////'])
+        disp(['  Time to delete debugFolder on gadgetron computer (before start): ', num2str(timeUsed)])
+        disp(['////////////////////////////////////////////////////////////////'])  
+        % delete dicoms
+        if exist([dstDir,'_dicom']);
+            disp('delete dicoms before processing:')
+            command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' dstDir,'_dicom/'];     
+            %dos(command, '-echo'); 
+            tic; dos(command, '-echo'); timeUsed = toc;
+            disp(['////////////////////////////////////////////////////////////////'])
+            disp(['  Time to delete dicomFolder on gadgetron computer (before start): ', num2str(timeUsed)])
+            disp(['////////////////////////////////////////////////////////////////'])         
+            
+        end
+        
+        if 0 % remove old code
+            disp(['delete dstDir : starts ... ']);
+            ts = tic;
+            delete(fullfile(dstDir, 'res*.h5'));
+            delete(fullfile(dstDir, 'out*.h5'));
+            delete(fullfile(dstDir, 'ref*.h5'));
+            delete(fullfile(dstDir, '*.xml'));
 
-        delete(fullfile(dstDir, '*.nii'));
-%         delete(fullfile(dstDir, 'gadgetron_*.hdr'));
-%         delete(fullfile(dstDir, 'gadgetron_*.img'));
-%         delete(fullfile(dstDir, 'Generic*.hdr'));
-%         delete(fullfile(dstDir, 'Generic*.img'));
-%         delete(fullfile(dstDir, 'GTPrep*.hdr'));
-%         delete(fullfile(dstDir, 'GTPrep*.img'));
-%         delete(fullfile(dstDir, 'GT*.hdr'));
-%         delete(fullfile(dstDir, 'GT*.img'));
-        delete(fullfile(dstDir, '*.attrib'));
-        delete(fullfile(dstDir, '*.hdr'));
-        delete(fullfile(dstDir, '*.img'));
-        
-        delete(fullfile(dstDir, '*.xml'));                 
-        
-        dicomDir = fullfile(resDir, study_dates, [name '_dicom']);
-        delete(fullfile(dicomDir, '*.*'));   
-        disp(['delete dstDir : ' num2str(toc(ts))]);
+            delete(fullfile(dstDir, '*.nii'));
+    %         delete(fullfile(dstDir, 'gadgetron_*.hdr'));
+    %         delete(fullfile(dstDir, 'gadgetron_*.img'));
+    %         delete(fullfile(dstDir, 'Generic*.hdr'));
+    %         delete(fullfile(dstDir, 'Generic*.img'));
+    %         delete(fullfile(dstDir, 'GTPrep*.hdr'));
+    %         delete(fullfile(dstDir, 'GTPrep*.img'));
+    %         delete(fullfile(dstDir, 'GT*.hdr'));
+    %         delete(fullfile(dstDir, 'GT*.img'));
+            delete(fullfile(dstDir, '*.attrib'));
+            delete(fullfile(dstDir, '*.hdr'));
+            delete(fullfile(dstDir, '*.img'));
+
+            delete(fullfile(dstDir, '*.xml'));                 
+
+            dicomDir = fullfile(resDir, study_dates, [name '_dicom']);
+            delete(fullfile(dicomDir, '*.*'));   
+            disp(['delete dstDir : ' num2str(toc(ts))]);
+        end
+        %delete(fullfile(dstDir,filesep,'DebugOutput',filesep, '*'));  
     end
     
     %% run the scan
@@ -444,30 +483,39 @@ for n=1:num
 
     configNameShortened = configName(1:lenUsed);
 
-    if(isPerf)
-        if( ~is_remote_computer && isunix()==0)
-            debugFolder = 'D:\gtuser\mrprogs\install\DebugOutput';
-%             try
-%                 rmdir(debugFolder, 's');
-%             catch
-%             end
-
+    if( ~is_remote_computer && isunix()==0)
+        debugFolder = 'D:\gtuser\mrprogs\install\DebugOutput';
+        try
+            mkdir(debugFolder);
+        catch
+        end
+    else
+        if(is_remote_computer)
+            debugFolder = '~/Debug/DebugOutput';
             try
                 mkdir(debugFolder);
             catch
             end
+        else
+            if(isunix())
+                debugFolder = '~/Debug/DebugOutput';
+            end
         end
-        
-        if(~is_remote_computer && isunix()==1)
-            debugFolder = '~/Debug/DebugOutput';
-%             try
-%                 rmdir(debugFolder, 's');
-%             catch
-%             end
-
-            try
-                mkdir(debugFolder);
-            catch
+    end
+    
+    if(~isempty(pre_set_debug_folder))
+        debugFolder = pre_set_debug_folder;
+        try
+            if ~exist(debugFolder); mkdir(debugFolder); end
+        catch
+        end
+    end
+    
+    if(copy_debug_output | isPerf)
+        if(~is_remote_computer)
+            if(isunix())
+                command = ['sudo rm -rf ' debugFolder '/*.*'];
+                dos(command, '-echo');
             end
         end
     end
@@ -482,25 +530,43 @@ for n=1:num
     end
     tic; dos(command); timeUsed = toc;
            
-    if(copy_debug_output)
+    if(copy_debug_output | isPerf)
         if(~is_remote_computer)
             ts = tic;
-            mkdir(dstDir);
+            if ~exist(dstDir); mkdir(dstDir); end
             disp(dstDir);
             if(isunix())
                 mkdir(fullfile(dstDir, 'DebugOutput'));
-                gt_command = ['cp -r ' fullfile(debugFolder, '*.*') ' ' dstDir '/DebugOutput'];
-                gt_command
-                dos(gt_command, '-echo');
+                %gt_command = ['cp -r ' fullfile(debugFolder, '*.*') ' ' dstDir '/DebugOutput'];
+                gt_command = ['rsync -a ' debugFolder '/*.*  ' dstDir '/DebugOutput/'];
+                %dos(gt_command, '-echo');
+                tic; dos(gt_command, '-echo'); timeUsed = toc;
+                disp(['////////////////////////////////////////////////////////////////'])
+                disp(['  Time to copying debugFolder to Results folder: ', num2str(timeUsed)])
+                disp(['////////////////////////////////////////////////////////////////'])
+                
+                %command = ['sudo rm -rf ' debugFolder '/*.*'];
+                %dos(command, '-echo');
+                
+                % fast method for deleting directory with large number of files
+                if ~exist('~/Debug/emptydir'); mkdir('~/Debug/emptydir'); end
+                command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' debugFolder,'/'];     
+                tic; dos(command, '-echo'); timeUsed = toc;
+                disp(['////////////////////////////////////////////////////////////////'])
+                disp(['  Time to delete debugFolder on gadgetron computer: ', num2str(timeUsed)])
+                disp(['////////////////////////////////////////////////////////////////'])
             else
-                copyfile(fullfile(debugFolder, '*.*'), fullfile(dstDir, 'DebugOutput')); 
+                try
+                    copyfile(fullfile(debugFolder, '*.*'), fullfile(dstDir, 'DebugOutput')); 
+                catch
+                end
+                command = ['rd /s /q ' debugFolder];
+                dos(command, '-echo');
             end
-            
-%             command = ['move /Y ' debugFolder ' ' dstDir];
-%             dos(command, '-echo');
+                        
             disp(['copy debug output : ' num2str(toc(ts))]);
         else
-            debug_folder = ['/home/' user '/Debug/DebugOutput']
+            %debugFolder = ['/home/' user '/Debug/DebugOutput']
             ts = tic;
 
             try
@@ -520,7 +586,7 @@ for n=1:num
                 mkdir(dst_dir);
             catch
             end
-            CopyGadgetronDebugOutputOnRemote(gt_host, debug_folder, dst_dir, 1)
+            CopyGadgetronDebugOutputOnRemote(gt_host, debugFolder, dst_dir, 1)
             
             disp(['copy debug output : ' num2str(toc(ts))]);
         end

@@ -1,6 +1,8 @@
 function view_str = get_cmr_view_str(proto_str)
+% view_str = get_cmr_view_str(proto_str)
 
 proto_str = lower(proto_str);
+proto_str = proto_str(~isspace(proto_str));
 
 view_str = 'UNK';
 if(~isempty(strfind(proto_str, 'molli')))

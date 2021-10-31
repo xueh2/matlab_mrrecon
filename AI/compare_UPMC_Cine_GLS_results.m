@@ -212,6 +212,7 @@ function record = compare_UPMC_Cine_GLS_results(resDir, aiDir, pt_ids, files_rec
             GLS_4CH = [GLS_4CH; -1];
             GLS_4CH_ED_first_phase = [GLS_4CH_ED_first_phase; -1];
             MAPSE_4CH = [MAPSE_4CH; -1];
+            lMAPSE_4CH = [lMAPSE_4CH; -1];
         end
         
         ch2_pt_file = fullfile(contourDir, ['CH2_AI_pts_3D' suffix '.npy']);
@@ -284,6 +285,7 @@ function record = compare_UPMC_Cine_GLS_results(resDir, aiDir, pt_ids, files_rec
             GLS_4CH_2D = [GLS_4CH_2D; -1];
             GLS_4CH_ED_first_phase_2D = [GLS_4CH_ED_first_phase_2D; -1];
             MAPSE_4CH_2D = [MAPSE_4CH_2D; -1];
+            lMAPSE_4CH_2D = [lMAPSE_4CH_2D; -1];
         end
         
         ch2_pt_file = fullfile(contourDir, ['CH2_AI_pts' suffix '.npy']);

@@ -6,12 +6,19 @@ function timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, is
 currDir = pwd;
 
 GTHome = getenv('GADGETRON_HOME')
-GTConfigFolder = fullfile(GTHome, 'share/gadgetron/config');
+%GTConfigFolder = fullfile(GTHome, 'share/gadgetron/config');
+if(~isunix())
+    GTConfigFolder = fullfile([GTHome '_master'], 'share/gadgetron/config');
+else
+    GTConfigFolder = fullfile(GTHome, 'share/gadgetron/config');
+end
+disp(['GTConfigFolder is ' GTConfigFolder]);
 if(remoteXml)
     configNameUsed = configName;
 else
     configNameUsed = fullfile(GTConfigFolder, configName);
 end
+disp(['----> configNameUsed is ' configNameUsed]);
 
 GT_HOST = getenv('GT_HOST')
 GT_PORT = getenv('GT_PORT')
@@ -184,8 +191,9 @@ if ( isVD | isNX | isNX20 )
             has_only_one_scan = 0;
             delete('config_buffer*.*');
             delete('*.xml');
-            command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 -X -H --studyDate ' studyDate]
+            command = ['siemens_to_ismrmrd -f  ' dataName ' -o test.h5 --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 -X -H --studyDate ' studyDate];
             dos(command, '-echo');
+            delete('test.h5');
             if(~exist('config_buffer.xprot'))
                 has_only_one_scan = 1;
                 disp(['This data has only one scan !!! ']);

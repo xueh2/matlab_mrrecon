@@ -79,7 +79,12 @@ end
 if(strcmp(GT_HOST, 'gt1'))
     GT_HOST = '137.187.135.169';
 end
-
+if(strcmp(GT_HOST, 'gt2'))
+    GT_HOST = '137.187.135.238';
+end
+if(strcmp(GT_HOST, 'gt3'))
+    GT_HOST = '137.187.135.194';
+end
 if(strcmp(GT_HOST, 'beast'))
     GT_HOST = '137.187.135.157';
 end
@@ -133,7 +138,8 @@ for ii=startCase:endCase
     end
     
     t = run_gt_recon_case(UTCases{ii, 2}, UTCases{ii, 4}, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml); % winopen(folderDir)
-
+    disp(['--> run time ' num2str(t) ' seconds ... ']);
+    
     if(isAdj) 
         continue; 
     end
@@ -160,6 +166,7 @@ for ii=startCase:endCase
     if ( endCase==startCase )
         if(isunix())
             disp(resDir);
+            system(['nautilus ' resDir])
         else
             winopen(resDir);
         end

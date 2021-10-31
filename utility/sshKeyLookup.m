@@ -16,6 +16,7 @@ if ( strcmp(host, 'barbados') == 1 | strcmp(host, '137.187.135.191')==1)
 
 elseif ( strcmp(host, 'denmark') == 1 )
     key = fullfile(key_dir, 'xueh2_private');
+
     
 elseif ( strcmp(host, 'bahrain') == 1 | strcmp(host, '137.187.135.36')==1 )
     key = fullfile(key_dir, 'xueh2_private');
@@ -71,6 +72,13 @@ elseif(strcmp(host, '137.187.135.157'))
         key = '/home/xueh2/.ssh/id_rsa';
         user = 'xueh2';
     end
+    
+    if ~isempty(strfind(getenv('USER'),'kellmanp'))
+        key = '/home/kellmanp/.ssh/beast_kellman';
+        user = 'kellmanp';
+    end
+    
+    
 elseif ( ~isempty(strfind(host, '137.187.134.169')) | ~isempty(strfind(host, 'gt1')) | ~isempty(strfind(host, 'gt2') ) )
     key = '/home/xueh2/.ssh/id_rsa';
     user = 'xueh2';    

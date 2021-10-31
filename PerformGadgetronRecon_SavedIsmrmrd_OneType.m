@@ -107,7 +107,11 @@ if(cleanRemote)
     gt_command = ['rm -rf /tmp/gadgetron_data/*'];
     command = ['ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o TCPKeepAlive=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 ' user '@' gt_host ' "' gt_command '"'];
     command
-    dos(command, '-echo');    
+    %dos(command, '-echo');
+    tic; dos(command, '-echo'); timeUsed = toc;
+    disp(['////////////////////////////////////////////////////////////////'])
+    disp(['  Time to delete gadgetron data files on gadgetron computer: ', num2str(timeUsed)])
+    disp(['////////////////////////////////////////////////////////////////'])
 end
 
 if(startRemoteGT)
@@ -213,7 +217,7 @@ ignored = [];
 %         tUsed = [tUsed; {n, files{n}, tU{2}, tU{3}}];
 %     end
 % end
-
+pre_set_debug_folder= '~/Debug/DebugOutput'; %[];
 % [tU, ig] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, checkProcessed, sendDicom, startRemoteGT, styleSheet);
 [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, files, gt_host, resDir, ... 
-    checkProcessed, delete_old_res, startRemoteGT, configNames, [], GT_PORT, copy_debug_output, copy_dicom_output);
+    checkProcessed, delete_old_res, startRemoteGT, configNames, [], GT_PORT, copy_debug_output, copy_dicom_output, pre_set_debug_folder);

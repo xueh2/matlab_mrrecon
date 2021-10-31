@@ -1,4 +1,4 @@
-function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_time, perf_acq_time, dst_acq_time, ... 
+function [perf, ori, moco, moco_norm, PD, perf_ori, perf_fil, input_for_filter, filtered, aif_acq_time, perf_acq_time, dst_acq_time, ... 
     aif_im, aif_moco, aif_cin, aif_cin_Gd, aif_cin_Gd_without_R2Star, aif_cin_Gd_baseline_corrected, ... 
     aif_cin_all_echo0_signal, aif_cin_all_echo1_signal, aif_cin_all_echo0_signal_after_R2StarCorrection, ...
     aif_cin_all_echo0_OverPD_after_R2StarCorrection, aif_cin_all_R2Star,  aif_cin_all_R2Star_SLEP, ... 
@@ -29,6 +29,8 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     ori=[];
     moco=[];
     moco_norm=[];
+    perf_ori = [];
+    perf_fil = [];
     PD=[];
     input_for_filter=[];
     filtered=[];
@@ -211,6 +213,23 @@ function [perf, ori, moco, moco_norm, PD, input_for_filter, filtered, aif_acq_ti
     PD = load_array(resDir, 'PD_', slc);   
     PD = permute(PD, [2 1 3 4]);
 
+    try
+        perf_ori = load_array(resDir, 'input_images_lacandi_r_', slc);
+        perf_fil = load_array(resDir, 'output_images_lacandi_r_', slc);
+        perf_ori = permute(perf_ori, [2 1 3 4]);
+        perf_fil = permute(perf_fil, [2 1 3 4]);
+    catch
+        try
+            perf_ori = load_array(resDir, 'input_for_fil_run_0_', slc);
+            perf_fil = load_array(resDir, 'res_after_fil_run_0_', slc);
+            perf_ori = permute(perf_ori, [2 1 3 4]);
+            perf_fil = permute(perf_fil, [2 1 3 4]);
+        catch
+            perf_ori = [];
+            perf_fil = [];
+        end
+    end
+    
     try
         for s=1:slc
             [names, num] = findFILE(resDir, ['*_SLC' num2str(s-1) '*103.attrib']);
@@ -449,7 +468,9 @@ function v = load_array(resDir, name, slc)
             d = analyze75read(fullfile(resDir, 'DebugOutput', filename));            
             if(n>1)
                 if(size(v,1)~=size(d,1))
-                    v(:,:,:,n) = permute(d, [2 1 3]);
+                    if(size(v,1)==size(d,2))
+                        v(:,:,:,n) = permute(d, [2 1 3]);
+                    end
                 else
                     v(:,:,:,n) = d;
                 end
@@ -481,7 +502,9 @@ function v = load_array_cov(resDir, name, slc)
             d = analyze75read(fullfile(resDir, 'DebugOutput', filename));            
             if(n>1)
                 if(size(v,1)~=size(d,1))
-                    v(:,:,:,:,:,n) = permute(d, [2 1 3  4 5]);
+                    if(size(v,1)==size(d,2))
+                        v(:,:,:,:,:,n) = permute(d, [2 1 3  4 5]);
+                    end
                 else
                     v(:,:,:,:,:,n) = d;
                 end
@@ -501,7 +524,9 @@ function v = load_array2(resDir, name, slc, name_after_slc)
             d = analyze75read(fullfile(resDir, 'DebugOutput', filename));            
             if(n>1)
                 if(size(v,1)~=size(d,1))
-                    v(:,:,:,n) = permute(d, [2 1 3]);
+                    if(size(v,1)==size(d,2))
+                        v(:,:,:,n) = permute(d, [2 1 3]);
+                    end
                 else
                     v(:,:,:,n) = d;
                 end

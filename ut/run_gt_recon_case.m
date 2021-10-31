@@ -90,5 +90,6 @@ for ii=1:num
         end
         
         timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isNX20, isAdjScan, configName, resDir, xslFile, startRemoteGT, h5Only, remoteXml, compressionBit, paraXml);
+        disp(resDir)
     end    
 end

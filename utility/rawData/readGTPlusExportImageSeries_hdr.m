@@ -96,6 +96,9 @@ end
 if(num==0)
     [names, num] = findFILE(folderName, ['Siemens_Gadgetron' '*.hdr']);
 end
+if(num==0)
+    [names, num] = findFILE(folderName, ['Generic_MultiSlice_Localizer' '*.hdr']);
+end
 
 maxSLC = 0;
 maxE2 = 0;
@@ -216,6 +219,9 @@ for ii=1:num
                     if ( strcmp(xmlContent{n}.name.Text, 'GT_physiology_time_stamp') == 1 )
                         physio_time_index = n;
                     end
+                    if ( strcmp(xmlContent{n}.name.Text, 'physiology_time_stamp') == 1 )
+                        physio_time_index = n;
+                    end
                     
                     if ( strcmp(xmlContent{n}.name.Text, 'ENDO') == 1 )
                         endo = n;
@@ -291,8 +297,12 @@ for ii=1:num
 %             end
             
             try
-                acq_time(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = str2double(xmlContent{acq_time_index}.value{1}.Text);          
-                physio_time(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = str2double(xmlContent{physio_time_index}.value{1}.Text);
+                if(iscell(xmlContent{acq_time_index}.value))
+                    acq_time(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = str2double(xmlContent{acq_time_index}.value.Text);
+                else
+                    acq_time(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = str2double(xmlContent{acq_time_index}.value.Text);          
+                end
+                physio_time(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1) = str2double(xmlContent{physio_time_index}.value.Text);
             catch
             end
             

@@ -1,6 +1,6 @@
 
-function PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT, delete_old_res, gt_port)
-% PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT, delete_old_res, gt_port)
+function PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT, delete_old_res, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder)
+% PerformGadgetronRecon_Plot_Run_PerfusionCase(perf_cases, rest_cases, dataDir, resDir, host, configNamePreset, checkProcessed, flow_windowing, only_reviewing, only_processing, only_making_figures, startRemoteGT, delete_old_res, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder)
 
 if(nargin < 8)
     flow_windowing = [0 8];
@@ -28,6 +28,16 @@ end
 
 if(nargin < 14)
     gt_port = [];
+end
+
+if(nargin < 15)
+    copy_debug_output = 1;
+end
+if(nargin < 16)
+    copy_dicom_output = 1;
+end
+if(nargin < 17)
+    pre_set_debug_folder = []; 
 end
 
 if(strcmp(host, 'beast'))
@@ -65,11 +75,11 @@ for ii=startN:endN
                 disp(['--> Processing ... ']);
                 
                 if(~has_stress)
-                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
+                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder);
                 end
 
                 if(~has_rest)
-                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
+                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder);
                 end
 %                 PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2:3), host, resDir, checkProcessed, delete_old_res, startRemoteGT, {perf_xml});
 
@@ -81,11 +91,11 @@ for ii=startN:endN
             noise_dat_processed = [];
             
             if(~has_stress)
-                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
+                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder);
             end
 
             if(~has_rest)
-                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
+                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder);
             end
 
             %[h_flow_stress, h_flow_rest, has_stress, has_rest] = PerformGadgetronRecon_Plot_PerfusionCase_StressRest(resDir, perf_cases{ii, 2}, perf_cases{ii, 3}, flow_windowing, only_reviewing, 0);
@@ -99,18 +109,21 @@ for ii=startN:endN
         end
         
         if(has_stress<0)
-            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
+            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 2), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder);
         end
 
         if(has_rest<0)
-            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
+            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, perf_cases(ii, 3), host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder);
         end
     end
     
     if(only_reviewing)
         pause;
     end
-    closeall
+    try
+        closeall
+    catch
+    end
     
     disp(['====================================================================================================']);
 end
@@ -118,10 +131,20 @@ end
 startN = 1
 endN = size(rest_cases, 1)
 for ii=startN:endN
-    caseName = rest_cases{ii, 2};
-    
+    if(size(rest_cases, 2)>1)
+        caseName = rest_cases{ii, 2};
+    else
+        caseName = rest_cases{ii, 1};
+    end
+    if(iscell(caseName))
+        caseName = caseName{1};
+    end
     if(isempty(strfind(caseName, 'Perfusion')))
         caseName = rest_cases{ii, 1};
+        if(iscell(caseName))
+            caseName = caseName{1};
+        end
+        [d_path, caseName, ext] = fileparts(caseName);
     end
     
     perf_xml = find_perf_xml(configNamePreset, caseName);
@@ -132,18 +155,19 @@ for ii=startN:endN
             try
                 h_flow_rest = PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
                 if(h_flow_rest==0)
-                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
+                    PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder);
 
                     PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
                 end
             catch
                 disp(['--> Processing ... ']);
-                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
+                PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder);
 
                 PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
             end
         else
-            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port);
+            [d_path, caseName, ext] = fileparts(caseName);
+            PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData(dataDir, {caseName}, host, resDir, 0, delete_old_res, startRemoteGT, {perf_xml}, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder);
 
 %             PerformGadgetronRecon_Plot_PerfusionCase(resDir, caseName, only_reviewing);
         end
@@ -154,7 +178,10 @@ for ii=startN:endN
     if(only_reviewing)
         pause;
     end
-    closeall
+    try
+        closeall
+    catch
+    end
     
     disp(['====================================================================================================']);
 end
@@ -184,6 +211,10 @@ function perf_xml = find_perf_xml(configNames, dataName)
     if(isempty(ind))
         perf_xml = configNames{ind_r2(1)};
     else
-        perf_xml = configNames{ind_r3(1)};
+        if(~isempty(ind_r3))
+            perf_xml = configNames{ind_r3(1)};
+        else
+            perf_xml = configNames{ind_r2(1)};
+        end
     end
 end
