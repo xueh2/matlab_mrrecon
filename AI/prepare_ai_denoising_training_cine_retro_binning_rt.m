@@ -1,5 +1,5 @@
-function prepare_ai_denoising_training_cine_retro_binning_rt(dataDir, resDir, aiDir, files_all, im_series_num, gfactor_series_num)
-% prepare_ai_denoising_training_cine_retro_binning_rt(dataDir, resDir, aiDir, files_all, im_series_num, gfactor_series_num)
+function prepare_ai_denoising_training_cine_retro_binning_rt(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num)
+% prepare_ai_denoising_training_cine_retro_binning_rt(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num)
 
 mkdir(aiDir)
 
@@ -23,7 +23,11 @@ for n = 1:size(files_all,1)
     
     h5_name = fullfile(dataDir, study_dates, [fname '.h5']);
     
-    case_dir = fullfile(resDir, study_dates, fname);    
+    case_dir = fullfile(resDir, study_dates, fname);   
+    case_dir_debug = case_dir;
+    if(~isempty(resDir_local))
+        case_dir_debug = fullfile(resDir_local, study_dates, fname);
+    end
     dst_dir = fullfile(aiDir, study_dates, fname);
     
 %     [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(files_all{n});
@@ -39,7 +43,7 @@ for n = 1:size(files_all,1)
             continue;
         end
         
-        debug_dir = fullfile(case_dir, 'DebugOutput');
+        debug_dir = fullfile(case_dir_debug, 'DebugOutput');
         dset = ismrmrd.Dataset(h5_name, 'dataset');
         hdr = ismrmrd.xml.deserialize(dset.readxml);
         dset.close();
