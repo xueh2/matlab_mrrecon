@@ -414,7 +414,7 @@ for n=1:num
     if(copy_debug_output | isPerf)
         if(~is_remote_computer)
             if(isunix())
-                command = ['sudo rm -rf ' debugFolder '/*.*'];
+                command = ['sudo rm -rf ' debugFolder '/*'];
                 dos(command, '-echo');
             end
         else
@@ -433,20 +433,36 @@ for n=1:num
             if ~exist(dstDir); mkdir(dstDir); end
             disp(dstDir);
             if(isunix())
-                mkdir(fullfile(dstDir, 'DebugOutput'));
-                gt_command = ['rsync -a ' debugFolder '/*.*  ' dstDir '/DebugOutput/'];
-                tic; dos(gt_command, '-echo'); timeUsed = toc;
-                disp(['////////////////////////////////////////////////////////////////'])
-                disp(['  Time to copying debugFolder to Results folder: ', num2str(timeUsed)])
-                disp(['////////////////////////////////////////////////////////////////'])
-                                
-                % fast method for deleting directory with large number of files
-                if ~exist('~/Debug/emptydir'); mkdir('~/Debug/emptydir'); end
-                command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' debugFolder,'/'];     
-                tic; dos(command, '-echo'); timeUsed = toc;
-                disp(['////////////////////////////////////////////////////////////////'])
-                disp(['  Time to delete debugFolder on gadgetron computer: ', num2str(timeUsed)])
-                disp(['////////////////////////////////////////////////////////////////'])
+                ind = find(resDir=='/');
+                if(isempty(ind))
+                    ind = find(resDir=='/');
+                end
+                if(isempty(resDir_local))
+                    mkdir(fullfile(dstDir, 'DebugOutput'));
+                    gt_command = ['rsync -a ' debugFolder '/*.*  ' dstDir '/DebugOutput/'];
+                    tic; dos(gt_command, '-echo'); timeUsed = toc;
+                    disp(['////////////////////////////////////////////////////////////////'])
+                    disp(['  Time to copying debugFolder to Results folder: ', num2str(timeUsed)])
+                    disp(['////////////////////////////////////////////////////////////////'])
+
+                    % fast method for deleting directory with large number of files
+                    if ~exist('~/Debug/emptydir'); mkdir('~/Debug/emptydir'); end
+                    command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' debugFolder,'/'];     
+                    tic; dos(command, '-echo'); timeUsed = toc;
+                    disp(['////////////////////////////////////////////////////////////////'])
+                    disp(['  Time to delete debugFolder on gadgetron computer: ', num2str(timeUsed)])
+                    disp(['////////////////////////////////////////////////////////////////'])
+                else
+                    dst_dir = [resDir_local '/' resDir(ind(end)+1:end) '/' study_dates '/' name '/DebugOutput'];
+                    command = ['mkdir -p ' dst_dir]
+                    dos(command, '-echo');
+                    command = ['mv -f ' debugFolder '/* ' dst_dir]
+                    tic; dos(command, '-echo'); timeUsed = toc;
+                    disp(['////////////////////////////////////////////////////////////////'])
+                    disp(['  Time to move debugFolder to Results folder: ', num2str(timeUsed)])
+                    disp(['////////////////////////////////////////////////////////////////'])
+                end
+                
             else
                 try
                     copyfile(fullfile(debugFolder, '*.*'), fullfile(dstDir, 'DebugOutput')); 
