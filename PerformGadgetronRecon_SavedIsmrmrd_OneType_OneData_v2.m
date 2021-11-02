@@ -453,7 +453,8 @@ for n=1:num
                     disp(['  Time to delete debugFolder on gadgetron computer: ', num2str(timeUsed)])
                     disp(['////////////////////////////////////////////////////////////////'])
                 else
-                    dst_dir = [resDir_local '/' resDir(ind(end)+1:end) '/' study_dates '/' name '/DebugOutput'];
+                    %dst_dir = [resDir_local '/' resDir(ind(end)+1:end) '/' study_dates '/' name '/DebugOutput'];
+                    dst_dir = [resDir_local '/' study_dates '/' name '/DebugOutput'];
                     command = ['mkdir -p ' dst_dir]
                     dos(command, '-echo');
                     command = ['mv -f ' debugFolder '/* ' dst_dir]
