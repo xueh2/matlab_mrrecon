@@ -1,5 +1,5 @@
-function prepare_ai_denoising_training_cine_retro_binning_rt(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num)
-% prepare_ai_denoising_training_cine_retro_binning_rt(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num)
+function prepare_ai_denoising_training_cine_retro_binning_rt(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num, check_processed)
+% prepare_ai_denoising_training_cine_retro_binning_rt(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num, check_processed)
 
 mkdir(aiDir)
 
@@ -27,6 +27,9 @@ for n = 1:size(files_all,1)
     case_dir_debug = case_dir;
     if(~isempty(resDir_local))
         case_dir_debug = fullfile(resDir_local, study_dates, fname);
+        if(~exist(case_dir_debug))
+            case_dir_debug = case_dir;
+        end
     end
     dst_dir = fullfile(aiDir, study_dates, fname);
     
@@ -39,7 +42,7 @@ for n = 1:size(files_all,1)
     
         disp(['--> process ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' files_all{n}]);
         
-        if(exist(fullfile(pic_gmap_dir, [fname '.jpg'])))
+        if(check_processed & exist(fullfile(pic_gmap_dir, [fname '.jpg'])))
             continue;
         end
         
@@ -206,6 +209,7 @@ for n = 1:size(files_all,1)
                     kE1 = 4;
                     fitItself = 1;
                     thres = 5e-4;
+                    
                     [ker, convKer] = Matlab_gt_grappa_2d_calibrate(double(acs_src), double(acs_dst), kRO, kE1, accelFactor(af), fitItself, thres);
 
                     kIm = Matlab_gt_grappa_2d_compute_image_domain_kernel(double(convKer), RO, E1);
