@@ -144,7 +144,9 @@ for n = 1:size(files_all,1)
             dstCHA = size(acs_dst, 3);
 
             c_im = ifft2c(acs_dst_coil_map);
-                
+            
+            SLC = size(c_im, 4);
+            
             for slc=1:SLC
                 disp(['--> process slice ' num2str(slc)]);
                 coil_map = Matlab_gt_compute_coil_map(single(reshape(c_im(:,:,:,slc), [RO E1 1 dstCHA 1])), 'ISMRMRD_SOUHEIL', 7, 5, 5, 1e-3);
