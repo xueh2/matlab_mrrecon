@@ -129,49 +129,100 @@ for n = 1:size(files_all,1)
         
         try
             gmap_slices = [];
-            acs_src = readGTPlusExportData(fullfile(debug_dir, ['ref_calib_encoding_0_' num2str(1)]));
-            acs_dst = readGTPlusExportData(fullfile(debug_dir, ['ref_calib_dst_encoding_0_' num2str(1)]));
-
-            acs_dst_coil_map = readGTPlusExportData(fullfile(debug_dir, ['ref_coil_map_dst_encoding_0_' num2str(1)]));
-
-            acs_src = squeeze(acs_src);
-            acs_dst = squeeze(acs_dst);
-            acs_dst_coil_map = squeeze(acs_dst_coil_map);
-
-            RO = size(acs_dst_coil_map, 1);
-            E1 = size(acs_dst_coil_map, 2);
-            srcCHA = size(acs_src, 3);
-            dstCHA = size(acs_dst, 3);
-
-            c_im = ifft2c(acs_dst_coil_map);
             
-            SLC = size(c_im, 4);
+            multi_rep_mode = 0;
+            if(exist(fullfile(debug_dir, ['ref_coil_map_dst_encoding_0_' num2str(SLC) '_MAG.hdr'])))
+                multi_rep_mode = 1;
+            end
             
-            for slc=1:SLC
-                disp(['--> process slice ' num2str(slc)]);
-                coil_map = Matlab_gt_compute_coil_map(single(reshape(c_im(:,:,:,slc), [RO E1 1 dstCHA 1])), 'ISMRMRD_SOUHEIL', 7, 5, 5, 1e-3);
-                coil_map = squeeze(coil_map);
+            if(multi_rep_mode==0)
+                acs_src = readGTPlusExportData(fullfile(debug_dir, ['ref_calib_encoding_0_' num2str(1)]));
+                acs_dst = readGTPlusExportData(fullfile(debug_dir, ['ref_calib_dst_encoding_0_' num2str(1)]));
 
-                clear gmap
-                for af=1:numel(accelFactor)
-                    kRO = 5;
-                    kE1 = 4;
-                    fitItself = 1;
-                    thres = 5e-4;
-                    [ker, convKer] = Matlab_gt_grappa_2d_calibrate(double(acs_src(:,:,:,slc)), double(acs_dst(:,:,:,slc)), kRO, kE1, accelFactor(af), fitItself, thres);
+                acs_dst_coil_map = readGTPlusExportData(fullfile(debug_dir, ['ref_coil_map_dst_encoding_0_' num2str(1)]));
 
-                    kIm = Matlab_gt_grappa_2d_compute_image_domain_kernel(double(convKer), RO, E1);
+                acs_src = squeeze(acs_src);
+                acs_dst = squeeze(acs_dst);
+                acs_dst_coil_map = squeeze(acs_dst_coil_map);
 
-                %     figure; imagescn(abs(kIm), [], [], [], 3)
+                RO = size(acs_dst_coil_map, 1);
+                E1 = size(acs_dst_coil_map, 2);
+                srcCHA = size(acs_src, 3);
+                dstCHA = size(acs_dst, 3);
 
-                    [unmixing, gmap(:,:,af)] = Matlab_gt_grappa_2d_compute_unmxing_coeff(kIm, coil_map, accelFactor(af));
+                c_im = ifft2c(acs_dst_coil_map);
+
+                SLC = size(c_im, 4);
+
+                for slc=1:SLC
+                    disp(['--> process slice ' num2str(slc)]);
+                    coil_map = Matlab_gt_compute_coil_map(single(reshape(c_im(:,:,:,slc), [RO E1 1 dstCHA 1])), 'ISMRMRD_SOUHEIL', 7, 5, 5, 1e-3);
+                    coil_map = squeeze(coil_map);
+
+                    clear gmap
+                    for af=1:numel(accelFactor)
+                        kRO = 5;
+                        kE1 = 4;
+                        fitItself = 1;
+                        thres = 5e-4;
+                        [ker, convKer] = Matlab_gt_grappa_2d_calibrate(double(acs_src(:,:,:,slc)), double(acs_dst(:,:,:,slc)), kRO, kE1, accelFactor(af), fitItself, thres);
+
+                        kIm = Matlab_gt_grappa_2d_compute_image_domain_kernel(double(convKer), RO, E1);
+
+                    %     figure; imagescn(abs(kIm), [], [], [], 3)
+
+                        [unmixing, gmap(:,:,af)] = Matlab_gt_grappa_2d_compute_unmxing_coeff(kIm, coil_map, accelFactor(af));
+                    end
+
+                    gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
+
+                    writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
+
+                    gmap_slices(:,:,:,slc) = gmap;
                 end
+            else
+                for slc=1:SLC
+                    acs_src = readGTPlusExportData(fullfile(debug_dir, ['ref_calib_encoding_0_' num2str(slc)]));
+                    acs_dst = readGTPlusExportData(fullfile(debug_dir, ['ref_calib_dst_encoding_0_' num2str(slc)]));
 
-                gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
+                    acs_dst_coil_map = readGTPlusExportData(fullfile(debug_dir, ['ref_coil_map_dst_encoding_0_' num2str(slc)]));
 
-                writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
+                    acs_src = squeeze(acs_src);
+                    acs_dst = squeeze(acs_dst);
+                    acs_dst_coil_map = squeeze(acs_dst_coil_map);
 
-                gmap_slices(:,:,:,slc) = gmap;
+                    RO = size(acs_dst_coil_map, 1);
+                    E1 = size(acs_dst_coil_map, 2);
+                    srcCHA = size(acs_src, 3);
+                    dstCHA = size(acs_dst, 3);
+
+                    c_im = ifft2c(acs_dst_coil_map);
+               
+                    disp(['--> process slice ' num2str(slc)]);
+                    coil_map = Matlab_gt_compute_coil_map(single(reshape(c_im, [RO E1 1 dstCHA 1])), 'ISMRMRD_SOUHEIL', 7, 5, 5, 1e-3);
+                    coil_map = squeeze(coil_map);
+
+                    clear gmap
+                    for af=1:numel(accelFactor)
+                        kRO = 5;
+                        kE1 = 4;
+                        fitItself = 1;
+                        thres = 5e-4;
+                        [ker, convKer] = Matlab_gt_grappa_2d_calibrate(double(acs_src), double(acs_dst), kRO, kE1, accelFactor(af), fitItself, thres);
+
+                        kIm = Matlab_gt_grappa_2d_compute_image_domain_kernel(double(convKer), RO, E1);
+
+                    %     figure; imagescn(abs(kIm), [], [], [], 3)
+
+                        [unmixing, gmap(:,:,af)] = Matlab_gt_grappa_2d_compute_unmxing_coeff(kIm, coil_map, accelFactor(af));
+                    end
+
+                    gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
+
+                    writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
+
+                    gmap_slices(:,:,:,slc) = gmap;
+                end
             end
         catch
             gmap_slices = [];
@@ -261,7 +312,7 @@ for n = 1:size(files_all,1)
                 d(:,:,1,:) = im_slices(:,:,1);
             end
             d(:,:,2:end,:) = gmap_slices;
-            if(SLC<3)
+            if(SLC<=3)
                 h = figure; imagescn(d, [], [SLC, 5], [14]);
             else
                 h = figure; imagescn(d, [], [ceil(SLC/2), 10], [14]);
