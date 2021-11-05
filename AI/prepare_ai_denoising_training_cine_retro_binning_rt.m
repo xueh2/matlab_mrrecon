@@ -109,6 +109,13 @@ for n = 1:size(files_all,1)
         try
             [im, im_header, acq_time, physio_time] = readGTPlusExportImageSeries_Squeeze(case_dir, im_series_num, 1);
             [gfactor, gmap_header, acq_time, physio_time] = readGTPlusExportImageSeries_Squeeze(case_dir, gfactor_series_num, 1);
+            
+            if(numel(size(im))==5)
+                im = im(:,:,:,:,1);
+            end
+            if(numel(size(gfactor))==4)
+                gfactor = gfactor(:,:,:,1);
+            end
         catch
             continue;                
         end
