@@ -397,7 +397,7 @@ for n=1:num
                     end
                     
                     command = ['gadgetron_ismrmrd_client -f ' h5Name ' -c default_measurement_dependencies.xml -a ' gt_host ' -p ' GT_PORT]
-%                     dos(command, '-echo');
+                    dos(command, '-echo');
 
                     noise_processed = [noise_processed; {h5Name}];
                     noise_id_processed = [noise_id_processed; {noise_mear_id}];

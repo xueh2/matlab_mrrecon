@@ -98,7 +98,12 @@ function print_json_record(outputs, fname)
             ind = strfind(outputs, '/mnt');
             a = outputs(ind(end):end);
             ind2 = strfind(outputs, ' ');
-            sha1 = outputs(1:ind2(1)-1);
+            if(numel(ind2)>3)
+                ind3 = strfind(outputs, ')');
+                sha1 = outputs(ind3+1:ind-3);
+            else
+                sha1 = outputs(1:ind2(1)-1);
+            end
         else
             a = outputs(1:ind(1)-1);
             ind2 = strfind(a, ' ');
