@@ -8,7 +8,7 @@ currDir = pwd;
 GTHome = getenv('GADGETRON_HOME')
 %GTConfigFolder = fullfile(GTHome, 'share/gadgetron/config');
 if(~isunix())
-    GTConfigFolder = fullfile([GTHome '_master'], 'share/gadgetron/config');
+    GTConfigFolder = fullfile([GTHome '_master_debug'], 'share/gadgetron/config');
 else
     GTConfigFolder = fullfile(GTHome, 'share/gadgetron/config');
 end

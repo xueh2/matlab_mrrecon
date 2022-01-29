@@ -6,6 +6,7 @@
 % sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
 UTCases = {
 
+    'cine/ai_analysis', 'meas_MID3000014_FID58121_2ch_retrogated_cine_RR',              'VD',   'GTPrep_2DT_RetroCine_GLS_Seg_AI_istore.xml',           'res2',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
 
     'cine/20210901_BARCELONA_RetroCineAI', 'meas_MID00056_FID93225_BH_retrogated_cine',              'VD',   'GTPrep_2DT_RetroCine_CMR_View_GLS_AI_analysis.xml',           'res',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
     
