@@ -1,10 +1,21 @@
-    function UTCases = set_up_UT_cases_RTCine;
+function UTCases = set_up_UT_cases_RTCine;
 % run the gt recon
 
 % set_UT_Dir('D');
 
 % sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
 UTCases = {
+    
+    % ch4
+    'rtcine/ch4',                      'RT_Cine_LIN_66016_584749043_584749052_795_20180608-132632',              'VD',   'CMR_RTCine_LAX_AI.xml',           'res_gt_master',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+
+    % ch2    
+    'rtcine/ch2',                      'RT_Cine_LIN_42110_72312920_72312929_567_20211201-095520',              'VD',   'CMR_RTCine_LAX_AI.xml',           'res_gt_master',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+    
+    'rtcine/ch2',                      'RT_Cine_LIN_42110_72312920_72312929_567_20211201-095520',              'VD',   'Generic_RTCine_PInterp_Fil_ECG_CMR_View_AI.xml',           'res',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+    
+    % sax stack
+    'rtcine',                      'RT_Cine_LIN_41837_75670314_75670323_48_20211019-135341',              'VD',   'Generic_RTCine_PInterp_Fil_ECG_Unet.xml',           'res_unet',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
 
     % sax stacks, R4, R5
     'rtcine/R5',                   'RT_Cine_LIN_41837_35713974_35713983_1404_20211111-172925',              'VD',   'Generic_RTCine_PInterp_Fil_ECG_Unet.xml',           'res_unet',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
@@ -15,10 +26,6 @@ UTCases = {
     % single slice
     'rtcine',                   'RT_Cine_LIN_41837_141527598_141527607_101_20180124-090507',              'VD',   'Generic_RTCine_PInterp_Fil_ECG_Unet.xml',           'res_unet',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
     'rtcine',                   'RT_Cine_LIN_41837_141527598_141527607_103_20180124-090655',              'VD',   'Generic_RTCine_PInterp_Fil_ECG_Unet.xml',           'res_unet',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
-
-    % sax stacks
-    'rtcine',                   'RT_Cine_LIN_41837_75670314_75670323_48_20211019-135341',              'VD',   'Generic_RTCine_PInterp_Fil_ECG_Unet.xml',           'res_unet',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
-    'rtcine',                   'RT_Cine_LIN_41837_75670314_75670323_48_20211019-135341',              'VD',   'Generic_RTCine_PInterp_Fil.xml',           'res_unet2',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
 
     % three slices
     'rtcine',                   'RT_Cine_LIN_41837_75670013_75670022_4510_20211018-111232',              'VD',   'Generic_RTCine_PInterp_Fil_ECG_Unet.xml',           'res_unet',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...

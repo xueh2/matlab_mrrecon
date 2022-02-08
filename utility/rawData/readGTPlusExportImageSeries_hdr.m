@@ -198,103 +198,93 @@ for ii=1:num
             
             xmlContent = xmlContent.ismrmrdMeta.meta;
             
-%             for ii=1:numel(C)        
-%                 if(strcmp(C{ii}.name.Text, vname)==1)            
-%                     for j=1:numel(C{ii}.value)
-%                         v(j) = str2double(C{ii}.value{j}.Text);
-%                     end            
-%                 end        
-%             end
-    
-%             if(acq_time_index==0)
-                N = numel(xmlContent);
-                for n=1:N
-                    if ( strcmp(xmlContent{n}.name.Text, 'GT_acquisition_time_stamp') == 1 )
-                        acq_time_index = n;
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'acquisition_time_stamp') == 1 )
-                        acq_time_index = n;
-                    end
-                    
-                    if ( strcmp(xmlContent{n}.name.Text, 'GT_physiology_time_stamp') == 1 )
-                        physio_time_index = n;
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'physiology_time_stamp') == 1 )
-                        physio_time_index = n;
-                    end
-                    
-                    if ( strcmp(xmlContent{n}.name.Text, 'ENDO') == 1 )
-                        endo = n;
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'EPI') == 1 )
-                        epi = n;
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'PatientPosition') == 1 )
-                        PatientPosition = n;
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'FOV') == 1 )
-                        FOV = n;
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'recon_FOV') == 1 )
-                        recon_FOV = n;
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'phase_dir') == 1 )
-                        phase_dir = n;
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'read_dir') == 1 )
-                        read_dir = n;
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'slice_dir') == 1 )
-                        slice_dir = n;
-                    end
-                   
-                    for kk=0:7
-                        user_int_str = ['user_int_' num2str(kk)];
-                        if ( strcmp(xmlContent{n}.name.Text, user_int_str) == 1 )
-                            try
-                                user_int(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1, kk+1) = str2double(xmlContent{n}.value{1}.Text);  
-                            catch
-                            end
-                        end
-                    end
-                    
-                    if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_WindowCenter') == 1 )
-                        if(numel(xmlContent{n}.value)>1)
-                            window_center = str2double(xmlContent{n}.value{1}.Text);
-                        else
-                            window_center = str2double(xmlContent{n}.value.Text);
-                        end
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_WindowWidth') == 1 )
-                        if(numel(xmlContent{n}.value)>1)
-                            window_width = str2double(xmlContent{n}.value{1}.Text);
-                        else
-                            window_width = str2double(xmlContent{n}.value.Text);
-                        end
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_TI') == 1 )
-                        if(numel(xmlContent{n}.value)>1)
-                            TI = str2double(xmlContent{n}.value{1}.Text);
-                        else
-                            TI = str2double(xmlContent{n}.value.Text);
-                        end
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_TE') == 1 )
-                        if(numel(xmlContent{n}.value)>1)
-                            TE = str2double(xmlContent{n}.value{1}.Text);
-                        else
-                            TE = str2double(xmlContent{n}.value.Text);
-                        end
-                    end
-                    if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_TS') == 1 )
-                        if(numel(xmlContent{n}.value)>1)
-                            TS = str2double(xmlContent{n}.value{1}.Text);
-                        else
-                            TS = str2double(xmlContent{n}.value.Text);
+            N = numel(xmlContent);
+            for n=1:N
+                if ( strcmp(xmlContent{n}.name.Text, 'GT_acquisition_time_stamp') == 1 )
+                    acq_time_index = n;
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'acquisition_time_stamp') == 1 )
+                    acq_time_index = n;
+                end
+
+                if ( strcmp(xmlContent{n}.name.Text, 'GT_physiology_time_stamp') == 1 )
+                    physio_time_index = n;
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'physiology_time_stamp') == 1 )
+                    physio_time_index = n;
+                end
+
+                if ( strcmp(xmlContent{n}.name.Text, 'ENDO') == 1 )
+                    endo = n;
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'EPI') == 1 )
+                    epi = n;
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'PatientPosition') == 1 )
+                    PatientPosition = n;
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'FOV') == 1 )
+                    FOV = n;
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'recon_FOV') == 1 )
+                    recon_FOV = n;
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'phase_dir') == 1 )
+                    phase_dir = n;
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'read_dir') == 1 )
+                    read_dir = n;
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'slice_dir') == 1 )
+                    slice_dir = n;
+                end
+
+                for kk=0:7
+                    user_int_str = ['user_int_' num2str(kk)];
+                    if ( strcmp(xmlContent{n}.name.Text, user_int_str) == 1 )
+                        try
+                            user_int(slc+1, e2+1, con+1, phs+1, rep+1, set+1, ave+1, run+1, kk+1) = str2double(xmlContent{n}.value{1}.Text);  
+                        catch
                         end
                     end
                 end
-%             end
+
+                if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_WindowCenter') == 1 )
+                    if(numel(xmlContent{n}.value)>1)
+                        window_center = str2double(xmlContent{n}.value{1}.Text);
+                    else
+                        window_center = str2double(xmlContent{n}.value.Text);
+                    end
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_WindowWidth') == 1 )
+                    if(numel(xmlContent{n}.value)>1)
+                        window_width = str2double(xmlContent{n}.value{1}.Text);
+                    else
+                        window_width = str2double(xmlContent{n}.value.Text);
+                    end
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_TI') == 1 )
+                    if(numel(xmlContent{n}.value)>1)
+                        TI = str2double(xmlContent{n}.value{1}.Text);
+                    else
+                        TI = str2double(xmlContent{n}.value.Text);
+                    end
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_TE') == 1 )
+                    if(numel(xmlContent{n}.value)>1)
+                        TE = str2double(xmlContent{n}.value{1}.Text);
+                    else
+                        TE = str2double(xmlContent{n}.value.Text);
+                    end
+                end
+                if ( strcmp(xmlContent{n}.name.Text, 'GADGETRON_TS') == 1 )
+                    if(numel(xmlContent{n}.value)>1)
+                        TS = str2double(xmlContent{n}.value{1}.Text);
+                    else
+                        TS = str2double(xmlContent{n}.value.Text);
+                    end
+                end
+            end
             
             try
                 if(iscell(xmlContent{acq_time_index}.value))
