@@ -327,9 +327,9 @@ for n = 1:size(files_all,1)
         end
 
         if(numel(size(im))==3)
-            h = figure; imagescn(cat(4, im, gfactor), [], [2 SLC], [12]);
+            h = figure; imagescn(cat(4, im, 64*gfactor), [0 128], [2 SLC], [12]);
         else
-            h = figure; imagescn(cat(3, im, gfactor), [], [1 2], [12]);
+            h = figure; imagescn(cat(3, im, 64*gfactor), [0 128], [1 2], [12]);
         end
         saveas(h, fullfile(pic_data_dir, [fname '.jpg']), 'jpg');
 
@@ -343,11 +343,11 @@ for n = 1:size(files_all,1)
             else
                 d(:,:,1,:) = im_slices(:,:,1);
             end
-            d(:,:,2:end,:) = gmap_slices;
+            d(:,:,2:end,:) = 64*gmap_slices;
             if(SLC<=3)
-                h = figure; imagescn(d, [], [SLC, 5], [14]);
+                h = figure; imagescn(d, [0 128], [SLC, 5], [14]);
             else
-                h = figure; imagescn(d, [], [ceil(SLC/2), 10], [14]);
+                h = figure; imagescn(d, [0 128], [ceil(SLC/2), 10], [14]);
             end
             saveas(h, fullfile(pic_gmap_dir, [fname '.jpg']), 'jpg');
         catch
