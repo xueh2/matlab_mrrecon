@@ -5,6 +5,9 @@ function UTCases = set_up_UT_cases_T1Mapping;
 % sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
 UTCases = {
 
+    'T1T2/pre_post/threeslices', 'T1SR_Mapping_SASHA_HC_T1T2_42363_493491290_493491295_116_20220210-113255', 'VD', 'SASHA-HC_grappa_moco_AVE_AI_CMR_View_OFFLINE.xml', 'grappa_res', 'grappa_ref', 'IsmrmrdParameterMap_Siemens_T1Mapping_SASHA.xsl'   ; ...   
+    'T1T2/pre_post/threeslices', 'T1SR_Mapping_SASHA_HC_T1T2_42363_493491290_493491295_141_20220210-115939', 'VD', 'SASHA-HC_grappa_moco_AVE_AI_CMR_View_OFFLINE.xml', 'grappa_res', 'grappa_ref', 'IsmrmrdParameterMap_Siemens_T1Mapping_SASHA.xsl'   ; ...   
+    
     % SAX
     'T1T2/cmr_view_debug', 'T1SR_Mapping_SASHA_HC_T1T2_42363_713316607_713316612_712_20200715-175713', 'VD', 'SASHA-HC_grappa_moco_AVE_AI_CMR_View_OFFLINE.xml', 'grappa_res', 'grappa_ref', 'IsmrmrdParameterMap_Siemens_T1Mapping_SASHA.xsl'   ; ...   
     

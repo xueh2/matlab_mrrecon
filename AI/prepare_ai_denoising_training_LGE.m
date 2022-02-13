@@ -117,6 +117,7 @@ for n = 1:size(files_all,1)
 %                 gfactor = gfactor(:,:,:,1);
 %             end
             
+            % load moco + ave
             im = [];
             pd = [];
             gfactor = [];
@@ -132,10 +133,10 @@ for n = 1:size(files_all,1)
             Dy_PD = [];
         
             for slc=1:SLC
-                Dx(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['deform_field_x_slc_' num2str(slc-1) '_con_0_0']));
-                Dy(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['deform_field_y_slc_' num2str(slc-1) '_con_0_0']));
-                Dx_PD(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['deform_field_x_slc_' num2str(slc-1) '_con_0_1']));
-                Dy_PD(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['deform_field_y_slc_' num2str(slc-1) '_con_0_1']));                
+                Dx(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['deform_field_xdeform_field_x_slc_' num2str(slc-1) '_con_0_0']));
+                Dy(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['deform_field_ydeform_field_y_slc_' num2str(slc-1) '_con_0_0']));
+                Dx_PD(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['deform_field_xdeform_field_x_slc_' num2str(slc-1) '_con_0_1']));
+                Dy_PD(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['deform_field_ydeform_field_y_slc_' num2str(slc-1) '_con_0_1']));                
             end
         catch
             continue;                
@@ -159,6 +160,41 @@ for n = 1:size(files_all,1)
         
         writeNPY(single(real(Dx_PD)), fullfile(dst_dir, 'Dx_PD.npy'));
         writeNPY(single(real(Dy_PD)), fullfile(dst_dir, 'Dy_PD.npy'));
+        
+        % load raw        
+        raw_im = [];
+        raw_pd = [];
+        raw_gfactor = [];
+        for slc=1:SLC
+            raw_im(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['inputContainer_con_0_phs_0_ave_0_set_0_rep_0_slc_' num2str(slc-1) '_0']));
+            raw_pd(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['inputContainer_con_0_phs_0_ave_0_set_0_rep_0_slc_' num2str(slc-1) '_1']));
+            raw_gfactor(:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['gfactor_map_slc0_con_0_phs_0_ave_0_set_0_rep_0_slc_' num2str(slc-1)]));
+        end
+        
+        writeNPY(single(real(raw_im)), fullfile(dst_dir, 'raw_im_real.npy'));
+        writeNPY(single(imag(raw_im)), fullfile(dst_dir, 'raw_im_imag.npy'));
+        writeNPY(single(abs(raw_im)), fullfile(dst_dir, 'raw_im.npy'));
+        writeNPY(single(raw_gfactor), fullfile(dst_dir, 'raw_gfactor.npy'));
+        
+        writeNPY(single(real(raw_pd)), fullfile(dst_dir, 'raw_pd_real.npy'));
+        writeNPY(single(imag(raw_pd)), fullfile(dst_dir, 'raw_pd_imag.npy'));
+        writeNPY(single(abs(raw_pd)), fullfile(dst_dir, 'raw_pd.npy'));
+        
+        % load mooc        
+        moco_im = [];
+        moco_pd = [];
+        for slc=1:SLC
+            moco_im(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['moco_con_0_phs_0_ave_0_set_0_rep_0_slc_' num2str(slc-1) '_0']));
+            moco_pd(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['moco_con_0_phs_0_ave_0_set_0_rep_0_slc_' num2str(slc-1) '_1']));
+        end
+        
+        writeNPY(single(real(moco_im)), fullfile(dst_dir, 'moco_im_real.npy'));
+        writeNPY(single(imag(moco_im)), fullfile(dst_dir, 'moco_im_imag.npy'));
+        writeNPY(single(abs(moco_im)), fullfile(dst_dir, 'moco_im.npy'));
+        
+        writeNPY(single(real(moco_pd)), fullfile(dst_dir, 'moco_pd_real.npy'));
+        writeNPY(single(imag(moco_pd)), fullfile(dst_dir, 'moco_pd_imag.npy'));
+        writeNPY(single(abs(moco_pd)), fullfile(dst_dir, 'moco_pd.npy'));
         
         try
             gmap_slices = [];
@@ -327,9 +363,9 @@ for n = 1:size(files_all,1)
         end
 
         if(numel(size(im))==3)
-            h = figure; imagescn(cat(4, im, 64*gfactor), [0 128], [2 SLC], [12]);
+            h = figure; imagescn(cat(4, im, 64*gfactor), [0 255], [2 SLC], [12]);
         else
-            h = figure; imagescn(cat(3, im, 64*gfactor), [0 128], [1 2], [12]);
+            h = figure; imagescn(cat(3, im, 64*gfactor), [0 255], [1 2], [12]);
         end
         saveas(h, fullfile(pic_data_dir, [fname '.jpg']), 'jpg');
 
@@ -345,9 +381,9 @@ for n = 1:size(files_all,1)
             end
             d(:,:,2:end,:) = 64*gmap_slices;
             if(SLC<=3)
-                h = figure; imagescn(d, [0 128], [SLC, 5], [14]);
+                h = figure; imagescn(d, [0 255], [SLC, 5], [14]);
             else
-                h = figure; imagescn(d, [0 128], [ceil(SLC/2), 10], [14]);
+                h = figure; imagescn(d, [0 255], [ceil(SLC/2), 10], [14]);
             end
             saveas(h, fullfile(pic_gmap_dir, [fname '.jpg']), 'jpg');
         catch

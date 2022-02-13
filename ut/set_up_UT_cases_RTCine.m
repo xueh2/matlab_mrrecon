@@ -6,6 +6,9 @@ function UTCases = set_up_UT_cases_RTCine;
 % sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
 UTCases = {
     
+    'rtcine',                         'meas_MID00117_FID45171_RT_cine_160res_stack_Pulse_Gate',              'VD',   'Generic_RTCine_PInterp_Fil_ECG_CMR_View_AI.xml',     'res_gt_master',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+    'rtcine',                         'meas_MID00178_FID134708_4ch_RT_cine_160res_stack_Physio_Interp',              'VD',   'Generic_RTCine_PInterp_Fil_ECG_CMR_View_AI.xml',     'res_gt_master',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
+
     % ch4
     'rtcine/ch4',                      'RT_Cine_LIN_66016_584749043_584749052_795_20180608-132632',              'VD',   'CMR_RTCine_LAX_AI.xml',           'res_gt_master',        'ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
 

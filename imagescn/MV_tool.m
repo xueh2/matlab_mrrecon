@@ -881,7 +881,7 @@ Q = 100;
 %%%CHUS%%%
 if ~isempty(handlesMV.ObjectHandles), Q = 100; compression = 'None'; end; % changed by PK*
 %%%CHUS%%%
-% avicreatemethod = 2;
+avicreatemethod = 2;
 if make_avi
     f = filename;
     if isempty(strfind(f, '.avi')) | isempty(strfind(f, '.mp4'))
@@ -904,9 +904,9 @@ if make_avi
 %             end
 %             close(vidObj);
             
-            vidObj = VideoWriter(f, 'MPEG-4'); % f is the filename
+            vidObj = VideoWriter(f, 'Uncompressed AVI'); % f is the filename
             vidObj.FrameRate = frame_rate;
-            vidObj.Quality = Q;
+            %vidObj.Quality = Q;
             open(vidObj);
             for k=1:length(M)
                 writeVideo(vidObj,M(k));
