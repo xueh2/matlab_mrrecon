@@ -9,7 +9,7 @@ if(nargin<3)
 end
 
 if(nargin<4)
-    date_end = '2022-01-01';
+    date_end = '2032-01-01';
 end
 
 if(nargin<5)
@@ -155,16 +155,16 @@ for n=1:num
                 end
 
                 dset.close();
-                                
+                      
+                if(header.encoding(1).encodingLimits.repetition.maximum<24)
+                    disp(['Number of perf rep is ' num2str(header.encoding(1).encodingLimits.repetition.maximum+1)]);
+                    continue;
+                end
+
             catch
-                disp(['failed to read data set : ' dataName])
-                failed_cases = [failed_cases; {dataName}];
-                continue;
-            end
-            
-            if(header.encoding(1).encodingLimits.repetition.maximum<24)
-                disp(['Number of perf rep is ' num2str(header.encoding(1).encodingLimits.repetition.maximum+1)]);
-                continue;
+%                 disp(['failed to read data set : ' dataName])
+%                 failed_cases = [failed_cases; {dataName}];
+%                 continue;
             end
             
             files_processed = [files_processed; {name}];

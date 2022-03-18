@@ -310,8 +310,12 @@ function process_one_view(view_str, pic_dir, case_prefix, ED, ES, dst_dir, gt_4c
 
     RO = size(gt_4ch,1);
     E1 = size(gt_4ch,2);
-    ps = max(gt_h_4ch(1,1,1).FOV)/max(RO,E1);
-
+    if(iscell(gt_h_4ch(1,1,1)))
+        ps = max(gt_h_4ch{1,1,1}.FOV)/max(RO,E1);
+    else
+        ps = max(gt_h_4ch(1,1,1).FOV)/max(RO,E1);
+    end
+    
     new_RO = round(RO*ps/dst_pixel_spacing(1));
     new_E1 = round(E1*ps/dst_pixel_spacing(2));
 
@@ -605,7 +609,11 @@ function process_one_sax_view(pic_dir, case_prefix, ED, ES, dst_dir, gt_sax_all,
     % resample sax
     RO = size(gt_sax_all,1)
     E1 = size(gt_sax_all,2)
-    ps = max(gt_h_sax_all(1,1,1).FOV)/max(RO,E1)
+    if(iscell(gt_h_sax_all(1,1,1)))
+        ps = max(gt_h_sax_all{1,1,1}.FOV)/max(RO,E1);
+    else
+        ps = max(gt_h_sax_all(1,1,1).FOV)/max(RO,E1);
+    end
 
     new_RO = round(RO*ps/dst_pixel_spacing(1));
     new_E1 = round(E1*ps/dst_pixel_spacing(2));

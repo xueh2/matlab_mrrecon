@@ -5,6 +5,10 @@ function timeUsed = BuildGadgetronMarsInstallers(target_dir, filename, remove_gt
 % timeUsed = BuildGadgetronMarsInstallers(target_dir, filename, remove_gtprep_xml)
 % timeUsed = BuildGadgetronMarsInstallers('\\hl-share\RawMRI\Lab-Kellman\Share\Installers\20220208_gt4px', 'gadgetron-20220208-1829-a541c4d6-gtprep-42cd70b1', remove_gtprep_xml)
 
+if(nargin<3)
+    remove_gtprep_xml = 0;
+end
+
 tic;
 
 mkdir(target_dir);

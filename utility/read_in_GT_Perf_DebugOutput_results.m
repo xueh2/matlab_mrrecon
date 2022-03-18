@@ -254,6 +254,8 @@ function [perf, ori, moco, moco_norm, PD, perf_ori, perf_fil, input_for_filter, 
                 patient_table_position(s,:) = getXMLField(xmlContent, 'patient_table_position');
             end
         catch
+            slice_dir = [];
+            read_dir = [];
         end
     end
     
@@ -261,8 +263,13 @@ function [perf, ori, moco, moco_norm, PD, perf_ori, perf_fil, input_for_filter, 
         aif_scan_geometry_info = table(aif_slice_dir, aif_read_dir, aif_phase_dir, aif_PatientPosition, aif_patient_table_position);    
         scan_geometry_info = table(slice_dir, read_dir, phase_dir, PatientPosition, patient_table_position);
     catch
-        aif_scan_geometry_info = table(aif_slice_dir, aif_read_dir, aif_phase_dir, aif_PatientPosition, aif_patient_table_position);    
-        scan_geometry_info = table(slice_dir, read_dir, phase_dir, PatientPosition, patient_table_position);
+        try
+            aif_scan_geometry_info = table(aif_slice_dir, aif_read_dir, aif_phase_dir, aif_PatientPosition, aif_patient_table_position);    
+            scan_geometry_info = table(slice_dir, read_dir, phase_dir, PatientPosition, patient_table_position);
+        catch
+            aif_scan_geometry_info = [];
+            scan_geometry_info = [];
+        end
     end
     
     try

@@ -198,6 +198,18 @@ for n=1:num
             wn = wn + 3*maxW;
         end
         
+        if( wn<maxW & ~isempty(strfind(study_date, '2020')) )
+            wn = wn + 4*maxW;
+        end
+        
+        if( wn<maxW & ~isempty(strfind(study_date, '2021')) )
+            wn = wn + 5*maxW;
+        end
+        
+        if( wn<maxW & ~isempty(strfind(study_date, '2022')) )
+            wn = wn + 6*maxW;
+        end
+        
         week_num = [week_num; wn];
         
         if(isLGE) LGE = [LGE; 1]; else LGE = [LGE; 0]; end
