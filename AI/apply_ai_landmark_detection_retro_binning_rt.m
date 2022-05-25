@@ -1,4 +1,5 @@
-function apply_ai_landmark_detection_retro_binning_rt(resDir, aiDir, pt_ids, files_record_picked, case_4chs, case_2chs, case_3chs, case_saxs, batch_size, lax_model, sax_model, three_D_model, script_name, RO, E1, RO_3D, E1_3D, checkprocessed, suffix)
+function apply_ai_landmark_detection_retro_binning_rt(resDir, aiDir, pt_ids, files_record_picked, case_4chs, case_2chs, case_3chs, case_saxs, batch_size, ...
+    lax_model, sax_model, three_D_model, ch4_rv_model, script_name, RO, E1, RO_3D, E1_3D, checkprocessed, suffix)
 % apply_ai_landmark_detection_retro_binning_rt(resDir, aiDir, pt_ids, files_record_picked, case_4chs, case_2chs, case_3chs, case_saxs, batch_size, lax_model, sax_model, three_D_model, script_name, RO, E1, RO_3D, E1_3D, checkprocessed, suffix)
 
 if(isunix())
@@ -8,6 +9,7 @@ else
 end
 
 fid_ch4 = fopen(fullfile(aiDir, [script_name '_cmr_landmark_ch4' ext]), 'a+');
+fid_ch4_rv = fopen(fullfile(aiDir, [script_name '_cmr_landmark_ch4_rv' ext]), 'a+');
 fid_ch2 = fopen(fullfile(aiDir, [script_name '_cmr_landmark_ch2' ext]), 'a+');
 fid_ch3 = fopen(fullfile(aiDir, [script_name '_cmr_landmark_ch3' ext]), 'a+');
 fid_sax = fopen(fullfile(aiDir, [script_name '_cmr_landmark_sax' ext]), 'a+');
@@ -18,7 +20,7 @@ fid_ch3_3D = fopen(fullfile(aiDir, [script_name '_cmr_landmark_ch3_3D' ext]), 'a
 fid_sax_3D = fopen(fullfile(aiDir, [script_name '_cmr_landmark_sax_3D' ext]), 'a+');
 
 set_env_apply_ai(fid_ch4);
-set_env_apply_ai(fid_ch4);
+set_env_apply_ai(fid_ch4_rv);
 set_env_apply_ai(fid_ch2);
 set_env_apply_ai(fid_ch3);
 set_env_apply_ai(fid_sax);
@@ -95,6 +97,8 @@ for pt=1:numel(pt_ids)
         command = ['python '];
     end
     
+    script_name = 'cmr_landmark_detection_onnx.py';
+    
     for d=1:size(case_4ch,1)
         case_4ch_dir = fullfile(resDir, case_4ch.file_names{d});
         [path, sname, ext] = fileparts(case_4ch_dir);
@@ -104,16 +108,20 @@ for pt=1:numel(pt_ids)
             dst_dir_4ch = fullfile(dst_dir, ['ch4']);
         end
         if(exist(fullfile(dst_dir_4ch, 'data.npy')))
-            ch4_command = [command 'cmr_landmark_detection.py --input ' fullfile(dst_dir_4ch, 'data.npy') ... 
+            ch4_command = [command script_name ' --input ' fullfile(dst_dir_4ch, 'data.npy') ... 
                 ' --output ' fullfile(contourDir, ['CH4_AI_pts' '_' sname '_' suffix '.npy']) ' --prob ' fullfile(contourDir, ['CH4_AI_probs' '_' sname '_' suffix '.npy']) ...
                 ' --model ' lax_model ' --batch_size ' num2str(batch_size) ' --lax 1 --use_3D 0 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO) ' --E1 ' num2str(E1) ];
 
-            ch4_command_3D = [command 'cmr_landmark_detection.py --input ' fullfile(dst_dir_4ch, 'data.npy') ... 
+            ch4_command_3D = [command script_name ' --input ' fullfile(dst_dir_4ch, 'data.npy') ... 
                 ' --output ' fullfile(contourDir, ['CH4_AI_pts_3D' '_' sname '_' suffix '.npy']) ...
                 ' --prob ' fullfile(contourDir, ['CH4_AI_probs_3D' '_' sname '_' suffix '.npy']) ...
                 ' --im_used ' fullfile(contourDir, ['CH4_AI_im_used_3D' '_' sname '_' suffix '.npy']) ...
                 ' --model_3D ' three_D_model ' --lax 1 --use_3D 1 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO_3D) ' --E1 ' num2str(E1_3D) ];
 
+            ch4_rv_command = [command script_name ' --input ' fullfile(dst_dir_4ch, 'data.npy') ... 
+                ' --output ' fullfile(contourDir, ['CH4_RV_AI_pts' '_' sname '_' suffix '.npy']) ' --prob ' fullfile(contourDir, ['CH4_RV_AI_probs' '_' sname '_' suffix '.npy']) ...
+                ' --model ' ch4_rv_model ' --batch_size ' num2str(batch_size) ' --lax 1 --use_3D 0 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO) ' --E1 ' num2str(E1) ];
+            
             if(~checkprocessed || ~exist(fullfile(contourDir, ['CH4_AI_pts' '_' sname '_' suffix '.npy'])))
                 ch4_command
                 fprintf(fid_ch4, '%s\n', ch4_command);
@@ -122,6 +130,11 @@ for pt=1:numel(pt_ids)
             if(~checkprocessed || ~exist(fullfile(contourDir, ['CH4_AI_pts_3D' '_' sname '_' suffix '.npy'])))
                 ch4_command_3D
                 fprintf(fid_ch4_3D, '%s\n', ch4_command_3D);
+            end
+            
+            if(~checkprocessed || ~exist(fullfile(contourDir, ['CH4_RV_AI_pts' '_' sname '_' suffix '.npy'])))
+                ch4_rv_command
+                fprintf(fid_ch4_rv, '%s\n', ch4_rv_command);
             end
         end
     end
@@ -136,11 +149,11 @@ for pt=1:numel(pt_ids)
             dst_dir_3ch = fullfile(dst_dir, ['ch3']);
         end
         if(exist(fullfile(dst_dir_3ch, 'data.npy')))        
-            ch3_command = [command 'cmr_landmark_detection.py --input ' fullfile(dst_dir_3ch, 'data.npy') ... 
+            ch3_command = [command script_name ' --input ' fullfile(dst_dir_3ch, 'data.npy') ... 
                 ' --output ' fullfile(contourDir, ['CH3_AI_pts' '_' sname '_' suffix '.npy']) ' --prob ' fullfile(contourDir, ['CH3_AI_probs' '_' sname '_' suffix '.npy']) ...
                 ' --model ' lax_model ' --batch_size ' num2str(batch_size) ' --lax 1 --use_3D 0 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO) ' --E1 ' num2str(E1) ];
 
-            ch3_command_3D = [command 'cmr_landmark_detection.py --input ' fullfile(dst_dir_3ch, 'data.npy') ... 
+            ch3_command_3D = [command script_name ' --input ' fullfile(dst_dir_3ch, 'data.npy') ... 
                 ' --output ' fullfile(contourDir, ['CH3_AI_pts_3D' '_' sname '_' suffix '.npy']) ...
                 ' --prob ' fullfile(contourDir, ['CH3_AI_probs_3D' '_' sname '_' suffix '.npy']) ...
                 ' --im_used ' fullfile(contourDir, ['CH3_AI_im_used_3D' '_' sname '_' suffix '.npy']) ...
@@ -168,11 +181,11 @@ for pt=1:numel(pt_ids)
             dst_dir_2ch = fullfile(dst_dir, ['ch2']);
         end
         if(exist(fullfile(dst_dir_2ch, 'data.npy')))   
-            ch2_command = [command 'cmr_landmark_detection.py --input ' fullfile(dst_dir_2ch, 'data.npy') ... 
+            ch2_command = [command script_name ' --input ' fullfile(dst_dir_2ch, 'data.npy') ... 
                 ' --output ' fullfile(contourDir, ['CH2_AI_pts' '_' sname '_' suffix '.npy']) ' --prob ' fullfile(contourDir, ['CH2_AI_probs' '_' sname '_' suffix '.npy']) ...
                 ' --model ' lax_model ' --batch_size ' num2str(batch_size) ' --lax 1 --use_3D 0 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO) ' --E1 ' num2str(E1) ];
 
-            ch2_command_3D = [command 'cmr_landmark_detection.py --input ' fullfile(dst_dir_2ch, 'data.npy') ... 
+            ch2_command_3D = [command script_name ' --input ' fullfile(dst_dir_2ch, 'data.npy') ... 
                 ' --output ' fullfile(contourDir, ['CH2_AI_pts_3D' '_' sname '_' suffix '.npy']) ... 
                 ' --prob ' fullfile(contourDir, ['CH2_AI_probs_3D' '_' sname '_' suffix '.npy']) ...
                 ' --im_used ' fullfile(contourDir, ['CH2_AI_im_used_3D' '_' sname '_' suffix '.npy']) ...
@@ -193,11 +206,11 @@ for pt=1:numel(pt_ids)
     
     % sax_scripts
 %     if(exist(fullfile(dst_dir_sax, 'data.npy')))   
-%         sax_command = [command 'cmr_landmark_detection.py --input ' fullfile(dst_dir_sax, 'data.npy') ... 
+%         sax_command = [command script_name ' --input ' fullfile(dst_dir_sax, 'data.npy') ... 
 %             ' --output ' fullfile(contourDir, ['SAX_AI_pts' '_' sname '_' suffix '.npy']) ' --prob ' fullfile(contourDir, ['SAX_AI_probs' '_' sname '_' suffix '.npy']) ...
 %             ' --model ' sax_model ' --batch_size ' num2str(batch_size) ' --lax 0 --use_3D 0 --smooth_pts 0 --cli_mode 1 --fill_missed 1 --RO ' num2str(RO) ' --E1 ' num2str(E1)];
 % 
-%         sax_command_3D = [command 'cmr_landmark_detection.py --input ' fullfile(dst_dir_sax, 'data.npy') ... 
+%         sax_command_3D = [command script_name ' --input ' fullfile(dst_dir_sax, 'data.npy') ... 
 %             ' --output ' fullfile(contourDir, ['SAX_AI_pts' '_' sname '_' suffix '.npy']) ' --prob ' fullfile(contourDir, ['SAX_AI_probs' '_' sname '_' suffix '.npy']) ...
 %             ' --model_3D ' three_D_model ' --lax 0 --use_3D 1 --smooth_pts 0 --cli_mode 1 --fill_missed 1'];
 %         

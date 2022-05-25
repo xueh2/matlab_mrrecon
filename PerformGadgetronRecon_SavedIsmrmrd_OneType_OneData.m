@@ -11,6 +11,9 @@ end
 if(strcmp(gt_host, 'gt2'))
     gt_host = '137.187.135.238';
 end
+if(strcmp(gt_host, 'gt3'))
+    gt_host = '137.187.135.155';
+end
 if(strcmp(gt_host, 'beast'))
     gt_host = '137.187.135.157';
 end
@@ -298,7 +301,7 @@ for n=1:num
 %     isPerf = 0;
     if(isempty(strfind(name, 'Perfusion'))~=1)
 %         isPerf = 1;
-        if(finfo.bytes<100*1024*1024)
+        if(finfo.bytes<120*1024*1024)
             disp(['File size too small - ' num2str(n) ' - ' name]);
 %             cd(dataDir)
             ignored = [ignored; {n, name, finfo.bytes/1024}];

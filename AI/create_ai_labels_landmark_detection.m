@@ -15,11 +15,13 @@ function create_ai_labels_landmark_detection(aiDir, pt_ids, files_record_picked,
     ch2_label_file = fullfile(pic_dir, [prefix '_ch2_label_file.csv']);
     ch3_label_file = fullfile(pic_dir, [prefix '_ch3_label_file.csv']);
     ch4_label_file = fullfile(pic_dir, [prefix '_ch4_label_file.csv']);
+    ch4_rv_label_file = fullfile(pic_dir, [prefix '_ch4_rv_label_file.csv']);
     sax_label_file = fullfile(pic_dir, [prefix '_sax_label_file.csv']);
     
     phases = [1:10:30, 13, 30];
 
     pts_loaded_ch4 = [];
+    pts_loaded_ch4_rv = [];
     pts_loaded_ch2 = [];
     pts_loaded_ch3 = [];
     ind_ch4 = 1;
@@ -76,6 +78,7 @@ function create_ai_labels_landmark_detection(aiDir, pt_ids, files_record_picked,
             sname= sname(~isspace(sname));
             dst_dir_4ch = fullfile(dst_dir, ['ch4_' sname]);
             
+            % ------------------------------------
             if(use_3D)
                 ch4_pts_file = fullfile(dst_dir, 'res_ai', ['CH4_AI_pts_3D_' sname '_' suffix '.npy']);
             else
@@ -89,6 +92,22 @@ function create_ai_labels_landmark_detection(aiDir, pt_ids, files_record_picked,
                 pts_loaded_ch4{ind_ch4, 3} = readNPY(ch4_pts_file);
             else
                 pts_loaded_ch4{ind_ch4, 3} = [];
+            end
+            
+            % ------------------------------------
+            if(use_3D)
+                ch4_rv_pts_file = fullfile(dst_dir, 'res_ai', ['CH4_RV_AI_pts_3D_' sname '_' suffix '.npy']);
+            else
+                ch4_rv_pts_file = fullfile(dst_dir, 'res_ai', ['CH4_RV_AI_pts_' sname '_' suffix '.npy']);
+            end
+            pts_loaded_ch4_rv{ind_ch4, 1} = str2num(pt_id);
+            pts_loaded_ch4_rv{ind_ch4, 2} = sname;
+            
+            if(exist(ch4_rv_pts_file))
+                disp(['load ' ch4_rv_pts_file]);
+                pts_loaded_ch4_rv{ind_ch4, 3} = readNPY(ch4_rv_pts_file);
+            else
+                pts_loaded_ch4_rv{ind_ch4, 3} = [];
             end
             
             ind_ch4 = ind_ch4 + 1;
@@ -150,6 +169,9 @@ function create_ai_labels_landmark_detection(aiDir, pt_ids, files_record_picked,
     end
     if(size(pts_loaded_ch4,1)>0)
         process_one_view(ch4_pic_dir, ch4_label_file, pts_loaded_ch4(:,1), pts_loaded_ch4(:,2), pts_loaded_ch4(:,3));
+    end
+    if(size(pts_loaded_ch4_rv,1)>0)
+        process_one_view(ch4_pic_dir, ch4_rv_label_file, pts_loaded_ch4_rv(:,1), pts_loaded_ch4_rv(:,2), pts_loaded_ch4_rv(:,3));
     end
     
     fclose('all')

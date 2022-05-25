@@ -305,7 +305,8 @@ function process_one_view(view_str, pic_dir, case_prefix, ED, ES, dst_dir, gt_4c
     gt_4ch_norm = b/max(b(:)) * max(gt_4ch(:));
 
     if(plot_flag)
-        figure; imagescn(permute(gt_4ch_norm, [2 1 3]), [], [], [8], 3);
+%         figure; imagescn(permute(gt_4ch_norm, [2 1 3]), [], [], [8], 3);
+        figure; imagescn(gt_4ch_norm, [], [], [8], 3);
     end 
 
     RO = size(gt_4ch,1);
@@ -323,15 +324,16 @@ function process_one_view(view_str, pic_dir, case_prefix, ED, ES, dst_dir, gt_4c
     data_dst = Matlab_gt_resize_2D_image(double(gt_4ch_norm), new_RO, new_E1, 5);
 
     if(plot_flag)
-        figure; imagescn(permute(data_dst, [2 1 3]), [], [], [8], 3);
+        %figure; imagescn(permute(data_dst, [2 1 3]), [], [], [8], 3);
+        figure; imagescn(data_dst, [], [], [8], 3);
     end
 
-    gt_4ch = permute(gt_4ch, [2 1 3]);
-    gt_4ch_norm = permute(gt_4ch_norm, [2 1 3]);
-
-    data = permute(data, [2 1 3]);
-    data_dst = permute(data_dst, [2 1 3]);
-    size(data_dst)
+%     gt_4ch = permute(gt_4ch, [2 1 3]);
+%     gt_4ch_norm = permute(gt_4ch_norm, [2 1 3]);
+% 
+%     data = permute(data, [2 1 3]);
+%     data_dst = permute(data_dst, [2 1 3]);
+%     size(data_dst)
 
     RO = size(data_dst,1);
     E1 = size(data_dst,2);
@@ -388,11 +390,13 @@ function process_one_view(view_str, pic_dir, case_prefix, ED, ES, dst_dir, gt_4c
     ED_phs = data_dst(:,:,ED);
     ES_phs = data_dst(:,:,ES);
 
-    imwrite(uint8(255*ED_phs/max(ED_phs(:))), fullfile(dst_dir_4ch, [case_prefix '_' view_str '_' 'ED.jpg']), 'jpg');
-    imwrite(uint8(255*ES_phs/max(ES_phs(:))), fullfile(dst_dir_4ch, [case_prefix '_' view_str '_' 'ES.jpg']), 'jpg');
+    r = 1/0.6;
+    
+    imwrite(uint8(255*r*ED_phs/max(ED_phs(:))), fullfile(dst_dir_4ch, [case_prefix '_' view_str '_' 'ED.jpg']), 'jpg');
+    imwrite(uint8(255*r*ES_phs/max(ES_phs(:))), fullfile(dst_dir_4ch, [case_prefix '_' view_str '_' 'ES.jpg']), 'jpg');
 
-    imwrite(uint8(255*ED_phs/max(ED_phs(:))), fullfile(pic_dir, view_str, [case_prefix '_' view_str '_' 'ED.jpg']), 'jpg');
-    imwrite(uint8(255*ES_phs/max(ES_phs(:))), fullfile(pic_dir, view_str, [case_prefix '_' view_str '_' 'ES.jpg']), 'jpg');
+    imwrite(uint8(255*r*ED_phs/max(ED_phs(:))), fullfile(pic_dir, view_str, [case_prefix '_' view_str '_' 'ED.jpg']), 'jpg');
+    imwrite(uint8(255*r*ES_phs/max(ES_phs(:))), fullfile(pic_dir, view_str, [case_prefix '_' view_str '_' 'ES.jpg']), 'jpg');
 
     writeNPY(single(ED_phs), fullfile(pic_dir, [view_str '_numpy'], [case_prefix '_' view_str '_' 'ED.npy']));
     writeNPY(single(ES_phs), fullfile(pic_dir, [view_str '_numpy'], [case_prefix '_' view_str '_' 'ES.npy']));
@@ -400,11 +404,11 @@ function process_one_view(view_str, pic_dir, case_prefix, ED, ES, dst_dir, gt_4c
     ED_phs = data(:,:,ED);
     ES_phs = data(:,:,ES);
 
-    imwrite(uint8(255*ED_phs/max(ED_phs(:))), fullfile(dst_dir_4ch, [case_prefix '_ch4_original_' 'ED.jpg']), 'jpg');
-    imwrite(uint8(255*ES_phs/max(ES_phs(:))), fullfile(dst_dir_4ch, [case_prefix '_ch4_original_' 'ES.jpg']), 'jpg');
+    imwrite(uint8(255*r*ED_phs/max(ED_phs(:))), fullfile(dst_dir_4ch, [case_prefix '_ch4_original_' 'ED.jpg']), 'jpg');
+    imwrite(uint8(255*r*ES_phs/max(ES_phs(:))), fullfile(dst_dir_4ch, [case_prefix '_ch4_original_' 'ES.jpg']), 'jpg');
 
-    imwrite(uint8(255*ED_phs/max(ED_phs(:))), fullfile(pic_dir, [view_str '_original'], [case_prefix '_' view_str '_' 'ED.jpg']), 'jpg');
-    imwrite(uint8(255*ES_phs/max(ES_phs(:))), fullfile(pic_dir, [view_str '_original'], [case_prefix '_' view_str '_' 'ES.jpg']), 'jpg');
+    imwrite(uint8(255*r*ED_phs/max(ED_phs(:))), fullfile(pic_dir, [view_str '_original'], [case_prefix '_' view_str '_' 'ED.jpg']), 'jpg');
+    imwrite(uint8(255*r*ES_phs/max(ES_phs(:))), fullfile(pic_dir, [view_str '_original'], [case_prefix '_' view_str '_' 'ES.jpg']), 'jpg');
 
     writeNPY(single(ED_phs), fullfile(pic_dir, [view_str '_original_numpy'], [case_prefix '_' view_str '_' 'ED.npy']));
     writeNPY(single(ES_phs), fullfile(pic_dir, [view_str '_original_numpy'], [case_prefix '_' view_str '_' 'ES.npy']));
@@ -600,7 +604,8 @@ function process_one_sax_view(pic_dir, case_prefix, ED, ES, dst_dir, gt_sax_all,
         end
 
         if(plot_flag)
-            figure; imagescn(permute(gt_sax_norm, [2 1 3 4]), [], [], [8], 4);
+%             figure; imagescn(permute(gt_sax_norm, [2 1 3 4]), [], [], [8], 4);
+            figure; imagescn(gt_sax_norm, [], [], [8], 4);
         end
     catch
         return
@@ -629,21 +634,22 @@ function process_one_sax_view(pic_dir, case_prefix, ED, ES, dst_dir, gt_sax_all,
     data_dst = Matlab_gt_resize_2D_image(double(gt_sax_norm), new_RO, new_E1, 5);
 
     if(plot_flag)
-        figure; imagescn(permute(data_dst, [2 1 3 4]), [], [], [8], 4);
+%         figure; imagescn(permute(data_dst, [2 1 3 4]), [], [], [8], 4);
+        figure; imagescn(data_dst, [], [], [8], 4);
     end
 
-    gt_sax_all = permute(gt_sax_all, [2 1 4 3]);
-    gt_sax_norm = permute(gt_sax_norm, [2 1 4 3]);
+%     gt_sax_all = permute(gt_sax_all, [2 1 4 3]);
+%     gt_sax_norm = permute(gt_sax_norm, [2 1 4 3]);
 
-    data = permute(data, [2 1 4 3]);
-    size(data)
-    data_dst = permute(data_dst, [2 1 4 3]);
-    size(data_dst)
+%     data = permute(data, [2 1 4 3]);
+%     size(data)
+%     data_dst = permute(data_dst, [2 1 4 3]);
+%     size(data_dst)
 
     RO = size(data_dst,1);
     E1 = size(data_dst,2);
-    PHS = size(data_dst,3);
-    SLC = size(data_dst, 4);
+    PHS = size(data_dst,4);
+    SLC = size(data_dst, 3);
 
 %         [mask, ro_s, ro_e, e1_s, e1_e, h_mask] = detect_heart_region_cine_roi(data_dst, 0.95, NN_RO, NN_E1, use_moco, regularization_hilbert_strength);
 % 
@@ -681,41 +687,43 @@ function process_one_sax_view(pic_dir, case_prefix, ED, ES, dst_dir, gt_sax_all,
 
     save(fullfile(dst_dir_sax, 'attributes'), 'attribs');
     
-    ED_phs = squeeze(data_dst(:,:,ED,:));
-    ES_phs = squeeze(data_dst(:,:,ES,:));
+    ED_phs = squeeze(data_dst(:,:,:,ED));
+    ES_phs = squeeze(data_dst(:,:,:,ES));
 
+    r = 1.0/0.7;
+    
     for slc=1:SLC
         im = ED_phs(:,:,slc);
-        imwrite(uint8(255*im/max(im(:))), fullfile(dst_dir_sax, [case_prefix '_sax_' 'ED_' num2str(slc) '.jpg']), 'jpg');
+        imwrite(uint8(255*r*im/max(im(:))), fullfile(dst_dir_sax, [case_prefix '_sax_' 'ED_' num2str(slc) '.jpg']), 'jpg');
         im = ES_phs(:,:,slc);
-        imwrite(uint8(255*im/max(im(:))), fullfile(dst_dir_sax, [case_prefix '_sax_' 'ES_' num2str(slc) '.jpg']), 'jpg');
+        imwrite(uint8(255*r*im/max(im(:))), fullfile(dst_dir_sax, [case_prefix '_sax_' 'ES_' num2str(slc) '.jpg']), 'jpg');
     end
 
     for slc=1:SLC
         im = ED_phs(:,:,slc);
-        imwrite(uint8(255*im/max(im(:))), fullfile(pic_dir, 'sax', [case_prefix '_sax_' 'ED_' num2str(slc) '.jpg']), 'jpg');
+        imwrite(uint8(255*r*im/max(im(:))), fullfile(pic_dir, 'sax', [case_prefix '_sax_' 'ED_' num2str(slc) '.jpg']), 'jpg');
         im = ES_phs(:,:,slc);
-        imwrite(uint8(255*im/max(im(:))), fullfile(pic_dir, 'sax', [case_prefix '_sax_' 'ES_' num2str(slc) '.jpg']), 'jpg');
+        imwrite(uint8(255*r*im/max(im(:))), fullfile(pic_dir, 'sax', [case_prefix '_sax_' 'ES_' num2str(slc) '.jpg']), 'jpg');
 
         writeNPY(single(ED_phs(:,:,slc)), fullfile(pic_dir, 'sax_numpy', [case_prefix '_sax_' 'ED_' num2str(slc) '.npy']));
         writeNPY(single(ES_phs(:,:,slc)), fullfile(pic_dir, 'sax_numpy', [case_prefix '_sax_' 'ES_' num2str(slc) '.npy']));
     end
 
-    ED_phs = squeeze(data(:,:,ED,:));
-    ES_phs = squeeze(data(:,:,ES,:));
+    ED_phs = squeeze(data(:,:,:,ED));
+    ES_phs = squeeze(data(:,:,:,ES));
 
     for slc=1:SLC
         im = ED_phs(:,:,slc);
-        imwrite(uint8(255*im/max(im(:))), fullfile(dst_dir_sax, [case_prefix '_sax_original_' 'ED_' num2str(slc) '.jpg']), 'jpg');
+        imwrite(uint8(255*r*im/max(im(:))), fullfile(dst_dir_sax, [case_prefix '_sax_original_' 'ED_' num2str(slc) '.jpg']), 'jpg');
         im = ES_phs(:,:,slc);
-        imwrite(uint8(255*im/max(im(:))), fullfile(dst_dir_sax, [case_prefix '_sax_original_' 'ES_' num2str(slc) '.jpg']), 'jpg');
+        imwrite(uint8(255*r*im/max(im(:))), fullfile(dst_dir_sax, [case_prefix '_sax_original_' 'ES_' num2str(slc) '.jpg']), 'jpg');
     end
 
     for slc=1:SLC
         im = ED_phs(:,:,slc);
-        imwrite(uint8(255*im/max(im(:))), fullfile(pic_dir, 'sax_original', [case_prefix '_sax_' 'ED_' num2str(slc) '.jpg']), 'jpg');
+        imwrite(uint8(255*r*im/max(im(:))), fullfile(pic_dir, 'sax_original', [case_prefix '_sax_' 'ED_' num2str(slc) '.jpg']), 'jpg');
         im = ES_phs(:,:,slc);
-        imwrite(uint8(255*im/max(im(:))), fullfile(pic_dir, 'sax_original', [case_prefix '_sax_' 'ES_' num2str(slc) '.jpg']), 'jpg');
+        imwrite(uint8(255*r*im/max(im(:))), fullfile(pic_dir, 'sax_original', [case_prefix '_sax_' 'ES_' num2str(slc) '.jpg']), 'jpg');
 
         writeNPY(single(ED_phs(:,:,slc)), fullfile(pic_dir, 'sax_original_numpy', [case_prefix '_sax_' 'ED_' num2str(slc) '.npy']));
         writeNPY(single(ES_phs(:,:,slc)), fullfile(pic_dir, 'sax_original_numpy', [case_prefix '_sax_' 'ES_' num2str(slc) '.npy']));
@@ -912,8 +920,8 @@ function process_one_view_gmap(pic_dir, case_prefix, dst_dir, gt_sax_all, gt_h_s
     end
     
     data = Matlab_gt_resize_2D_image(double(gt_sax_all), new_RO, new_E1, 5);
-    data = permute(data, [2 1 4 3]);
-    gt_sax_all = permute(gt_sax_all, [2 1 4 3]);
+%     data = permute(data, [2 1 4 3]);
+%     gt_sax_all = permute(gt_sax_all, [2 1 4 3]);
     size(data)
 
     writeNPY(single(data), fullfile(dst_dir_sax, 'gmap.npy'));

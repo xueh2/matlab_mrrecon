@@ -32,6 +32,6 @@ dos(command, '-echo');
 
 disp(['target_dir = ' target_dir]);
 disp(['filename = ' filename]);
-CopyGadgetronInstallersAll(target_dir, filename, '4.1.0');
+CopyGadgetronInstallersAll(target_dir, filename, '4.2.0');
 
 timeUsed = toc;
