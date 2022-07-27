@@ -40,7 +40,7 @@ elseif(~isempty(strfind(xmlString, 'RT_Cine')))
     %configName = 'Generic_RTCine_MSliceGroup_LAX_AI_istore.xml';  
     configName = 'Generic_RTCine_PInterp_Fil_ECG_CMR_View_AI_dstore.xml';
 elseif(~isempty(strfind(xmlString, 'T1SR_Mapping_SASHA_HC_T1T2')))
-    configName = 'SASHA-HC_grappa_moco_AVE_AI_CMR_View_PSIR_dstore_OFFLINE.xml';
+    configName = 'SASHA-HC_grappa_CNNT_moco_AVE_AI_CMR_View_PSIR_OFFLINE.xml';
     %configName = 'SASHA-HC_ANTS_AI_CMR_View_PSIR_dstore_OFFLINE.xml';
     % configName =
     % 'SASHA-HC_grappa_AVE_mapping_CMR_View_dstore_OFFLINE.xml'; % disables

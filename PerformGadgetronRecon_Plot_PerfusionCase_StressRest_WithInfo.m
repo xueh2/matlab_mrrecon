@@ -461,7 +461,20 @@ visible_flag = 'on';
                 saveas(h_visf_rest(s), figName, 'fig');
             end
         end
-            
+           
+        figName = fullfile(figDir, [resDir '_Stress_CoMOCO' '.fig']);
+        moco_pd_stress = cat(3, PD_stress, moco_stress);
+        ss = moco_pd_stress(:,:,[1 4 round(NN/2) NN],:);
+        h = figure('visible', visible_flag, 'Name',[ resDir '_Stress SR-PD CoMOCO'],'NumberTitle','off'); imagescn(ss, [], [slc 4], scalingFactor);
+        saveas(h, figName, 'fig');
+        
+        figName = fullfile(figDir, [resDir '_Rest_CoMOCO' '.fig']);
+        moco_pd_rest = cat(3, PD_rest, moco_rest);
+        ss = moco_pd_rest(:,:,[1 4 round(NN/2) NN],:);
+        h = figure('visible', visible_flag, 'Name',[ resDir '_Rest SR-PD CoMOCO'],'NumberTitle','off'); imagescn(ss, [], [slc 4], scalingFactor);
+        saveas(h, figName, 'fig');
+
+           
         %% ------------------------------------------------    
         if(~different_image_size)    
             try

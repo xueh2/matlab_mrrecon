@@ -309,7 +309,7 @@ for n=1:num
         end
     else
         try
-            if(finfo.bytes<10*1024*1024)
+            if(finfo.bytes<5*1024*1024)
                 disp(['File size too small - ' num2str(n) ' - ' name]);
     %             cd(dataDir)
                 ignored = [ignored; {n, name, finfo.bytes/1024}];
