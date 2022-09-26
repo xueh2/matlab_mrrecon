@@ -35,7 +35,7 @@ xmlString = name2(1:ind(end-3)-1);
 configName = [];
 if(~isempty(strfind(xmlString, 'ISMRMRD_Noise_dependency')))
     configName = 'default_measurement_dependencies.xml';
-
+    configName = 'default_measurement_dependencies_Noise_CoilSens_SCC.xml';
 elseif(~isempty(strfind(xmlString, 'RT_Cine')))
     %configName = 'Generic_RTCine_MSliceGroup_LAX_AI_istore.xml';  
     configName = 'Generic_RTCine_PInterp_Fil_ECG_CMR_View_AI_dstore.xml';
@@ -110,7 +110,7 @@ elseif(~isempty(strfind(xmlString, 'Retro_Lin_Cine')))
 %     configName = 'Generic_2DT_RetroGated_Cine_ECG_dstore.xml';  
     configName = 'GTPrep_2DT_RetroCine_CMR_View_AI_analysis.xml';  
     configName = 'GTPrep_2DT_RetroCine_CMR_View_GLS_AI_analysis_dstore.xml';  
-    
+    configName = 'GTPrep_2DT_RetroCine_SCC_GLS_Seg_AI_dstore.xml';
 elseif(~isempty(strfind(xmlString, 'RT_Cine_LIN')))
 %     configName = 'Generic_RTCine_DeepGrappaOne.xml';            
     %configName = 'Generic_RTCine_PInterp_Fil_ECG_CMR_View_AI_dstore.xml'; 
