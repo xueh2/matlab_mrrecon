@@ -1,6 +1,6 @@
-function timeUsed = run_gt_recon_case(dataName, configName, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml, UTDir)
+function timeUsed = run_gt_recon_case(dataName, configName, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml, UTDir, debug_folder)
 % run the gt recon for a case
-% timeUsed = run_gt_recon_case(dataName, configName, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml, UTDir)
+% timeUsed = run_gt_recon_case(dataName, configName, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml, UTDir, debug_folder)
 
 if nargin<6
     res_suffix = [];
@@ -22,8 +22,12 @@ if nargin<10
     paraXml = [];
 end
 
-if nargin<11
+if nargin<11 | isempty(UTDir)
     UTDir = getenv('GTPLUS_UT_DIR')
+end
+
+if nargin<12
+    debug_folder = [];
 end
 
 OutputFormat = getenv('OutputFormat');
@@ -89,7 +93,7 @@ for ii=1:num
             delete(fullfile(resDir, '*.h5'));
         end
         
-        timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isNX20, isAdjScan, configName, resDir, xslFile, startRemoteGT, h5Only, remoteXml, compressionBit, paraXml);
+        timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isNX20, isAdjScan, configName, resDir, xslFile, startRemoteGT, h5Only, remoteXml, compressionBit, paraXml, debug_folder);
         disp(resDir)
     end    
 end

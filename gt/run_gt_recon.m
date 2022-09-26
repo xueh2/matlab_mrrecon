@@ -1,5 +1,5 @@
-function timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isNX20, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit, paraXml)
-% timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isNX20, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit, paraXml)
+function timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isNX20, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit, paraXml, debug_folder)
+% timeUsed = run_gt_recon(folderDir, dataName, h5Name, deleteh5, isVD, isVD11, isNX, isNX20, isAdjScan, configName, resDir, styleSheet, startRemoteGT, h5Only, remoteXml, compressionBit, paraXml, debug_folder)
 
 % siemens to hdf5
 
@@ -143,6 +143,11 @@ if ( isVD | isNX | isNX20 )
         command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a ' GT_HOST ' -p ' GT_PORT ' -F ' OutputFormat ' -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
         command
         tic; dos(command); timeUsed = toc;
+        
+        if(~isempty(debug_folder))
+            mkdir(fullfile(resDir, 'DebugOutput'));
+            movefile(fullfile(debug_folder, '*.*'), fullfile(resDir, 'DebugOutput'));
+        end
     else
 
         if(h5Only)
@@ -159,6 +164,14 @@ if ( isVD | isNX | isNX20 )
             command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a ' GT_HOST ' -p ' GT_PORT ' -F ' OutputFormat ' -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]                           
             command
             tic; dos(command); timeUsed = toc;
+            
+            if(~isempty(debug_folder))
+                try
+                    mkdir(fullfile(resDir, 'DebugOutput'));
+                    movefile(fullfile(debug_folder, '*.*'), fullfile(resDir, 'DebugOutput'));
+                catch
+                end
+            end
         else
             hasAdj = 1;
             if(deleteh5)
@@ -205,11 +218,11 @@ if ( isVD | isNX | isNX20 )
                     if ( ~isFileExist('AdjCoilSens.h5') || deleteh5 )
                         delete('AdjCoilSens.h5');
                         delete('*.*');
-                        command = ['siemens_to_ismrmrd -f ' dataName ' -o AdjCoilSens.h5 --user-map ' schema_dir '/IsmrmrdParameterMap_Siemens.xml --user-stylesheet ' schema_dir '/' noise_xsl ' -z 1 --studyDate ' studyDate]
+                        command = ['siemens_to_ismrmrd -f ' dataName ' -o AdjCoilSens.h5 --skipSyncData --user-map ' schema_dir '/IsmrmrdParameterMap_Siemens.xml --user-stylesheet ' schema_dir '/' noise_xsl ' -z 1 --studyDate ' studyDate]
                         dos(command, '-echo');
                     end
 
-                    command = ['gadgetron_ismrmrd_client -f AdjCoilSens.h5 -c ' dependency_xml ' -a ' GT_HOST ' -p ' GT_PORT]
+                    command = ['gadgetron_ismrmrd_client -f AdjCoilSens.h5  -c ' dependency_xml ' -a ' GT_HOST ' -p ' GT_PORT]
                     dos(command, '-echo');
                 end
             end
@@ -223,11 +236,17 @@ if ( isVD | isNX | isNX20 )
                     if(flashRef)
                         command = [command ' -F'];
                     end
+                    if(isNX)
+                        command = [command ' --skipSyncData'];
+                    end
                     dos(command, '-echo');
 
                     command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 3 --studyDate ' studyDate]
                     if(flashRef)
                         command = [command ' -F'];
+                    end
+                    if(isNX)
+                        command = [command ' --skipSyncData'];
                     end
                     dos(command, '-echo');
                     
@@ -236,11 +255,17 @@ if ( isVD | isNX | isNX20 )
                         if(flashRef)
                             command = [command ' -F'];
                         end
+                        if(isNX)
+                            command = [command ' --skipSyncData'];
+                        end
                         dos(command, '-echo');
 
                         command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 2 --studyDate ' studyDate]
                         if(flashRef)
                             command = [command ' -F'];
+                        end
+                        if(isNX)
+                            command = [command ' --skipSyncData'];
                         end
                         dos(command, '-echo');
                     end                    
@@ -249,11 +274,17 @@ if ( isVD | isNX | isNX20 )
                     if(flashRef)
                         command = [command ' -F'];
                     end
+                    if(isNX)
+                        command = [command ' --skipSyncData'];
+                    end
                     dos(command, '-echo');
 
                     command = ['siemens_to_ismrmrd -f  ' dataName ' -o ' h5Name ' --user-map ' xmlUsed ' --user-stylesheet ' styleSheetUsed ' -z 1 --studyDate ' studyDate]
                     if(flashRef)
                         command = [command ' -F'];
+                    end
+                    if(isNX)
+                        command = [command ' --skipSyncData'];
                     end
                     dos(command, '-echo');
                 end
@@ -262,6 +293,11 @@ if ( isVD | isNX | isNX20 )
             command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a ' GT_HOST ' -p ' GT_PORT ' -F ' OutputFormat ' -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
             command
             tic; dos(command); timeUsed = toc;
+            
+            if(~isempty(debug_folder))
+                mkdir(fullfile(resDir, 'DebugOutput'));
+                movefile(fullfile(debug_folder, '*.*'), fullfile(resDir, 'DebugOutput'));
+            end
         end
     end
 else  
@@ -287,6 +323,11 @@ else
         command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a ' GT_HOST ' -p ' GT_PORT ' -F ' OutputFormat ' -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
         command
         tic; dos(command); timeUsed = toc;
+        
+        if(~isempty(debug_folder))
+            mkdir(fullfile(resDir, 'DebugOutput'));
+            movefile(fullfile(debug_folder, '*.*'), fullfile(resDir, 'DebugOutput'));
+        end
     end
 end
 

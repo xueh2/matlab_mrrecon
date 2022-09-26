@@ -1,5 +1,5 @@
 
-function timeUsed = performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix, paraXml);
+function timeUsed = performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix, paraXml, debug_folder);
 %% compare the unit test results with ground truth
 % performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix)
 % performUTValidation(UTCases, UTCollectRef, GT_HOST, GT_PORT, caseNum)
@@ -76,6 +76,10 @@ if nargin < 13
     paraXml = [];
 end
 
+if nargin < 14
+    debug_folder = [];
+end
+
 if(strcmp(GT_HOST, 'gt1'))
     GT_HOST = '137.187.135.169';
 end
@@ -137,7 +141,8 @@ for ii=startCase:endCase
         h5Only = 1;
     end
     
-    t = run_gt_recon_case(UTCases{ii, 2}, UTCases{ii, 4}, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml); % winopen(folderDir)
+    UT_case_Dir = [];
+    t = run_gt_recon_case(UTCases{ii, 2}, UTCases{ii, 4}, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml, UT_case_Dir, debug_folder); % winopen(folderDir)
     disp(['--> run time ' num2str(t) ' seconds ... ']);
     
     if(isAdj) 
