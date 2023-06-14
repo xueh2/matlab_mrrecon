@@ -414,11 +414,11 @@ for n=1:num
     if(copy_debug_output | isPerf)
         if(~is_remote_computer)
             if(isunix())
-                command = ['sudo rm -rf ' debugFolder '/*'];
+                command = ['rm -rf ' debugFolder '/*'];
                 dos(command, '-echo');
             end
         else
-            command = make_unix_command(user, gt_host, ['sudo rm -rf ' debugFolder '/*.*']);
+            command = make_unix_command(user, gt_host, ['rm -rf ' debugFolder '/*.*']);
             dos(command, '-echo');
         end
     end
@@ -447,7 +447,7 @@ for n=1:num
 
                     % fast method for deleting directory with large number of files
                     if ~exist('~/Debug/emptydir'); mkdir('~/Debug/emptydir'); end
-                    command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' debugFolder,'/'];     
+                    command = ['rsync -a --delete ~/Debug/emptydir/ ' debugFolder,'/'];     
                     tic; dos(command, '-echo'); timeUsed = toc;
                     disp(['////////////////////////////////////////////////////////////////'])
                     disp(['  Time to delete debugFolder on gadgetron computer: ', num2str(timeUsed)])
