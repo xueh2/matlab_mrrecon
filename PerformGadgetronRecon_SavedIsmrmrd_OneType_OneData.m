@@ -417,9 +417,9 @@ for n=1:num
     if(delete_old_res)
         if ~exist('~/Debug/emptydir'); mkdir('~/Debug/emptydir'); end
         disp('delete DebugOutput folder before processing:')
-        command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' dstDir,'/DebugOutput/'];     
+        command = ['rsync -a --delete ~/Debug/emptydir/ ' dstDir,'/DebugOutput/'];     
         dos(command, '-echo');   
-        command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' dstDir,'/'];     
+        command = [' rsync -a --delete ~/Debug/emptydir/ ' dstDir,'/'];     
         %dos(command, '-echo');   
         tic; dos(command, '-echo'); timeUsed = toc;
         disp(['////////////////////////////////////////////////////////////////'])
@@ -428,7 +428,7 @@ for n=1:num
         % delete dicoms
         if exist([dstDir,'_dicom']);
             disp('delete dicoms before processing:')
-            command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' dstDir,'_dicom/'];     
+            command = ['rsync -a --delete ~/Debug/emptydir/ ' dstDir,'_dicom/'];     
             %dos(command, '-echo'); 
             tic; dos(command, '-echo'); timeUsed = toc;
             disp(['////////////////////////////////////////////////////////////////'])
@@ -517,7 +517,7 @@ for n=1:num
     if(copy_debug_output | isPerf)
         if(~is_remote_computer)
             if(isunix())
-                command = ['sudo rm -rf ' debugFolder '/*.*'];
+                command = ['rm -rf ' debugFolder '/*.*'];
                 dos(command, '-echo');
             end
         end
@@ -548,12 +548,12 @@ for n=1:num
                 disp(['  Time to copying debugFolder to Results folder: ', num2str(timeUsed)])
                 disp(['////////////////////////////////////////////////////////////////'])
                 
-                %command = ['sudo rm -rf ' debugFolder '/*.*'];
+                %command = ['rm -rf ' debugFolder '/*.*'];
                 %dos(command, '-echo');
                 
                 % fast method for deleting directory with large number of files
                 if ~exist('~/Debug/emptydir'); mkdir('~/Debug/emptydir'); end
-                command = ['sudo rsync -a --delete ~/Debug/emptydir/ ' debugFolder,'/'];     
+                command = ['rsync -a --delete ~/Debug/emptydir/ ' debugFolder,'/'];     
                 tic; dos(command, '-echo'); timeUsed = toc;
                 disp(['////////////////////////////////////////////////////////////////'])
                 disp(['  Time to delete debugFolder on gadgetron computer: ', num2str(timeUsed)])

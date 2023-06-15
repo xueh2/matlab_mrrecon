@@ -1,5 +1,5 @@
-function prepare_ai_denoising_training_perfusion(dataDir, resDir, aiDir, files_all, im_series_num, gfactor_series_num)
-% prepare_ai_denoising_training_perfusion(dataDir, resDir, aiDir, files_all, im_series_num, gfactor_series_num)
+function prepare_ai_denoising_training_perfusion(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num)
+% prepare_ai_denoising_training_perfusion(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num)
 
 mkdir(aiDir)
 
@@ -16,13 +16,23 @@ accelFactor = [2 3 4 5];
 for n = 1:size(files_all,1)
     
     fname = files_all{n, 1};
-    fname = fname{1};
+    if iscell(fname)
+        fname = fname{1};
+    end
     [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(fname);
     
     h5_name = fullfile(dataDir, study_dates, [fname '.h5']);
     
     case_dir = fullfile(resDir, study_dates, fname);    
     dst_dir = fullfile(aiDir, study_dates, fname);
+
+    case_dir_debug = case_dir;
+    if(~isempty(resDir_local))
+        case_dir_debug = fullfile(resDir_local, study_dates, fname);
+        if(~exist(case_dir_debug))
+            case_dir_debug = case_dir;
+        end
+    end
     
     if(exist(case_dir))        
     
@@ -56,7 +66,7 @@ for n = 1:size(files_all,1)
             writeNPY(single(gfactor), fullfile(dst_dir, 'gfactor.npy'));
             save(fullfile(dst_dir, 'headers.mat'), 'im_header', 'gmap_header');
             
-            debug_dir = fullfile(case_dir, 'DebugOutput');
+            debug_dir = fullfile(case_dir_debug, 'DebugOutput');
             dset = ismrmrd.Dataset(h5_name, 'dataset');
             hdr = ismrmrd.xml.deserialize(dset.readxml);
             dset.close();
@@ -122,10 +132,10 @@ for n = 1:size(files_all,1)
             end
 
             if(numel(size(im))==3)
-                h = figure; imagescn(cat(4, im, gfactor), [], [1 2], [12], 3);
+                h = figure('doublebuffer', 'off', 'visible', 'off'); imagescn(cat(4, im, gfactor), [], [1 2], [12], 3);
             else
                 SLC = size(im, 3);
-                h = figure; imagescn(cat(3, im, gfactor), [], [2 SLC], [24], 4);
+                h = figure('doublebuffer', 'off', 'visible', 'off'); imagescn(cat(3, im, gfactor), [], [2 SLC], [24], 4);
             end
             saveas(h, fullfile(pic_perf_dir, [fname '.jpg']), 'jpg');
 
@@ -136,7 +146,7 @@ for n = 1:size(files_all,1)
                 d = zeros(RO, E1, numel(accelFactor)+1,SLC);
                 d(:,:,1,:) = im_slices;
                 d(:,:,2:end,:) = gmap_slices;
-                h = figure; imagescn(d, [], [SLC, 5], [14]);
+                h = figure('doublebuffer', 'off', 'visible', 'off'); imagescn(d, [], [SLC, 5], [14]);
                 saveas(h, fullfile(pic_gmap_dir, [fname '.jpg']), 'jpg');
             catch
             end
