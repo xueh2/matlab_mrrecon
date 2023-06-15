@@ -149,12 +149,15 @@ for n = 1:size(files_all,1)
         writeNPY(single(real(im)), fullfile(dst_dir, 'im_real.npy'));
         writeNPY(single(imag(im)), fullfile(dst_dir, 'im_imag.npy'));
         writeNPY(single(abs(im)), fullfile(dst_dir, 'im.npy'));
+        niftiwrite(abs(im), fullfile(dst_dir, 'im.nii'));
         writeNPY(single(gfactor), fullfile(dst_dir, 'gfactor.npy'));
+        niftiwrite(single(gfactor), fullfile(dst_dir, 'gfactor.nii'));
         
         writeNPY(single(real(pd)), fullfile(dst_dir, 'pd_real.npy'));
         writeNPY(single(imag(pd)), fullfile(dst_dir, 'pd_imag.npy'));
         writeNPY(single(abs(pd)), fullfile(dst_dir, 'pd.npy'));
-        
+        niftiwrite(abs(pd), fullfile(dst_dir, 'pd.nii'));
+
         writeNPY(single(real(Dx)), fullfile(dst_dir, 'Dx.npy'));
         writeNPY(single(real(Dy)), fullfile(dst_dir, 'Dy.npy'));
         

@@ -130,12 +130,15 @@ for n = 1:size(files_all,1)
 
         if(isreal(im))
             writeNPY(single(im), fullfile(dst_dir, 'im.npy'));
+            niftiwrite(single(im), fullfile(dst_dir, 'im.nii'));
         else
             writeNPY(single(real(im)), fullfile(dst_dir, 'im_real.npy'));
             writeNPY(single(imag(im)), fullfile(dst_dir, 'im_imag.npy'));
             writeNPY(single(abs(im)), fullfile(dst_dir, 'im.npy'));
+            niftiwrite(abs(im), fullfile(dst_dir, 'im.nii'));
         end
         writeNPY(single(gfactor), fullfile(dst_dir, 'gfactor.npy'));
+        niftiwrite(single(gfactor), fullfile(dst_dir, 'gfactor.nii'));
         save(fullfile(dst_dir, 'headers.mat'), 'im_header', 'gmap_header');
         
         try
