@@ -13,7 +13,7 @@ mkdir(pic_gmap_dir)
 
 accelFactor = [2 3 4 5];
 
-for n = 1:size(files_all,1)
+for n = 1:size(files_all,1)     
     
     fname = files_all{n, 1};
     if(iscell(fname))
