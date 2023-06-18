@@ -40,7 +40,7 @@ for n = 1:size(files_all,1)
     
     if(exist(case_dir))        
     
-        disp(['--> process ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' files_all{n}]);
+        disp(['--> process ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' dst_dir]);
         
         try
             debug_dir = fullfile(case_dir_debug, 'DebugOutput');
@@ -200,7 +200,7 @@ for n = 1:size(files_all,1)
                     acs_dst = squeeze(acs_dst);
     
                     if size(acs_src, 1) < size(acs_src, 2)
-                        s = permute(acs_src, [2 1 3]);
+                        acs_src = permute(acs_src, [2 1 3]);
                         acs_dst = permute(acs_dst, [2 1 3]);
                     end
 
@@ -209,7 +209,7 @@ for n = 1:size(files_all,1)
                     
                     if size(coil_map, 1)==size(im, 2) & size(coil_map, 2) == size(im, 1)
                         coil_map = permute(coil_map, [2 1 3]);
-                    end
+                    end 
 
                     RO = size(coil_map, 1);
                     E1 = size(coil_map, 2);
@@ -219,7 +219,7 @@ for n = 1:size(files_all,1)
                     clear gmap
                     for af=1:numel(accelFactor)
                         kRO = 5;
-                        kE1 = 4;
+                        kE1 = 4;    
                         fitItself = 1;
                         thres = 5e-4;
                         

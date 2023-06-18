@@ -9,5 +9,5 @@ try
 catch
     data = analyze75read([baseFileName '.hdr']);
 end
-size(data)
+size(data);
 
