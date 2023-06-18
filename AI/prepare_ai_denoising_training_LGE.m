@@ -300,7 +300,7 @@ for n = 1:size(files_all,1)
                     gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
     
                     writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
-                    niftiwrite(abs(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.nii']));
+                    niftiwrite(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.nii']));
                     gmap_slices(:,:,:,slc) = gmap;
                 end
             end
