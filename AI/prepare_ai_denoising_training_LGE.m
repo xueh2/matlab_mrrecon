@@ -11,7 +11,7 @@ mkdir(pic_data_dir)
 pic_gmap_dir = fullfile(pic_dir, 'gmap');
 mkdir(pic_gmap_dir)
 
-accelFactor = [2 3 4 5];
+accelFactor = [2 3 4 5 6 7 8];
 
 for n = 1:size(files_all,1)     
     
@@ -202,7 +202,7 @@ for n = 1:size(files_all,1)
                         gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
     
                         writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
-    
+                        niftiwrite(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.nii']));
                         gmap_slices(:,:,:,slc) = gmap;
                     end
                 else
@@ -245,7 +245,7 @@ for n = 1:size(files_all,1)
                         gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
     
                         writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
-    
+                        niftiwrite(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.nii']));
                         gmap_slices(:,:,:,slc) = gmap;
                     end
                 end
