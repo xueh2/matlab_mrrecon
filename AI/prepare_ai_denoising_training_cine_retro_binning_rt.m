@@ -11,7 +11,7 @@ mkdir(pic_data_dir)
 pic_gmap_dir = fullfile(pic_dir, 'gmap');
 mkdir(pic_gmap_dir)
 
-accelFactor = [2 3 4 5];
+accelFactor = [2 3 4 5 6];
 
 for n = 1:size(files_all,1)
     
@@ -42,10 +42,6 @@ for n = 1:size(files_all,1)
     
         disp(['--> process ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' files_all{n}]);
         
-        if(check_processed & exist(fullfile(dst_dir, 'gmap_slc_1.nii')))
-            continue;
-        end
-        
         try
             debug_dir = fullfile(case_dir_debug, 'DebugOutput');
             dset = ismrmrd.Dataset(h5_name, 'dataset');
@@ -55,9 +51,13 @@ for n = 1:size(files_all,1)
             continue
         end
 
-        gmap_slices = [];
-
         SLC = hdr.encoding(1).encodingLimits.slice.maximum + 1;
+
+        if(check_processed & exist(fullfile(dst_dir, ['gmap_slc_' num2str(SLC) '.nii'])))
+            continue;
+        end
+        
+        gmap_slices = [];        
                 
 %         if(exist(fullfile(dst_dir, 'im_real.npy')))
 %             im_real = readNPY(fullfile(dst_dir, 'im_real.npy'));

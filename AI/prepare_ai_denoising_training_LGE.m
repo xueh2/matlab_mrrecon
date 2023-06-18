@@ -33,89 +33,29 @@ for n = 1:size(files_all,1)
     end
     dst_dir = fullfile(aiDir, study_dates, fname);
     
-%     [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(files_all{n});
-%     
-%     case_dir = fullfile(resDir, study_dates, files_all{n});    
-%     dst_dir = fullfile(aiDir, study_dates, files_all{n});
-    
+  
     if(exist(case_dir))        
     
         disp(['--> process ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' files_all{n}]);
         
-        if(check_processed & exist(fullfile(dst_dir, 'gmap_slc_1.nii')))
+        try
+            debug_dir = fullfile(case_dir_debug, 'DebugOutput');
+            dset = ismrmrd.Dataset(h5_name, 'dataset');
+            hdr = ismrmrd.xml.deserialize(dset.readxml);
+            dset.close();
+        catch
+            continue
+        end
+
+        SLC = hdr.encoding(1).encodingLimits.slice.maximum + 1;
+
+        if(check_processed & exist(fullfile(dst_dir, ['gmap_slc_' num2str(SLC) '.nii'])))
             continue;
         end
-        
-        debug_dir = fullfile(case_dir_debug, 'DebugOutput');
-        dset = ismrmrd.Dataset(h5_name, 'dataset');
-        hdr = ismrmrd.xml.deserialize(dset.readxml);
-        dset.close();
 
         gmap_slices = [];
 
-        SLC = hdr.encoding(1).encodingLimits.slice.maximum + 1;
-                
-%         if(exist(fullfile(dst_dir, 'im_real.npy')))
-%             im_real = readNPY(fullfile(dst_dir, 'im_real.npy'));
-%             im_imag = readNPY(fullfile(dst_dir, 'im_imag.npy'));
-%             im = complex(im_real, im_imag);
-%             gfactor = readNPY(fullfile(dst_dir, 'gfactor.npy'));
-%             im = abs(im);
-%         else
-%             try
-%                 [im, im_header, acq_time, physio_time] = readGTPlusExportImageSeries_Squeeze(case_dir, im_series_num, 1);
-%                 [gfactor, gmap_header, acq_time, physio_time] = readGTPlusExportImageSeries_Squeeze(case_dir, gfactor_series_num, 1);
-%             catch
-%                 continue;                
-%             end
-%             im = squeeze(im);
-%             gfactor = squeeze(gfactor);
-%             gfactor = abs(gfactor);
-% 
-%             mkdir(dst_dir);
-% 
-%             if(isreal(im))
-%                 writeNPY(single(im), fullfile(dst_dir, 'im.npy'));
-%             else
-%                 writeNPY(single(real(im)), fullfile(dst_dir, 'im_real.npy'));
-%                 writeNPY(single(imag(im)), fullfile(dst_dir, 'im_imag.npy'));
-%                 writeNPY(single(abs(complex(im_real, im_imag))), fullfile(dst_dir, 'im.npy'));
-%            end
-%             writeNPY(single(gfactor), fullfile(dst_dir, 'gfactor.npy'));
-%             save(fullfile(dst_dir, 'headers.mat'), 'im_header', 'gmap_header');
-%             
-%             im = abs(im);
-%         end
-%         
-%         im = uint8(255 * im / (0.5*max(im(:))) );
-%         
-%         if(numel(size(gfactor))==2)
-%             gfactor = repmat(gfactor, [1 1 size(im, 3)]);
-%         end
-%         
-%         if(numel(size(gfactor))==3 & numel(size(im))==4)
-%             gfactor = repmat(gfactor, [1 1 1 size(im, 4)]);
-%         end
-%         
-%         if(numel(size(im))==3)
-%             h = figure; imagescn(cat(4, im, gfactor), [], [1 2], [12], 3);
-%         else
-%             SLC = size(im, 3);
-%             h = figure; imagescn(cat(3, im, gfactor), [], [2 SLC], [24], 4);
-%         end
-%         saveas(h, fullfile(pic_dir, [files_all{n} '.jpg']), 'jpg');
-%         closeall
-
         try
-%             [im, im_header, acq_time, physio_time] = readGTPlusExportImageSeries_Squeeze(case_dir, im_series_num, 1);
-%             [gfactor, gmap_header, acq_time, physio_time] = readGTPlusExportImageSeries_Squeeze(case_dir, gfactor_series_num, 1);
-%             
-%             if(numel(size(im))==5)
-%                 im = im(:,:,:,:,1);
-%             end
-%             if(numel(size(gfactor))==4)
-%                 gfactor = gfactor(:,:,:,1);
-%             end
             
             % load moco + ave
             im = [];
@@ -180,13 +120,16 @@ for n = 1:size(files_all,1)
         writeNPY(single(imag(raw_im)), fullfile(dst_dir, 'raw_im_imag.npy'));
         writeNPY(single(abs(raw_im)), fullfile(dst_dir, 'raw_im.npy'));
         writeNPY(single(raw_gfactor), fullfile(dst_dir, 'raw_gfactor.npy'));
+        niftiwrite(single(abs(raw_im)), fullfile(dst_dir, 'raw_im.nii'));
+        niftiwrite(single(raw_gfactor), fullfile(dst_dir, 'raw_gfactor.nii'));
         
         raw_pd = raw_pd / 10.0;
 
         writeNPY(single(real(raw_pd)), fullfile(dst_dir, 'raw_pd_real.npy'));
         writeNPY(single(imag(raw_pd)), fullfile(dst_dir, 'raw_pd_imag.npy'));
         writeNPY(single(abs(raw_pd)), fullfile(dst_dir, 'raw_pd.npy'));
-        
+        niftiwrite(single(abs(raw_pd)), fullfile(dst_dir, 'raw_pd.nii'));
+
         % load mooc        
         moco_im = [];
         moco_pd = [];
@@ -201,11 +144,13 @@ for n = 1:size(files_all,1)
         writeNPY(single(real(moco_im)), fullfile(dst_dir, 'moco_im_real.npy'));
         writeNPY(single(imag(moco_im)), fullfile(dst_dir, 'moco_im_imag.npy'));
         writeNPY(single(abs(moco_im)), fullfile(dst_dir, 'moco_im.npy'));
-        
+        niftiwrite(single(abs(moco_im)), fullfile(dst_dir, 'moco_im.nii'));
+
         writeNPY(single(real(moco_pd)), fullfile(dst_dir, 'moco_pd_real.npy'));
         writeNPY(single(imag(moco_pd)), fullfile(dst_dir, 'moco_pd_imag.npy'));
         writeNPY(single(abs(moco_pd)), fullfile(dst_dir, 'moco_pd.npy'));
-            
+        niftiwrite(single(abs(moco_pd)), fullfile(dst_dir, 'moco_pd.nii'));
+
         try
             try
                 gmap_slices = [];

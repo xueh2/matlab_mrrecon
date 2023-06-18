@@ -1,4 +1,4 @@
-
+% 
 function [tUsed, ignored, noise_dat_processed] = PerformGadgetronRecon_SavedIsmrmrd_OneType_OneData_v2(dataDir, filename, ...
     gt_host, resDir, resDir_local, checkProcessed, delete_old_res, ...
     configName_preset, noise_dat_processed, gt_port, copy_debug_output, copy_dicom_output, pre_set_debug_folder)
@@ -457,7 +457,9 @@ for n=1:num
                     dst_dir = [resDir_local '/' study_dates '/' name '/DebugOutput'];
                     command = ['mkdir -p ' dst_dir]
                     dos(command, '-echo');
-                    command = ['mv -f ' debugFolder '/* ' dst_dir]
+                    command = ['mv -f ' debugFolder '/*.hdr ' dst_dir]
+                    tic; dos(command, '-echo'); timeUsed = toc;
+                    command = ['mv -f ' debugFolder '/*.img ' dst_dir]
                     tic; dos(command, '-echo'); timeUsed = toc;
                     disp(['////////////////////////////////////////////////////////////////'])
                     disp(['  Time to move debugFolder to Results folder: ', num2str(timeUsed)])
