@@ -59,57 +59,6 @@ for n = 1:size(files_all,1)
         
         gmap_slices = [];        
                 
-%         if(exist(fullfile(dst_dir, 'im_real.npy')))
-%             im_real = readNPY(fullfile(dst_dir, 'im_real.npy'));
-%             im_imag = readNPY(fullfile(dst_dir, 'im_imag.npy'));
-%             im = complex(im_real, im_imag);
-%             gfactor = readNPY(fullfile(dst_dir, 'gfactor.npy'));
-%             im = abs(im);
-%         else
-%             try
-%                 [im, im_header, acq_time, physio_time] = readGTPlusExportImageSeries_Squeeze(case_dir, im_series_num, 1);
-%                 [gfactor, gmap_header, acq_time, physio_time] = readGTPlusExportImageSeries_Squeeze(case_dir, gfactor_series_num, 1);
-%             catch
-%                 continue;                
-%             end
-%             im = squeeze(im);
-%             gfactor = squeeze(gfactor);
-%             gfactor = abs(gfactor);
-% 
-%             mkdir(dst_dir);
-% 
-%             if(isreal(im))
-%                 writeNPY(single(im), fullfile(dst_dir, 'im.npy'));
-%             else
-%                 writeNPY(single(real(im)), fullfile(dst_dir, 'im_real.npy'));
-%                 writeNPY(single(imag(im)), fullfile(dst_dir, 'im_imag.npy'));
-%                 writeNPY(single(abs(complex(im_real, im_imag))), fullfile(dst_dir, 'im.npy'));
-%            end
-%             writeNPY(single(gfactor), fullfile(dst_dir, 'gfactor.npy'));
-%             save(fullfile(dst_dir, 'headers.mat'), 'im_header', 'gmap_header');
-%             
-%             im = abs(im);
-%         end
-%         
-%         im = uint8(255 * im / (0.5*max(im(:))) );
-%         
-%         if(numel(size(gfactor))==2)
-%             gfactor = repmat(gfactor, [1 1 size(im, 3)]);
-%         end
-%         
-%         if(numel(size(gfactor))==3 & numel(size(im))==4)
-%             gfactor = repmat(gfactor, [1 1 1 size(im, 4)]);
-%         end
-%         
-%         if(numel(size(im))==3)
-%             h = figure; imagescn(cat(4, im, gfactor), [], [1 2], [12], 3);
-%         else
-%             SLC = size(im, 3);
-%             h = figure; imagescn(cat(3, im, gfactor), [], [2 SLC], [24], 4);
-%         end
-%         saveas(h, fullfile(pic_dir, [files_all{n} '.jpg']), 'jpg');
-%         closeall
-
         try
             [im, im_header, acq_time, physio_time] = readGTPlusExportImageSeries_Squeeze(case_dir, im_series_num, 1);
             [gfactor, gmap_header, acq_time, physio_time] = readGTPlusExportImageSeries_Squeeze(case_dir, gfactor_series_num, 1);
@@ -191,7 +140,7 @@ for n = 1:size(files_all,1)
                     gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
 
                     writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
-
+                    niftiwrite(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.nii']));
                     gmap_slices(:,:,:,slc) = gmap;
                 end
             else
@@ -234,7 +183,7 @@ for n = 1:size(files_all,1)
                     gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
 
                     writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
-
+                    niftiwrite(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.nii']));
                     gmap_slices(:,:,:,slc) = gmap;
                 end
             end
@@ -250,9 +199,18 @@ for n = 1:size(files_all,1)
                     acs_src = squeeze(acs_src);
                     acs_dst = squeeze(acs_dst);
     
+                    if size(acs_src, 1) < size(acs_src, 2)
+                        s = permute(acs_src, [2 1 3]);
+                        acs_dst = permute(acs_dst, [2 1 3]);
+                    end
+
                     coil_map = readGTPlusExportData(fullfile(debug_dir, ['coilMap_n_0s_' num2str(slc-1)]));
                     coil_map = squeeze(coil_map);
                     
+                    if size(coil_map, 1)==size(im, 2) & size(coil_map, 2) == size(im, 1)
+                        coil_map = permute(coil_map, [2 1 3]);
+                    end
+
                     RO = size(coil_map, 1);
                     E1 = size(coil_map, 2);
                     srcCHA = size(acs_src, 3);
@@ -277,7 +235,7 @@ for n = 1:size(files_all,1)
                     gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
     
                     writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
-    
+                    niftiwrite(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.nii']));
                     gmap_slices(:,:,:,slc) = gmap;
                 end
             catch
