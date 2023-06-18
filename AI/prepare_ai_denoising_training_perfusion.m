@@ -1,4 +1,4 @@
-function prepare_ai_denoising_training_perfusion(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num)
+function prepare_ai_denoising_training_perfusion(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num, check_processed)
 % prepare_ai_denoising_training_perfusion(dataDir, resDir, resDir_local, aiDir, files_all, im_series_num, gfactor_series_num)
 
 mkdir(aiDir)
@@ -11,7 +11,7 @@ mkdir(pic_perf_dir)
 pic_gmap_dir = fullfile(pic_dir, 'gmap');
 mkdir(pic_gmap_dir)
 
-accelFactor = [2 3 4 5];
+accelFactor = [2 3 4 5 6];
 
 for n = 1:size(files_all,1)
     
@@ -38,7 +38,7 @@ for n = 1:size(files_all,1)
     
         disp(['--> process ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' fname]);
         
-        if(exist(fullfile(pic_perf_dir, [fname '.jpg'])))
+        if(check_processed & exist(fullfile(dst_dir, 'gmap_slc_1.nii')))
             continue;
         end
         
@@ -115,7 +115,7 @@ for n = 1:size(files_all,1)
                     gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
 
                     writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
-
+                    niftiwrite(abs(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.nii']));
                     gmap_slices(:,:,:,slc) = gmap;
                 end
             catch

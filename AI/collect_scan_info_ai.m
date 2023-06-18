@@ -1,5 +1,5 @@
-function collect_scan_info_ai(dataDir, resDir, aiDir, files_all)
-% collect_scan_info_ai(dataDir, resDir, aiDir, files_all)
+function collect_scan_info_ai(dataDir, resDir, aiDir, files_all, check_processed)
+% collect_scan_info_ai(dataDir, resDir, aiDir, files_all, check_processed)
 
 for n = 1:size(files_all,1)
     
@@ -18,17 +18,22 @@ for n = 1:size(files_all,1)
     end
                      
     try
-        if (~exist(fullfile(dst_dir, 'ismrmrd_hdr.mat')))
+        if (check_processed & exist(fullfile(dst_dir, 'ismrmrd_hdr.mat')))
+            disp(['--> already processed -- ' files_all{n}]);
+        end
+
             dset = ismrmrd.Dataset(h5_name, 'dataset');
-            hdr = ismrmrd.xml.deserialize(dset.readxml);
+            hdr_str = dset.readxml;
+            hdr = ismrmrd.xml.deserialize(hdr_str);
             dset.close();
 
             disp(['--> ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' num2str(hdr.acquisitionSystemInformation.systemFieldStrength_T) ' -- ' hdr.measurementInformation.protocolName ' -- ' hdr.acquisitionSystemInformation.institutionName '--' files_all{n}]);
 
-            save(fullfile(dst_dir, 'ismrmrd_hdr.mat'), 'hdr');
-        else
-            disp(['--> already processed -- ' files_all{n}]);
-        end
+            systemFieldStrength_T = hdr.acquisitionSystemInformation.systemFieldStrength_T;
+            save(fullfile(dst_dir, 'ismrmrd_hdr.mat'), 'hdr', 'systemFieldStrength_T');
+            fid = fopen(fullfile(dst_dir, 'ismrmrd_hdr.txt'), 'w');
+            fwrite(fid, hdr_str);
+            fclose(fid);
     catch
         disp(['--> failed for ' files_all{n}]);
     end

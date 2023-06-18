@@ -42,7 +42,7 @@ for n = 1:size(files_all,1)
     
         disp(['--> process ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' files_all{n}]);
         
-        if(check_processed & exist(fullfile(pic_gmap_dir, [fname '.jpg'])))
+        if(check_processed & exist(fullfile(dst_dir, 'gmap_slc_1.nii')))
             continue;
         end
         
@@ -355,7 +355,7 @@ for n = 1:size(files_all,1)
                     gmap = Matlab_gt_resize_2D_image(gmap, size(im,1), size(im,2), 5);
     
                     writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
-    
+                    niftiwrite(abs(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.nii']));
                     gmap_slices(:,:,:,slc) = gmap;
                 end
             end
