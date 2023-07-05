@@ -109,8 +109,13 @@ for n=1:num
     if(isempty(strfind(name, 'Perfusion'))~=1)
         isPerf = 1;
     end
-          
-    [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+       
+    try
+        [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(name);
+    catch
+        disp(['error in parsing ' name])
+        continue;
+    end
     
 %     if(str2num(measurementID)>300000)
 %         continue;
@@ -237,6 +242,19 @@ for n=1:num
                     
                     if(numdcm==0)
                         goodStatus = 0;
+                    end
+                end
+
+                if goodStatus == 0
+                    try
+                        dstDir = fullfile(resDir, study_dates, name);
+                        [resfiles, numh5] = findFILE(dstDir, 'ref*.h5');
+                    catch
+                        numh5 = 0;
+                    end
+
+                    if(numh5>0)
+                        goodStatus = 1;
                     end
                 end
             end

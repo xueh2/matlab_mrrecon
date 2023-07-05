@@ -19,8 +19,14 @@ for n = 1:size(files_all,1)
     if iscell(fname)
         fname = fname{1};
     end
-    [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(fname);
-    
+
+    try
+        [configName, scannerID, patientID, studyID, measurementID, study_dates, study_year, study_month, study_day, study_time] = parseSavedISMRMRD(fname);
+    catch
+        disp(['error in ' fname])
+        continue
+    end
+
     h5_name = fullfile(dataDir, study_dates, [fname '.h5']);
     
     case_dir = fullfile(resDir, study_dates, fname);    
