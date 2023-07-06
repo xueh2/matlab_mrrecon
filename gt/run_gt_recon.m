@@ -62,11 +62,11 @@ else
 end
 
 if(isNX20)
-    styleSheetUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_NX.xsl'];
+    styleSheetUsed = [schema_dir '/wip_070_fire_IsmrmrdParameterMap_Siemens.xsl'];
 end
 
 if(isNX)
-    styleSheetUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_NX.xsl'];
+    styleSheetUsed = [schema_dir '/wip_070_fire_IsmrmrdParameterMap_Siemens.xsl'];
 else
     styleSheetUsed = [schema_dir '/IsmrmrdParameterMap_Siemens.xsl'];
 end
@@ -81,9 +81,9 @@ if( ~isempty(strfind(styleSheet, 'IsmrmrdParameterMap_Siemens_EPI_FLASHREF')) )
 end
 
 if(isNX20)
-    xmlUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_NX20A.xml'];
+    xmlUsed = [schema_dir '/wip_070_fire_IsmrmrdParameterMap_Siemens.xml'];
 elseif(isNX)
-    xmlUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_Perfusion_NX.xml'];
+    xmlUsed = [schema_dir '/wip_070_fire_IsmrmrdParameterMap_Siemens.xml'];
 else
     xmlUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_Perfusion.xml'];
 end
@@ -95,7 +95,7 @@ if(~isempty(paraXml))
 end
 
 % dependency_xml = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml';
-dependency_xml = 'default_measurement_dependencies.xml';
+dependency_xml = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml';
 
 % if VD, run the dependent scan
 
@@ -218,7 +218,7 @@ if ( isVD | isNX | isNX20 )
                     if ( ~isFileExist('AdjCoilSens.h5') || deleteh5 )
                         delete('AdjCoilSens.h5');
                         delete('*.*');
-                        command = ['siemens_to_ismrmrd -f ' dataName ' -o AdjCoilSens.h5 --skipSyncData --user-map ' schema_dir '/IsmrmrdParameterMap_Siemens.xml --user-stylesheet ' schema_dir '/' noise_xsl ' -z 1 --studyDate ' studyDate]
+                        command = ['siemens_to_ismrmrd -f ' dataName ' -o AdjCoilSens.h5 --skipSyncData --user-map ' schema_dir '/IsmrmrdParameterMap_Siemens_NX.xml --user-stylesheet ' schema_dir '/' noise_xsl ' -z 1 --studyDate ' studyDate]
                         dos(command, '-echo');
                     end
 

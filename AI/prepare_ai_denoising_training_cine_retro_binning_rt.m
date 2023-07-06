@@ -237,6 +237,30 @@ for n = 1:size(files_all,1)
                     writeNPY(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.npy']));
                     niftiwrite(single(gmap), fullfile(dst_dir, ['gmap_slc_' num2str(slc) '.nii']));
                     gmap_slices(:,:,:,slc) = gmap;
+
+                    coil_map = readGTPlusExportData(fullfile(debug_dir, ['coilMap_n_0s_' num2str(slc-1)]));
+                    coil_map = squeeze(coil_map);
+                    unwarppedIm = readGTPlusExportData(fullfile(debug_dir, ['unwarppedIm_' num2str(slc-1)]));
+                    unwarppedIm = squeeze(unwarppedIm);
+
+                    input_kspace = readGTPlusExportData(fullfile(debug_dir, 'data_'));
+
+                    writeNPY(single(real(input_kspace)), fullfile(dst_dir, ['input_kspace_' num2str(slc-1) '_real.npy']));
+                    writeNPY(single(imag(input_kspace)), fullfile(dst_dir, ['input_kspace_' num2str(slc-1) '_imag.npy']));
+                    niftiwrite(single(abs(input_kspace)), fullfile(dst_dir, ['input_kspace_slc_' num2str(slc) '.nii']));
+
+                    writeNPY(single(real(coil_map)), fullfile(dst_dir, ['coil_map_' num2str(slc-1) '_real.npy']));
+                    writeNPY(single(imag(coil_map)), fullfile(dst_dir, ['coil_map_' num2str(slc-1) '_imag.npy']));
+                    niftiwrite(single(abs(coil_map)), fullfile(dst_dir, ['coil_map_slc_' num2str(slc) '.nii']));
+
+                    writeNPY(single(real(unwarppedIm)), fullfile(dst_dir, ['unwarppedIm_' num2str(slc-1) '_real.npy']));
+                    writeNPY(single(imag(unwarppedIm)), fullfile(dst_dir, ['unwarppedIm_' num2str(slc-1) '_imag.npy']));
+                    niftiwrite(single(abs(unwarppedIm)), fullfile(dst_dir, ['unwarppedIm_slc_' num2str(slc) '.nii']));
+
+                    gFactor = readGTPlusExportData(fullfile(debug_dir, ['gFactor_n_0s_' num2str(slc-1)]));
+                    gFactor = squeeze(gFactor);
+                    writeNPY(single(abs(gFactor)), fullfile(dst_dir, ['gFactor_' num2str(slc-1) '.npy']));
+                    niftiwrite(single(abs(gFactor)), fullfile(dst_dir, ['gFactor_slc_' num2str(slc) '.nii']));
                 end
             catch
                 continue           
