@@ -171,7 +171,7 @@ for ii=startCase:endCase
     if ( endCase==startCase )
         if(isunix())
             disp(resDir);
-            system(['nautilus ' resDir])
+            system(['caja ' resDir])
         else
             winopen(resDir);
         end
