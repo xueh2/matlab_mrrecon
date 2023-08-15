@@ -81,6 +81,8 @@ UTCases = {
     
     '3D',         'meas_MID00151_FID15826_t1_mprage_tra_p2_iso_1_0',                          'VD',   'Generic_Cartesian_Grappa_SNR.xml',                               'generic_res',         'generic_ref',   'IsmrmrdParameterMap_Siemens.xsl'   ; ...
 
+    '/export/Lab-Xue/data/mri_raw_data/neuro',         'meas_MID00073_FID33725_t1_mprage_sag_p3_p7mm',                          'VD',   'Generic_Cartesian_Grappa_SNR.xml',                               'generic_res',         'generic_ref',   'GadgetronParameterMap_Siemens.xsl'   ; ...
+
     };
 
 N = size(UTCases, 1);
