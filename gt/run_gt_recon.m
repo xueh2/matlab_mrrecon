@@ -62,11 +62,12 @@ else
 end
 
 if(isNX20)
-    styleSheetUsed = [schema_dir '/wip_070_fire_IsmrmrdParameterMap_Siemens.xsl'];
+    styleSheetUsed = [schema_dir '/wip_071_qPerf_IsmrmrdParameterMap_Siemens_Perfusion_NX20.xsl'];
 end
 
 if(isNX)
-    styleSheetUsed = [schema_dir '/wip_070_fire_IsmrmrdParameterMap_Siemens.xsl'];
+    %styleSheetUsed = [schema_dir '/wip_070_fire_IsmrmrdParameterMap_Siemens.xsl'];
+    styleSheetUsed = [schema_dir '/IsmrmrdParameterMap_Siemens.xsl'];
 else
     styleSheetUsed = [schema_dir '/IsmrmrdParameterMap_Siemens.xsl'];
 end
@@ -81,9 +82,10 @@ if( ~isempty(strfind(styleSheet, 'IsmrmrdParameterMap_Siemens_EPI_FLASHREF')) )
 end
 
 if(isNX20)
-    xmlUsed = [schema_dir '/wip_070_fire_IsmrmrdParameterMap_Siemens.xml'];
+    xmlUsed = [schema_dir '/wip_071_qPerf_IsmrmrdParameterMap_Siemens_Perfusion_NX20.xml'];
 elseif(isNX)
-    xmlUsed = [schema_dir '/wip_070_fire_IsmrmrdParameterMap_Siemens.xml'];
+    %xmlUsed = [schema_dir '/wip_070_fire_IsmrmrdParameterMap_Siemens.xml'];
+    xmlUsed = [schema_dir '/IsmrmrdParameterMap_Siemens.xml'];
 else
     xmlUsed = [schema_dir '/IsmrmrdParameterMap_Siemens_Perfusion.xml'];
 end
@@ -296,7 +298,10 @@ if ( isVD | isNX | isNX20 )
             
             if(~isempty(debug_folder))
                 mkdir(fullfile(resDir, 'DebugOutput'));
-                movefile(fullfile(debug_folder, '*.*'), fullfile(resDir, 'DebugOutput'));
+                try
+                    movefile(fullfile(debug_folder, '*.*'), fullfile(resDir, 'DebugOutput'));
+                catch
+                end
             end
         end
     end

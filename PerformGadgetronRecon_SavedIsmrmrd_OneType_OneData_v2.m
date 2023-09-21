@@ -117,9 +117,9 @@ for n=1:num
         continue;
     end
     
-%     if(str2num(measurementID)>300000)
-%         continue;
-%     end
+    % if(str2num(measurementID)>300000)
+    %     continue;
+    % end
     
     dataName = fullfile(dataDir, study_dates, [name '.h5']);
    
@@ -230,33 +230,33 @@ for n=1:num
                     end
                 end
             else
-                dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
-                if(~isFileExist(dicomFolder))
-                    goodStatus = 0;
-                else
-                    if(max(aif_cin_Gd_baseline_corrected(:))<1.2)
-                        [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image*.dcm');
-                    else
-                        [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image_MOCO_Flow_Map_SLC0*.dcm');
-                    end
-                    
-                    if(numdcm==0)
-                        goodStatus = 0;
-                    end
-                end
-
-                if goodStatus == 0
-                    try
-                        dstDir = fullfile(resDir, study_dates, name);
-                        [resfiles, numh5] = findFILE(dstDir, 'ref*.h5');
-                    catch
-                        numh5 = 0;
-                    end
-
-                    if(numh5>0)
-                        goodStatus = 1;
-                    end
-                end
+                % dicomFolder = fullfile(resDir, study_dates, [name '_dicom']);
+                % if(~isFileExist(dicomFolder))
+                %     goodStatus = 0;
+                % else
+                %     if(max(aif_cin_Gd_baseline_corrected(:))<1.2)
+                %         [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image*.dcm');
+                %     else
+                %         [dcmfiles, numdcm] = findFILE(dicomFolder, 'Image_MOCO_Flow_Map_SLC0*.dcm');
+                %     end
+                % 
+                %     if(numdcm==0)
+                %         goodStatus = 0;
+                %     end
+                % end
+                % 
+                % if goodStatus == 0
+                %     try
+                %         dstDir = fullfile(resDir, study_dates, name);
+                %         [resfiles, numh5] = findFILE(dstDir, 'ref*.h5');
+                %     catch
+                %         numh5 = 0;
+                %     end
+                % 
+                %     if(numh5>0)
+                %         goodStatus = 1;
+                %     end
+                % end
             end
             disp(['Load dcm to check : ' num2str(toc)]);
             

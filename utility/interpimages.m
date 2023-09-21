@@ -77,7 +77,8 @@ if ndims(I)==2 | (ndims(I)==3 && n_axes > 1)
             xi=linspace(0,1,imsize);
             yi=linspace(0,1,floor(imsize*aspect_ratio))';
         end
-        Iinterp(:,:,i)=interp2(x,y,Icrop{i},xi,yi,method);
+        %Iinterp(:,:,i)=interp2(x,y,Icrop{i},xi,yi,method);
+        Iinterp(:,:,i) = Matlab_gt_resize_2D_image(double(Icrop{i}), numel(yi), numel(xi), 5);
         
 %         Iinterp(:,:,i) = Matlab_gt_resize_2D_image(double(Icrop{i}), numel(yi), numel(xi), 5);
 	end
@@ -94,7 +95,8 @@ else
         end
         tmp=Icrop{i};
         for frame=1:size(tmp,3)
-            Iinterp(:,:,frame,i)=interp2(x,y,tmp(:,:,frame),xi,yi,method);
+            %Iinterp(:,:,frame,i)=interp2(x,y,tmp(:,:,frame),xi,yi,method);
+            Iinterp(:,:,i) = Matlab_gt_resize_2D_image(double(tmp(:,:,frame)), numel(xi), numel(yi), 5);
 %             Iinterp(:,:,frame, i) = Matlab_gt_resize_2D_image(double(tmp(:,:,frame)), numel(yi), numel(xi), 5);
         end
 	end

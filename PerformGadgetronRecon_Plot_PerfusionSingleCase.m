@@ -20,7 +20,7 @@ h_flow = 0;
     CC_F_PS, CC_F_Vp, CC_F_Visf, CC_PS_Vp, CC_PS_Visf, CC_Vp_Visf, ... 
     BTEX_Tc_all, Fermi_Delay, aif_scan_geometry_info, scan_geometry_info, ...
     aif_lut, aif_lut_gd, perf_lut, perf_lut_gd] = read_in_GT_Perf_DebugOutput_results(resDir);
-             
+
 
 mkdir(figDir)
 

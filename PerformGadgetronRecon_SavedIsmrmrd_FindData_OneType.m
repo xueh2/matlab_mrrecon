@@ -59,9 +59,9 @@ for d=1:numdirs
         catch
             disp(name);
         end
-%         if( str2num(measurementID) > 10000 )
-%             continue;
-%         end
+        if( str2num(measurementID) > 10000 )
+            continue;
+        end
         tt = datenum(str2num(study_year), str2num(study_month), str2num(study_day));
 
         if (tt<=endN && tt>=startN)

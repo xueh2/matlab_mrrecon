@@ -101,6 +101,9 @@ for n=1:num
     if(isempty(strfind(name, 'Perfusion_AIF_2E_NL_Cloud'))~=1)
         isPerf = 1;
     end
+    if(isempty(strfind(name, 'Perfusion_AIF'))~=1)
+        isPerf = 1;
+    end
     
     if(~isPerf)
         continue;
