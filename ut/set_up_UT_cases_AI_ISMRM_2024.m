@@ -1,4 +1,4 @@
-function UTCases = set_up_UT_cases_FreeMax_AI_SCMR_2024_Cine;
+function UTCases = set_up_UT_cases_AI_ISMRM_2024;
 % run the gt recon
 
 % set_UT_Dir('D');
