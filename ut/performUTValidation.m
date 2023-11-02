@@ -116,6 +116,12 @@ timeUsed = cell(numOfCases, 4);
 
 for ii=startCase:endCase
 
+    if strcmp(UTCases{ii, 1}, 'reset')
+        rmdir('/tmp/gadgetron', 's')
+        mkdir('/tmp/gadgetron')
+        continue
+    end
+
     testInfo = UTCases(ii, :);
     folderDir = fullfile(UTDir, UTCases{ii, 1}, UTCases{ii, 2})
     
