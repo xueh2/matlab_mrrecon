@@ -99,6 +99,9 @@ end
 if(num==0)
     [names, num] = findFILE(folderName, ['Generic_MultiSlice_Localizer' '*.hdr']);
 end
+if(num==0)
+    [names, num] = findFILE(folderName, ['Freemax_LGE' '*.hdr']);
+end
 
 maxSLC = 0;
 maxE2 = 0;

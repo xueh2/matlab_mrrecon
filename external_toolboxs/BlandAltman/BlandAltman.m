@@ -99,7 +99,7 @@ if nargin>=shift+7 && ~isempty(varargin{shift+7})
 		BAinfo = varargin{shift+7};
 	end
 else
-	BAinfo = {'RPC(%)';'CV'};
+	BAinfo = {'RPC';'CV'};
 end
 
 if nargin>=shift+8
@@ -131,7 +131,7 @@ else
 	symb = 'sodp^v';
 end
 
-markersize = 4;
+markersize = 12;
 xdatamode = 1; % use the (1) mean of data1 and data2 or (2) data1 for x position on bland altman
 
 units = '';
@@ -194,9 +194,9 @@ mask = isfinite(data1) & isnumeric(data1) & isfinite(data2) & isnumeric(data2);
 
 if isempty(fig)
 	fig = figure;
-	set(fig,'units','centimeters','position',[3 3 20 10],'color','w');
-	cah = subplot(121);
-	dah = subplot(122);
+	set(fig,'units','centimeters','position',[40 10 45 20],'color','w');
+	cah = subplot(121);grid on; box on;
+	dah = subplot(122);grid on; box on;
 elseif strcmpi(get(fig,'type'),'figure')
 	cah = subplot(121);
 	dah = subplot(122);
@@ -246,7 +246,7 @@ if ischar(axesLimits)
 		if strcmpi(symb,'Num')
 			mindata = min( min(data1(mask)), min(data2(mask)) );
 			maxdata = max( max(data1(mask)), max(data2(mask)) );
-			ph = plot(cah, [mindata maxdata], [mindata maxdata], '.', 'Visible','on');
+			ph = plot(cah, [mindata maxdata], [mindata maxdata], '.', 'Visible','on', 'linewidth', 2);
 		end
 		axesLimits = axis(cah); 
 		axesLimits(1) = min(axesLimits(1),axesLimits(3));
@@ -299,7 +299,7 @@ for i=1:length(corrinfo)
 	end
 end
 text(axesLimits(1)+0.01*(axesLimits(2)-axesLimits(1)),axesLimits(1)+0.9*(axesLimits(2)-axesLimits(1)),corrtext,'parent',cah);
-xlabel(cah,labelx); ylabel(cah,labely);
+xlabel(cah,labelx, 'fontsize', markersize+4); ylabel(cah,labely, 'fontsize', markersize+4);
 
 %% Differences
 set(dah,'units','normalized');
@@ -334,7 +334,7 @@ for groupi=1:groups
 	end
 end
 axis(dah,'square')
-xlabel(dah,labelm); ylabel(dah,labeld);
+xlabel(dah,labelm, 'fontsize', markersize+4); ylabel(dah,labeld, 'fontsize', markersize+4);
 
 % add std-dev lines
 st = std(data2(mask)-data1(mask));
@@ -351,16 +351,16 @@ end
 plot(a(1:2),mn+[0 0],'k')
 % plot(a(1:2),mn+st*[1 1],'k')
 % plot(a(1:2),mn-st*[1 1],'k')
-plot(a(1:2),mn+cr*[1 1],':k')
-plot(a(1:2),mn-cr*[1 1],':k')
+plot(a(1:2),mn+cr*[1 1],':k', 'linewidth', 2)
+plot(a(1:2),mn-cr*[1 1],':k', 'linewidth', 2)
 a = axis(dah);
 if fixylim
-	fontsize = 6;
+	fontsize = 16;
 	text(a(2),mn+cr, [num2str(mn+cr,2) ' (+1.96SD)'],'HorizontalAlignment','left','VerticalAlignment','middle','fontsize',fontsize);
 	text(a(2),mn,[num2str(mn,2) ' [p=' num2str(p,2) ']'],'HorizontalAlignment','left','VerticalAlignment','middle','fontsize',fontsize);
 	text(a(2),mn-cr, [num2str(mn-cr,2) ' (-1.96SD)'],'HorizontalAlignment','left','VerticalAlignment','middle','fontsize',fontsize);
 else
-	fontsize = 8;
+	fontsize = 16;
 	text(a(2),mn+cr,{'+1.96SD',num2str(mn+cr,2)},'HorizontalAlignment','left','VerticalAlignment','middle','fontsize',fontsize);
 	text(a(2),mn,{num2str(mn,2),['p=' num2str(p,2)]},'HorizontalAlignment','left','VerticalAlignment','middle','fontsize',fontsize);
 	text(a(2),mn-cr,{num2str(mn-cr,2),'-1.96SD'},'HorizontalAlignment','left','VerticalAlignment','middle','fontsize',fontsize);
@@ -382,7 +382,7 @@ for i=1:length(BAinfo)
 			BAtext = [BAtext; ['kurtosis: ' num2str(kurtosis(ddata))]];
 	end
 end
-text(a(2),a(4),BAtext,'interpreter','tex','HorizontalAlignment','right','VerticalAlignment','top');
+text(a(2),a(4),BAtext,'interpreter','tex','HorizontalAlignment','right','VerticalAlignment','top','fontsize',fontsize);
 
 if ~isempty(tit)
 	h = suptitle(tit);
