@@ -42,6 +42,11 @@ for n = 1:size(files_all,1)
     
         disp(['--> process ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' dst_dir]);
         
+        if(check_processed & exist(fullfile(dst_dir, 'headers.mat')))
+            disp(['--> Already processed - ' num2str(n) ' out of ' num2str(size(files_all,1)) ' - ' dst_dir]);
+            continue;
+        end
+
         try
             debug_dir = fullfile(case_dir_debug, 'DebugOutput');
             dset = ismrmrd.Dataset(h5_name, 'dataset');
