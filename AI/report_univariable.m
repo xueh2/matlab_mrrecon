@@ -1,6 +1,6 @@
 function [min_v, max_v, median_v, v_0p05, v_0p95] = report_univariable(v, desp)
 
-ind = find(v>0);
+ind = find(v>0 & ~isnan(v));
 
 mean_v = mean(v(ind));
 std_v = std(v(ind));

@@ -254,6 +254,12 @@ if(has_rest)
         figName = fullfile(figDir, [resDir '_Rest_SectorMasks' '.fig']);
         saveas(h_mask_seg, figName, 'fig');
         save(fullfile(figDir, 'bulls_eye_rest'), 'bulls_eye_rest');
+
+        figName = fullfile(figDir, [resDir '_Rest_fmap' '.fig']);
+        fmap = permute(bulls_eye_rest.fmap, [2 1 3]);
+        h_fmap = figure; imagescn(fmap, [0 8], [1 size(fmap,3)], 16); PerfColorMap;
+        saveas(h_fmap, figName, 'fig');
+
     catch
     end
             
