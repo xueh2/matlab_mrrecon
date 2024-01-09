@@ -1,4 +1,4 @@
-function [min_v, max_v, median_v, v_0p05, v_0p95] = report_univariable(v, desp)
+function [min_v, max_v, median_v, v_0p05, v_0p95, mean_v, std_v] = report_univariable(v, desp)
 
 ind = find(v>0 & ~isnan(v));
 
