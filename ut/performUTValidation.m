@@ -1,7 +1,7 @@
 
 function timeUsed = performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix, paraXml, debug_folder);
 %% compare the unit test results with ground truth
-% performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix)
+% performUTValidation(UTCases, UTCollectRef, deleteh5, GT_HOST, GT_PORT, caseNum, caseNumEnd, compressionBit, compRef, startRemoteGT, remoteXml, res_suffix, paraXml, debug_folder);
 % performUTValidation(UTCases, UTCollectRef, GT_HOST, GT_PORT, caseNum)
 % performUTValidation(set_up_UT_cases_ScannerUpdate, 0, 0, 'localhost', '9002')
 % performUTValidation(set_up_UT_cases_ScannerUpdate, 0, 0, 'barbados.nhlbi.nih.gov', '9006')
