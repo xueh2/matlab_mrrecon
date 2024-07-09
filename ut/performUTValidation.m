@@ -174,14 +174,15 @@ for ii=startCase:endCase
         end
     end
     
-    if ( endCase==startCase )
-        if(isunix())
-            disp(resDir);
-            system(['caja ' resDir])
-        else
-            winopen(resDir);
-        end
-    end
+    disp(resDir);
+    % if ( endCase==startCase )
+    %     if(isunix())
+    %         disp(resDir);
+    %         system(['caja ' resDir])
+    %     else
+    %         winopen(resDir);
+    %     end
+    % end
 end
 
 if ( UTCollectRef == 0 & compRef==1 )
