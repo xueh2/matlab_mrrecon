@@ -325,6 +325,12 @@ else
             dos(command);
         end
 
+        if ~exist(configNameUsed)
+            xml_opt = ' -c ';
+            [xml_path, xml_name, ext] = fileparts(configNameUsed);
+            configNameUsed = [xml_name ext];
+        end
+
         command = ['gadgetron_ismrmrd_client -f ' h5Name xml_opt configNameUsed ' -a ' GT_HOST ' -p ' GT_PORT ' -F ' OutputFormat ' -G ' configNameShortened ' -o ref_' date_suffix '.h5' compression_opt]
         command
         tic; dos(command); timeUsed = toc;
