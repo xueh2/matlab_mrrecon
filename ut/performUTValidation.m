@@ -148,7 +148,7 @@ for ii=startCase:endCase
     end
     
     UT_case_Dir = [];
-    t = run_gt_recon_case(UTCases{ii, 2}, UTCases{ii, 4}, UTCases, deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml, UT_case_Dir, debug_folder); % winopen(folderDir)
+    t = run_gt_recon_case(UTCases{ii, 2}, UTCases{ii, 4}, UTCases(ii,:), deleteh5, startRemoteGT, res_suffix, h5Only, remoteXml, compressionBit, paraXml, UT_case_Dir, debug_folder); % winopen(folderDir)
     disp(['--> run time ' num2str(t) ' seconds ... ']);
     
     if(isAdj) 
