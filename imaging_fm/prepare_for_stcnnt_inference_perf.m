@@ -5,7 +5,9 @@ data = [];
 gmap = [];
 res = [];
 
-for slc=1:12
+SLC = 8;
+
+for slc=1:SLC
     gmap_name = fullfile(debug_dir, ['input_gmap_stcnnt_slc_' num2str(slc-1) '_set_0_row_' num2str(slc-1) '.hdr']);
     if exist(gmap_name)
         gmap(:,:,slc) = analyze75read(gmap_name);
@@ -15,7 +17,7 @@ for slc=1:12
 end
 
 if isempty(data)
-    for slc=1:12
+    for slc=1:SLC
         gmap_name = fullfile(debug_dir, ['gmap_stcnnt_filter__row' num2str(slc-1) '.hdr']);
         if exist(gmap_name)
             gmap(:,:,slc) = analyze75read(gmap_name);

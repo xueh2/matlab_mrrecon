@@ -7,5 +7,9 @@ gmap = readNPY(fullfile(res_dir, 'gmap'));
 
 if plot_flag
     SLC = size(input, 4);
-    figure; imagescn(cat(4, input, res), [], [2 SLC], [16], 3);
+    if SLC < 3
+        figure; imagescn(cat(4, input, res), [], [SLC 2], [12], 3);
+    else
+        figure; imagescn(cat(4, input, res), [], [2 SLC], [12], 3);
+    end
 end

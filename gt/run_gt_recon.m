@@ -104,7 +104,7 @@ dependency_xml = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml';
 lenC = length(configName);
 currPath = pwd;
 
-lenUsed = 200 - (1+length(currPath));   
+lenUsed = 250 - (1+length(currPath));   
 if(lenUsed>lenC)
     lenUsed = lenC;
 end
@@ -337,7 +337,10 @@ else
         
         if(~isempty(debug_folder))
             mkdir(fullfile(resDir, 'DebugOutput'));
-            movefile(fullfile(debug_folder, '*.*'), fullfile(resDir, 'DebugOutput'));
+            try
+                movefile(fullfile(debug_folder, '*.*'), fullfile(resDir, 'DebugOutput'));
+            catch
+            end
         end
     end
 end
