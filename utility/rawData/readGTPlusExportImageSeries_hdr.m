@@ -108,15 +108,36 @@ if(num==0)
 end
 
 if(num==0)
-    [names, num] = findFILE(folderName, ['GT_LGE_' '*.hdr']);
+    [names, num] = findFILE(folderName, ['GT_LGE' '*.hdr']);
 end
 
 if(num==0)
-    [names, num] = findFILE(folderName, ['GT_QPerf_' '*.hdr']);
+    [names, num] = findFILE(folderName, ['GT_QPerf' '*.hdr']);
 end
 
 if(num==0)
-    [names, num] = findFILE(folderName, ['GTPrep_2DT_FW_' '*.hdr']);
+    [names, num] = findFILE(folderName, ['GTPrep_2DT_FW' '*.hdr']);
+end
+
+if(num==0)
+    [names, num] = findFILE(folderName, ['OR_' '*.hdr']);
+end
+
+
+if(num==0)
+    [names, num] = findFILE(folderName, ['Generic_Cartesian_3D_' '*.hdr']);
+end
+
+if(num==0)
+    [names, num] = findFILE(folderName, ['GT_RTCine' '*.hdr']);
+end
+
+if(num==0)
+    [names, num] = findFILE(folderName, ['GT_2D' '*.hdr']);
+end
+
+if(num==0)
+    [names, num] = findFILE(folderName, ['GT_3D' '*.hdr']);
 end
 
 maxSLC = 0;

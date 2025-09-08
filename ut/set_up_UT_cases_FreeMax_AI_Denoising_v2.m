@@ -6,6 +6,8 @@ function UTCases = set_up_UT_cases_FreeMax_AI_Denoising_v2;
 % sub folder, data name, VB or VD, config xml file, result_folder, ground-truth folder
 UTCases = {
 
+    '/export/Lab-Xue/data/mri_raw_data/freemax/20230712_NV2_AI',         'meas_MID00188_FID08460_G25_2CH_FB_de_tpat3_res256_Ave16',              'NX',   'Freemax_LGE_REP_STCNNT.xml',             'res',              'ref',   'wip_070_fire_IsmrmrdParameterMap_Siemens.xsl'   ; ... 
+
     '/export/Lab-Xue/data/mri_raw_data/freemax/20230630_NV_AI',         'meas_MID00155_FID07561_G25_4CH_CINE_256_R2',              'NX',   'GTPrep_2DT_RetroCine_STCNNT_offline.xml',             'res',              'ref',   'wip_070_fire_IsmrmrdParameterMap_Siemens.xsl'   ; ...    
     '/export/Lab-Xue/data/mri_raw_data/freemax/20230630_NV_AI',         'meas_MID00156_FID07562_G25_2CH_CINE_256_R2',              'NX',   'GTPrep_2DT_RetroCine_STCNNT_offline.xml',             'res',              'ref',   'wip_070_fire_IsmrmrdParameterMap_Siemens.xsl'   ; ...    
 
@@ -120,9 +122,9 @@ UTCases = {
 
 N = size(UTCases, 1);
 
-for i=1:N
-    disp([num2str(i) '  -  ' UTCases{i, 1} '         -          ' UTCases{i, 2} ' - ' UTCases{i, 3} ' - ' UTCases{i, 4}]);
-end
+% for i=1:N
+%     disp([num2str(i) '  -  ' UTCases{i, 1} '         -          ' UTCases{i, 2} ' - ' UTCases{i, 3} ' - ' UTCases{i, 4}]);
+% end
 
 if(nargout<=0)
     UTCases = [];

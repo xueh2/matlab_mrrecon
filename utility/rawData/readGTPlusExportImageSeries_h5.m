@@ -17,6 +17,7 @@ end
 
 endo_pt = [];
 epi_pt = [];
+user_int = [];
 
 h5_ind = 1;
 if(num>1)

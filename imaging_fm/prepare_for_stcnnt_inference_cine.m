@@ -8,11 +8,11 @@ res = [];
 SLC = 15;
 
 for slc=1:SLC
-    gmap_name = fullfile(debug_dir, ['input_gmap_stcnnt_slc_' num2str(slc-1) '_set_0_row_0.hdr']);
+    gmap_name = fullfile(debug_dir, ['input_gmap_stcnnt_slc_' num2str(slc-1) '_set_0_con_0_row_0.hdr']);
     if exist(gmap_name)
         gmap(:,:,slc) = analyze75read(gmap_name);
-        data(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['input_complex_images_stcnnt_slc_' num2str(slc-1) '_set_0_row_0']) );
-        res(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['output_complex_images_stcnnt_slc_' num2str(slc-1) '_set_0_row_0']) );
+        data(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['input_complex_images_stcnnt_slc_' num2str(slc-1) '_set_0_con_0_row_0']) );
+        res(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['output_complex_images_stcnnt_slc_' num2str(slc-1) '_set_0_con_0_row_0']) );
     end
 end
 

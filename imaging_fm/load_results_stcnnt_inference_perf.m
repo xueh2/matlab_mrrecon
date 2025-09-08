@@ -1,15 +1,23 @@
 function [input, res, gmap] = load_results_stcnnt_inference_perf(res_dir, plot_flag)
 % [input, res, gmap] = load_results_stcnnt_inference_perf(res_dir, plot_flag)
 
-input = readNPY(fullfile(res_dir, 'input_real')) + i*readNPY(fullfile(res_dir, 'input_imag'));
-res = readNPY(fullfile(res_dir, 'output_real')) + j*readNPY(fullfile(res_dir, 'output_imag'));
+input = [];
+if exist(fullfile(res_dir, 'input_real.npy'))
+    input = readNPY(fullfile(res_dir, 'input_real')) + i*readNPY(fullfile(res_dir, 'input_imag'));
+end
+
+if exist(fullfile(res_dir, 'output_real.npy'))
+    res = readNPY(fullfile(res_dir, 'output_real')) + j*readNPY(fullfile(res_dir, 'output_imag'));
+else
+    res = readNPY(fullfile(res_dir, 'output'));
+end
 gmap = readNPY(fullfile(res_dir, 'gmap'));
 
 if plot_flag
-    SLC = size(input, 4);
+    SLC = size(res, 4);
     if SLC < 3
-        figure; imagescn(cat(4, input, res), [], [SLC 2], [12], 3);
+        figure; imagescn(abs(cat(4, input, res, input-res)), [0 4*mean(abs(res(:)))], [SLC 3], [8], 3);
     else
-        figure; imagescn(cat(4, input, res), [], [2 SLC], [12], 3);
+        figure; imagescn(abs(cat(4, input, res, input-res)), [0 4*mean(abs(res(:)))], [3 SLC], [8], 3);
     end
 end

@@ -1,4 +1,4 @@
-function [means,diffs,meanDiff,CR,linFit] = BlandAltman2(var1, var2, flag, symbol, plot_precentage, markersize)
+function [means,diffs,meanDiff,CR,linFit] = BlandAltman2(var1, var2, flag, symbol, plot_precentage, markersize, CR_range)
 % function [means,diffs,meanDiff,CR,linFit] = BlandAltman2(var1, var2, flag, symbol, plot_precentage, markersize)
  
     %%%Plots a Bland-Altman Plot
@@ -14,7 +14,7 @@ function [means,diffs,meanDiff,CR,linFit] = BlandAltman2(var1, var2, flag, symbo
     %%% means = the means of the data
     %%% diffs = the raw differences
     %%% meanDiff = the mean difference
-    %%% CR = the 2SD confidence limits
+    %%% CR = the confidence limits, CR_range 1.65 for 90%, 1.96 for 95%
     %%% linfit = the paramters for the linear fit
     
     
@@ -36,18 +36,22 @@ function [means,diffs,meanDiff,CR,linFit] = BlandAltman2(var1, var2, flag, symbo
     if nargin<6
         markersize = 12;
     end
+
+    if nargin<7
+        CR_range = 1.65;
+    end
     
-%     var1 = var1(:);
-%     var2 = var2(:);
+    var1 = var1(:);
+    var2 = var2(:);
     
-    means = mean([var1;var2]);
+    means = mean([var1(:) var2(:)], 2);
     diffs = var1-var2;
     
     meanDiff = mean(diffs);
     sdDiff = std(diffs);
-    CR = [meanDiff + 1.96 * sdDiff, meanDiff - 1.96 * sdDiff]; %%95% confidence range
+    CR = [meanDiff + CR_range * sdDiff, meanDiff - CR_range * sdDiff]; %%95% confidence range
     
-    CR_percentage = 100* [meanDiff + 1.96 * sdDiff, meanDiff - 1.96 * sdDiff] / meanDiff; 
+    CR_percentage = 100* [meanDiff + CR_range * sdDiff, meanDiff - CR_range * sdDiff] / meanDiff; 
     
     linFit = polyfit(means,diffs,1); %%%work out the linear fit coefficients
     
