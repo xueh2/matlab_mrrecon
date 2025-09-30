@@ -12,7 +12,10 @@ for ave=1:AVE
     if exist(gmap_name)
         gmap(:,:,:,ave) = analyze75read(gmap_name);
         data(:,:,:,ave) = readGTPlusExportData(fullfile(debug_dir, ['input_complex_images_stcnnt_set_0_ave_' num2str(ave-1) '_row_0']) );
-        res(:,:,:,ave) = readGTPlusExportData(fullfile(debug_dir, ['output_complex_images_stcnnt_set_0_ave_' num2str(ave-1) '_row_0']) );
+        try
+            res(:,:,:,ave) = readGTPlusExportData(fullfile(debug_dir, ['output_complex_images_stcnnt_set_0_ave_' num2str(ave-1) '_row_0']) );
+        catch
+        end
     end
 end
 
