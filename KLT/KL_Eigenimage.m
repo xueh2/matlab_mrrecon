@@ -7,6 +7,8 @@ function [a,V,D] = KL_Eigenimage(a);
 %a = single(a);
 s = size(a);
 
+im = a;
+
 if length(s) ==2, % 2-D case
     if s(2) > s(1), a = a'; end % first dimension is always larger
     s = size(a);
@@ -19,7 +21,7 @@ if length(s) ==2, % 2-D case
     a = (a + a_mean)*V;
 elseif length(s)==3, % 3-D case
     % b = single(zeros(N,s(1)*s(2)));
-    a = (reshape(a, [s(1)*s(2),s(3)] )); %clear a
+    a = (reshape(im, [s(1)*s(2),s(3)] )); %clear a
     t_mean = mean(a,1);
     a_mean = ones(s(1)*s(2),1)*t_mean;
     a = a - a_mean; %remove mean
@@ -28,7 +30,7 @@ elseif length(s)==3, % 3-D case
     %[V,D] = eig((A+A')/2, diag(ones(1,s(3))), 'chol'); 
     V = (V);
     D = (D);
-    a = (reshape( (a+a_mean)*V , [s(1),s(2),s(3)] ) ) ; clear b
+    a = (reshape( reshape(im, [s(1)*s(2),s(3)] )*V , [s(1),s(2),s(3)] ) ) ;
 else
     'Input array is not a 2/3-D array!'
 end

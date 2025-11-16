@@ -5,13 +5,20 @@ input = [];
 if exist(fullfile(res_dir, 'input_real.npy'))
     input = readNPY(fullfile(res_dir, 'input_real')) + i*readNPY(fullfile(res_dir, 'input_imag'));
 end
+if exist(fullfile(res_dir, 'input.npy'))
+    input = double(py.numpy.load(fullfile(res_dir, 'input.npy')));
+end
 
 if exist(fullfile(res_dir, 'output_real.npy'))
     res = readNPY(fullfile(res_dir, 'output_real')) + j*readNPY(fullfile(res_dir, 'output_imag'));
 else
-    res = readNPY(fullfile(res_dir, 'output'));
+    res = double(py.numpy.load(fullfile(res_dir, 'output.npy')));
 end
-gmap = readNPY(fullfile(res_dir, 'gmap'));
+
+gmap = [];
+if exist(fullfile(res_dir, 'gmap.npy'))
+    gmap = readNPY(fullfile(res_dir, 'gmap'));
+end
 
 if plot_flag
     SLC = size(res, 4);
@@ -21,3 +28,6 @@ if plot_flag
         figure; imagescn(abs(cat(4, input, res, input-res)), [0 4*mean(abs(res(:)))], [3 SLC], [8], 3);
     end
 end
+
+size(input)
+size(res)

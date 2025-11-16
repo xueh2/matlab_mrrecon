@@ -134,9 +134,24 @@ data_dir = '/data/raw_data/noncardiac_20250805/knee/'
 
 data_dir = '/data/raw_data/noncardiac/phantom/'
 
-data_dir = '/fastdata/noncardiac/phantom/20250815//'
+data_dir = '/data/raw_data/noncardiac/noncardiac//'
 
-data_dir = '/home/gtuser/data/noncardiac/'
+data_dir = '/home/gtuser/data/noncardiac/case1'
+
+data_dir = '/data/raw_data/noncardiac/noncardiac//case2'
+data_dir = '/data/raw_data/noncardiac/noncardiac//case2_res'
+
+data_dir = '/data/raw_data/noncardiac/noncardiac//case3'
+data_dir = '/data/raw_data/noncardiac/noncardiac//case3_res'
+
+data_dir = '/data/raw_data/noncardiac/noncardiac//case4_res'
+res_dir = data_dir
+
+data_dir = '/data/raw_data/noncardiac/noncardiac//case5_res'
+res_dir = data_dir
+
+data_dir = '/data/raw_data/noncardiac/noncardiac//case6_res'
+res_dir = data_dir
 
 findAndMoveMeasDat(data_dir)
 
@@ -230,6 +245,7 @@ for i=1:num
     end
 end
 
+
 for i=1:num
     UTCases{1, 1} = data_dir;
     UTCases{1, 2} = names{i};
@@ -248,32 +264,110 @@ for i=1:num
         UTCases{1, 4} = 'Generic_Cartesian_2D_Grappa_STCNNT.xml';
         UTCases{1, 5} = 'res_Generic_Cartesian_2D_Grappa_STCNNT';
     end
-
-    h5name = fullfile(data_dir, names{i}, [names{i} '.h5']);
-    if exist(h5name)
-        dset = ismrmrd.Dataset(h5name);
-        header = ismrmrd.xml.deserialize(dset.readxml());
-        R = header.encoding.parallelImaging.accelerationFactor.kspace_encoding_step_1;
-        dset.close();
-
-        header.measurementInformation.protocolName;
-
-    end
-
+    
     if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
             continue
     end
 
-    disp([names{i} ' - ' header.measurementInformation.protocolName ' - R = ' num2str(R) ' - matrix size ' num2str(header.encoding.reconSpace.matrixSize.x) ' ' num2str(header.encoding.reconSpace.matrixSize.y)])
+    debug_dir = fullfile(res_dir, names{i});
+    load(fullfile(debug_dir, 'header.mat'))
+
+    R = header.encoding.parallelImaging.accelerationFactor.kspace_encoding_step_1
+
+    data_str = [header.measurementInformation.protocolName ' - R = ' num2str(R) ' - matrix size ' num2str(header.encoding.reconSpace.matrixSize.x) ' ' num2str(header.encoding.reconSpace.matrixSize.y)];
+    disp([names{i} ' - ' data_str])
+
+    continue
+
+    try
+        [data, res, gmap] = load_results_stcnnt_inference_perf(fullfile(debug_dir, 'model_res_81'), 0); 
+        data = flipdim(permute(data, [2 1 3]), 1);
+        res = flipdim(permute(res, [2 1 3]), 1);
+        gmap = flipdim(permute(gmap, [2 1 3]), 1);
+        SLC = size(res, 3)
+        h = figure('Name', names{i}); imagescn(abs(cat(4, data, res)), [], [1 2], [8], 3);
+        saveas(h, fullfile(data_dir, [names{i} '_' data_str '.fig']));
+        save(fullfile(data_dir, [names{i} '.mat']), 'data', 'gmap', 'res', 'header');
+    catch
+    end
+end
+closeall
+
+cd /data/raw_data/noncardiac/noncardiac/
+a = load('Data_3DT_66016_019535466_019535471_39_20250925-153711.mat')
+b = load('Data_3DT_66016_019535466_019535471_40_20250925-154251.mat')
+c = load('Data_3DT_66016_019535466_019535471_41_20250925-154629.mat')
+
+cd /data/raw_data/noncardiac/noncardiac/case2_res/
+a = load('Data_3DT_66016_028023407_028023412_84_20251002-120250.mat')
+b = load('Data_3DT_66016_028023407_028023412_85_20251002-120957.mat')
+c = load('Data_3DT_66016_028023407_028023412_86_20251002-121417.mat')
+
+
+a1 = interpimages2(a.data,'cubic',[448 448]);
+b1 = interpimages2(b.data,'cubic',[448 448]);
+
+a2 = interpimages2(a.res,'cubic',[448 448]);
+b2 = interpimages2(b.res,'cubic',[448 448]);
+
+figure; imagescn(cat(4, a1, b1, c.data, a2, b2, c.res), [], [2 3], [8], 3);
+
+% create run script
+
+case_lists = {}
+
+data_dir = '/data/raw_data/noncardiac/noncardiac/'
+[cases, num] = FindSubDirs(data_dir)
+for n=1:num
+
+    [c_list, m] = FindSubDirs(fullfile(data_dir, cases{n}))
+    for k=1:m
+        case_lists = [case_lists; {fullfile(data_dir, cases{n}, c_list{k})}];
+    end
 end
 
+run_file_name = '/data/raw_data/noncardiac/noncardiac/run_cases'
+res_dir = 'res_400m_model'
+model_file = '/data/models/ifm-mri-denoising_20251019_195434/ifm-mri-denoising-400m-no-epoch/checkpoints/step_00692000.ckpt'
+config_file = '/data/models/ifm-mri-denoising_20251019_195434/ifm-mri-denoising-400m-no-epoch/config.yaml'
+scaling_factor = '1.0'
+batch_size = '16'
+ignore_check_existed = 0
+
+for c=1:4
+    cuda_str = num2str(c-1)
+    create_run_script_resys([run_file_name '_' cuda_str '.sh'], case_lists(c:4:end), res_dir, model_file, config_file, scaling_factor, batch_size, ignore_check_existed, cuda_str)
+end
+
+fig_dir = '/data/raw_data/noncardiac/figures/'
+for kk=1:numel(case_lists)
+
+    case_lists{kk}
+    load(fullfile(case_lists{kk}, 'header.mat'))
+
+    [fpath, name, ext] = fileparts(case_lists{kk})
+    fpath_components = split(fpath, '/');
 
 
+    R = header.encoding.parallelImaging.accelerationFactor.kspace_encoding_step_1
 
-res_dir = '/data/raw_data/noncardiac/spine/t1_tse_sag_p2_41837_59824231_59824236_450_20250804-172400/res_GTPrep_2DT_STCNNT_Spine/DebugOutput//model_res_62/'
+    data_str = [header.measurementInformation.protocolName ' - R = ' num2str(R) ' - matrix size ' num2str(header.encoding.reconSpace.matrixSize.x) ' ' num2str(header.encoding.reconSpace.matrixSize.y)];
+    disp([case_lists{kk} ' - ' data_str])
 
-[input, res, gmap] = load_results_stcnnt_inference_perf(res_dir, 1);
+    try
+        [data, res, gmap] = load_results_stcnnt_inference_perf(fullfile(case_lists{kk}, res_dir), 0); 
+        data = flipdim(permute(data, [2 1 3]), 1);
+        res = flipdim(permute(res, [2 1 3]), 1);
+        gmap = flipdim(permute(gmap, [2 1 3]), 1);
+        SLC = size(res, 3)
+        h = figure('Name', name); imagescn(abs(cat(4, data, res)), [], [1 2], [24], 3);
+        saveas(h, fullfile(fig_dir, [fpath_components{end} '_' name '_' data_str '.fig']));
+        save(fullfile(fig_dir, [fpath_components{end} '_' name '.mat']), 'data', 'gmap', 'res', 'header');
+        close(h)
+    catch
+    end
 
+end
 
 %% loc
 
@@ -661,6 +755,97 @@ for i=1:num
     catch
     end
 end
+
+% rt cine R5, get SNR gain
+data_dir = '/data/raw_data/SNR_PAPER/SNR_PAPER/R5_res/'
+
+
+UTCases = set_up_UT_cases_RTCine;
+
+findAndMoveMeasDat(data_dir)
+[names, num] = FindSubDirs(data_dir)
+
+closeall
+
+blood_snr = zeros(num, 1);
+myo_snr = zeros(num, 1);
+blood_snr_gain = zeros(num, 1);
+myo_snr_gain = zeros(num, 1);
+blood_gmap = zeros(num, 1);
+myo_gmap = zeros(num, 1);
+
+for i=1:num
+    case_dir = fullfile(data_dir, names{i})
+
+    [input, res, gmap] = load_results_stcnnt_inference_perf(fullfile(case_dir, 'model_res'), 0);
+    size(res)
+
+    if size(gmap, 2)==size(input,1) &  size(gmap, 1)==size(input,2)
+        gmap = gmap';
+    end
+
+    PHS = size(input, 3)
+
+    sd_map = std(res, [], 4);
+
+    [roi_names, n] = findFILE(case_dir, 'roi*.mat')
+
+    [path, roi, ext] = fileparts(roi_names{1})
+
+    frame = str2num(roi(5:end))
+
+    roi_obj = load(roi_names{1})
+
+    im = abs(res(:,:,frame,1));
+    RO = size(im, 1)
+    E1 = size(im, 2)
+
+    blood = poly2mask(roi_obj.ROI_InfoTable(1).ROI_x_original, roi_obj.ROI_InfoTable(1).ROI_y_original,RO,E1);
+    myo = poly2mask(roi_obj.ROI_InfoTable(2).ROI_x_original, roi_obj.ROI_InfoTable(2).ROI_y_original,RO,E1);
+
+    snr_map = abs(input) ./ repmat(gmap, [1 1 PHS]);
+
+    snr_frame = snr_map(:,:,frame);
+
+    blood_snr(i) = mean(snr_frame(find(blood>0)));
+    myo_snr(i) = mean(snr_frame(find(myo>0)));
+
+    sd_frame = sd_map(:,:,frame);
+    blood_snr_gain(i) = mean(0.1 ./ sd_frame(find(blood>0)));
+    myo_snr_gain(i) = mean(0.1 ./ sd_frame(find(myo>0)));
+
+    blood_gmap(i) = mean(gmap(find(blood>0)));
+    myo_gmap(i) = mean(gmap(find(myo>0)));
+
+    figure; imagescn(cat(3, snr_frame + myo * 100 + blood*200, sd_frame, blood, myo, gmap), [], [1 5], 16)
+end
+
+snr_res = table(names', blood_snr, myo_snr, blood_snr_gain, myo_snr_gain, blood_gmap, myo_gmap)
+
+mean(snr_res.blood_snr)
+std(snr_res.blood_snr)
+
+mean(snr_res.myo_snr)
+std(snr_res.myo_snr)
+
+mean(snr_res.blood_snr_gain)
+std(snr_res.blood_snr_gain)
+
+mean(snr_res.myo_snr_gain)
+std(snr_res.myo_snr_gain)
+
+mean(snr_res.blood_snr .* snr_res.blood_snr_gain)
+std(snr_res.blood_snr .* snr_res.blood_snr_gain)
+
+mean(snr_res.myo_snr .* snr_res.myo_snr_gain)
+std(snr_res.myo_snr .* snr_res.myo_snr_gain)
+
+
+mean(snr_res.blood_gmap)
+std(snr_res.blood_gmap)
+
+mean(snr_res.myo_gmap)
+std(snr_res.myo_gmap)
 
 %% Fat Water
 
@@ -2075,7 +2260,7 @@ figure; imagescn(real(psir))
 
 figure; imagescn(real(psir)./scc_map)
 
-
+ 
 %% test
 
 cd /home/xueh/mrprogs/imagingfm_BTCHW/projects/tests/data/snr_unit_data/
@@ -2157,3 +2342,36 @@ size(a)
 
 b = readNPY('image_batch');
 size(b)
+
+%% get neuro and spine figures
+
+cd /data/raw_data/noncardiac/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_33_20251023-112717/model_res_81/
+
+[input1, res1, gmap1] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_33_20251023-112717/model_res_81/', 0);
+[input2, res2, gmap2] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_34_20251023-113309/model_res_81/', 0);
+[input3, res3, gmap3] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_35_20251023-113656/model_res_81/', 0);
+
+[input1, res1, gmap1] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_2D_66016_056941164_056941169_30_20251023-112121/model_res_81/', 0);
+[input2, res2, gmap2] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_2D_66016_056941164_056941169_31_20251023-112322/model_res_81/', 0);
+[input3, res3, gmap3] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_2D_66016_056941164_056941169_32_20251023-112431/model_res_81/', 0);
+
+[input1, res1, gmap1] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Spine_2D_66016_056941164_056941169_51_20251023-115001/model_res_81/', 0);
+[input2, res2, gmap2] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Spine_2D_66016_056941164_056941169_52_20251023-115206/model_res_81/', 0);
+[input3, res3, gmap3] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Spine_2D_66016_056941164_056941169_53_20251023-115340/model_res_81/', 0);
+
+
+[input1, res1, gmap1] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case2_res/Data_2D_66016_028023407_028023412_81_20251002-115526/model_res_81/', 0);
+[input2, res2, gmap2] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case2_res/Data_2D_66016_028023407_028023412_82_20251002-115755/model_res_81/', 0);
+[input3, res3, gmap3] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case2_res/Data_2D_66016_028023407_028023412_83_20251002-115955/model_res_81/', 0);
+
+size(res1)
+size(res3)
+
+a1 = interpimages3D(input1, 'linear', size(res3));
+a2 = interpimages3D(input2, 'linear', size(res3));
+
+out1 = interpimages3D(res1, 'linear', size(res3));
+out2 = interpimages3D(res2, 'linear', size(res3));
+
+figure; imagescn(cat(4, a1, a2, input3, out1, out2, res3), [], [2 3], [16], 3)
+
