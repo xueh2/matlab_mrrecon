@@ -137,12 +137,13 @@ data_dir = '/data/raw_data/noncardiac/phantom/'
 data_dir = '/data/raw_data/noncardiac/noncardiac//'
 
 data_dir = '/home/gtuser/data/noncardiac/case1'
+res_dir = '/data/raw_data/noncardiac/noncardiac//case1_res'
 
 data_dir = '/data/raw_data/noncardiac/noncardiac//case2'
-data_dir = '/data/raw_data/noncardiac/noncardiac//case2_res'
+res_dir = '/data/raw_data/noncardiac/noncardiac//case2_res'
 
 data_dir = '/data/raw_data/noncardiac/noncardiac//case3'
-data_dir = '/data/raw_data/noncardiac/noncardiac//case3_res'
+res_dir = '/data/raw_data/noncardiac/noncardiac//case3_res'
 
 data_dir = '/data/raw_data/noncardiac/noncardiac//case4_res'
 res_dir = data_dir
@@ -272,7 +273,7 @@ for i=1:num
     debug_dir = fullfile(res_dir, names{i});
     load(fullfile(debug_dir, 'header.mat'))
 
-    R = header.encoding.parallelImaging.accelerationFactor.kspace_encoding_step_1
+    R = header.encoding.parallelImaging.accelerationFactor.kspace_encoding_step_1;
 
     data_str = [header.measurementInformation.protocolName ' - R = ' num2str(R) ' - matrix size ' num2str(header.encoding.reconSpace.matrixSize.x) ' ' num2str(header.encoding.reconSpace.matrixSize.y)];
     disp([names{i} ' - ' data_str])
@@ -368,6 +369,116 @@ for kk=1:numel(case_lists)
     end
 
 end
+
+% measure SNR and SNRGain for T1 MPRAGE
+% rt cine R5, get SNR gain
+names = {'/data/raw_data/noncardiac/noncardiac/case1_res/Data_3DT_66016_019535466_019535471_41_20250925-154629/'; ...
+    '/data/raw_data/noncardiac/noncardiac/case2_res/Data_3DT_66016_028023407_028023412_86_20251002-121417/'; ...
+    '/data/raw_data/noncardiac/noncardiac/case3_res/Data_3DT_66016_028023423_028023428_118_20251002-171038/'; ...
+    '/data/raw_data/noncardiac/noncardiac/case4_res/Data_3DT_66016_052419167_052419172_80_20251017-171443/'; ...
+    '/data/raw_data/noncardiac/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_35_20251023-113656/'; ...
+    '/data/raw_data/noncardiac/noncardiac/case6_res/Data_3DT_66016_056941180_056941185_67_20251023-123519/'; ...
+    }
+
+
+UTCases = set_up_UT_cases_RTCine;
+
+num = numel(names)
+
+for i=1:num
+    case_dir = names{i}
+
+    cd(case_dir)
+
+    [input, res, gmap] = load_results_stcnnt_inference_perf(case_dir, 0);
+
+    figure; imagescn(abs(input), [], [], [16], 3);
+    
+    pause
+    closeall
+end
+
+closeall
+
+wm_snr = zeros(num, 1);
+gm_snr = zeros(num, 1);
+wm_snr_gain = zeros(num, 1);
+gm_snr_gain = zeros(num, 1);
+wm_gmap = zeros(num, 1);
+gm_gmap = zeros(num, 1);
+
+for i=1:num
+    case_dir = names{i}
+
+    [input, res, gmap] = load_results_stcnnt_inference_perf(fullfile(case_dir, 'res_400m_model_snr'), 0);
+    size(res)
+
+    PHS = size(input, 3)
+
+    sd_map = std(res, [], 4);
+
+    [roi_names, n] = findFILE(case_dir, 'roi*.mat')
+
+    [path, roi, ext] = fileparts(roi_names{1})
+
+    frame = str2num(roi(5:end))
+
+    roi_obj = load(roi_names{1})
+
+    im = abs(res(:,:,frame,1));
+    RO = size(im, 1)
+    E1 = size(im, 2)
+
+    wm = poly2mask(roi_obj.ROI_InfoTable(1).ROI_x_original, roi_obj.ROI_InfoTable(1).ROI_y_original,RO,E1);
+    gm = poly2mask(roi_obj.ROI_InfoTable(2).ROI_x_original, roi_obj.ROI_InfoTable(2).ROI_y_original,RO,E1);
+
+    snr_map = abs(input) ./ gmap;
+
+    snr_frame = snr_map(:,:,frame);
+
+    wm_snr(i) = mean(snr_frame(find(wm>0)));
+    gm_snr(i) = mean(snr_frame(find(gm>0)));
+
+    sd_frame = sd_map(:,:,frame);
+    wm_snr_gain(i) = mean(0.1 ./ sd_frame(find(wm>0)));
+    gm_snr_gain(i) = mean(0.1 ./ sd_frame(find(gm>0)));
+
+    a_gmap = gmap(:,:,frame);
+    wm_gmap(i) = mean(a_gmap(find(wm>0)));
+    gm_gmap(i) = mean(a_gmap(find(gm>0)));
+
+    figure; imagescn(cat(3, snr_frame + gm * 100 + wm*200, sd_frame, wm, gm, gmap(:,:,frame)), [], [1 5], 16)
+end
+
+snr_res = table(names, wm_snr, gm_snr, wm_snr_gain, gm_snr_gain, wm_gmap, gm_gmap)
+
+mean(snr_res.wm_snr)
+std(snr_res.wm_snr)
+
+mean(snr_res.gm_snr)
+std(snr_res.gm_snr)
+
+mean(snr_res.wm_snr_gain)
+std(snr_res.wm_snr_gain)
+
+mean(snr_res.gm_snr_gain)
+std(snr_res.gm_snr_gain)
+
+mean(snr_res.wm_snr .* snr_res.wm_snr_gain)
+std(snr_res.wm_snr .* snr_res.wm_snr_gain)
+
+mean(snr_res.gm_snr .* snr_res.gm_snr_gain)
+std(snr_res.gm_snr .* snr_res.gm_snr_gain)
+
+
+mean(snr_res.wm_gmap)
+std(snr_res.wm_gmap)
+
+mean(snr_res.gm_gmap)
+std(snr_res.gm_gmap)
+
+[h, p] = ttest(snr_res.wm_snr, snr_res.wm_snr .* snr_res.wm_snr_gain)
+[h, p] = ttest(snr_res.gm_snr, snr_res.gm_snr .* snr_res.gm_snr_gain)
 
 %% loc
 

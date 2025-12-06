@@ -9,10 +9,13 @@ if exist(fullfile(res_dir, 'input.npy'))
     input = double(py.numpy.load(fullfile(res_dir, 'input.npy')));
 end
 
+res = [];
 if exist(fullfile(res_dir, 'output_real.npy'))
     res = readNPY(fullfile(res_dir, 'output_real')) + j*readNPY(fullfile(res_dir, 'output_imag'));
 else
-    res = double(py.numpy.load(fullfile(res_dir, 'output.npy')));
+    if exist(fullfile(res_dir, 'output.npy'))
+        res = double(py.numpy.load(fullfile(res_dir, 'output.npy')));
+    end
 end
 
 gmap = [];
