@@ -12,7 +12,10 @@ for slc=1:SLC
     if exist(gmap_name)
         gmap(:,:,slc) = analyze75read(gmap_name);
         data(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['input_complex_images_stcnnt_slc_' num2str(slc-1) '_set_0_row_' num2str(slc-1)]) );
-        res(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['output_complex_images_stcnnt_slc_' num2str(slc-1) '_set_0_row_' num2str(slc-1)]) );
+        try
+            res(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['output_complex_images_stcnnt_slc_' num2str(slc-1) '_set_0_row_' num2str(slc-1)]) );
+        catch
+        end
     end
 end
 
@@ -22,7 +25,10 @@ if isempty(data)
         if exist(gmap_name)
             gmap(:,:,slc) = analyze75read(gmap_name);
             data(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['input_stcnnt_filter__row' num2str(slc-1)]) );
-            res(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['output_stcnnt_filter__row' num2str(slc-1)]) );
+            try
+                res(:,:,:,slc) = readGTPlusExportData(fullfile(debug_dir, ['output_stcnnt_filter__row' num2str(slc-1)]) );
+            catch
+            end
         end
     end
 end
