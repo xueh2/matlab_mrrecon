@@ -4,7 +4,7 @@ closeall
 
 data_dir = '/fastdata/data/perf//'
 
-data_dir = '/fastdata/data/highres/'
+data_dir = '/home/gtuser/data/perf2/'
 
 
 findAndMoveMeasDat(data_dir)
@@ -22,6 +22,9 @@ for i=1:num
         UTCases{1, 4} = 'GT_QPerf_AI_STCNNT_OFFLINE.xml'
         UTCases{1, 5} = 'res_GT_QPerf_AI_STCNNT_OFFLINE' 
 
+        UTCases{1, 4} = 'GT_QPerf_AI_STCNNT_on_MOCO_OFFLINE.xml'
+        UTCases{1, 5} = 'res_GT_QPerf_AI_STCNNT_on_MOCO_OFFLINE' 
+
         % UTCases{1, 4} = 'GT_QPerf_AI_STCNNT_istore.xml'
         % UTCases{1, 5} = 'res_GT_QPerf_AI_STCNNT_istore' 
         % 
@@ -33,7 +36,7 @@ for i=1:num
             UTCases{1, 4} = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml'
         end
 
-        performUTValidation(UTCases, 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, UTCases{1, 4}, [], 'IsmrmrdParameterMap_Siemens_Perfusion_NX.xml', '/home/xueh/Debug/DebugOutput')
+        performUTValidation(UTCases, 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, UTCases{1, 4}, [], 'IsmrmrdParameterMap_Siemens_Perfusion_NX.xml', '/home/gtuser/Debug/DebugOutput')
     
         %performUTValidation(UTCases, 0, 0, 'GCRSANDBOX455.redmond.corp.microsoft.com', '9002', 1, 1, 0, 0, 0, UTCases{1, 4}, [], [], '/home/xueh/Debug/DebugOutput')
 
@@ -102,6 +105,31 @@ res_dir = '/data/raw_data/highres/Perfusion_AIF_Q_mapping_66016_111101640_111101
 
 [input, res, gmap] = load_results_stcnnt_inference_perf(res_dir, 1);
 
+m1 = niftiread('RSquareMap_slc_0.hdr');
+size(m1)
+figure; imagescn(m1)
+
+t1 = niftiread('RSquare_mask_for_seg_0.hdr');
+size(t1)
+figure; imagescn(cat(3, m1, t1))
+
+t2 = niftiread('RSquare_mask_for_seg_after_hole_filling_0.hdr');
+size(t2)
+figure; imagescn(cat(3, m1, t1, t2))
+
+r = niftiread('flow_maps_for_seg_without_rsq_mask_0');
+figure; imagescn(r,[0 8]); PerfColorMap;
+
+a = niftiread('flow_maps_for_seg_after_applyRSquareMaskOnFlowMap_0.hdr');
+b = niftiread('flow_maps_for_seg_after_applyRSquareMaskOnFlowMap_1.hdr');
+c = niftiread('flow_maps_for_seg_after_applyRSquareMaskOnFlowMap_2.hdr');
+figure; imagescn(a,[0 8]); PerfColorMap;
+
+p = niftiread('RSquare_mask_for_seg_after_hole_filling_after_updating_0');
+size(p)
+
+figure;imagescn(p)
+
 %% check perf debug
 
 cd /data/raw_data/perf_debug/scc/Perfusion_AIF_TwoEchoes_Interleaved_R2_66016_31820219_31820228_802_20241119-150332/res_GT_QPerf_AI_STCNNT_OFFLINE/DebugOutput/
@@ -123,6 +151,86 @@ size(Gd2)
 
 figure; imagescn(cat(4, Gd2, Gd, Q_e), [0 1], [], [16], 3)
 
+%% binning
+
+data_dir = '/home/gtuser/data/binning'
+res_dir = data_dir
+
+findAndMoveMeasDat(data_dir)
+
+UTCases = set_up_UT_cases_knee;
+
+[names, num] = FindSubDirs(data_dir)
+
+
+for i=1:num
+    UTCases{1, 1} = data_dir;
+    UTCases{1, 2} = names{i}
+
+    UTCases{1, 4} = 'CMR_2DT_Binning_AI.xml'
+    UTCases{1, 5} = 'res_CMR_2DT_Binning_AI'
+
+    h5name = fullfile(data_dir, names{i}, [names{i} '.h5']);
+    if exist(h5name)
+        dset = ismrmrd.Dataset(h5name);
+        header = ismrmrd.xml.deserialize(dset.readxml());
+        R = header.encoding.parallelImaging.accelerationFactor.kspace_encoding_step_1
+        dset.close()
+
+        header.measurementInformation.protocolName
+    end
+
+    if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
+            UTCases{1, 4} = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml'
+    end
+
+    UTCases{1, 4}
+    performUTValidation(UTCases(1,:), 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, [], [], 'wip_070_fire_IsmrmrdParameterMap_Siemens.xml', '/home/gtuser/Debug/DebugOutput');
+end
+
+%% fatwater
+
+data_dir = '/home/gtuser/data/FatWater/raw/00014511'
+res_dir = data_dir
+
+findAndMoveMeasDat(data_dir)
+
+UTCases = set_up_UT_cases_knee;
+
+[names, num] = FindSubDirs(data_dir)
+
+
+for i=1:num
+    UTCases{1, 1} = data_dir;
+    UTCases{1, 2} = names{i}
+
+    UTCases{1, 4} = 'GTPrep_2DT_FW_MOCO_AVE_PSIR_Diego.xml'
+    UTCases{1, 5} = 'res_GTPrep_2DT_FW_MOCO_AVE_PSIR_Diego'
+
+    UTCases{1, 4} = 'GTPrep_2DT_FW_MOCO_AVE_PSIR_Diego_AVE.xml'
+    UTCases{1, 5} = 'res_GTPrep_2DT_FW_MOCO_AVE_PSIR_Diego_AVE'
+
+    UTCases{1, 4} = 'GTPrep_BH_FW_PSIR_STCNNT.xml'
+    UTCases{1, 5} = 'res_GTPrep_BH_FW_PSIR_STCNNT'
+
+    h5name = fullfile(data_dir, names{i}, [names{i} '.h5']);
+    if exist(h5name)
+        dset = ismrmrd.Dataset(h5name);
+        header = ismrmrd.xml.deserialize(dset.readxml());
+        R = header.encoding.parallelImaging.accelerationFactor.kspace_encoding_step_1
+        dset.close()
+
+        header.measurementInformation.protocolName
+    end
+
+    if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
+            UTCases{1, 4} = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml'
+    end
+
+    UTCases{1, 4}
+    performUTValidation(UTCases(1,:), 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, [], [], 'wip_070_fire_IsmrmrdParameterMap_Siemens.xml', '/home/gtuser/Debug/DebugOutput');
+end
+
 % -------------------------------------
 %% spine
 
@@ -134,24 +242,27 @@ data_dir = '/data/raw_data/noncardiac_20250805/knee/'
 
 data_dir = '/data/raw_data/noncardiac/phantom/'
 
-data_dir = '/data/raw_data/noncardiac/noncardiac//'
+data_dir = '/home/gtuser/data1/noncardiac//'
 
 data_dir = '/home/gtuser/data/noncardiac/case1'
-res_dir = '/data/raw_data/noncardiac/noncardiac//case1_res'
+res_dir = '/home/gtuser/data1/noncardiac//case1_res'
 
-data_dir = '/data/raw_data/noncardiac/noncardiac//case2'
-res_dir = '/data/raw_data/noncardiac/noncardiac//case2_res'
+data_dir = '/home/gtuser/data/noncardiac//case2'
+res_dir = '/home/gtuser/data1/noncardiac//case2_res'
 
-data_dir = '/data/raw_data/noncardiac/noncardiac//case3'
-res_dir = '/data/raw_data/noncardiac/noncardiac//case3_res'
+data_dir = '/home/gtuser/data/noncardiac//case3'
+res_dir = '/home/gtuser/data1/noncardiac//case3_res'
 
-data_dir = '/data/raw_data/noncardiac/noncardiac//case4_res'
+data_dir = '/home/gtuser/data/noncardiac//case7'
+res_dir = '/home/gtuser/data1/noncardiac//case7_res'
+
+data_dir = '/home/gtuser/data1/noncardiac//case4_res'
 res_dir = data_dir
 
-data_dir = '/data/raw_data/noncardiac/noncardiac//case5_res'
+data_dir = '/home/gtuser/data1/noncardiac//case5_res'
 res_dir = data_dir
 
-data_dir = '/data/raw_data/noncardiac/noncardiac//case6_res'
+data_dir = '/home/gtuser/data1/noncardiac//case6_res'
 res_dir = data_dir
 
 findAndMoveMeasDat(data_dir)
@@ -160,9 +271,51 @@ UTCases = set_up_UT_cases_knee;
 
 [names, num] = FindSubDirs(data_dir)
 
+
 for i=1:num
     UTCases{1, 1} = data_dir;
     UTCases{1, 2} = names{i}
+
+    if strfind(names{i}, 'Spine') > 0
+        UTCases{1, 4} = 'GTPrep_2DT_STCNNT_Spine.xml'
+        UTCases{1, 5} = 'res_GTPrep_2DT_STCNNT_Spine'
+    end
+
+    if strfind(names{i}, 'Data_3DT') > 0
+        UTCases{1, 4} = 'Generic_Cartesian_3D_Grappa_STCNNT.xml'
+        UTCases{1, 5} = 'res_Generic_Cartesian_3D_Grappa_STCNNT'
+    end
+
+    if strfind(names{i}, 'Data_2D') > 0
+        UTCases{1, 4} = 'Generic_Cartesian_2D_Grappa_STCNNT.xml'
+        UTCases{1, 5} = 'res_Generic_Cartesian_2D_Grappa_STCNNT'
+
+        UTCases{1, 4} = 'GTPrep_Cartesian_2D_Grappa_STCNNT.xml'
+        UTCases{1, 5} = 'res_GTPrep_Cartesian_2D_Grappa_STCNNT'
+    end
+
+    h5name = fullfile(data_dir, names{i}, [names{i} '.h5']);
+    if exist(h5name)
+        dset = ismrmrd.Dataset(h5name);
+        header = ismrmrd.xml.deserialize(dset.readxml());
+        R = header.encoding.parallelImaging.accelerationFactor.kspace_encoding_step_1
+        dset.close()
+
+        header.measurementInformation.protocolName
+    end
+
+    if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
+            UTCases{1, 4} = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml'
+    end
+
+    UTCases{1, 4}
+    performUTValidation(UTCases(1,:), 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, [], [], 'wip_070_fire_IsmrmrdParameterMap_Siemens.xml', '/home/gtuser/Debug/DebugOutput');
+end
+
+
+for i=1:num
+    UTCases{1, 1} = data_dir;
+    UTCases{1, 2} = names{i};
 
     if strfind(names{i}, 'Spine') > 0
         UTCases{1, 4} = 'GTPrep_2DT_STCNNT_Spine.xml'
@@ -187,15 +340,25 @@ for i=1:num
         dset.close()
 
         header.measurementInformation.protocolName
+
     end
 
     if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
-            UTCases{1, 4} = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml'
+            continue
     end
 
     UTCases{1, 4}
-    performUTValidation(UTCases(1,:), 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, [], [], 'wip_070_fire_IsmrmrdParameterMap_Siemens.xml', '/home/gtuser/Debug/DebugOutput');
+
+    try
+        debug_dir = fullfile(data_dir, names{i}, UTCases{1, 5}, 'DebugOutput');
+        res_case_dir = fullfile(res_dir, names{i});
+        mkdir(res_case_dir)
+        copyfile(fullfile(debug_dir, '*.*'), res_case_dir);
+        save(fullfile(res_case_dir, 'header.mat'), 'header')
+    catch
+    end
 end
+
 
 for i=1:num
     UTCases{1, 1} = data_dir;
@@ -247,59 +410,68 @@ for i=1:num
 end
 
 
-for i=1:num
-    UTCases{1, 1} = data_dir;
-    UTCases{1, 2} = names{i};
+[case_dirs, ncases] = FindSubDirs('/home/gtuser/data1/noncardiac/')
 
-    if strfind(names{i}, 'Spine') > 0
-        UTCases{1, 4} = 'GTPrep_2DT_STCNNT_Spine.xml';
-        UTCases{1, 5} = 'res_GTPrep_2DT_STCNNT_Spine';
-    end
+for c=1:ncases
 
-    if strfind(names{i}, 'Data_3DT') > 0
-        UTCases{1, 4} = 'Generic_Cartesian_3D_Grappa_STCNNT.xml';
-        UTCases{1, 5} = 'res_Generic_Cartesian_3D_Grappa_STCNNT';
-    end
-
-    if strfind(names{i}, 'Data_2D') > 0
-        UTCases{1, 4} = 'Generic_Cartesian_2D_Grappa_STCNNT.xml';
-        UTCases{1, 5} = 'res_Generic_Cartesian_2D_Grappa_STCNNT';
-    end
+    res_dir = fullfile('/home/gtuser/data1/noncardiac/', case_dirs{c});
     
-    if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
-            continue
+    [names, num] = FindSubDirs(res_dir)
+    
+    for i=1:num
+        UTCases{1, 1} = res_dir;
+        UTCases{1, 2} = names{i};
+    
+        if strfind(names{i}, 'Spine') > 0
+            UTCases{1, 4} = 'GTPrep_2DT_STCNNT_Spine.xml';
+            UTCases{1, 5} = 'res_GTPrep_2DT_STCNNT_Spine';
+        end
+    
+        if strfind(names{i}, 'Data_3DT') > 0
+            UTCases{1, 4} = 'Generic_Cartesian_3D_Grappa_STCNNT.xml';
+            UTCases{1, 5} = 'res_Generic_Cartesian_3D_Grappa_STCNNT';
+        end
+    
+        if strfind(names{i}, 'Data_2D') > 0
+            UTCases{1, 4} = 'Generic_Cartesian_2D_Grappa_STCNNT.xml';
+            UTCases{1, 5} = 'res_Generic_Cartesian_2D_Grappa_STCNNT';
+        end
+        
+        if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
+                continue
+        end
+    
+        debug_dir = fullfile(res_dir, names{i});
+        load(fullfile(debug_dir, 'header.mat'))
+    
+        R = header.encoding.parallelImaging.accelerationFactor.kspace_encoding_step_1;
+    
+        data_str = [header.measurementInformation.protocolName ' - R = ' num2str(R) ' - matrix size ' num2str(header.encoding.reconSpace.matrixSize.x) ' ' num2str(header.encoding.reconSpace.matrixSize.y)];
+        disp([names{i} ' - ' data_str])
+    
+        try
+            [data, res, gmap] = load_results_stcnnt_inference_perf(fullfile(debug_dir, 'res_329m_model'), 0); 
+            data = flipdim(permute(data, [2 1 3]), 1);
+            res = flipdim(permute(res, [2 1 3]), 1);
+            gmap = flipdim(permute(gmap, [2 1 3]), 1);
+            SLC = size(res, 3)
+            h = figure('Name', names{i}); imagescn(abs(cat(4, data, res)), [], [1 2], [8], 3);
+            saveas(h, fullfile(res_dir, [names{i} '_' data_str '.fig']));
+            save(fullfile(res_dir, [names{i} '.mat']), 'data', 'gmap', 'res', 'header');
+        catch
+        end
     end
-
-    debug_dir = fullfile(res_dir, names{i});
-    load(fullfile(debug_dir, 'header.mat'))
-
-    R = header.encoding.parallelImaging.accelerationFactor.kspace_encoding_step_1;
-
-    data_str = [header.measurementInformation.protocolName ' - R = ' num2str(R) ' - matrix size ' num2str(header.encoding.reconSpace.matrixSize.x) ' ' num2str(header.encoding.reconSpace.matrixSize.y)];
-    disp([names{i} ' - ' data_str])
-
-    continue
-
-    try
-        [data, res, gmap] = load_results_stcnnt_inference_perf(fullfile(debug_dir, 'model_res_81'), 0); 
-        data = flipdim(permute(data, [2 1 3]), 1);
-        res = flipdim(permute(res, [2 1 3]), 1);
-        gmap = flipdim(permute(gmap, [2 1 3]), 1);
-        SLC = size(res, 3)
-        h = figure('Name', names{i}); imagescn(abs(cat(4, data, res)), [], [1 2], [8], 3);
-        saveas(h, fullfile(data_dir, [names{i} '_' data_str '.fig']));
-        save(fullfile(data_dir, [names{i} '.mat']), 'data', 'gmap', 'res', 'header');
-    catch
-    end
+    closeall
 end
-closeall
 
-cd /data/raw_data/noncardiac/noncardiac/
+
+
+cd /home/gtuser/data1/noncardiac/
 a = load('Data_3DT_66016_019535466_019535471_39_20250925-153711.mat')
 b = load('Data_3DT_66016_019535466_019535471_40_20250925-154251.mat')
 c = load('Data_3DT_66016_019535466_019535471_41_20250925-154629.mat')
 
-cd /data/raw_data/noncardiac/noncardiac/case2_res/
+cd /home/gtuser/data1/noncardiac/case2_res/
 a = load('Data_3DT_66016_028023407_028023412_84_20251002-120250.mat')
 b = load('Data_3DT_66016_028023407_028023412_85_20251002-120957.mat')
 c = load('Data_3DT_66016_028023407_028023412_86_20251002-121417.mat')
@@ -317,20 +489,21 @@ figure; imagescn(cat(4, a1, b1, c.data, a2, b2, c.res), [], [2 3], [8], 3);
 
 case_lists = {}
 
-data_dir = '/data/raw_data/noncardiac/noncardiac/'
+data_dir = '/home/gtuser/data1/noncardiac/'
+data2_dir = '/data1/noncardiac/'
 [cases, num] = FindSubDirs(data_dir)
 for n=1:num
 
     [c_list, m] = FindSubDirs(fullfile(data_dir, cases{n}))
     for k=1:m
-        case_lists = [case_lists; {fullfile(data_dir, cases{n}, c_list{k})}];
+        case_lists = [case_lists; {fullfile(data2_dir, cases{n}, c_list{k})}];
     end
 end
 
-run_file_name = '/data/raw_data/noncardiac/noncardiac/run_cases'
-res_dir = 'res_400m_model'
-model_file = '/data/models/ifm-mri-denoising_20251019_195434/ifm-mri-denoising-400m-no-epoch/checkpoints/step_00692000.ckpt'
-config_file = '/data/models/ifm-mri-denoising_20251019_195434/ifm-mri-denoising-400m-no-epoch/config.yaml'
+run_file_name = '/home/gtuser/data1/noncardiac/run_cases'
+res_dir = 'res_329m_model'
+model_file = '/data3/models/ifm-mri-denoising_20251120_022700/ifm-mri-denoising-600m-no-epoch/checkpoints/step_00920000.ckpt'
+config_file = '/data3/models/ifm-mri-denoising_20251120_022700/ifm-mri-denoising-600m-no-epoch/config.yaml'
 scaling_factor = '1.0'
 batch_size = '16'
 ignore_check_existed = 0
@@ -372,12 +545,12 @@ end
 
 % measure SNR and SNRGain for T1 MPRAGE
 % rt cine R5, get SNR gain
-names = {'/data/raw_data/noncardiac/noncardiac/case1_res/Data_3DT_66016_019535466_019535471_41_20250925-154629/'; ...
-    '/data/raw_data/noncardiac/noncardiac/case2_res/Data_3DT_66016_028023407_028023412_86_20251002-121417/'; ...
-    '/data/raw_data/noncardiac/noncardiac/case3_res/Data_3DT_66016_028023423_028023428_118_20251002-171038/'; ...
-    '/data/raw_data/noncardiac/noncardiac/case4_res/Data_3DT_66016_052419167_052419172_80_20251017-171443/'; ...
-    '/data/raw_data/noncardiac/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_35_20251023-113656/'; ...
-    '/data/raw_data/noncardiac/noncardiac/case6_res/Data_3DT_66016_056941180_056941185_67_20251023-123519/'; ...
+names = {'/home/gtuser/data1/noncardiac/case1_res/Data_3DT_66016_019535466_019535471_41_20250925-154629/'; ...
+    '/home/gtuser/data1/noncardiac/case2_res/Data_3DT_66016_028023407_028023412_86_20251002-121417/'; ...
+    '/home/gtuser/data1/noncardiac/case3_res/Data_3DT_66016_028023423_028023428_118_20251002-171038/'; ...
+    '/home/gtuser/data1/noncardiac/case4_res/Data_3DT_66016_052419167_052419172_80_20251017-171443/'; ...
+    '/home/gtuser/data1/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_35_20251023-113656/'; ...
+    '/home/gtuser/data1/noncardiac/case6_res/Data_3DT_66016_056941180_056941185_67_20251023-123519/'; ...
     }
 
 
@@ -484,7 +657,7 @@ std(snr_res.gm_gmap)
 
 data_dir = '/data/raw_data/debug/loc/'
 
-data_dir = '/fastdata/phantom//'
+data_dir = '/home/gtuser/data/20240103_Phantom/'
 
 findAndMoveMeasDat(data_dir)
 
@@ -498,8 +671,8 @@ for i=1:num
     UTCases{1, 1} = data_dir;
     UTCases{1, 2} = names{i}
 
-    UTCases{1, 4} = 'Generic_Cartesian_Grappa_SNR.xml'
-    UTCases{1, 5} = 'res_Generic_Cartesian_Grappa_SNR'     
+    UTCases{1, 4} = 'Generic_Cartesian_2D_Grappa_STCNNT.xml'
+    UTCases{1, 5} = 'res_Generic_Cartesian_2D_Grappa_STCNNT'     
 
     if strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0
         UTCases{1, 4} = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml'
@@ -522,7 +695,7 @@ end
 
 %% RetroCine
 
-data_dir = '/data/raw_data/retro_cine/'
+data_dir = '/data/raw_data/raw_data/retrocine/R4'
 
 data_dir = '/data/raw_data/00035000/'
 
@@ -532,7 +705,7 @@ data_dir = '/fastdata/data/test'
 
 data_dir = '/fastdata/data/debug/'
 
-data_dir = '/data/raw_data/retrocine/00035000/'
+data_dir = '/home/gtuser/data/retro_cine/'
 
 findAndMoveMeasDat(data_dir)
 
@@ -568,7 +741,7 @@ for i=1:num
         UTCases{1, 4} = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml'
     end
 
-    performUTValidation(UTCases, 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, [], [], [], '/home/xueh/Debug/DebugOutput');
+    performUTValidation(UTCases, 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, [], [], [], '/home/gtuser/Debug/DebugOutput');
     names{i}
 
     % debug_dir = fullfile(data_dir, names{i}, UTCases{1, 5}, 'DebugOutput');
@@ -609,45 +782,210 @@ for i=1:num
     saveas(h, fullfile(data_dir, [names{i} '.fig']), 'fig');
 end
 
+data = load_mrd_output_array(fullfile(res_dir, 'im.mrd'));
+gmap = load_mrd_output_array(fullfile(res_dir, 'gmap.mrd'));
+
+[im, h, meta] = load_mrd_images('/tmp/tinker_test_output/2026-04-20-09-34-10-test_retro_cine_recon_with_ai-images_retro_cine_with_ai.mrd', 100);
+[im_ai, h_ai, meta_ai] = load_mrd_images('/tmp/tinker_test_output/2026-04-20-09-34-10-test_retro_cine_recon_with_ai-images_retro_cine_with_ai.mrd', 101);
+
+figure; imagescn(cat(4, im, im_ai), [], [], [16], 3);
+
 %% LGE
 
-data_dir = '//data/raw_data/wb_psir/'
 
-data_dir = '/data/raw_data/lge_flash//'
+data_dir = '//data/raw_data/`_psir/'
 
-findAndMoveMeasDat(data_dir)
+data_dir = '/home/gtuser/data/db_lge'
+
+data_dir = '/home/gtuser/data/DB_LGE/raw'
+
+data_dir = '/data/raw_data/WB_h5files'
+
+data_dir = '/home/gtuser/data/LGE/phantom'
+
+data_dir = '/data/raw_data/LGE/phantom'
 
 UTCases = set_up_UT_cases_FreeMax_AI_Denoising_v2;
 
-[names, num] = FindSubDirs(data_dir)
+[cases, num1] = FindSubDirs(data_dir)
 
-for i=1:num
-    UTCases{1, 1} = data_dir;
-    UTCases{1, 2} = names{i}
+for p=1:num1
 
-    for k=3:3
-        if k == 1
-            UTCases{1, 4} = 'GT_LGE.xml'
-            UTCases{1, 5} = 'res_GT_LGE' 
-        else 
-            if k==2
-                UTCases{1, 4} = 'GTPrep_WB_LGE_STCNNT.xml'
-                UTCases{1, 5} = 'res_GTPrep_WB_LGE_STCNNT_old' 
+    case_dir = fullfile(data_dir, cases{p})
+
+    findAndMoveMeasDat(case_dir)
+    [names, num] = FindSubDirs(case_dir)
+
+    for i=1:num
+
+        UTCases{1, 1} = case_dir;
+        UTCases{1, 2} = names{i};
+        names{i}
+
+        for k=3:3
+            if k == 1
+                UTCases{1, 4} = 'GTPrep_LGE_Denoise.xml'
+                UTCases{1, 5} = 'res_GTPrep_LGE_Denoise' 
             else 
-                if k==3
-                    UTCases{1, 4} = 'GTPrep_WB_LGE_STCNNT.xml'
-                    UTCases{1, 5} = 'res_GTPrep_WB_LGE_STCNNT' 
+                if k==2
+                    UTCases{1, 4} = 'PSIRNet.xml'
+                    UTCases{1, 5} = 'res_PSIRNet' 
+                else 
+                    if k==3
+                        UTCases{1, 4} = 'GTPrep_WB_LGE_STCNNT.xml'
+                        UTCases{1, 5} = 'res_GTPrep_WB_LGE_STCNNT' 
+                    end
                 end
             end
+        
+            if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
+                    UTCases{1, 4} = 'default_measurement_dependencies.xml'
+            end
+        
+            performUTValidation(UTCases, 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, [], [], [], '/home/xueh/Debug/DebugOutput');
+            names{i}
+        
+
+            if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
+                    continue
+            end
+
+            try
+                [a, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries_Squeeze(fullfile(case_dir, names{i}, UTCases{1, 5}), 111, 1);
+            
+                size(a)
+            
+                SLC = size(a, 3)
+                for slc=1:SLC
+                    h = figure('name', names{i});
+                    imagescn(a(:,:,slc), [header(slc).window_center-header(slc).window_width/2 header(slc).window_center+header(slc).window_width/2], [], [8]);
+               
+                    saveas(h, fullfile(data_dir, [names{i} '_' UTCases{1, 5} '_slc' num2str(slc-1) '_PSIR.fig']), 'fig');                    
+                end                
+            
+                debug_dir = fullfile(case_dir, names{i}, UTCases{1, 5}, 'DebugOutput');
+                [data, gmap, res] = prepare_for_stcnnt_inference_LGE(debug_dir); 
+                if ~isempty(res)
+                    SLC = size(data, 5)
+                    if SLC==1
+                        h = figure('Name', names{i}); imagescn(cat(4, data, res), [], [SLC 4], [12], 3);
+                    else
+                        h = figure('Name', names{i}); imagescn(cat(4, data, res), [], [4 SLC], [12], 3);
+                    end
+                    saveas(h, fullfile(data_dir, ['Fil_' names{i} '_' UTCases{1, 5} '.fig']));
+                    close(h)
+                end
+            catch
+            end
+    
+            delete(fullfile('/tmp/gadgetron_data/*.h5'), 'f');
+            closeall
         end
+    end
+end
+
+
+
+for p=1:num1
+
+    case_dir = fullfile(data_dir, cases{p})
+
+    findAndMoveMeasDat(case_dir)
+    [names, num] = FindSubDirs(case_dir)
+
+    for i=22:num
+        UTCases{1, 1} = case_dir;
+        UTCases{1, 2} = names{i};
     
-        if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
-                UTCases{1, 4} = 'default_measurement_dependencies.xml'
+        for k=3:3
+            if k == 1
+                UTCases{1, 4} = 'GT_LGE.xml'
+                UTCases{1, 5} = 'res_GT_LGE' 
+            else 
+                if k==2
+                    UTCases{1, 4} = 'GTPrep_WB_LGE_STCNNT.xml'
+                    UTCases{1, 5} = 'res_GTPrep_WB_LGE_STCNNT_old' 
+                else 
+                    if k==3
+                        UTCases{1, 4} = 'GTPrep_WB_LGE_STCNNT.xml'
+                        UTCases{1, 5} = 'res_GTPrep_WB_LGE_STCNNT' 
+                    end
+                end
+            end
+        
+            if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
+                    continue
+            end
+        
+            names{i}
+        
+            h5file = fullfile(case_dir, names{i}, [names{i} '.h5']);
+            [patientID, protocol, ismrmrd_header] = read_ismrmrd_protocol(h5file);
+
+            try
+                [a, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries_Squeeze(fullfile(case_dir, names{i}, UTCases{1, 5}), 111, 1);
+                size(a)
+                SLC = size(a, 3)
+                for slc=1:SLC
+                    h = figure('name', names{i});
+                    imagescn(a(:,:,slc), [header(slc).window_center-header(slc).window_width header(slc).window_center+header(slc).window_width], [], [8]);
+    
+                    saveas(h, fullfile(data_dir, [names{i} '_' UTCases{1, 5} '_slc' num2str(slc-1) '_PSIR.fig']), 'fig');
+                    close(h)
+                end
+    
+                %save(fullfile(data_dir, [names{i} '_' UTCases{1, 5} '.mat']), 'a', 'header');
+            catch
+                continue
+            end
+            
+            % try
+            %     debug_dir = fullfile(case_dir, names{i}, UTCases{1, 5}, 'DebugOutput');
+            %     [data, gmap, res] = prepare_for_stcnnt_inference_LGE(debug_dir); 
+            % 
+            %     dst_dir = fullfile(res_case_dir, names{i})
+            %     mkdir(dst_dir)
+            % 
+            %     data = squeeze(data(:,:,:,1,:));
+            %     size(data)
+            % 
+            %     writeNPY(single(real(data)), fullfile(dst_dir, 'input_real.npy'));
+            %     writeNPY(single(imag(data)), fullfile(dst_dir, 'input_imag.npy'));
+            %     writeNPY(single(gmap), fullfile(dst_dir, 'gmap.npy'));
+            % 
+            % catch
+            % end
         end
-    
-        performUTValidation(UTCases, 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, [], [], [], '/home/xueh/Debug/DebugOutput');
-        names{i}
-    
+    end
+end
+
+[mat_names, num] = findFILE(data_dir, '*.mat')
+
+for k=1:num
+
+    data = load(mat_names{k});
+
+    a = data.a;
+    header = data.header;
+
+    SLC = size(a, 3)
+    for slc=1:SLC
+        h = figure('name', mat_names{k});
+        imagescn(a(:,:,slc), [header(slc).window_center-header(slc).window_width/2 header(slc).window_center+header(slc).window_width/2], [], [8]);
+    end
+end
+
+
+res_dir = '/data/raw_data/lge_flash/LGE_MOCO_AVE_OnTheFly_66016_462800584_462800593_415_20250725-152130/res_GTPrep_WB_LGE_STCNNT/DebugOutput//model_res_70'
+[input, res, gmap] = load_results_stcnnt_inference_perf(res_dir, 1);
+
+
+for i=1:num
+    if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
+        continue
+    end
+
+    try
         [a, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries_Squeeze(fullfile(data_dir, names{i}, UTCases{1, 5}), 111, 1);
     
         size(a)
@@ -657,29 +995,36 @@ for i=1:num
             h = figure('name', names{i});
             imagescn(a(:,:,slc), [header(slc).window_center-header(slc).window_width/2 header(slc).window_center+header(slc).window_width/2], [], [8]);
        
-            saveas(h, fullfile(data_dir, [names{i} '_' UTCases{1, 5} '_slc' num2str(slc-1) '_PSIR.fig']), 'fig');close(h)
+            saveas(h, fullfile(data_dir, [names{i} '_' UTCases{1, 5} '_AI_slc' num2str(slc-1) '_PSIR.fig']), 'fig');
         end
-        
-
-        try
-            debug_dir = fullfile(data_dir, names{i}, UTCases{1, 5}, 'DebugOutput');
-            [data, gmap, res] = prepare_for_stcnnt_inference_LGE(debug_dir); 
-            if ~isempty(res)
-                SLC = size(data, 5)
-                if SLC==1
-                    h = figure('Name', names{i}); imagescn(cat(4, data, res), [], [SLC 4], [12], 3);
-                else
-                    h = figure('Name', names{i}); imagescn(cat(4, data, res), [], [4 SLC], [12], 3);
-                end
-                saveas(h, fullfile(data_dir, [names{i} '_' UTCases{1, 5} '.fig']));
-                close(h)
-            end
-        catch
-        end
-
-        delete(fullfil('/tmp/gadgetron_data/*.h5'), 'f');
+        close(h)
+    catch
+        closeall;
     end
 end
+
+
+
+fig_dir = '/data/raw_data/wb_psir_fig/'
+mkdir(fig_dir)
+
+for i=1:num
+    [a, header, acq_time, physio_time, endo_pt, epi_pt, user_int] = readGTPlusExportImageSeries_Squeeze(fullfile(data_dir, names{i}, 'res_GT_LGE'), 111, 1);
+    b = readGTPlusExportImageSeries_Squeeze(fullfile(data_dir, names{i}, 'res_GTPrep_WB_LGE_STCNNT_old'), 111);
+    c = readGTPlusExportImageSeries_Squeeze(fullfile(data_dir, names{i}, 'res_GTPrep_WB_LGE_STCNNT'), 111);
+
+    size(a)
+
+    SLC = size(a, 3)
+    for slc=1:SLC
+        h = figure('name', names{i});
+        imagescn(cat(3, a(:,:,slc), b(:,:,slc), c(:,:,slc)), [header(slc).window_center-header(slc).window_width/2 header(slc).window_center+header(slc).window_width/2], [1 3], [16]);
+    
+        saveas(h, fullfile(fig_dir, [names{i} '_raw_AI_old_new_slc' num2str(slc-1) '_PSIR.fig']), 'fig');
+        %close(h)
+    end    
+end
+
 
 res_dir = '/data/raw_data/lge_flash/LGE_MOCO_AVE_OnTheFly_66016_462800584_462800593_415_20250725-152130/res_GTPrep_WB_LGE_STCNNT/DebugOutput//model_res_70'
 [input, res, gmap] = load_results_stcnnt_inference_perf(res_dir, 1);
@@ -817,7 +1162,7 @@ data_dir = '/fastdata/data/realtime/'
 
 data_dir = '/data/raw_data/SNR_PAPER/SNR_PAPER/R6/'
 
-data_dir = '/home/gtuser/data/rtcine'
+data_dir = '/home/gtuser/data/R5'
 
 
 UTCases = set_up_UT_cases_RTCine;
@@ -829,8 +1174,8 @@ for i=1:num
     UTCases{1, 1} = data_dir;
     UTCases{1, 2} = names{i}
    
-    UTCases{1, 4} = 'Generic_RTCine_PInterp_Fil_ECG_STCNNT.xml'
-    UTCases{1, 5} = 'res_Generic_RTCine_PInterp_Fil_ECG_STCNNT' 
+    UTCases{1, 4} = 'Generic_RTCine_PInterp_Fil_ECG_STCNNT_Dealiasing.xml'
+    UTCases{1, 5} = 'res_Generic_RTCine_PInterp_Fil_ECG_STCNNT_Dealiasing' 
 
     UTCases{1, 4} = 'Generic_RTCine_STCNNT.xml'
     UTCases{1, 5} = 'res_Generic_RTCine_STCNNT' 
@@ -1211,7 +1556,7 @@ end
 
 % -------------------------------------
 
-data_dir = '/fastdata/perfusion_h5/'
+data_dir = '/home/gtuser/data/lf/'
 
 findAndMoveMeasDat(data_dir)
 
@@ -1226,11 +1571,11 @@ for i=1:num
     UTCases{1, 4} = 'GT_QPerf_AI_STCNNT_noAIF.xml'
     UTCases{1, 5} = 'res_GT_QPerf_AI_STCNNT_noAIF' 
      
-    if any([(strfind(names{i}, 'ISMRMRD_Noise_dependency') > 0) (strfind(names{i}, 'noise_') > 0)])
+    if any([(strfind(names{i}, 'noise') > 0) (strfind(names{i}, 'noise_') > 0)])
             UTCases{1, 4} = 'default_measurement_dependencies_Noise_CoilSen_SCC.xml'
     end
 
-    performUTValidation(UTCases, 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, [], [], [], '/home/xueh/Debug/DebugOutput')
+    performUTValidation(UTCases, 0, 0, 'localhost', '9002', 1, 1, 0, 0, 0, [], [], [], '/home/gtuser/Debug/DebugOutput')
     names{i}
 
     debug_dir = fullfile(data_dir, names{i}, UTCases{1, 5}, 'DebugOutput');
@@ -2456,33 +2801,283 @@ size(b)
 
 %% get neuro and spine figures
 
-cd /data/raw_data/noncardiac/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_33_20251023-112717/model_res_81/
+base_dir = '/home/gtuser/data1/noncardiac'
 
-[input1, res1, gmap1] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_33_20251023-112717/model_res_81/', 0);
-[input2, res2, gmap2] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_34_20251023-113309/model_res_81/', 0);
-[input3, res3, gmap3] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_3DT_66016_056941164_056941169_35_20251023-113656/model_res_81/', 0);
+res_dir = 'res_329m_model'
 
-[input1, res1, gmap1] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_2D_66016_056941164_056941169_30_20251023-112121/model_res_81/', 0);
-[input2, res2, gmap2] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_2D_66016_056941164_056941169_31_20251023-112322/model_res_81/', 0);
-[input3, res3, gmap3] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Data_2D_66016_056941164_056941169_32_20251023-112431/model_res_81/', 0);
+case_lists = {'case5_res_brain_T13D', 'case5_res/Data_3DT_66016_056941164_056941169_33_20251023-112717', 'case5_res/Data_3DT_66016_056941164_056941169_34_20251023-113309', 'case5_res/Data_3DT_66016_056941164_056941169_35_20251023-113656'; ... 
+    'case5_res_brain_T2', 'case5_res/Data_2D_66016_056941164_056941169_30_20251023-112121', 'case5_res/Data_2D_66016_056941164_056941169_31_20251023-112322', 'case5_res/Data_2D_66016_056941164_056941169_32_20251023-112431'; ... 
+    'case5_res_spine', 'case5_res/Spine_2D_66016_056941164_056941169_51_20251023-115001', 'case5_res/Spine_2D_66016_056941164_056941169_52_20251023-115206', 'case5_res/Spine_2D_66016_056941164_056941169_53_20251023-115340'; ... 
+    ...
+    'case2_res_brain_T13D', 'case2_res/Data_3DT_66016_028023407_028023412_84_20251002-120250', 'case2_res/Data_3DT_66016_028023407_028023412_85_20251002-120957', 'case2_res/Data_3DT_66016_028023407_028023412_86_20251002-121417'; ... 
+    'case2_res_brain_T2', 'case2_res/Data_2D_66016_028023407_028023412_81_20251002-115526', 'case2_res/Data_2D_66016_028023407_028023412_82_20251002-115755', 'case2_res/Data_2D_66016_028023407_028023412_83_20251002-115955'; ... 
+    'case2_res_spine', 'case2_res/Spine_2D_66016_028023407_028023412_100_20251002-123304', 'case2_res/Spine_2D_66016_028023407_028023412_101_20251002-123509', 'case2_res/Spine_2D_66016_028023407_028023412_102_20251002-123643'; ... 
+    ...
+    'case6_res_brain_T13D', 'case6_res/Data_3DT_66016_056941180_056941185_65_20251023-122522', 'case6_res/Data_3DT_66016_056941180_056941185_66_20251023-123127', 'case6_res/Data_3DT_66016_056941180_056941185_67_20251023-123519'; ... 
+    'case6_res_brain_T2', 'case6_res/Data_2D_66016_056941180_056941185_62_20251023-121905', 'case6_res/Data_2D_66016_056941180_056941185_63_20251023-122059', 'case6_res/Data_2D_66016_056941180_056941185_64_20251023-122230'; ... 
+    'case6_res_spine', 'case6_res/Spine_2D_66016_056941180_056941185_80_20251023-124813', 'case6_res/Spine_2D_66016_056941180_056941185_81_20251023-125015', 'case6_res/Spine_2D_66016_056941180_056941185_82_20251023-125149'; ... 
+    ...
+    'case4_res_brain_T13D', 'case4_res/Data_3DT_66016_052419167_052419172_78_20251017-170508', 'case4_res/Data_3DT_66016_052419167_052419172_79_20251017-171057', 'case4_res/Data_3DT_66016_052419167_052419172_80_20251017-171443'; ... 
+    'case4_res_brain_T2', 'case4_res/Data_2D_66016_052419167_052419172_75_20251017-165843', 'case4_res/Data_2D_66016_052419167_052419172_76_20251017-170032', 'case4_res/Data_2D_66016_052419167_052419172_77_20251017-170214'; ... 
+    'case4_res_spine', 'case4_res/Spine_2D_66016_052419167_052419172_100_20251017-172748', 'case4_res/Spine_2D_66016_052419167_052419172_101_20251017-172922', 'case4_res/Spine_2D_66016_052419167_052419172_99_20251017-172542'; ... 
+    ...
+    'case3_res_brain_T13D', 'case3_res/Data_3DT_66016_028023423_028023428_116_20251002-170114', 'case3_res/Data_3DT_66016_028023423_028023428_117_20251002-170700', 'case3_res/Data_3DT_66016_028023423_028023428_118_20251002-171038'; ... 
+    'case3_res_brain_T2', 'case3_res/Data_2D_66016_028023423_028023428_113_20251002-165425', 'case3_res/Data_2D_66016_028023423_028023428_114_20251002-165625', 'case3_res/Data_2D_66016_028023423_028023428_115_20251002-165755'; ... 
+    'case3_res_spine', 'case3_res/Spine_2D_66016_028023423_028023428_131_20251002-172035', 'case3_res/Spine_2D_66016_028023423_028023428_132_20251002-172241', 'case3_res/Spine_2D_66016_028023423_028023428_133_20251002-172415'; ... 
+    };
 
-[input1, res1, gmap1] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Spine_2D_66016_056941164_056941169_51_20251023-115001/model_res_81/', 0);
-[input2, res2, gmap2] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Spine_2D_66016_056941164_056941169_52_20251023-115206/model_res_81/', 0);
-[input3, res3, gmap3] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case5_res/Spine_2D_66016_056941164_056941169_53_20251023-115340/model_res_81/', 0);
+
+for k=10:size(case_lists, 1)
+
+    [input1, res1, gmap1] = load_results_stcnnt_inference_perf(fullfile(base_dir, case_lists{k,2}, res_dir), 0);
+    [input2, res2, gmap2] = load_results_stcnnt_inference_perf(fullfile(base_dir, case_lists{k,3}, res_dir), 0);
+    [input3, res3, gmap3] = load_results_stcnnt_inference_perf(fullfile(base_dir, case_lists{k,4}, res_dir), 0);
+
+    size(res1)
+    size(res3)
+    
+    a1 = interpimages3D(input1, 'linear', size(res3));
+    a2 = interpimages3D(input2, 'linear', size(res3));
+    
+    out1 = interpimages3D(res1, 'linear', size(res3));
+    out2 = interpimages3D(res2, 'linear', size(res3));
+    
+    a1 = permute(a1, [2 1 3]);
+    a2 = permute(a2, [2 1 3]);
+    input3 = permute(input3, [2 1 3]);
+    out1 = permute(out1, [2 1 3]);
+    out2 = permute(out2, [2 1 3]);
+    res3 = permute(res3, [2 1 3]);
+
+    if strfind(case_lists{k,1}, 'spine') > 0
+        im = permute(cat(4, a1, a2, input3, out1, out2, res3), [2 1 3 4]);
+        h = figure; imagescn(flipdim(flipdim(im, 1), 2), [], [2 3], [16], 3)
+    else
+        h = figure; imagescn(flipdim(cat(4, a1, a2, input3, out1, out2, res3), 1), [], [2 3], [16], 3)
+    end
+    saveas(h, fullfile(base_dir, [case_lists{k,1} '.fig']), 'fig');
+    close(h)
+end
 
 
-[input1, res1, gmap1] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case2_res/Data_2D_66016_028023407_028023412_81_20251002-115526/model_res_81/', 0);
-[input2, res2, gmap2] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case2_res/Data_2D_66016_028023407_028023412_82_20251002-115755/model_res_81/', 0);
-[input3, res3, gmap3] = load_results_stcnnt_inference_perf('/data/raw_data/noncardiac/noncardiac/case2_res/Data_2D_66016_028023407_028023412_83_20251002-115955/model_res_81/', 0);
+perf_dir = '/home/gtuser/data/lf/Freemax_XL_NIH_2024-03-04-114810_FID027623_Adeno_stress_G33_Perf_2RR_SAX4_4_2_CHA_R3_192res_TI135/perf/medium2'
 
-size(res1)
-size(res3)
+[a, b, gmap] = load_results_stcnnt_inference_perf(perf_dir, 1);
 
-a1 = interpimages3D(input1, 'linear', size(res3));
-a2 = interpimages3D(input2, 'linear', size(res3));
+RO = size(a, 1)
+E1 = size(a, 2)
+REP = size(a, 3)
+SLC = size(a, 4)
 
-out1 = interpimages3D(res1, 'linear', size(res3));
-out2 = interpimages3D(res2, 'linear', size(res3));
+moco_a = a;
+moco = b;
+for slc=1:SLC
+    [dx, dy, moco(:,:,:,slc), dxInv, dyInv] = Matlab_gt_perfusion_model_moco(abs(b(:,:,:,slc)), keyframe, level, max_iter_num_pyramid_level, LocalCCR_sigmaArg, BidirectionalReg, dissimilarity_thres, DivergenceFreeReg, KLT_regularization_hilbert_strength, KLT_regularization_minimal_hilbert_strength, num_levels_moco_among_model, regularization_scale_factor_moco_among_model, dissimilarity_LocalCCR_sigmaArg_moco_among_model, num_perf_for_PD, DebugFolder, verbose);
+    moco_a(:,:,:,slc) = Matlab_gt_apply_deformation_field_reg_2D_series(abs(a(:,:,:,slc)), dx, dy);
+end
 
-figure; imagescn(cat(4, a1, a2, input3, out1, out2, res3), [], [2 3], [16], 3)
+scc = zeros(RO, E1, SLC);
+for slc=1:SLC
+    [scc(:,:,slc), mask] = Matlab_gt_surface_coil_correction(moco(:,:,1,slc), moco(:,:,1,slc), [], 0, 16, 3.0, 0.05);
+end
 
+a2 = moco_a ./ repmat(reshape(scc, [RO E1 1 SLC]), [1 1 REP 1]);
+b2 = moco ./ repmat(reshape(scc, [RO E1 1 SLC]), [1 1 REP 1]);
+
+a3 = a2(:, :, [6:15 18:35], :);
+b3 = b2(:, :, [6:15 18:35], :);
+
+figure; imagescn(cat(4, abs(a3), abs(b3)), [0 1.8], [2 6], [16], 3);
+
+
+%% exam runs
+
+cases={'/data/raw_data/SNR_PAPER/SNR_PAPER/R5_res/RT_Cine_LIN_00000_226002092_226002101_4712_00000000-000000/' ...
+  '/data/raw_data/SNR_PAPER/SNR_PAPER/R5_res/RT_Cine_LIN_00000_237143644_237143653_177_00000000-000000/' ...
+  '/data/raw_data/SNR_PAPER/SNR_PAPER/R5_res/RT_Cine_LIN_00000_237143837_237143846_525_00000000-000000/' ...
+  '/data/raw_data/WB_LGE/results/00035678/WB_LGE_MOCO_AVE_OnTheFly_000000_70677206_70677215_1970_00000000-000000/res_GTPrep_WB_LGE_STCNNT/DebugOutput/' ...
+  '/data/raw_data/WB_LGE/results/00035678/WB_LGE_MOCO_AVE_OnTheFly_000000_70677206_70677215_1977_00000000-000000/res_GTPrep_WB_LGE_STCNNT/DebugOutput' ...
+  '/data/raw_data/highres_LGE/0208_res/LGE_MOCO_AVE_STCNNT_141550_596781118500761969401054_596781118500761969401054_103_20260208-085822/' ...
+  '/data/raw_data/WB_LGE/WB_LGE_MOCO_AVE_OnTheFly_42110_761005687_761005696_219_20240408-143851' ...
+  '/data/raw_data/WB_LGE/WB_LGE_MOCO_AVE_OnTheFly_41837_2988380474_2988380483_576_20240604-112415' ...
+  '/data/raw_data/WB_h5files/quality/WB_LGE_MOCO_AVE_OnTheFly_42110_741788493_741788502_626_20240404-104122/res_GTPrep_WB_LGE_STCNNT/DebugOutput/' ...
+  '/data/raw_data/i3m/invivo_20260222/RarePyPulseq.2026.02.22.09.22.43.316/fullkspace/' ...
+  }
+
+res_dir = 'res_27m-no-epoch-pf-phaseres-ssim-NN256-exported'
+res_dir = 'res_55m-no-epoch-pf-phaseres-ssim-NN256-exported'
+res_dir = 'res_109m-no-epoch-pf-phaseres-ssim-NN256-exported'
+res_dir = 'res_219m-no-epoch-pf-phaseres-ssim-NN64-ellipse_pf_T-exported'
+res_dir = 'res_medium_dealiasing'
+res_dir = 'res_small_dealiasing'
+res_dir = 'res_219m-no-epoch-pf-phaseres-ssim-NN128-ellipse_pf_T-exported'
+
+closeall
+for i=1:numel(cases)
+    [input, res, gmap] = load_results_stcnnt_inference_perf(fullfile(cases{i}, res_dir), 1);
+end
+
+%% get i3m data
+
+data_dir='/data/raw_data/i3m/mh_20260402'
+cases={'RarePyPulseq_PDCOR_protocolo.2026.04.02.11.56.21.629' ...
+  'RarePyPulseq_STIRCOR_protocolo.2026.04.02.12.08.17.414' ...
+  'RarePyPulseq_T1COR_protocolo.2026.04.02.12.15.28.745' ...
+  'RarePyPulseq_T2_Linear_ETL5_EchoSpacing30_AcqTime10_TR600_EffTE90.2026.04.02.12.25.52.096' ...
+  }
+
+data_dir='/data/raw_data/i3m/ht_20260401'
+cases={ ...
+    'RarePyPulseq_T2_Linear_ETL5_EchoSpacing30_AcqTime10_TR600_EffTE90.2026.04.01.14.43.20.989' ...
+    'RarePyPulseq_T1COR_protocolo.2026.04.01.14.25.46.894' ...
+    'RarePyPulseq_T1COR_protocolo.2026.04.01.14.13.03.005' ...
+    'RarePyPulseq_T1COR_protocolo.2026.04.01.13.53.31.768' ...
+  }
+
+data_dir='/data/raw_data/i3m/phantom_T1T2_mapping/2nd'
+cases={'RarePyPulseq_EchoSpacing10.2026.04.07.21.59.10.231' ...
+  'RarePyPulseq_EchoSpacing20.2026.04.07.22.31.51.764' ...
+  'RarePyPulseq_EchoSpacing40.2026.04.07.23.04.33.203' ...
+  'RarePyPulseq_EchoSpacing80.2026.04.07.23.37.14.991' ...
+  'RarePyPulseq_EchoSpacing120.2026.04.08.00.09.56.702' ...
+  }
+
+data_dir='/data/raw_data/i3m/phantom_T1T2_mapping/2nd'
+cases={'RarePyPulseq_IR_TI30.2026.04.08.00.42.39.369' ...
+  'RarePyPulseq_IR_TI60.2026.04.08.01.15.21.529' ...
+  'RarePyPulseq_IR_TI90.2026.04.08.01.48.03.342' ...
+  'RarePyPulseq_IR_TI120.2026.04.08.02.20.44.937' ...
+  'RarePyPulseq_IR_TI150.2026.04.08.02.53.25.756' ...
+  'RarePyPulseq_IR_TI210.2026.04.08.03.26.05.674' ...
+  }
+
+data_dir='/data/raw_data/i3m/hx_T1T2_mapping'
+cases={'RarePyPulseq_EchoSpacing15.2026.04.10.10.59.25.615' ...
+  'RarePyPulseq_EchoSpacing40.2026.04.10.11.25.37.885' ...
+  'RarePyPulseq_EchoSpacing80.2026.04.10.11.51.50.067' ...
+  'RarePyPulseq_EchoSpacing150.2026.04.10.12.18.02.309' ...
+  }
+
+data_dir='/data/raw_data/i3m/hx_T1T2_mapping/T1_IR'
+cases={'RarePyPulseq_IR_TI30.2026.04.13.12.11.59.071' ...
+  'RarePyPulseq_IR_TI90.2026.04.13.12.38.11.147' ...
+  'RarePyPulseq_IR_TI150.2026.04.13.13.04.22.575' ...
+  'RarePyPulseq_noIR.2026.04.13.11.45.46.004' ...
+  }
+
+data_dir='/data/raw_data/i3m/hx_wrist_20260414'
+cases={'RarePyPulseq.2026.04.14.15.54.09.968' ...
+  'RarePyPulseq.2026.04.14.15.46.00.810' ...
+  'RarePyPulseq.2026.04.14.15.26.50.679' ...
+  'RarePyPulseq.2026.04.14.14.52.30.422' ...
+  }
+
+data_dir='/data/raw_data/i3m/wrist_20260422'
+cases={'RarePyPulseq_Localizer_TR120_Res80.2026.04.22.13.39.31.997' ...
+  'RarePyPulseq_PD_COR_ETL3_FA60_TR350.2026.04.22.14.20.45.899' ...
+  'RarePyPulseq_STIR_PD_COR_ETL3_FA90_TR500.2026.04.22.15.00.32.992' ...
+  'RarePyPulseq_T1_COR_ETL3_FA90_TR150.2026.04.22.13.48.12.671' ...
+  'RarePyPulseq_T1IR_COR_ETL3_FA90_TR300.2026.04.22.14.35.57.744' ...
+  'RarePyPulseq_T2_COR_Linear_ETL3_FA90_TR300.2026.04.22.14.03.14.176' ...
+  }
+
+
+data_dir='/data/raw_data/i3m/HX/20260424'
+cases={'RarePyPulseq_Localizer_TR120_Res80.2026.04.24.14.23.35.965' ...
+  'RarePyPulseq_T1_COR_ETL3_FA90_TR250.2026.04.24.15.29.17.847' ...
+  'RarePyPulseq_T1IR_COR_ETL3_FA90_TI250_TR300.2026.04.24.15.16.27.453' ...
+  'RarePyPulseq_T1IR_COR_ETL3_FA90_TI320_TR370.2026.04.24.15.01.17.269' ...
+  'RarePyPulseq_T2_COR_Linear_ETL3_FA90_TR390.2026.04.24.14.42.50.604' ...
+  'RarePyPulseq_T2_COR_Linear_ETL3_FA90_TR500.2026.04.24.14.20.36.470' ...
+  'RarePyPulseq_STIR_PD_COR_ETL3_FA90_TR500.2026.04.24.15.53.54.319' ...
+  }
+
+
+data_dir='/data/raw_data/i3m/HX/T1_mapping_20260429'
+cases={'RarePyPulseq_IR_TI30.2026.04.29.15.39.56.332' ...  
+  'RarePyPulseq_IR_TI90.2026.04.29.16.06.08.459' ...
+  'RarePyPulseq_IR_TI150.2026.04.29.16.32.19.861' ...
+  'RarePyPulseq_noIR.2026.04.29.15.13.43.077' ...
+  }
+
+for k=1:numel(cases)
+
+    recon_mrd = fullfile(data_dir, cases{k}, [cases{k} '.complex_image.mrd']);
+    recon_ai_mrd = fullfile(data_dir, cases{k}, [cases{k} '.recon.ai.mrd']);
+
+    r = mrd.binary.MrdReader(recon_mrd)
+    header = r.read_header();
+    data = [];
+    i = 1;
+    while r.has_data()
+        item = r.read_data();
+        im = item.value;
+        data(:,:,:,i) = im;
+        i = i + 1;
+    end
+    r.close();
+
+    r = mrd.binary.MrdReader(recon_ai_mrd)
+    header = r.read_header();
+    data2 = [];
+    i = 1;
+    while r.has_data()
+        item = r.read_data();
+        im = item.value;
+        data2(:,:,:,i) = im.data;
+        i = i + 1;
+    end
+    r.close();
+
+    size(data)
+    size(data2)
+
+    h = figure('Name', cases{k});
+    imagescn(abs(cat(4, data, data2)), [], [], [12], 3);
+
+    saveas(h, fullfile(data_dir, [cases{k} '.fig']), 'fig');
+    % close(h)
+
+    writeNPY(real(data), fullfile(data_dir, cases{k}, 'input_real.npy'));
+    writeNPY(imag(data), fullfile(data_dir, cases{k}, 'input_imag.npy'));
+    writeNPY(ones(size(data)), fullfile(data_dir, cases{k}, 'gmap.npy'));
+end
+
+for k=1:numel(cases)
+
+    recon_mrd = fullfile(data_dir, cases{k}, [cases{k} '.complex_image.mrd']);
+
+    r = mrd.binary.MrdReader(recon_mrd)
+    header = r.read_header();
+    while r.has_data()
+        item = r.read_data();
+        data = item.value;        
+    end
+    r.close();
+
+    writeNPY(real(data), fullfile(data_dir, cases{k}, 'input_real.npy'));
+    writeNPY(imag(data), fullfile(data_dir, cases{k}, 'input_imag.npy'));
+end
+
+data = [];
+for k=1:numel(cases)
+    data(:,:,:,k) = complex(readNPY(fullfile(data_dir, cases{k}, 'input_real.npy')), readNPY(fullfile(data_dir, cases{k}, 'input_imag.npy')));
+end
+
+cd /data/raw_data/i3m/phantom_T1T2_mapping/2nd
+
+save EchoSpacing10_20_40_80_120 data
+
+save TI30_60_90_120_150_210 data
+
+cd /data/raw_data/i3m/hx_T1T2_mapping
+
+save EchoSpacing15_40_80_150 data
+
+cd /data/raw_data/i3m/hx_T1T2_mapping/T1_IR
+
+save TI30_90_150_noIR data
+
+cd /data/raw_data/i3m/HX/T1_mapping_20260429
+
+save TI30_90_150_noIR data

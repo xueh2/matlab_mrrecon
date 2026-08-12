@@ -176,7 +176,7 @@ for ii=1:num
         
         if ( ~hasImageSize )                        
             real_name = fullfile(pathstr, filename);
-            data2D = analyze75read([real_name '.hdr']);
+            data2D = niftiread([real_name '.hdr']);
 
             RO = size(data2D, 1);
             E1 = size(data2D, 2);

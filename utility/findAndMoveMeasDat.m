@@ -1,12 +1,16 @@
 
-function findAndMoveMeasDat(home)
+function findAndMoveMeasDat(home, ext_str)
 % find and move meas data files
 
 if(nargin<1)
     home = '.';
 end
 
-[names, num] = findFILE(home, '*.dat')
+if(nargin<2)
+    ext_str = '.dat';
+end
+
+[names, num] = findFILE(home, ['*' ext_str])
 
 use_h5 = 0;
 if(num==0)
@@ -26,6 +30,6 @@ for ii=1:num
          movefile(names{ii}, fullfile(home, name, [name '.h5']));
     else
 %         dos(['mv ' names{ii} ' ' fullfile(home, name, [name '.dat'])]);
-         movefile(names{ii}, fullfile(home, name, [name '.dat']));
+         movefile(names{ii}, fullfile(home, name, [name ext_str]));
     end
 end
